@@ -1,0 +1,243 @@
+// Pipeline
+import groovy.json.JsonSlurper
+import hudson.Util
+import java.util.concurrent.TimeUnit
+
+// Constants
+String PENDING_MSG = "Jenkins started the build."
+String SUCCESS_MSG = "The Jenkins build completed successfully."
+String FAILURE_MSG = "The Jenkins build failed."
+
+// Parsing data
+def data = new JsonSlurper().parseText(env.payload)
+
+// Detecting Git URL
+String USERNAME = data.repository.owner.login
+String REPOSITORY = data.repository.name
+String GITHUB_URL = data.repository.ssh_url
+
+// Determining current pipeline
+int exit_status = 0
+String BUILD_TYPE = ""
+String COMMIT_HASH = ""
+String SHORT_HASH = ""
+String PR_BRANCH = ""
+String COMMIT_BRANCH = ""
+String COMMIT_URL = ""
+String BASE_HASH = "0000000"
+String SENDER = ""
+int PR_NUMBER = 0
+String CHECKOUT_BRANCH = ""
+String CHECKOUT_REF = ""
+String ROOT_CONTEXT = "jenkins/diplomacy.ai"
+String CONTEXT = ""
+String MESSAGE = ""
+
+// ---- Push ----
+if (data.ref != null && data.after.substring(0, 7) != "0000000") {
+    BUILD_TYPE = "push"
+    COMMIT_HASH = data.after
+    SHORT_HASH = COMMIT_HASH.substring(0, 7)
+    COMMIT_BRANCH = data.ref.replaceAll("refs/heads/", "")
+    COMMIT_URL = data.compare
+    SENDER = data.pusher.name
+    CHECKOUT_BRANCH = COMMIT_HASH
+    CHECKOUT_REF = ""
+    CONTEXT = ROOT_CONTEXT + "/push"
+    MESSAGE = data.head_commit.message
+    currentBuild.description = "${SHORT_HASH} - ${COMMIT_BRANCH} - ${MESSAGE}"
+
+// ---- Pull Request ----
+} else if (data.pull_request != null \
+           && data.number > 0 \
+           && (data.action == "opened" || data.action == "reopened" || data.action == "synchronize")) {
+    BUILD_TYPE = "pr"
+    COMMIT_HASH = data.pull_request.head.sha
+    SHORT_HASH = COMMIT_HASH.substring(0, 7)
+    PR_BRANCH = data.pull_request.head.label
+    COMMIT_BRANCH = data.pull_request.base.ref
+    COMMIT_URL = data.pull_request.html_url
+    BASE_HASH = data.pull_request.base.sha
+    SENDER = data.pull_request.user.login
+    PR_NUMBER = data.pull_request.number
+    CHECKOUT_BRANCH = COMMIT_HASH
+    CHECKOUT_REF = "+refs/pull/*:refs/remotes/origin/pr/* +refs/heads/*:refs/remotes/origin/*"
+    CONTEXT = ROOT_CONTEXT + "/pr"
+    MESSAGE = data.pull_request.title
+    currentBuild.description = "${SHORT_HASH} - PR #${PR_NUMBER} - ${MESSAGE}"
+
+// ---- No need to build ----
+} else {
+    currentBuild.result = "SUCCESS"
+    currentBuild.description = "---"
+    return
+}
+
+
+// ====== STAGES =======
+data = null
+String STRIPPED_BRANCH = COMMIT_BRANCH.replaceAll("/", "_")
+
+// -------------------------------
+// 1. Setting Status
+try {
+    githubNotify account: USERNAME, context: ROOT_CONTEXT, credentialsId: 'ppaquette-jenkins-api-as-password', description: PENDING_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'PENDING', targetUrl: ''
+} catch(err) {
+    echo "Error setting status on GitHub commit: ${err}"
+    exit_status = 1
+    currentBuild.result = "FAILURE"
+}
+
+// -------------------------------
+// 2. Running tests
+parallel_test = [:]
+
+// Running Python 3.6 everytime, except for "web", "build", "build_rw" branch
+parallel_test['python_3.6'] = {
+    node('ubuntu-1604-small') {
+        stage('Python 3.6') {
+            try {
+                timeout(time: 20, activity: true, unit: 'MINUTES') {
+                    githubNotify account: USERNAME, context: CONTEXT + "/python3.6", credentialsId: 'ppaquette-jenkins-api-as-password', description: PENDING_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'PENDING', targetUrl: ''
+                    withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: '')]) {
+                        checkout([$class: 'GitSCM', branches: [[name: CHECKOUT_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[name: 'origin', refspec: CHECKOUT_REF, credentialsId: 'jenkins-ssh-key', url: GITHUB_URL]]])
+                        sh ".jenkins/merge_pr.sh $PR_NUMBER $COMMIT_HASH $BASE_HASH $SSH_KEY_FILE \
+                            && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
+                            && chmod +x ./miniconda.sh \
+                            && rm -Rf $HOME/miniconda \
+                            && ./miniconda.sh -b -p $HOME/miniconda \
+                            && export PATH=$HOME/miniconda/bin:$PATH \
+                            && conda create -y -q -n py36 python=3.6 \
+                            && export PATH=$HOME/miniconda/envs/py36/bin:$PATH \
+                            && mkdir -p $HOME/.cache/diplomacy \
+                            && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/cache-jenkins/convoy_paths_cache.pkl -O $HOME/.cache/diplomacy/convoy_paths_cache.pkl \
+                            && .jenkins/get_cache.sh $PR_NUMBER $STRIPPED_BRANCH \
+                            && pip install -r requirements.txt \
+                            && pip install -r requirements_dev.txt \
+                            && touch run_install_nvm.sh \
+                            && chmod +x run_install_nvm.sh \
+                            && ./run_install_nvm.sh \
+                            && echo '--------------------------------------------------' \
+                            && pip --version \
+                            && python --version \
+                            && which python \
+                            && git rev-parse HEAD \
+                            && git log -n 1 \
+                            && ./run_tests.sh \
+                            && .jenkins/set_cache.sh $PR_NUMBER $STRIPPED_BRANCH"
+                    }
+                    githubNotify account: USERNAME, context: CONTEXT + "/python3.6", credentialsId: 'ppaquette-jenkins-api-as-password', description: SUCCESS_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'SUCCESS', targetUrl: ''
+                }
+            } catch(err) {
+                echo "Error encountered in parallel (Python 3.6): ${err}"
+                exit_status = 1
+                currentBuild.result = "FAILURE"
+                githubNotify account: USERNAME, context: CONTEXT + "/python3.6", credentialsId: 'ppaquette-jenkins-api-as-password', description: FAILURE_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'FAILURE', targetUrl: ''
+            }
+        }
+    }
+}
+
+// Only running 3.4 and 3.5 for Pull Requests (and for "jenkins" branch)
+
+if (BUILD_TYPE == 'pr' || (BUILD_TYPE == 'push' && COMMIT_BRANCH == 'jenkins')) {
+    parallel_test['python_3.5'] = {
+        node('ubuntu-1604-small') {
+            stage('Python 3.5') {
+                try {
+                    timeout(time: 20, activity: true, unit: 'MINUTES') {
+                        githubNotify account: USERNAME, context: CONTEXT + "/python3.5", credentialsId: 'ppaquette-jenkins-api-as-password', description: PENDING_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'PENDING', targetUrl: ''
+                        withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: '')]) {
+                            checkout([$class: 'GitSCM', branches: [[name: CHECKOUT_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[name: 'origin', refspec: CHECKOUT_REF, credentialsId: 'jenkins-ssh-key', url: GITHUB_URL]]])
+                            sh ".jenkins/merge_pr.sh $PR_NUMBER $COMMIT_HASH $BASE_HASH $SSH_KEY_FILE \
+                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
+                                && chmod +x ./miniconda.sh \
+                                && rm -Rf $HOME/miniconda \
+                                && ./miniconda.sh -b -p $HOME/miniconda \
+                                && export PATH=$HOME/miniconda/bin:$PATH \
+                                && conda create -y -q -n py35 python=3.5 \
+                                && export PATH=$HOME/miniconda/envs/py35/bin:$PATH \
+                                && mkdir -p $HOME/.cache/diplomacy \
+                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/cache-jenkins/convoy_paths_cache.pkl -O $HOME/.cache/diplomacy/convoy_paths_cache.pkl \
+                                && .jenkins/get_cache.sh $PR_NUMBER $STRIPPED_BRANCH \
+                                && pip install -r requirements.txt \
+                                && pip install -r requirements_dev.txt \
+                                && touch run_install_nvm.sh \
+                                && chmod +x run_install_nvm.sh \
+                                && ./run_install_nvm.sh \
+                                && echo '--------------------------------------------------' \
+                                && pip --version \
+                                && python --version \
+                                && which python \
+                                && git rev-parse HEAD \
+                                && git log -n 1 \
+                                && ./run_tests.sh \
+                                && .jenkins/set_cache.sh $PR_NUMBER $STRIPPED_BRANCH"
+                        }
+                        githubNotify account: USERNAME, context: CONTEXT + "/python3.5", credentialsId: 'ppaquette-jenkins-api-as-password', description: SUCCESS_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'SUCCESS', targetUrl: ''
+                    }
+                } catch(err) {
+                    echo "Error encountered in parallel (Python 3.5): ${err}"
+                    exit_status = 1
+                    currentBuild.result = "FAILURE"
+                    githubNotify account: USERNAME, context: CONTEXT + "/python3.5", credentialsId: 'ppaquette-jenkins-api-as-password', description: FAILURE_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'FAILURE', targetUrl: ''
+                }
+            }
+        }
+    }
+    parallel_test['python_3.4'] = {
+        node('ubuntu-1604-small') {
+            stage('Python 3.4') {
+                try {
+                    timeout(time: 20, activity: true, unit: 'MINUTES') {
+                        githubNotify account: USERNAME, context: CONTEXT + "/python3.4", credentialsId: 'ppaquette-jenkins-api-as-password', description: PENDING_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'PENDING', targetUrl: ''
+                        withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: '')]) {
+                            checkout([$class: 'GitSCM', branches: [[name: CHECKOUT_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[name: 'origin', refspec: CHECKOUT_REF, credentialsId: 'jenkins-ssh-key', url: GITHUB_URL]]])
+                            sh ".jenkins/merge_pr.sh $PR_NUMBER $COMMIT_HASH $BASE_HASH $SSH_KEY_FILE \
+                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
+                                && chmod +x ./miniconda.sh \
+                                && rm -Rf $HOME/miniconda \
+                                && ./miniconda.sh -b -p $HOME/miniconda \
+                                && export PATH=$HOME/miniconda/bin:$PATH \
+                                && conda create -y -q -n py34 python=3.4 \
+                                && export PATH=$HOME/miniconda/envs/py34/bin:$PATH \
+                                && mkdir -p $HOME/.cache/diplomacy \
+                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/cache-jenkins/convoy_paths_cache.pkl -O $HOME/.cache/diplomacy/convoy_paths_cache.pkl \
+                                && .jenkins/get_cache.sh $PR_NUMBER $STRIPPED_BRANCH \
+                                && pip install -r requirements.txt \
+                                && pip install -r requirements_dev.txt \
+                                && touch run_install_nvm.sh \
+                                && chmod +x run_install_nvm.sh \
+                                && ./run_install_nvm.sh \
+                                && echo '--------------------------------------------------' \
+                                && pip --version \
+                                && python --version \
+                                && which python \
+                                && git rev-parse HEAD \
+                                && git log -n 1 \
+                                && ./run_tests.sh \
+                                && .jenkins/set_cache.sh $PR_NUMBER $STRIPPED_BRANCH"
+                        }
+                        githubNotify account: USERNAME, context: CONTEXT + "/python3.4", credentialsId: 'ppaquette-jenkins-api-as-password', description: SUCCESS_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'SUCCESS', targetUrl: ''
+                    }
+                } catch(err) {
+                    echo "Error encountered in parallel (Python 3.4): ${err}"
+                    exit_status = 1
+                    currentBuild.result = "FAILURE"
+                    githubNotify account: USERNAME, context: CONTEXT + "/python3.4", credentialsId: 'ppaquette-jenkins-api-as-password', description: FAILURE_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'FAILURE', targetUrl: ''
+                }
+            }
+        }
+    }
+}
+parallel parallel_test
+
+// -------------------------------
+// 3. Updating git status
+if (exit_status == 1) {
+    currentBuild.result = "FAILURE"
+    githubNotify account: USERNAME, context: ROOT_CONTEXT, credentialsId: 'ppaquette-jenkins-api-as-password', description: FAILURE_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'FAILURE', targetUrl: ''
+} else {
+    currentBuild.result = "SUCCESS"
+    githubNotify account: USERNAME, context: ROOT_CONTEXT, credentialsId: 'ppaquette-jenkins-api-as-password', description: SUCCESS_MSG, gitApiUrl: '', repo: REPOSITORY, sha: COMMIT_HASH, status: 'SUCCESS', targetUrl: ''
+}

@@ -1,0 +1,25 @@
+{
+  "builders": [
+    {
+      "type": "googlecompute",
+      "project_id": "ppaquette-diplomacy",
+      "source_image_family": "ubuntu-1604-lts",
+      "source_image_project_id": "ubuntu-os-cloud",
+      "zone": "northamerica-northeast1-a",
+      "disk_size": "10",
+      "image_name": "jenkins-slave-{{timestamp}}",
+      "image_family": "jenkins-slave",
+      "ssh_username": "ubuntu"
+    }
+  ],
+  "provisioners": [
+    {
+      "type": "shell",
+      "inline": ["sudo apt-get update -y",
+                 "sudo apt-get upgrade -y",
+                 "sudo apt-get install -y default-jdk git wget build-essential zip bzip2",
+                 "sudo apt-get purge -y unattended-upgrades",
+                 "sudo sed -i 's/1/0/g' /etc/apt/apt.conf.d/10periodic"]
+    }
+  ]
+}
