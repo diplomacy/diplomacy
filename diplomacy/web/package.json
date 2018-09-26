@@ -1,0 +1,29 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@githubprimer/octicons-react": "^8.0.0",
+    "bootstrap": "^4.1.3",
+    "fancybox": "^3.0.1",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.4",
+    "prop-types": "^15.6.2",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-inlinesvg": "^0.8.1",
+    "react-scripts": "1.1.4",
+    "react-scrollchor": "^6.0.0",
+    "react-shortcut": "^1.0.6"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-plugin-react": "^7.10.0"
+  }
+}
