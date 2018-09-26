@@ -16,7 +16,7 @@
 # ==============================================================================
 """ Package installer """
 import sys
-from setuptools import setup
+from setuptools import setup, find_packages
 
 # Requiring python 3.4+.
 # To simplify code for Tornado coroutines return statements, we don't support Python 3.3
@@ -34,10 +34,12 @@ setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
       author='Philip Paquette',
       author_email='pcpaquette@gmail.com',
-      packages=[PACKAGE_NAME.replace('-', '_')],
+      packages=find_packages(),
+      include_package_data=True,
       install_requires=[
           'bcrypt',
           'coloredlogs',
+          'numpy',
           'python-dateutil',
           'pytz',
           'tornado>=5.0',
