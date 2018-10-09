@@ -39,7 +39,6 @@ setup(name=PACKAGE_NAME,
       install_requires=[
           'bcrypt',
           'coloredlogs',
-          'numpy',
           'python-dateutil',
           'pytz',
           'tornado>=5.0',

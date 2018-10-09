@@ -26,8 +26,6 @@ import uuid
 import random
 from copy import deepcopy
 
-import numpy as np
-
 from diplomacy import settings
 import diplomacy.utils.errors as err
 from diplomacy.engine.map import Map
@@ -196,7 +194,7 @@ class Game(Jsonable):
         strings.TIMESTAMP_CREATED: parsing.OptionalValueType(int),
         strings.VICTORY: parsing.DefaultValueType(parsing.SequenceType(int), []),
         strings.WIN: parsing.DefaultValueType(int, 0),
-        strings.ZOBRIST_HASH: parsing.DefaultValueType(parsing.StringableType(np.int64), '0'),
+        strings.ZOBRIST_HASH: parsing.DefaultValueType(int, 0),
     }
 
     def __init__(self, game_id=None, **kwargs):
@@ -1301,21 +1299,21 @@ class Game(Jsonable):
 
         # Dislodged
         if is_dislodged:
-            self.zobrist_hash ^= zobrist['dis_unit_type'][unit_type_ix, loc_ix]
-            self.zobrist_hash ^= zobrist['dis_units'][power_ix, loc_ix]
+            self.zobrist_hash ^= zobrist['dis_unit_type'][unit_type_ix][loc_ix]
+            self.zobrist_hash ^= zobrist['dis_units'][power_ix][loc_ix]
 
         # Supply Center
         elif is_center:
-            self.zobrist_hash ^= zobrist['centers'][power_ix, loc_ix]
+            self.zobrist_hash ^= zobrist['centers'][power_ix][loc_ix]
 
         # Home
         elif is_home:
-            self.zobrist_hash ^= zobrist['homes'][power_ix, loc_ix]
+            self.zobrist_hash ^= zobrist['homes'][power_ix][loc_ix]
 
         # Regular unit
         else:
-            self.zobrist_hash ^= zobrist['unit_type'][unit_type_ix, loc_ix]
-            self.zobrist_hash ^= zobrist['units'][power_ix, loc_ix]
+            self.zobrist_hash ^= zobrist['unit_type'][unit_type_ix][loc_ix]
+            self.zobrist_hash ^= zobrist['units'][power_ix][loc_ix]
 
     def get_phase_data(self):
         """ Return a GamePhaseData object representing current game. """
@@ -2493,19 +2491,19 @@ class Game(Jsonable):
         nb_locs = len(map_locs)
 
         # Generating a standardized seed
-        np_state = np.random.get_state()
-        np.random.seed(12345 + sum([ord(x) * 7 ** ix for ix, x in enumerate(self.map_name)]) % 2 ** 32)
+        random_state = random.getstate()
+        random.seed(12345 + sum([ord(x) * 7 ** ix for ix, x in enumerate(self.map_name)]) % 2 ** 32)
         self.__class__.zobrist_tables[self.map_name] = {
-            'unit_type': np.random.randint(1, sys.maxsize, [2, nb_locs]),
-            'units': np.random.randint(1, sys.maxsize, [nb_powers, nb_locs]),
-            'dis_unit_type': np.random.randint(1, sys.maxsize, [2, nb_locs]),
-            'dis_units': np.random.randint(1, sys.maxsize, [nb_powers, nb_locs]),
-            'centers': np.random.randint(1, sys.maxsize, [nb_powers, nb_locs]),
-            'homes': np.random.randint(1, sys.maxsize, [nb_powers, nb_locs]),
+            'unit_type': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(2)],
+            'units': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(nb_powers)],
+            'dis_unit_type': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(2)],
+            'dis_units': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(nb_powers)],
+            'centers': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(nb_powers)],
+            'homes': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(nb_powers)],
             'map_powers': map_powers,
             'map_locs': map_locs
         }
-        np.random.set_state(np_state)
+        random.setstate(random_state)
 
     # ====================================================================
     #   Private Interface - PROCESSING and phase change methods

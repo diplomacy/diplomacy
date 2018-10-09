@@ -1,6 +1,5 @@
 bcrypt
 coloredlogs
-numpy
 python-dateutil
 pytz
 tornado>=5.0
