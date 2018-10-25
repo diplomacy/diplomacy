@@ -41,10 +41,12 @@ export class DOMPastMap {
         const orders = [];
         if (this.orders) {
             for (let powerOrders of Object.values(this.orders)) {
-                for (let order of powerOrders) {
-                    const pieces = order.split(/ +/);
-                    if (pieces[1].slice(0, 3) === name.toUpperCase().slice(0, 3))
-                        orders.push(order);
+                if (powerOrders) {
+                    for (let order of powerOrders) {
+                        const pieces = order.split(/ +/);
+                        if (pieces[1].slice(0, 3) === name.toUpperCase().slice(0, 3))
+                            orders.push(order);
+                    }
                 }
             }
         }
