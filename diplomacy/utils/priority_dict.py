@@ -71,7 +71,7 @@ class PriorityDict(dict):
 
     def smallest(self):
         """ Finds the smallest item in the priority dict
-            :return: A tuple of (priority, key) for the item with the smallest priority
+            :return: A tuple of (priority, key) for the item with the smallest priority, or None if dict is empty.
         """
         while self.__heap and not self.__heap[0][-1]:
             heapq.heappop(self.__heap)
@@ -87,7 +87,7 @@ class PriorityDict(dict):
         """ Return a copy of this priority dict.
             :rtype: PriorityDict
         """
-        return PriorityDict(**self)
+        return PriorityDict(**{key: entry[0] for key, entry in dict.items(self)})
 
     def keys(self):
         """ Make sure keys() iterates on keys based on their priority. """
