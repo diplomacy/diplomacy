@@ -868,21 +868,33 @@ class Game(Jsonable):
         else:
             return {power.name: self.get_orderable_locations(power.name) for power in self.powers.values()}
 
-    def get_order_status(self, power_name=None, unit=None):
+    def get_order_status(self, power_name=None, unit=None, loc=None):
         """ Returns a list or a dict representing the order status ('', 'no convoy', 'bounce', 'void', 'cut',
             'dislodged', 'disrupted') for orders submitted in the last phase
             :param power_name: Optional. If provided (e.g. 'FRANCE') will only return the order status of that
                                power's orders
             :param unit: Optional. If provided (e.g. 'A PAR') will only return that specific unit order status.
+            :param loc: Optional. If provided (e.g. 'PAR') will only return that specific loc order status.
+                Mutually exclusive with unit
             :param phase_type: Optional. Returns the results of a specific phase type (e.g. 'M', 'R', or 'A')
             :return: If unit is provided a list (e.g. [] or ['void', 'dislodged'])
+                     If loc is provided, a couple of unit and list (e.g. ('A PAR', ['void', 'dislodged'])),
+                        or loc, [] if unit not found.
                      If power is provided a dict (e.g. {'A PAR': ['void'], 'A MAR': []})
                      Otherwise a 2-level dict (e.g. {'FRANCE: {'A PAR': ['void'], 'A MAR': []}, 'ENGLAND': {}, ... }
         """
-        # Specific location, returning string
-        if unit is not None:
+        # Specific location
+        if unit or loc:
+            assert bool(unit) != bool(loc), 'Required either a unit or a location, not both.'
             result_dict = self.result_history.last_value() if self.result_history else {}
-            return result_dict[unit][:] if unit in result_dict else []
+            if unit:
+                # Unit given, return list of order status
+                return result_dict[unit][:] if unit in result_dict else []
+            # Loc given, return a couple (unit found, list of order status)
+            for result_unit, result_list in result_dict.items():
+                if result_unit[2:5] == loc[:3]:
+                    return result_unit, result_list[:]
+            return loc, []
 
         # Specific power, returning dictionary
         if power_name is not None:
@@ -1037,29 +1049,29 @@ class Game(Jsonable):
         power_name = power_name.upper()
 
         if not self.has_power(power_name):
-            return
+            raise exceptions.MapPowerException('Unknown power %s' % power_name)
 
         if self.is_player_game() and self.role != power_name:
-            return
+            raise exceptions.GameRoleException('Player game for %s only accepts orders for this power.' % self.role)
 
         power = self.get_power(power_name)
-        if power:
-            if not isinstance(orders, list):
-                orders = [orders]
 
-            # Remove any empty string from orders.
-            orders = [order for order in orders if order]
+        if not isinstance(orders, list):
+            orders = [orders]
 
-            # Setting orders depending on phase type
-            if self.phase_type == 'R':
-                self._update_retreat_orders(power, orders, expand=expand, replace=replace)
-            elif self.phase_type == 'A':
-                self._update_adjust_orders(power, orders, expand=expand, replace=replace)
-            else:
-                self._update_orders(power, orders, expand=expand, replace=replace)
-            power.order_is_set = (OrderSettings.ORDER_SET
-                                  if self.get_orders(power.name)
-                                  else OrderSettings.ORDER_SET_EMPTY)
+        # Remove any empty string from orders.
+        orders = [order for order in orders if order]
+
+        # Setting orders depending on phase type
+        if self.phase_type == 'R':
+            self._update_retreat_orders(power, orders, expand=expand, replace=replace)
+        elif self.phase_type == 'A':
+            self._update_adjust_orders(power, orders, expand=expand, replace=replace)
+        else:
+            self._update_orders(power, orders, expand=expand, replace=replace)
+        power.order_is_set = (OrderSettings.ORDER_SET
+                              if self.get_orders(power.name)
+                              else OrderSettings.ORDER_SET_EMPTY)
 
     def set_wait(self, power_name, wait):
         """ Set wait flag for a power.
@@ -2720,7 +2732,7 @@ class Game(Jsonable):
 
         # Score is the number of supply centers owned
         for power in self.powers.values():
-            score[power] = len([sc for sc in power.centers])
+            score[power] = len(power.centers)
         return score
 
     def _determine_win(self, last_year):
@@ -2730,7 +2742,7 @@ class Game(Jsonable):
             :return: Nothing
         """
         victors, this_year = [], self._calculate_victory_score()
-        year_centers = [this_year[x] for x in self.powers.values()]
+        year_centers = list(this_year.values())
 
         # Determining win
         for power in self.powers.values():
@@ -3022,7 +3034,7 @@ class Game(Jsonable):
                 word = self._expand_order([order])
                 word = self._add_unit_types(word)
 
-                # Add 'R' has order type for Retreat, 'D' for Disband
+                # Add 'R' as order type for Retreat, 'D' for Disband
                 if word[0] == 'R' and len(word) > 3:
                     del word[0]
                 if word[0] in 'RD':
@@ -3073,7 +3085,7 @@ class Game(Jsonable):
             for order in adjust:
                 word = order.split()
                 if len(word) >= 2 and word[0] != 'VOID':
-                    power.adjust = [adj_order for adj_order in power.adjust if adj_order.split()[1:2] != word[1:2]]
+                    power.adjust = [adj_order for adj_order in power.adjust if adj_order.split()[1] != word[1]]
 
         # Otherwise, marking re-orders as invalid
         else:
@@ -3101,8 +3113,7 @@ class Game(Jsonable):
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
-        for who, adj in self._distribute_orders(power, orders):
-            self._add_retreat_orders(who, adj, expand=expand, replace=replace)
+        self._add_retreat_orders(power, orders, expand=expand, replace=replace)
         return self.error
 
     def _add_adjust_orders(self, power, orders, expand=True, replace=True):
@@ -3268,8 +3279,7 @@ class Game(Jsonable):
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
-        for who, adj in self._distribute_orders(power, orders):
-            self._add_adjust_orders(who, adj, expand=expand, replace=replace)
+        self._add_adjust_orders(power, orders, expand=expand, replace=replace)
         return self.error
 
     def _determine_orders(self):
@@ -3305,38 +3315,6 @@ class Game(Jsonable):
             power.civil_disorder = 1
         for unit in power.units:
             self.orders.setdefault(unit, 'H')
-
-    @classmethod
-    def _distribute_orders(cls, power, orders, clear=True):
-        """ For controlling powers, distribute orders to controlled powers
-            :param power: The power instance submitting the orders
-            :param orders: The list of orders submitted
-            :param clear: Boolean flag to indicate to clear order if NMR/CLEAR submitted
-            :return: A list of tuple with (controlled power instance, list of orders for that controlled power instance)
-        """
-        powers, distributor = [power], {power.name: []}
-        cur_power = power
-
-        # For each order submitted
-        for order in orders:
-            # Don't distribute blank order
-            word = order.strip().split()
-            if not word:
-                continue
-
-            who = cur_power
-
-            # Clearing orders for power
-            if (clear
-                    and len(word) == 1
-                    and word[0][word[0][:1] in '([':len(word[0]) - (word[0][-1:] in '])')].upper() in ('NMR', 'CLEAR')):
-                distributor[who.name] = []
-            # Otherwise, distributing order
-            else:
-                distributor[who.name] += [' '.join(word)]
-
-        # Returning a list of tuples with the power instance and their respective orders.
-        return [(x, distributor[x.name]) for x in powers]
 
     # ====================================================================
     #   Private Interface - ADJUDICATION Methods

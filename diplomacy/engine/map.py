@@ -786,9 +786,7 @@ class Map():
             :return: Normalised sentences
         """
         phrase = phrase.upper().replace('/', ' /').replace(' / ', '')
-        for token in '.:':
-            phrase = phrase.replace(token, '')
-        for token in '-+,':
+        for token in '.:-+,':
             phrase = phrase.replace(token, ' ')
         for token in '|*?!~()[]=_^':
             phrase = phrase.replace(token, ' {} '.format(token))
@@ -802,6 +800,13 @@ class Map():
                            Sea. (*bounce*)')
             :return: The compacted phrase in an array (e.g. ['ENGLAND', 'F', 'WES', 'TYS', '|'])
         """
+        if ':' in phrase:
+            # Check if first part of phrase (before colon) is a power, and remove it if that's the case.
+            index_colon = phrase.index(':')
+            first_part = phrase[:index_colon]
+            result = self.vet(self.compact(first_part))
+            if len(result) == 1 and result[0][1] == POWER:
+                phrase = phrase[(index_colon + 1):]
         word, result = self.norm(phrase).split(), []
         while word:
             alias, i = self.alias(word)
@@ -852,28 +857,36 @@ class Map():
 
         # Concatenate coasts
         if i == len(word):
-            return alias, i
-        if alias[:1] != '/' and ' ' not in alias:
+            return self._resolve_unclear(alias), i
+        if alias[0] != '/' and ' ' not in alias:
             alias2, j = self.alias(word[i:])
-            if alias2[:1] != '/' or ' ' in alias2:
-                return alias, i
+            if alias2[0] != '/' or ' ' in alias2:
+                return self._resolve_unclear(alias), i
         elif alias[-2:] == ' \\':
             alias2, j = self.alias(word[i:])
-            if alias2[:1] == '/' or ' ' in alias2:
+            if alias2[0] == '/' or ' ' in alias2:
                 return alias, i
             alias, alias2 = alias2, alias[:-2]
         else:
-            return alias, i
+            return self._resolve_unclear(alias), i
 
         # Check if the location is also an ambiguous power name
         # and replace with its other name if that's the case
-        if alias in self.powers and alias in self.unclear:
-            alias = self.unclear[alias]
+        alias = self._resolve_unclear(alias)
 
         # Check if the coast is mapped to another coast
         if alias + ' ' + alias2 in self.aliases:
             return self.aliases[alias + ' ' + alias2], i + j
         return alias + alias2, i + j
+
+    def _resolve_unclear(self, alias):
+        """ Check if given aliases string is an unclear power name.
+            If that's the case, return other name associated to this alias.
+            Otherwise, return alias unchanged,
+        """
+        if alias in self.powers and alias in self.unclear:
+            alias = self.unclear[alias]
+        return alias
 
     def vet(self, word, strict=0):
         """ Determines the type of every word in a compacted order phrase

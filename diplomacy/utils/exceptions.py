@@ -101,6 +101,9 @@ class GameIdException(ResponseException):
 class GameJoinRoleException(ResponseException):
     """ A token can have only one role inside a game: player, observer or omniscient. """
 
+class GameRoleException(ResponseException):
+    """ Game role does not accepts this action. """
+
 class GameMasterTokenException(ResponseException):
     """ Invalid token for master operations. """
 
@@ -145,16 +148,10 @@ class MapPowerException(ResponseException):
     def __init__(self, power_name):
         super(MapPowerException, self).__init__('Invalid map power %s' % power_name)
 
-class ServerDataDirException(ResponseException):
-    """ No data directory available in server folder. """
-
 class FolderException(ResponseException):
     """ Given folder not available in server. """
     def __init__(self, folder_path):
         super(FolderException, self).__init__('Given folder not available in server: %s' % folder_path)
-
-class ServerGameDirException(ResponseException):
-    """ No games directory available in server/data folder. """
 
 class ServerRegistrationException(ResponseException):
     """ Registration currently not allowed on this server. """
@@ -167,9 +164,6 @@ class UserException(ResponseException):
 
 class PasswordException(ResponseException):
     """ Password must not be empty. """
-
-class VoteCreationException(ResponseException):
-    """ Only either a player or a game master for a game with at least 1 player can create a vote. """
 
 class ServerDirException(ResponseException):
     """ Error with working folder. """

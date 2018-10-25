@@ -55,8 +55,9 @@ def test_drop():
 def test_compact():
     """ Tests map.compact """
     this_map = deepcopy(Map())
+    # Power name at top of string is removed by Map.compact().
     assert this_map.compact('England: Fleet Western Mediterranean -> Tyrrhenian Sea. (*bounce*)') \
-           == ['ENGLAND', 'F', 'WES', 'TYS', '|']
+           == ['F', 'WES', 'TYS', '|']
 
 def test_norm_power():
     """ Tests map.norm_power """
