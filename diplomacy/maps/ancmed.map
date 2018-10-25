@@ -45,7 +45,7 @@ Bithynia                = BIT
 Black Sea               = BLA
 Byzantium               = BYZ
 Cappadocia              = CAP
-Province of Carthage    = CAR Carthago
+Province of Carthage    = CAR Carthago Carthage?
 Chersonesus             = CHE
 Cilician Strait         = CIL
 Cirta                   = CIR
@@ -105,7 +105,7 @@ Tarraconensis           = TAR
 Thapsus                 = THA
 Thebes                  = THB
 Tyre                    = TYE
-Tyrrhenean Sea          = TYN
+Tyrrhenean Sea          = TYN tyrrhenian+sea
 Venetia                 = VEN
 Vindobona               = VIN
 
