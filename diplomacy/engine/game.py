@@ -4030,6 +4030,7 @@ class Game(Jsonable):
         self.command = {}
         self.ordered_units = {}
         conflicts = {}
+        disbanded_units = set()
 
         # Adjustments
         if self.phase_type == 'A':
@@ -4085,6 +4086,7 @@ class Game(Jsonable):
                         unit = ' '.join(word[:2])
                         if word[-1] == 'D':
                             diff -= 1
+                            disbanded_units.add(unit)
                         else:
                             self.result.setdefault(unit, []).append('void')
                             power.adjust.remove(order)
@@ -4101,6 +4103,8 @@ class Game(Jsonable):
 
                     # Calculating distance to home
                     for unit in power.units:
+                        if unit in disbanded_units:
+                            continue
                         distance = self._get_distance_to_home(unit[0], unit[2:], power.homes)
                         if unit[0] == 'F':
                             fleets[unit] = -1 * distance

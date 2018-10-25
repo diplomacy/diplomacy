@@ -5386,6 +5386,37 @@ class TestDATC():
         assert self.owner_name(game, 'A GRE') == 'ITALY'
         assert self.owner_name(game, 'A SIL') is None
 
+    # 6.K. TEST CASES - CUSTOM TESTS
+    def test_6_k_1(self):
+        """ 6.K.1. TEST CASE, CIVIL DISORDER WITH SOME ORDERS.
+            When a power has to disband multiple units, but does not disband all its units, the civil disorder rule
+            should automatically disband units that have not already been disbanded.
+
+            England has to remove two.
+            England has 7 units (armies in Ruhr, Holland, Edinburg and fleets in North Sea, Botnia, St. Petersburg/NC,
+            and Irish Sea).
+            England has 5 centers (Edinburg, London, Holland, Sweden and St. Petersburg)
+            England disband the fleet at Botnia Sea.
+
+            The civil disorder rule would automatically disband Botnia Sea, but since this unit is already disbanded
+            it needs to select the next unit which is St. Petersburg/NC.
+        """
+        game = self.create_game()
+        self.clear_units(game)
+        self.clear_centers(game)
+        self.set_centers(game, 'ENGLAND', ['EDI', 'LON', 'HOL', 'SWE', 'STP'])
+        self.set_units(game, 'ENGLAND', ['A RUH', 'F NTH', 'F BOT', 'A HOL', 'F STP/NC', 'F IRI', 'A EDI'])
+        self.move_to_phase(game, 'W1901A')
+        self.set_orders(game, 'ENGLAND', ['F BOT D'])
+        self.process(game)
+        assert self.owner_name(game, 'A RUH') == 'ENGLAND'
+        assert self.owner_name(game, 'F NTH') == 'ENGLAND'
+        assert self.owner_name(game, 'A HOL') == 'ENGLAND'
+        assert self.owner_name(game, 'F IRI') == 'ENGLAND'
+        assert self.owner_name(game, 'A EDI') == 'ENGLAND'
+        assert self.owner_name(game, 'F BOT') is None
+        assert self.owner_name(game, 'F STP/NC') is None
+
 def check_dislodged(game, unit, dislodger):
     """ Checks if a unit has been dislodged """
     if not game:
