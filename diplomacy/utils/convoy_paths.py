@@ -38,7 +38,8 @@ if HOME_DIRECTORY == '~':
 __VERSION__ = '20180307_0955'
 
 # We need to cap convoy length, otherwise the problem gets exponential
-SMALL_MAPS = ['standard', 'standard_france_austria', 'standard_germany_italy', 'ancmed', 'colonial', 'modern']
+SMALL_MAPS = ['standard', 'standard_france_austria', 'standard_germany_italy', 'ancmed', 'colonial', 'modern',
+              'ancmed_age_of_empires', 'standard_age_of_empires']
 SMALL_MAPS_CONVOY_LENGTH = 25
 ALL_MAPS_CONVOY_LENGTH = 12
 CACHE_FILE_NAME = 'convoy_paths_cache.pkl'
