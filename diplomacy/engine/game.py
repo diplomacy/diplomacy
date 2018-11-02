@@ -3801,12 +3801,18 @@ class Game(Jsonable):
             coord = self.command[guy].split()
 
             # 1) Void if support is for hold and guy is moving
+            if len(word) < 5 and coord[0] == '-':
+                self.result[unit] += ['void']
+                continue
+
             # 2) Void if support is for move and guy isn't going where support is given
-            # 3) Void if support is give, but move over convoy failed
             offset = 1 if coord[-1] == 'VIA' else 0
-            if ((len(word) < 5 and coord[0] == '-')
-                    or (len(word) > 4 and (coord[0], coord[-1 - offset]) != ('-', word[4]))
-                    or 'no convoy' in self.result[guy]):
+            if len(word) > 4 and (coord[0], coord[-1 - offset]) != ('-', word[4]):
+                self.result[unit] += ['void']
+                continue
+
+            # 3) Void if support is giving for army moving via convoy, but move over convoy failed
+            if 'no convoy' in self.result[guy] and guy[0] == 'A':
                 self.result[unit] += ['void']
                 continue
 

@@ -5417,6 +5417,46 @@ class TestDATC():
         assert self.owner_name(game, 'F BOT') is None
         assert self.owner_name(game, 'F STP/NC') is None
 
+    def test_6_k_2(self):
+        """ 6.K.2. TEST CASE, SUPPORT OF A FAILED CONVOYING FLEET
+            The engine is supposed to not allow the support of an army moving via a convoy if the convoy fails. This
+            rule tests that a support of a fleet convoying is still valid even if the convoy fails.
+
+            France has 4 units (Fleets in Mid-Atlantic, Irish Sea, Western Mediterranean, and army in Brest)
+            England has 2 units (Fleets in North Atlantic, and English Channel).
+            France: The army in Brest wants to move via convoy to Clyde.
+            France: The fleet in Mid-Atlantic convoys the army in Brest to Clyde.
+            France: The fleet in Irish Sea convoys the army in Brest to Clyde.
+            France: The fleet in Western Mediterranean supports the fleet in Mid-Atlantic.
+            England: The fleet in North Atlantic attacks the fleet in Mid-Atlantic.
+            England: The fleet in English Channel supports the attack of North Atlantic to Mid-Atlantic.
+
+            The convoy fails because they are no valid path, but the support from Western Mediterranean is still valid
+            and the attack from North Atlantic should bounce.
+        """
+        game = self.create_game()
+        self.clear_units(game)
+        self.clear_centers(game)
+        self.set_units(game, 'FRANCE', ['F MAO', 'F IRI', 'A BRE', 'F WES'])
+        self.set_units(game, 'ENGLAND', ['F NAO', 'F ENG'])
+        self.set_orders(game, 'FRANCE', ['F MAO C A BRE - CLY', 'F IRI C A BRE - CLY', 'A BRE - CLY VIA',
+                                         'F WES S F MAO'])
+        self.set_orders(game, 'ENGLAND', ['F NAO - MAO', 'F ENG S F NAO - MAO'])
+        self.process(game)
+        assert self.check_results(game, 'F MAO', 'no convoy')
+        assert self.check_results(game, 'F IRI', 'no convoy')
+        assert self.check_results(game, 'A BRE', 'no convoy')
+        assert self.check_results(game, 'F WES', '')
+        assert self.check_results(game, 'F NAO', 'bounce')
+        assert self.check_results(game, 'F ENG', '')
+        assert self.owner_name(game, 'F MAO') == 'FRANCE'
+        assert self.owner_name(game, 'F IRI') == 'FRANCE'
+        assert self.owner_name(game, 'A BRE') == 'FRANCE'
+        assert self.owner_name(game, 'F WES') == 'FRANCE'
+        assert self.owner_name(game, 'A CLY') is None
+        assert self.owner_name(game, 'F NAO') == 'ENGLAND'
+        assert self.owner_name(game, 'F ENG') == 'ENGLAND'
+
 def check_dislodged(game, unit, dislodger):
     """ Checks if a unit has been dislodged """
     if not game:
