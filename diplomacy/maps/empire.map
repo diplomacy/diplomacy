@@ -1,4 +1,4 @@
-BEGIN SPRING 1999 MOVEMENT 
+BEGIN SPRING 1999 MOVEMENT
 
 BRITISH-COLUMBIA (British+Columbian) ANC CGY VAN
 A VAN
@@ -69,7 +69,7 @@ Abitibi                         = abi
 Ungava                          = ung
 Labrador                        = lab
 Cote-Nord                       = cot cotn cn cnord cote
-Quebec City                     = que qbc qc province+of+quebec
+Quebec City                     = que qbc qc province+of+quebec quebec?
 Montreal                        = mon montr mtl
 Beauce                          = bea beau
 Gaspesie                        = gas gasp gaspe
@@ -154,7 +154,7 @@ Durango                         = dur
 Guadalajara                     = gua guad
 Potosi                          = pot
 Veracruz                        = ver
-Mexico City                     = mex province+of+mexico
+Mexico City                     = mex province+of+mexico mexico?
 Guerrero                        = gue
 Oaxaca                          = oax
 Chiapas                         = chp chia
