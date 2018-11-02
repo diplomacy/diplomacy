@@ -12,7 +12,7 @@ if [ "${1:-auto}" != "0" ]; then
 fi
 
 # Running pylint
-find diplomacy -name "*.py" ! -name 'zzz_*.py' ! -name '_*.py' -exec pylint '{}' + && \
+find diplomacy -name "*.py" ! -name 'zzz_*.py' ! -name '_*.py' -exec pylint '{}' + || FAILED=1
 
 # Running eslint
 if [ -f "$DIR/diplomacy/web/node_modules/.bin/eslint" ]; then
