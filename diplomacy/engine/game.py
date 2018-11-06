@@ -2501,10 +2501,13 @@ class Game(Jsonable):
         map_locs = sorted([loc.upper() for loc in self.map.locs if self.map.area_type(loc) != 'SHUT'])
         nb_powers = len(map_powers)
         nb_locs = len(map_locs)
+        sorted_concat_scs = '-'.join(sorted([scs.upper() for scs in self.map.scs]))
 
         # Generating a standardized seed
+        # Map derivations (e.g. 'standard_age_of_empires') should have the same initial seed as their parent
         random_state = random.getstate()
-        random.seed(12345 + sum([ord(x) * 7 ** ix for ix, x in enumerate(self.map_name)]) % 2 ** 32)
+        map_seed = (12345 + nb_locs + sum([ord(x) * 7 ** ix for ix, x in enumerate(sorted_concat_scs)])) % 2 ** 32
+        random.seed(map_seed)
         self.__class__.zobrist_tables[self.map_name] = {
             'unit_type': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(2)],
             'units': [[random.randint(1, sys.maxsize) for _ in range(nb_locs)] for _ in range(nb_powers)],
