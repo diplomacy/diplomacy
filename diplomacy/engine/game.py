@@ -19,10 +19,10 @@
     - Contains the game engine
 """
 # pylint: disable=too-many-lines
+import base64
 import os
 import sys
 import time
-import uuid
 import random
 from copy import deepcopy
 
@@ -266,7 +266,7 @@ class Game(Jsonable):
 
         # Check game ID.
         if self.game_id is None:
-            self.game_id = '%s/%s' % (self.timestamp_created, uuid.uuid4())
+            self.game_id = base64.b64encode(os.urandom(12), b'-_').decode('utf-8')
 
         # Validating status
         self._validate_status(reinit_powers=(self.timestamp_created is None))

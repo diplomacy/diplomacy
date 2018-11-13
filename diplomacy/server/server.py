@@ -47,10 +47,10 @@
 
 """
 import atexit
+import base64
 import logging
 import os
 import signal
-import uuid
 
 import tornado
 import tornado.web
@@ -739,9 +739,9 @@ class Server():
 
     def create_game_id(self):
         """ Create and return a game ID not already used by a game in server database. """
-        game_id = str(uuid.uuid4())
+        game_id = base64.b64encode(os.urandom(12), b'-_').decode('utf-8')
         while self.has_game_id(game_id):
-            game_id = str(uuid.uuid4())
+            game_id = base64.b64encode(os.urandom(12), b'-_').decode('utf-8')
         return game_id
 
     def remove_token(self, token):
