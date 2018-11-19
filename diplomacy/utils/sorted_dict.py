@@ -147,6 +147,10 @@ class SortedDict():
         """ Get an iterator to the items in the dict. """
         return ((k, self.__couples[k]) for k in self.__keys)
 
+    def reversed_items(self):
+        """ Get an iterator to the items in the dict in reversed order of keys. """
+        return ((k, self.__couples[k]) for k in reversed(self.__keys))
+
     def sub_keys(self, key_from=None, key_to=None):
         """ Return list of keys between key_from and key_to (both bounds included). """
         position_from, position_to = self._get_keys_interval(key_from, key_to)
