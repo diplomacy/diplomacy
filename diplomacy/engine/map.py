@@ -93,7 +93,7 @@ class Map():
                 e.g. ['RULE_1']
         - scs: Contains a list of all the supply centers in the game
                 e.g. ['MOS', 'SEV', 'STP', 'WAR', 'BRE', 'MAR', 'PAR', 'BEL', 'BUL', 'DEN', 'GRE', 'HOL', 'NWY', ... ]
-        - seq: [] Contains the sequence of seasons in format 'SEASON_NAME SEASON_TYPE'
+        - seq: [] Contains the sequence of seasons in format 'SEASON_NAME SEASON_TYPE'
                 e.g. ['NEWYEAR', 'SPRING MOVEMENT', 'SPRING RETREATS', 'FALL MOVEMENT', 'FALL RETREATS',
                       'WINTER ADJUSTMENTS']
         - unclear: Contains the alias for ambiguous places
@@ -1175,7 +1175,7 @@ class Map():
         """ Returns the adjacency list for the site
             :param site: The province we want the adjacency list for
             :param incl_no_coast: Boolean flag that indicates to also include province without coast if it has coasts
-                                 e.g. will return ['BUL/SC', 'BUL/EC'] if False, and ['bul', 'BUL/SC', 'BUL/EC'] if True
+                                 e.g. will return ['BUL/SC', 'BUL/EC'] if False, and ['bul', 'BUL/SC', 'BUL/EC'] if True
             :return: A list of adjacent provinces
 
             Note: abuts are returned in mixed cases (lowercase for A only, First capital letter for F only)
