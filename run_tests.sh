@@ -8,7 +8,7 @@ FAILED=0
 
 # Running pytest
 if [ "${1:-auto}" != "0" ]; then
-    pytest -v --forked -n "${1:-auto}" || FAILED=1
+    pytest -v --forked -n "${1:-auto}" diplomacy || FAILED=1
 fi
 
 # Running pylint
