@@ -573,19 +573,25 @@ class Renderer():
 
         path_with_shadow = xml_map.createElement('path')
         path_with_shadow.setAttribute('class', 'shadowdash')
-        path_with_shadow.setAttribute('d', 'M {},{} C {},{} {},{} {},{}'.format(loc_x, loc_y,
-                                                                                src_loc_x, src_loc_y,
-                                                                                src_loc_x, src_loc_y,
-                                                                                dest_loc_x, dest_loc_y))
+        path_with_shadow.setAttribute('d', 'M {x},{y} C {src_x},{src_y} {src_x},{src_y} {dest_x},{dest_y}'
+                                      .format(x=loc_x,
+                                              y=loc_y,
+                                              src_x=src_loc_x,
+                                              src_y=src_loc_y,
+                                              dest_x=dest_loc_x,
+                                              dest_y=dest_loc_y))
 
         path_with_arrow = xml_map.createElement('path')
         path_with_arrow.setAttribute('class', 'supportorder')
         path_with_arrow.setAttribute('stroke', self.metadata['color'][power_name])
         path_with_arrow.setAttribute('marker-end', 'url(#arrow)')
-        path_with_arrow.setAttribute('d', 'M {},{} C {},{} {},{} {},{}'.format(loc_x, loc_y,
-                                                                               src_loc_x, src_loc_y,
-                                                                               src_loc_x, src_loc_y,
-                                                                               dest_loc_x, dest_loc_y))
+        path_with_arrow.setAttribute('d', 'M {x},{y} C {src_x},{src_y} {src_x},{src_y} {dest_x},{dest_y}'
+                                     .format(x=loc_x,
+                                             y=loc_y,
+                                             src_x=src_loc_x,
+                                             src_y=src_loc_y,
+                                             dest_x=dest_loc_x,
+                                             dest_y=dest_loc_y))
 
         # Inserting
         g_node.appendChild(path_with_shadow)

@@ -98,7 +98,6 @@ class Jsonable():
             :param json_dict: a JSON dictionary to be parsed.
             :type json_dict: dict
         """
-        pass
 
     @classmethod
     def from_dict(cls, json_dict):

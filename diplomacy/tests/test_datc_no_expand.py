@@ -40,7 +40,6 @@ class TestDATCNoExpand(RootDATC):
             I prefer that an attempt is made to the only possible coast, the north coast of Spain.
         """
         # Expected to failed
-        pass
 
     def test_6_b_9(self):
         """ 6.B.9. TEST CASE, SUPPORTING WITH WRONG COAST
@@ -83,7 +82,6 @@ class TestDATCNoExpand(RootDATC):
             I prefer that a move will be attempted.
         """
         # Expected to fail
-        pass
 
     def test_6_b_12(self):
         """ 6.B.12. TEST CASE, ARMY MOVEMENT WITH COASTAL SPECIFICATION
@@ -94,4 +92,3 @@ class TestDATCNoExpand(RootDATC):
             I prefer that a move will be attempted.
         """
         # Expected to fail
-        pass

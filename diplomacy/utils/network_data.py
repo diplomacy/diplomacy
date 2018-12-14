@@ -61,7 +61,6 @@ class NetworkData(Jsonable):
     @classmethod
     def validate_params(cls):
         """ Called when getting model to validate parameters. Called once per class. """
-        pass
 
     @classmethod
     def build_model(cls):
