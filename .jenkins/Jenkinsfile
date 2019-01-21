@@ -102,7 +102,7 @@ parallel_test['python_3.6'] = {
                     withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: '')]) {
                         checkout([$class: 'GitSCM', branches: [[name: CHECKOUT_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[name: 'origin', refspec: CHECKOUT_REF, credentialsId: 'jenkins-ssh-key', url: GITHUB_URL]]])
                         sh ".jenkins/merge_pr.sh $PR_NUMBER $COMMIT_HASH $BASE_HASH $SSH_KEY_FILE \
-                            && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
+                            && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-py36.sh -O miniconda.sh \
                             && chmod +x ./miniconda.sh \
                             && rm -Rf $HOME/miniconda \
                             && ./miniconda.sh -b -p $HOME/miniconda \
@@ -150,7 +150,7 @@ if (BUILD_TYPE == 'pr' || (BUILD_TYPE == 'push' && COMMIT_BRANCH == 'jenkins')) 
                         withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: '')]) {
                             checkout([$class: 'GitSCM', branches: [[name: CHECKOUT_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[name: 'origin', refspec: CHECKOUT_REF, credentialsId: 'jenkins-ssh-key', url: GITHUB_URL]]])
                             sh ".jenkins/merge_pr.sh $PR_NUMBER $COMMIT_HASH $BASE_HASH $SSH_KEY_FILE \
-                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
+                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-py36.sh -O miniconda.sh \
                                 && chmod +x ./miniconda.sh \
                                 && rm -Rf $HOME/miniconda \
                                 && ./miniconda.sh -b -p $HOME/miniconda \
@@ -194,7 +194,7 @@ if (BUILD_TYPE == 'pr' || (BUILD_TYPE == 'push' && COMMIT_BRANCH == 'jenkins')) 
                         withCredentials([sshUserPrivateKey(credentialsId: 'jenkins-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: '')]) {
                             checkout([$class: 'GitSCM', branches: [[name: CHECKOUT_BRANCH]], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], submoduleCfg: [], userRemoteConfigs: [[name: 'origin', refspec: CHECKOUT_REF, credentialsId: 'jenkins-ssh-key', url: GITHUB_URL]]])
                             sh ".jenkins/merge_pr.sh $PR_NUMBER $COMMIT_HASH $BASE_HASH $SSH_KEY_FILE \
-                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh \
+                                && wget -nv https://storage.googleapis.com/ppaquette-diplomacy/files/Miniconda3-py36.sh -O miniconda.sh \
                                 && chmod +x ./miniconda.sh \
                                 && rm -Rf $HOME/miniconda \
                                 && ./miniconda.sh -b -p $HOME/miniconda \
