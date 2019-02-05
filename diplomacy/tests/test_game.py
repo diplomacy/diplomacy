@@ -515,6 +515,7 @@ def test_set_current_phase():
     power = game.get_power('FRANCE')
     power.units.remove('A PAR')
     game.set_current_phase('W1901A')
+    game.clear_cache()
     assert game.get_current_phase() == 'W1901A'
     assert game.phase_type == 'A'
     assert 'A PAR B' in game.get_all_possible_orders('PAR')
@@ -648,3 +649,20 @@ def test_result_history():
     phase_data = game.get_phase_from_history(short_phase_name)
     assert 'bounce' in phase_data.results['A PAR']
     assert 'bounce' in phase_data.results['A MAR']
+
+def test_unit_owner():
+    """ Test Unit Owner Resolver making sure the cached results are correct """
+    game = Game()
+    print(game.get_units('RUSSIA'))
+
+    assert game._unit_owner('F STP/SC', coast_required=1) is game.get_power('RUSSIA')                                   # pylint: disable=protected-access
+    assert game._unit_owner('F STP/SC', coast_required=0) is game.get_power('RUSSIA')                                   # pylint: disable=protected-access
+
+    assert game._unit_owner('F STP', coast_required=1) is None                                                          # pylint: disable=protected-access
+    assert game._unit_owner('F STP', coast_required=0) is game.get_power('RUSSIA')                                      # pylint: disable=protected-access
+
+    assert game._unit_owner('A WAR', coast_required=0) is game.get_power('RUSSIA')                                      # pylint: disable=protected-access
+    assert game._unit_owner('A WAR', coast_required=1) is game.get_power('RUSSIA')                                      # pylint: disable=protected-access
+
+    assert game._unit_owner('F SEV', coast_required=0) is game.get_power('RUSSIA')                                      # pylint: disable=protected-access
+    assert game._unit_owner('F SEV', coast_required=1) is game.get_power('RUSSIA')                                      # pylint: disable=protected-access

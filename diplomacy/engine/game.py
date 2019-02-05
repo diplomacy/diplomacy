@@ -152,6 +152,11 @@ class Game(Jsonable):
                 e.g. 3
         - zobrist_hash - Contains the zobrist hash representing the current state of this game
                 e.g. 12545212418541325
+
+        ----- Caches ----
+        - _unit_owner_cache - Contains a dictionary with (unit, coast_required) as key and owner as value
+                            - Set to Note when the cache is not built
+                e.g. {('A PAR', True): <FRANCE>, ('A PAR', False): <FRANCE>), ...}
     """
     # pylint: disable=too-many-instance-attributes
     __slots__ = ['victory', 'no_rules', 'meta_rules', 'phase', 'note', 'map', 'powers', 'outcome', 'error', 'popped',
@@ -160,7 +165,7 @@ class Game(Jsonable):
                  'convoy_paths_dest', 'zobrist_hash', 'renderer', 'game_id', 'map_name', 'role', 'rules',
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
-                 'phase_abbr']
+                 'phase_abbr', '_unit_owner_cache']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -227,6 +232,9 @@ class Game(Jsonable):
         self.registration_password = None
         self.observer_level = None
         self.controlled_powers = None
+
+        # Caches
+        self._unit_owner_cache = None               # {(unit, coast_required): owner}
 
         # Remove rules from kwargs (if present), as we want to add them manually using self.add_rule().
         rules = kwargs.pop(strings.RULES, None)
@@ -1124,6 +1132,7 @@ class Game(Jsonable):
     def clear_cache(self):
         """ Clears all caches """
         self.convoy_paths_possible, self.convoy_paths_dest = None, None
+        self._unit_owner_cache = None
 
     def get_current_phase(self):
         """ Returns the current phase (format 'S1901M' or 'FORMING' or 'COMPLETED' """
@@ -1253,11 +1262,18 @@ class Game(Jsonable):
         self.order_history.put(previous_phase, previous_orders)
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)
+
         return GamePhaseData(name=str(previous_phase),
                              state=previous_state,
                              orders=previous_orders,
                              messages=previous_messages,
                              results=self.result_history[previous_phase])
+
+    def build_caches(self):
+        """ Rebuilds the various caches """
+        self.clear_cache()
+        self._build_list_possible_convoys()
+        self._build_unit_owner_cache()
 
     def rebuild_hash(self):
         """ Completely recalculate the Zobrist hash
@@ -1457,7 +1473,7 @@ class Game(Jsonable):
 
         # Rebuilding hash and returning
         self.rebuild_hash()
-        self._build_list_possible_convoys()
+        self.build_caches()
 
     def get_all_possible_orders(self, loc=None):
         """ Computes a list of all possible orders for a unit in a given location
@@ -2530,14 +2546,18 @@ class Game(Jsonable):
         self._move_to_start_phase()
         self.note = ''
         self.win = self.victory[0]
+
         # Create dummy power objects for non-loaded powers.
         for power_name in self.map.powers:
             if power_name not in self.powers:
                 self.powers[power_name] = Power(self, power_name, role=self.role)
-        # Initialize all powers.
+
+        # Initialize all powers - Starter having type won't be initialized.
         for starter in self.powers.values():
-            # Starter having type won't be initialized.
             starter.initialize(self)
+
+        # Build caches
+        self.build_caches()
 
     def _process(self):
         """ Processes the current phase of the game """
@@ -2590,8 +2610,8 @@ class Game(Jsonable):
         else:
             raise Exception("FailedToAdvancePhase")
 
-        # Rebuilding the convoy cache
-        self._build_list_possible_convoys()
+        # Rebuilding the caches
+        self.build_caches()
 
         # Returning
         return []
@@ -3335,6 +3355,18 @@ class Game(Jsonable):
             return 0
         return 1
 
+    def _build_unit_owner_cache(self):
+        """ Builds the unit_owner cache """
+        if self._unit_owner_cache is not None:
+            return
+        self._unit_owner_cache = {}
+        for owner in self.powers.values():
+            for unit in owner.units:
+                self._unit_owner_cache[(unit, True)] = owner                    # (unit, coast_required): owner
+                self._unit_owner_cache[(unit, False)] = owner
+                if '/' in unit:
+                    self._unit_owner_cache[(unit.split('/')[0], False)] = owner
+
     def _unit_owner(self, unit, coast_required=1):
         """ Finds the power who owns a unit
             :param unit: The name of the unit to find (e.g. 'A PAR')
@@ -3345,12 +3377,8 @@ class Game(Jsonable):
         # If coast_required is 0 and unit does not contain a '/'
         # return the owner if we find a unit that starts with unit
         # Don't count the unit if it needs to retreat (i.e. it has been dislodged)
-        for owner in self.powers.values():
-            if unit in owner.units:
-                return owner
-            if not coast_required and '/' not in unit and [1 for x in owner.units if x.find(unit) == 0]:
-                return owner
-        return None
+        self._build_unit_owner_cache()
+        return self._unit_owner_cache.get((unit, bool(coast_required)), None)
 
     def _occupant(self, site, any_coast=0):
         """ Finds the occupant of a site
