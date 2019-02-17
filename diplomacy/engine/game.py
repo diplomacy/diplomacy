@@ -1909,7 +1909,6 @@ class Game(Jsonable):
             return None
         word = order.split()
         owner = self._unit_owner(unit)
-        rules = self.rules
 
         # No order
         if not word:
@@ -2086,7 +2085,7 @@ class Game(Jsonable):
         # -------------------------------------------------------------
         # MOVE order
         elif order_type == '-':
-            # Expected format '- xxx' or '- xxx - yyy - zzz'
+            # Expected format '- xxx' or '- xxx VIA'
             if (len(word) & 1 and word[-1] != 'VIA') or (len(word[:-1]) & 1 and word[-1] == 'VIA'):
                 if report:
                     self.error.append(err.GAME_BAD_MOVE_ORDER % (unit, order))
@@ -2098,95 +2097,44 @@ class Game(Jsonable):
                     self.error.append(err.GAME_UNIT_CANT_CONVOY % (unit, order))
                 return None
 
-            # Step through every "- xxx" in the order and ensure the unit can get there at every step
+            # Step through "- xxx" in the order and ensure the unit can get there
             src = unit_loc
-            order_type = 'C-'[len(word) == 2 or (len(word) == 3 and word[-1] == 'VIA')]
-            visit = []
+            offset = 1 if word[-1] == 'VIA' else 0
+            to_loc = word[-1 - offset]
+
+            # Making sure that the syntax is '- xxx'
+            # The old syntax 'A XXX - YYY - ZZZ' is deprecated
+            if len(word) - offset > 2 or word[0] != '-':
+                if report:
+                    self.error.append(err.GAME_BAD_MOVE_ORDER % (unit, order))
+                return None
 
             # Checking that unit is not returning back where it started ...
-            if word[-1] == unit_loc and order_type < 'C':
+            if to_loc == unit_loc:
                 if report:
                     self.error.append(err.GAME_MOVING_UNIT_CANT_RETURN % (unit, order))
                 return None
 
-            # For a multi-step convoy
-            if order_type == 'C':
+            # Move only possible through convoy
+            if not self._abuts(unit_type, src, order_type, to_loc) or word[-1] == 'VIA':
 
                 # Checking that destination is a COAST or PORT ...
-                if self.map.area_type(word[-1]) not in ('COAST', 'PORT'):
+                if self.map.area_type(to_loc) not in ('COAST', 'PORT'):
                     if report:
                         self.error.append(err.GAME_CONVOYING_UNIT_MUST_REACH_COST % (unit, order))
                     return None
 
                 # Making sure that army is not having a specific coast as destination ...
-                if unit_type == 'A' and '/' in word[-1]:
+                if unit_type == 'A' and '/' in to_loc:
                     if report:
                         self.error.append(err.GAME_ARMY_CANT_CONVOY_TO_COAST % (unit, order))
                     return None
 
-            # Making sure that the syntax is '- xxx - yyy - zzz'
-            offset = 1 if word[-1] == 'VIA' else 0
-            if [1 for x in range(0, len(word) - offset, 2) if word[x] != '-']:
-                if report:
-                    self.error.append(err.GAME_BAD_MOVE_ORDER % (unit, order))
-                return None
-
-            # For every location touched
-            ride = word[1:len(word) - offset:2]
-            for num, to_loc in enumerate(ride):
-
-                # Checking that ride is not visited twice ...
-                if to_loc in visit and 'CONVOY_BACK' not in rules:
-                    if report:
-                        self.error.append(err.GAME_CONVOY_UNIT_USED_TWICE % (unit, order))
-                    return None
-                visit += [to_loc]
-
-                # Making sure the last 2 locations touch, and that A/F can convoy through them
-                # pylint: disable=too-many-boolean-expressions
-                if (not self._abuts(unit_type, src, order_type, to_loc)
-                        and not self._has_convoy_path(unit_type, unit_loc, to_loc)
-                        and (len(word) == 2
-                             or unit_type == 'A' and (not self._abuts('F', to_loc, 'S', src))
-                             or (unit_type == 'F'
-                                 and (to_loc[:3].upper() not in
-                                      [abut[:3].upper() for abut in self.map.abut_list(src[:3])])))):
-                    if report:
-                        self.error.append(err.GAME_UNIT_CANT_MOVE_INTO_DEST % (unit, order))
-                    return None
-
-                # If VIA flag set, make sure there is at least a possible path
-                if word[-1] == 'VIA' and not self._has_convoy_path(unit_type, unit_loc, to_loc):
+                # Make sure there is at least a possible path
+                if not self._has_convoy_path(unit_type, unit_loc, to_loc):
                     if report:
                         self.error.append(err.GAME_UNIT_CANT_MOVE_VIA_CONVOY_INTO_DEST % (unit, order))
                     return None
-
-                # If we are at an intermediary location
-                if num < len(ride) - 1:
-
-                    # Trying to portage convoy fleet through water
-                    # or trying to convoy army through LAND or COAST
-                    if (unit_type == 'F'
-                            and ((unit_type == 'A' and self.map.area_type(to_loc) not in ('WATER', 'PORT'))
-                                 or unit_type + self.map.area_type(to_loc) == 'FWATER')):
-                        if report:
-                            self.error.append(err.GAME_BAD_CONVOY_MOVE_ORDER % (unit, order))
-                        return None
-
-                    # Making sure there is a unit there to convoy ...
-                    if not self._unit_owner('AF'[unit_type == 'A'] + ' ' + to_loc):
-                        if report:
-                            self.error.append(err.GAME_CONVOY_THROUGH_NON_EXISTENT_UNIT % (unit, order))
-                        return None
-
-                # Portaging fleets must finish the turn on a coastal location listed in upper-case
-                elif (num
-                      and unit_type == 'F'
-                      and (to_loc not in self.map.loc_abut or self.map.area_type(to_loc) not in ('COAST', 'PORT'))):
-                    if report:
-                        self.error.append(err.GAME_IMPOSSIBLE_CONVOY % (unit, order))
-                    return None
-                src = to_loc
 
         # -------------------------------------------------------------
         # HOLD order
@@ -2215,6 +2163,11 @@ class Game(Jsonable):
 
         result = self.map.compact(' '.join(word))
         result = self.map.vet(self.map.rearrange(result), 1)
+
+        # If multiple move seps '-' are present, skipping locs after each move separator except the last one
+        count_move_seps = 0
+        total_move_seps = len([1 for x in word if x == '-'])
+        add_via_flag = total_move_seps >= 2
 
         # Removing errors (Negative values)
         final, order = [], ''
@@ -2254,8 +2207,15 @@ class Game(Jsonable):
                     continue
                 order += token
 
-            # Treat each move order the same. Eventually we'd want to distinguish between them
+            # Skip locations except after the last move separator
+            elif token_type == LOCATION and 0 < count_move_seps < total_move_seps:
+                continue
+
+            # Only keeping the first move separator. Others are discarded.
             elif token_type == MOVE_SEP:
+                count_move_seps += 1
+                if count_move_seps >= 2:
+                    continue
                 result[result_ix] = '-', token_type
                 order += '-'
 
@@ -2270,6 +2230,10 @@ class Game(Jsonable):
                     self.error.append(err.GAME_AMBIGUOUS_PLACE_NAME % token)
 
             final += [token]
+
+        # If we detected multiple move separated - Adding a final VIA flag
+        if add_via_flag and final[-1] != 'VIA':
+            final += ['VIA']
 
         # Default any fleet move's coastal destination, then we're done
         return self.map.default_coast(final)
@@ -3727,59 +3691,42 @@ class Game(Jsonable):
             if word[0] != '-':
                 continue
 
-            # Full convoy path has been specified (e.g. 'A PAR - MAR - NAO - MAO - LON')
             offset = 1 if word[-1] == 'VIA' else 0
-            if len(word) - offset > 2:
-                for convoyer in range(1, len(word) - 1, 2):
-                    convoy_order = self.command.get('AF'[unit[0] == 'A'] + ' ' + word[convoyer])
-                    if convoy_order not in ['C %s - ' % x + word[-1] for x in (unit, unit[2:])]:
-                        if convoy_order:
-                            self.result[unit] += ['no convoy']
-                        else:
-                            self.command[unit] = 'H'
-                        break
-                # List the valid convoys
-                else:
-                    may_convoy[unit] = order.split()
-                    self.convoy_paths[unit] = [[unit[2:]] + word[1::2]]
+            def flatten(nested_list):
+                """ Flattens a sublist """
+                return [list_item for sublist in nested_list for list_item in sublist]
 
-            # Only src and dest provided
+            has_via_convoy_flag = 1 if word[-1] == 'VIA' else 0
+            convoying_units = self._get_convoying_units_for_path(unit[0], unit[2:], word[1])
+            possible_paths = self._get_convoy_paths(unit[0],
+                                                    unit[2:],
+                                                    word[1],
+                                                    has_via_convoy_flag,
+                                                    convoying_units)
+
+            # No convoy path - Removing VIA and checking if adjacent
+            if not possible_paths:
+                if has_via_convoy_flag:
+                    self.command[unit] = ' '.join(word[:-1])
+                if not self._abuts(unit[0], unit[2:], 'S', word[1]):
+                    self.result[unit] += ['no convoy']
+
+            # There is a convoy path, remembering the convoyers
             else:
-                def flatten(nested_list):
-                    """ Flattens a sublist """
-                    return [list_item for sublist in nested_list for list_item in sublist]
+                self.convoy_paths[unit] = possible_paths
+                may_convoy.setdefault(unit, [])
+                for convoyer in convoying_units:
+                    if convoyer[2:] in flatten(possible_paths) and convoyer[2:] not in may_convoy[unit]:
+                        may_convoy[unit] += [convoyer[2:]]
 
-                has_via_convoy_flag = 1 if word[-1] == 'VIA' else 0
-                convoying_units = self._get_convoying_units_for_path(unit[0], unit[2:], word[1])
-                possible_paths = self._get_convoy_paths(unit[0],
-                                                        unit[2:],
-                                                        word[1],
-                                                        has_via_convoy_flag,
-                                                        convoying_units)
-
-                # No convoy path - Removing VIA and checking if adjacent
-                if not possible_paths:
-                    if has_via_convoy_flag:
-                        self.command[unit] = ' '.join(word[:-1])
-                    if not self._abuts(unit[0], unit[2:], 'S', word[1]):
-                        self.result[unit] += ['no convoy']
-
-                # There is a convoy path, remembering the convoyers
-                else:
-                    self.convoy_paths[unit] = possible_paths
-                    may_convoy.setdefault(unit, [])
-                    for convoyer in convoying_units:
-                        if convoyer[2:] in flatten(possible_paths) and convoyer[2:] not in may_convoy[unit]:
-                            may_convoy[unit] += [convoyer[2:]]
-
-                # Marking all convoys that are not in any path
-                invalid_convoys = convoying_units[:]
-                all_path_locs = list(set(flatten(possible_paths)))
-                for convoy in convoying_units:
-                    if convoy[2:] in all_path_locs:
-                        invalid_convoys.remove(convoy)
-                for convoy in invalid_convoys:
-                    self.result[convoy] = ['no convoy']
+            # Marking all convoys that are not in any path
+            invalid_convoys = convoying_units[:]
+            all_path_locs = list(set(flatten(possible_paths)))
+            for convoy in convoying_units:
+                if convoy[2:] in all_path_locs:
+                    invalid_convoys.remove(convoy)
+            for convoy in invalid_convoys:
+                self.result[convoy] = ['no convoy']
 
         # -----------------------------------------------------------
         # STEP 1B. CANCEL ALL INVALID CONVOY ORDERS
