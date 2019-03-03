@@ -823,7 +823,7 @@ class Game(Jsonable):
             return power_orders
 
         # Recursively calling itself to get all powers
-        elif power_name is None:
+        if power_name is None:
             orders = {}
             for power in self.powers.values():
                 orders[power.name] = self.get_orders(power.name)
@@ -873,8 +873,7 @@ class Game(Jsonable):
             return sorted(orderable_locs)
 
         # All powers
-        else:
-            return {power.name: self.get_orderable_locations(power.name) for power in self.powers.values()}
+        return {power.name: self.get_orderable_locations(power.name) for power in self.powers.values()}
 
     def get_order_status(self, power_name=None, unit=None, loc=None):
         """ Returns a list or a dict representing the order status ('', 'no convoy', 'bounce', 'void', 'cut',

@@ -254,7 +254,7 @@ def on_message_received(game, notification):
             raise AssertionError(
                 '%s/there are still messages to send to %s (%d) before receiving messages from him. Received: %s'
                 % (power_name, power_from, expected_message.time_sent, notification.message.message))
-        elif expected_message.sender == power_from:
+        if expected_message.sender == power_from:
             if notification.message.is_global():
                 if not (expected_message.recipient == GLOBAL
                         and expected_message.message == notification.message.message):

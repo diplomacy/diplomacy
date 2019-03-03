@@ -41,7 +41,7 @@ class Notifier():
 
         # Expect a sequence of tokens to ignore.
         # Convert it to a set.
-        elif ignore_tokens:
+        if ignore_tokens:
             self.ignore_tokens = set(ignore_tokens)
 
         # Expect a sequence of tuples (power name, token) to ignore.
