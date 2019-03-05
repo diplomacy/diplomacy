@@ -1474,196 +1474,204 @@ class Game(Jsonable):
         self.rebuild_hash()
         self.build_caches()
 
-    def get_all_possible_orders(self, loc=None):
-        """ Computes a list of all possible orders for a unit in a given location
-            :param loc: Optional. The location where to get a list of orders (must include coasts)
-                    If not provided, returns a list of all possible orders for all locations
-            :return: A list of orders for the unit, if there is a unit at location, or a list of possible
-                    orders for all locations if no locations are provided.
+    def get_all_possible_orders(self):
+        """ Computes a list of all possible orders for all locations
+            :return: A dictionary with locations as keys, and their respective list of possible orders as values
         """
-        # pylint: disable=too-many-branches
-        # No locations, building a dict with all locations
-        if not loc:
-            all_possible_orders = {}
-            for map_loc in self.map.locs:
-                map_loc = map_loc.upper()
-                all_possible_orders[map_loc] = self.get_all_possible_orders(map_loc)
-            return all_possible_orders
+        # pylint: disable=too-many-branches,too-many-nested-blocks
+        possible_orders = {loc.upper(): set() for loc in self.map.locs}
 
-        def remove_duplicates(list_with_dup):
-            """ Shorthand functions to remove duplicates """
-            seen = set()
-            return [item for item in list_with_dup if not (item in seen or seen.add(item))]
+        # Game is completed
+        if self.get_current_phase() == 'COMPLETED':
+            return {loc: list(possible_orders[loc]) for loc in possible_orders}
 
-        # Otherwise finding the possible orders at that specific location
-        possible_orders = []
-        is_dislodged = False
-        unit = None
-        unit_power = None
-
-        # If there are coasts possible, recursively adding the coasts first, then adding the loc orders
-        if '/' not in loc:
-            for loc_with_coast in [coast for coast in self.map.find_coasts(loc) if '/' in coast]:
-                possible_orders += self.get_all_possible_orders(loc_with_coast)
-
-        # Determining if there is a unit at loc
-        # Dislodged unit have precedence over regular unit in Retreat phase
+        # Building a dict of (unit, is_dislodged, retreat_list, duplicate) for each power
+        # duplicate is to indicate that the real unit has a coast, and that was added a duplicate unit without the coast
+        unit_dict = {}
         for power in self.powers.values():
-            dislodged = [u for u in power.retreats if u[2:] == loc.upper()]
-            regular = [u for u in power.units if u[2:] == loc.upper()]
-            if dislodged:
-                is_dislodged = True
-                unit = dislodged[0]
-                unit_power = power
-                break
-            elif regular and not is_dislodged:
-                unit = regular[0]
-                unit_power = power
-                if self.phase_type != 'R':
-                    break
 
-        # No unit found, checking if location is a home
-        if unit is None:
-            if self.phase_type != 'A':
-                return remove_duplicates(possible_orders)
-            for power in self.powers.values():
-                if loc[:3] in power.homes and 'BUILD_ANY' not in self.rules:
-                    unit_power = power
-                    break
-                if loc[:3] in power.centers and 'BUILD_ANY' in self.rules:
-                    unit_power = power
-                    break
+            # Regular units
+            for unit in power.units:
+                unit_loc = unit[2:]
+                unit_dict[unit_loc] = (unit, False, [], False)
+                if '/' in unit_loc:
+                    unit_dict[unit_loc[:3]] = (unit, False, [], True)
 
-        # Not a home, and no units
-        if not unit_power:
-            return remove_duplicates(possible_orders)
+            # Dislodged units
+            for unit, retreat_list in power.retreats.items():
+                unit_loc = unit[2:]
+                unit_dict['*' + unit_loc] = (unit, True, retreat_list, False)
 
-        # Determining if we can build or need to remove units
-        build_count = 0 if self.phase_type != 'A' else len(unit_power.centers) - len(unit_power.units)
-
-        # Determining unit type and unit location
-        unit_type = unit[0] if unit else ''
-        unit_loc = unit[2:] if unit else ''
+        # Building a list of build counts and build_sites
+        build_counts = {power_name: len(power.centers) - len(power.units) if self.phase_type == 'A' else 0
+                        for power_name, power in self.powers.items()}
+        build_sites = {power_name: self._build_sites(power) if self.phase_type == 'A' else []
+                       for power_name, power in self.powers.items()}
 
         # Movement phase
         if self.phase_type == 'M':
-            # Computing coasts for dest
-            dest_1_hops = [l.upper() for l in self.map.abut_list(unit_loc, incl_no_coast=True)]
-            dest_with_coasts = [self.map.find_coasts(dest) for dest in dest_1_hops]
-            dest_with_coasts = {val for sublist in dest_with_coasts for val in sublist}
+
+            # Building a list of units and homes for each power
+            power_units = {power_name: power.units[:] for power_name, power in self.powers.items()}
 
             # Hold
-            possible_orders += ['{} H'.format(unit)]
+            for power_name in self.powers:
+                for unit in power_units[power_name]:
+                    order = unit + ' H'
+                    possible_orders[unit[2:]].add(order)
+                    if '/' in unit:
+                        possible_orders[unit[2:5]].add(order)
 
-            # Move (Regular) and Support (Hold)
-            for dest in dest_with_coasts:
-                if self._abuts(unit_type, unit_loc, '-', dest):
-                    possible_orders += ['{} - {}'.format(unit, dest)]
-                if self._abuts(unit_type, unit_loc, 'S', dest):
-                    if self._unit_owner('A {}'.format(dest)):
-                        possible_orders += ['{} S A {}'.format(unit, dest)]
-                    elif self._unit_owner('F {}'.format(dest)):
-                        possible_orders += ['{} S F {}'.format(unit, dest)]
+            # Move, Support, Convoy
+            for power_name in self.powers:
+                for unit in power_units[power_name]:
+                    unit_type, unit_loc = unit[0], unit[2:]
+                    unit_on_coast = '/' in unit_loc
+                    for dest in self.map.dest_with_coasts[unit_loc]:
 
-            # Move Via Convoy
-            for dest in self._get_convoy_destinations(unit_type, unit_loc):
-                possible_orders += ['{} - {} VIA'.format(unit, dest)]
+                        # Move (Regular)
+                        if self._abuts(unit_type, unit_loc, '-', dest):
+                            order = unit + ' - ' + dest
+                            possible_orders[unit_loc].add(order)
+                            if unit_on_coast:
+                                possible_orders[unit_loc[:3]].add(order)
 
-            # Support (Move)
-            for dest in dest_with_coasts:
+                        # Support (Hold)
+                        if self._abuts(unit_type, unit_loc, 'S', dest):
+                            if dest in unit_dict:
+                                other_unit, _, _, duplicate = unit_dict[dest]
+                                if not duplicate:
+                                    order = unit + ' S ' + other_unit[0] + ' ' + dest
+                                    possible_orders[unit_loc].add(order)
+                                    if unit_on_coast:
+                                        possible_orders[unit_loc[:3]].add(order)
 
-                # Computing src of move (both from adjacent provinces and possible convoys)
-                # We can't support a unit that needs us to convoy it to its destination
-                abut_srcs = self.map.abut_list(dest, incl_no_coast=True)
-                convoy_srcs = self._get_convoy_destinations('A', dest, exclude_convoy_locs=[unit_loc])
+                        # Support (Move)
+                        # Computing src of move (both from adjacent provinces and possible convoys)
+                        # We can't support a unit that needs us to convoy it to its destination
+                        abut_srcs = self.map.abut_list(dest, incl_no_coast=True)
+                        convoy_srcs = self._get_convoy_destinations('A', dest, exclude_convoy_locs=[unit_loc])
 
-                # Computing coasts for source
-                src_with_coasts = [self.map.find_coasts(src) for src in abut_srcs + convoy_srcs]
-                src_with_coasts = {val for sublist in src_with_coasts for val in sublist}
+                        # Computing coasts for source
+                        src_with_coasts = [self.map.find_coasts(src) for src in abut_srcs + convoy_srcs]
+                        src_with_coasts = {val for sublist in src_with_coasts for val in sublist}
 
-                for src in src_with_coasts:
+                        for src in src_with_coasts:
+                            if src not in unit_dict:
+                                continue
+                            src_unit, _, _, duplicate = unit_dict[src]
+                            if duplicate:
+                                continue
 
-                    # Checking if there is a unit on the src location
-                    if self._unit_owner('A {}'.format(src)):
-                        src_unit_type = 'A'
-                    elif self._unit_owner('F {}'.format(src)):
-                        src_unit_type = 'F'
-                    else:
-                        continue
+                            # Checking if src unit can move to dest (through adj or convoy), and that we can support it
+                            # Only armies can move through convoy
+                            if src[:3] != unit_loc[:3] \
+                                    and self._abuts(unit_type, unit_loc, 'S', dest) \
+                                    and ((src in convoy_srcs and src_unit[0] == 'A')
+                                         or self._abuts(src_unit[0], src, '-', dest)):
 
-                    # Checking if src unit can move to dest (through adj or convoy), and that we can support it
-                    # Only armies can move through convoy
-                    if src[:3] != unit_loc[:3] \
-                            and self._abuts(unit_type, unit_loc, 'S', dest) \
-                            and ((src in convoy_srcs and src_unit_type == 'A')
-                                 or self._abuts(src_unit_type, src, '-', dest)):
+                                # Adding with coast
+                                order = unit + ' S ' + src_unit[0] + ' ' + src + ' - ' + dest
+                                possible_orders[unit_loc].add(order)
+                                if unit_on_coast:
+                                    possible_orders[unit_loc[:3]].add(order)
 
-                        # Adding with coast
-                        possible_orders += ['{} S {} {} - {}'.format(unit, src_unit_type, src, dest)]
+                                # Adding without coasts
+                                if '/' in dest:
+                                    order = unit + ' S ' + src_unit[0] + ' ' + src + ' - ' + dest[:3]
+                                    possible_orders[unit_loc].add(order)
+                                    if unit_on_coast:
+                                        possible_orders[unit_loc[:3]].add(order)
 
-                        # Adding without coasts
-                        if '/' in dest:
-                            possible_orders += ['{} S {} {} - {}'.format(unit, src_unit_type, src, dest[:3])]
+                    # Move Via Convoy
+                    for dest in self._get_convoy_destinations(unit_type, unit_loc):
+                        order = unit + ' - ' + dest + ' VIA'
+                        possible_orders[unit_loc].add(order)
 
-            # Convoy
-            if unit_type == 'F':
-                convoy_srcs = self._get_convoy_destinations(unit_type, unit_loc, unit_is_convoyer=True)
-                for src in convoy_srcs:
+                    # Convoy
+                    if unit_type == 'F':
+                        convoy_srcs = self._get_convoy_destinations(unit_type, unit_loc, unit_is_convoyer=True)
+                        for src in convoy_srcs:
 
-                    # Checking if there is a unit on the src location
-                    if unit_type == 'F' and self._unit_owner('A {}'.format(src)):
-                        src_unit_type = 'A'
-                    else:
-                        continue
+                            # Making sure there is an army at the source location
+                            if src not in unit_dict:
+                                continue
+                            src_unit, _, _, _ = unit_dict[src]
+                            if src_unit[0] != 'A':
+                                continue
 
-                    # Checking where the src unit can actually go
-                    convoy_dests = self._get_convoy_destinations(src_unit_type, src, unit_is_convoyer=False)
+                            # Checking where the src unit can actually go
+                            convoy_dests = self._get_convoy_destinations('A', src, unit_is_convoyer=False)
 
-                    # Adding them as possible moves
-                    for dest in convoy_dests:
-                        if self._has_convoy_path(src_unit_type, src, dest, convoying_loc=unit_loc):
-                            possible_orders += ['{} C {} {} - {}'.format(unit, src_unit_type, src, dest)]
+                            # Adding them as possible moves
+                            for dest in convoy_dests:
+                                if self._has_convoy_path('A', src, dest, convoying_loc=unit_loc):
+                                    order = unit + ' C A ' + src + ' - ' + dest
+                                    possible_orders[unit_loc].add(order)
 
         # Retreat phase
         if self.phase_type == 'R':
 
-            # Disband
-            if is_dislodged:
-                possible_orders += ['{} D'.format(unit)]
+            # Finding all dislodged units
+            for unit_loc, (unit, is_dislodged, retreat_list, duplicate) in unit_dict.items():
+                if not is_dislodged or duplicate:
+                    continue
+                unit_loc = unit_loc[1:]                 # Removing the leading *
+                unit_on_coast = '/' in unit_loc
 
-            # Retreat
-            if is_dislodged:
-                retreat_locs = unit_power.retreats[unit]
-                for dest in retreat_locs:
-                    dest = dest.upper()
-                    if not self._unit_owner('A {}'.format(dest[:3]), coast_required=0) \
-                            and not self._unit_owner('F {}'.format(dest[:3]), coast_required=0):
-                        possible_orders += ['{} R {}'.format(unit, dest)]
+                # Disband
+                order = unit + ' D'
+                possible_orders[unit_loc].add(order)
+                if unit_on_coast:
+                    possible_orders[unit_loc[:3]].add(order)
 
-        # Adjustment Phase
+                # Retreat
+                for dest in retreat_list:
+                    if dest[:3] not in unit_dict:
+                        order = unit + ' R ' + dest
+                        possible_orders[unit_loc].add(order)
+                        if unit_on_coast:
+                            possible_orders[unit_loc[:3]].add(order)
+
+        # Adjustment phase
         if self.phase_type == 'A':
-            build_sites = self._build_sites(unit_power)
 
-            # Disband
-            if build_count < 0 and unit:
-                possible_orders += ['{} D'.format(unit)]
+            # Building a list of units for each power
+            power_units = {power_name: power.units[:] for power_name, power in self.powers.items()}
 
-            # Build Army / Fleet
-            if build_count > 0 \
-                    and loc[:3] in build_sites \
-                    and not self._unit_owner('A ' + loc[:3], coast_required=0) \
-                    and not self._unit_owner('F ' + loc[:3], coast_required=0):
-                if self.map.is_valid_unit('A {}'.format(loc)):
-                    possible_orders += ['A {} B'.format(loc)]
-                if self.map.is_valid_unit('F {}'.format(loc)):
-                    possible_orders += ['F {} B'.format(loc)]
+            for power_name in self.powers:
+                power_build_count = build_counts[power_name]
+                power_build_sites = build_sites[power_name]
 
-            # Waive
-            if build_count > 0:
-                possible_orders += ['WAIVE']
+                # Disband
+                if power_build_count < 0:
+                    for unit in power_units[power_name]:
+                        unit_on_coast = '/' in unit
+                        order = unit + ' D'
+                        possible_orders[unit[2:]].add(order)
+                        if unit_on_coast:
+                            possible_orders[unit[2:5]].add(order)
 
-        # Removing duplicate
-        return remove_duplicates(possible_orders)
+                # Build
+                if power_build_count > 0:
+                    for site in power_build_sites:
+                        for loc in self.map.find_coasts(site):
+                            unit_on_coast = '/' in loc
+                            if self.map.is_valid_unit('A ' + loc):
+                                possible_orders[loc].add('A ' + loc + ' B')
+                            if self.map.is_valid_unit('F ' + loc):
+                                possible_orders[loc].add('F ' + loc + ' B')
+                                if unit_on_coast:
+                                    possible_orders[loc[:3]].add('F ' + loc + ' B')
+
+                # Waive
+                if power_build_count > 0:
+                    for site in power_build_sites:
+                        for loc in self.map.find_coasts(site):
+                            possible_orders[loc].add('WAIVE')
+
+        # Returning
+        return {loc: list(possible_orders[loc]) for loc in possible_orders}
 
     # ====================================================================
     #   Private Interface - CONVOYS Methods

@@ -518,7 +518,7 @@ def test_set_current_phase():
     game.clear_cache()
     assert game.get_current_phase() == 'W1901A'
     assert game.phase_type == 'A'
-    assert 'A PAR B' in game.get_all_possible_orders('PAR')
+    assert 'A PAR B' in game.get_all_possible_orders()['PAR']
 
 def test_process_game():
     """ Tests - Process game """

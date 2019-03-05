@@ -118,13 +118,14 @@ def is_valid_saved_game(saved_game):
 
             # Validating orders
             orders = game.get_orders()
+            possible_orders = game.get_all_possible_orders()
             for power_name in orders:
                 if sorted(orders[power_name]) != sorted(current_phase['orders'][power_name]):
                     return False
                 if 'NO_CHECK' not in game.rules:
                     for order in orders[power_name]:
                         loc = order.split()[1]
-                        if order not in game.get_all_possible_orders(loc):
+                        if order not in possible_orders[loc]:
                             return False
 
             # Validating resulting state

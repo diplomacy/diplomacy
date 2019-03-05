@@ -44,6 +44,8 @@ class Map():
                 e.g. {'RUSSIA': ['MOS', 'SEV', 'STP', 'WAR'], 'FRANCE': ['BRE', 'MAR', 'PAR'], ... }
         - convoy_paths: Contains a list of all possible convoys paths bucketed by number of fleets
                 format: {nb of fleets: [(START_LOC, {FLEET LOC}, {DEST LOCS})]}
+        - dest_with_coasts: Contains a dictionary of locs with all destinations (incl coasts) that can be reached
+                e.g. {'PAR': ['BRE', 'PIC', 'BUR', ...], ...}
         - dummies: Indicates the list of powers that are dummies
                 e.g. ['FRANCE', 'ITALY']
         - error: Contains a list of errors that the map generated
@@ -112,7 +114,8 @@ class Map():
     __slots__ = ['name', 'first_year', 'victory', 'phase', 'validated', 'flow_sign', 'root_map', 'abuts_cache',
                  'homes', 'loc_name', 'loc_type', 'loc_abut', 'loc_coasts', 'own_word', 'abbrev', 'centers', 'units',
                  'pow_name', 'rules', 'files', 'powers', 'scs', 'owns', 'inhabits', 'flow', 'dummies', 'locs', 'error',
-                 'seq', 'phase_abbrev', 'unclear', 'unit_names', 'keywords', 'aliases', 'convoy_paths']
+                 'seq', 'phase_abbrev', 'unclear', 'unit_names', 'keywords', 'aliases', 'convoy_paths',
+                 'dest_with_coasts']
 
     def __new__(cls, name='standard', use_cache=True):
         """ New function - Retrieving object from cache if possible
@@ -140,7 +143,7 @@ class Map():
         self.rules, self.files, self.powers, self.scs, self.owns, self.inhabits = [], [], [], [], [], []
         self.flow, self.dummies, self.locs = [], [], []
         self.error, self.seq = [], []
-        self.phase_abbrev, self.unclear = {}, {}
+        self.phase_abbrev, self.unclear, self.dest_with_coasts = {}, {}, {}
         self.unit_names = {'A': 'ARMY', 'F': 'FLEET'}
         self.keywords, self.aliases = KEYWORDS.copy(), ALIASES.copy()
         self.load()
@@ -681,6 +684,13 @@ class Map():
                         unit_loc, other_loc = unit_loc.upper(), other_loc.upper()
                         query_tuple = (unit_type, unit_loc, order_type, other_loc)
                         self.abuts_cache[query_tuple] = self._abuts(*query_tuple)
+
+        # Building dest_with_coasts
+        for loc in self.locs:
+            loc = loc.upper()
+            dest_1_hops = [l.upper() for l in self.abut_list(loc, incl_no_coast=True)]
+            dest_with_coasts = [self.find_coasts(dest) for dest in dest_1_hops]
+            self.dest_with_coasts[loc] = list({val for sublist in dest_with_coasts for val in sublist})
 
     def add_homes(self, power, homes, reinit):
         """ Add new homes (and deletes previous homes if reinit)
