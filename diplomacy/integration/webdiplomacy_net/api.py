@@ -129,7 +129,7 @@ class API():
             :type game: diplomacy.Game
         """
         # Logging orders
-        LOGGER.info('[%s/%s] - Submitting orders: %s', game.game_id, power_name, orders)
+        LOGGER.info('[%s/%s/%s] - Submitting orders: %s', game.game_id, game.get_current_phase(), power_name, orders)
 
         # Converting orders to dict
         orders_dict = [Order(order, map_name=game.map_name, phase_type=game.phase_type) for order in orders]
@@ -195,8 +195,9 @@ class API():
         for unit in submitted_orders:
             if submitted_orders[unit] != received_orders.get(unit, ''):
                 all_orders_set = False
-                LOGGER.warning('[%s/%s]. Submitted: "%s" - Server has: "%s".',
-                               game.game_id, power_name, submitted_orders[unit], received_orders.get(unit, ''))
+                LOGGER.warning('[%s/%s/%s]. Submitted: "%s" - Server has: "%s".',
+                               game.game_id, game.get_current_phase(), power_name,
+                               submitted_orders[unit], received_orders.get(unit, ''))
 
         # Returning status
         return all_orders_set
