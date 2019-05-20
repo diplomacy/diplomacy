@@ -958,12 +958,12 @@ class Game(Jsonable):
         for power in self.powers.values():
             for unit in regular_units:
                 unit_loc = unit[2:5]
-                for unit_to_remove in [p_unit for p_unit in power.units if p_unit[2:5] == unit_loc]:
+                for unit_to_remove in {p_unit for p_unit in power.units if p_unit[2:5] == unit_loc}:
                     self.update_hash(power.name, unit_type=unit_to_remove[0], loc=unit_to_remove[2:])
                     power.units.remove(unit_to_remove)
             for unit in dislodged_units:
                 unit_loc = unit[2:5]
-                for unit_to_remove in [p_unit for p_unit in power.retreats if p_unit[2:5] == unit_loc]:
+                for unit_to_remove in {p_unit for p_unit in power.retreats if p_unit[2:5] == unit_loc}:
                     self.update_hash(power.name, unit_type=unit_to_remove[0], loc=unit_to_remove[2:], is_dislodged=True)
                     del power.retreats[unit_to_remove]
             for loc in influence:
@@ -982,7 +982,7 @@ class Game(Jsonable):
             if unit_type in ('A', 'F') \
                     and unit_loc in [loc.upper() for loc in self.map.locs] \
                     and self.map.is_valid_unit(unit):
-                if power:
+                if power and unit not in power.units:
                     self.update_hash(power_name, unit_type=unit_type, loc=unit_loc)
                     power.units.append(unit)
                     power.influence.append(unit[2:5])
@@ -998,7 +998,7 @@ class Game(Jsonable):
             if unit_type in ('A', 'F') and unit_loc in [loc.upper() for loc in self.map.locs]:
                 abuts = [abut.upper() for abut in self.map.abut_list(unit_loc, incl_no_coast=True)
                          if self._abuts(unit_type, unit_loc, '-', abut.upper())]
-                if power:
+                if power and unit not in power.retreats:
                     self.update_hash(power_name, unit_type=unit_type, loc=unit_loc, is_dislodged=True)
                     power.retreats[unit] = abuts
 
@@ -1033,7 +1033,7 @@ class Game(Jsonable):
         power = self.get_power(power_name)
         if power:
             for center in centers:
-                if center in self.map.scs:
+                if center in self.map.scs and center not in power.centers:
                     self.update_hash(power_name, loc=center, is_center=True)
                     power.centers += [center]
 
