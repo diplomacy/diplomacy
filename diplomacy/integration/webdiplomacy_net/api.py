@@ -58,7 +58,7 @@ class API():
         if response.code == 200:
             list_games_players = json.loads(response.body.decode('utf-8'))
             for game_player in list_games_players:
-                return_val += [GameIdCountryId(game_id=game_player['gameID'], country_id=game_player['countryID'])]
+                return_val.append(GameIdCountryId(game_id=game_player['gameID'], country_id=game_player['countryID']))
 
         # Error Occurred
         else:
@@ -81,7 +81,7 @@ class API():
         if response.code == 200:
             list_games_players = json.loads(response.body.decode('utf-8'))
             for game_player in list_games_players:
-                return_val += [GameIdCountryId(game_id=game_player['gameID'], country_id=game_player['countryID'])]
+                return_val.append(GameIdCountryId(game_id=game_player['gameID'], country_id=game_player['countryID']))
 
         # Error Occurred
         else:

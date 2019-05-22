@@ -386,7 +386,7 @@ class Renderer():
         loc_y = _offset(self.metadata['coord'][loc]['unit'][1], 9.5)
         for offset in [(13.8, -33.3), (33.3, -13.8), (33.3, 13.8), (13.8, 33.3), (-13.8, 33.3), (-33.3, 13.8),
                        (-33.3, -13.8), (-13.8, -33.3)]:
-            polygon_coord += [_offset(loc_x, offset[0]) + ',' + _offset(loc_y, offset[1])]
+            polygon_coord.append(_offset(loc_x, offset[0]) + ',' + _offset(loc_y, offset[1]))
 
         # Building polygon
         g_node = xml_map.createElement('g')
@@ -442,7 +442,7 @@ class Renderer():
         poly_loc_y = _offset(self.metadata['coord'][dest_loc]['unit'][1], 9.5)
         for offset in [(15.9, -38.3), (38.3, -15.9), (38.3, 15.9), (15.9, 38.3), (-15.9, 38.3), (-38.3, 15.9),
                        (-38.3, -15.9), (-15.9, -38.3)]:
-            polygon_coord += [_offset(poly_loc_x, offset[0]) + ',' + _offset(poly_loc_y, offset[1])]
+            polygon_coord.append(_offset(poly_loc_x, offset[0]) + ',' + _offset(poly_loc_y, offset[1]))
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -651,7 +651,7 @@ class Renderer():
         triangle_loc_x = _offset(self.metadata['coord'][src_loc]['unit'][0], 10)
         triangle_loc_y = _offset(self.metadata['coord'][src_loc]['unit'][1], 10)
         for offset in [(0, -38.3), (33.2, 19.1), (-33.2, 19.1)]:
-            triangle_coord += [_offset(triangle_loc_x, offset[0]) + ',' + _offset(triangle_loc_y, offset[1])]
+            triangle_coord.append(_offset(triangle_loc_x, offset[0]) + ',' + _offset(triangle_loc_y, offset[1]))
 
         # Creating nodes
         g_node = xml_map.createElement('g')

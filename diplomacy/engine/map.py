@@ -186,12 +186,12 @@ class Map():
         self.powers = [power_name for power_name in self.homes if power_name != 'UNOWNED']
         self.powers.sort()
         if len(self.powers) < 2:
-            self.error += [err.MAP_LEAST_TWO_POWERS]
+            self.error.append(err.MAP_LEAST_TWO_POWERS)
 
         # Validating area type
         for place in self.loc_name.values():
             if place.upper() not in self.powers and not self.area_type(place):
-                self.error += [err.MAP_LOC_NOT_FOUND % place]
+                self.error.append(err.MAP_LOC_NOT_FOUND % place)
 
         # Validating adjacencies
         for place, abuts in self.loc_abut.items():
@@ -199,13 +199,13 @@ class Map():
             for abut in abuts:
                 up_abut = abut.upper()
                 if up_abuts.count(up_abut) > 1:
-                    self.error += [err.MAP_SITE_ABUTS_TWICE % (place.upper(), up_abut)]
+                    self.error.append(err.MAP_SITE_ABUTS_TWICE % (place.upper(), up_abut))
                     while up_abut in up_abuts:
                         up_abuts.remove(up_abut)
 
             # Checking full name
             if place.upper() not in self.loc_name.values():
-                self.error += [err.MAP_NO_FULL_NAME % place]
+                self.error.append(err.MAP_NO_FULL_NAME % place)
 
             # Checking one-way adjacency
             for loc in abuts:
@@ -220,9 +220,9 @@ class Map():
             for site in places:
                 # Adding home as supply center
                 if site not in self.scs:
-                    self.scs += [site]
+                    self.scs.append(site)
                 if not self.area_type(site):
-                    self.error += [err.MAP_BAD_HOME % (power_name, site)]
+                    self.error.append(err.MAP_BAD_HOME % (power_name, site))
 
                 # Remove home centers from unowned list.
                 # It's perfectly OK for 2 powers to share a home center, as long
@@ -254,9 +254,9 @@ class Map():
             for site in centers:
                 for other, locs in self.centers.items():
                     if other == power_name and locs.count(site) != 1:
-                        self.error += [err.MAP_CENTER_MULT_OWNED % site]
+                        self.error.append(err.MAP_CENTER_MULT_OWNED % site)
                     elif other != power_name and locs.count(site) != 0:
-                        self.error += [err.MAP_CENTER_MULT_OWNED % site]
+                        self.error.append(err.MAP_CENTER_MULT_OWNED % site)
         if 'UNOWNED' in self.homes:
             del self.homes['UNOWNED']
 
@@ -271,7 +271,7 @@ class Map():
         self.phase = self.phase or 'SPRING 1901 MOVEMENT'
         phase = self.phase.split()
         if len(phase) != 3:
-            self.error += [err.MAP_BAD_PHASE % self.phase]
+            self.error.append(err.MAP_BAD_PHASE % self.phase)
         else:
             self.first_year = int(phase[1])
 
@@ -295,7 +295,7 @@ class Map():
             return
 
         # Adding to parsed files
-        self.files += [file_name]
+        self.files.append(file_name)
 
         # Parsing file
         with open(file_path, encoding='utf-8') as file:
@@ -316,7 +316,7 @@ class Map():
                     try:
                         self.victory = [int(word) for word in word[1:]]
                     except ValueError:
-                        self.error += [err.MAP_BAD_VICTORY_LINE]
+                        self.error.append(err.MAP_BAD_VICTORY_LINE)
 
                 # ---------------------------------
                 # Inclusion of other base map files
@@ -325,9 +325,9 @@ class Map():
                 elif upword in ('USE', 'USES', 'MAP'):
                     if upword == 'MAP':
                         if len(word) != 2:
-                            self.error += [err.MAP_BAD_ROOT_MAP_LINE]
+                            self.error.append(err.MAP_BAD_ROOT_MAP_LINE)
                         elif self.root_map:
-                            self.error += [err.MAP_TWO_ROOT_MAPS]
+                            self.error.append(err.MAP_TWO_ROOT_MAPS)
                         else:
                             self.root_map = word[1].split('.')[0]
                     for new_file in word[1:]:
@@ -336,7 +336,7 @@ class Map():
                         if new_file not in self.files:
                             self.load(new_file)
                         else:
-                            self.error += [err.MAP_FILE_MULT_USED % new_file]
+                            self.error.append(err.MAP_FILE_MULT_USED % new_file)
 
                 # ------------------------------------
                 # Set BEGIN phase
@@ -355,28 +355,28 @@ class Map():
                 elif '=' in line:
                     token = line.upper().split('=')
                     if len(token) == 1:
-                        self.error += [err.MAP_BAD_ALIASES_IN_FILE % token[0]]
-                        token += ['']
+                        self.error.append(err.MAP_BAD_ALIASES_IN_FILE % token[0])
+                        token.append('')
                     old_name, name, word = 0, token[0].strip(), token[1].split()
                     parts = [part.strip() for part in name.split('->')]
                     if len(parts) == 2:
                         old_name, name = parts
                     elif len(parts) > 2:
-                        self.error += [err.MAP_BAD_RENAME_DIRECTIVE % name]
+                        self.error.append(err.MAP_BAD_RENAME_DIRECTIVE % name)
                     if not (word[0][0] + word[0][-1]).isalnum() or word[0] != self.norm(word[0]).replace(' ', ''):
-                        self.error += [err.MAP_INVALID_LOC_ABBREV % word[0]]
+                        self.error.append(err.MAP_INVALID_LOC_ABBREV % word[0])
 
                     # Rename no longer supported
                     # Making sure place not already there
                     if old_name:
-                        self.error += [err.MAP_RENAME_NOT_SUPPORTED]
+                        self.error.append(err.MAP_RENAME_NOT_SUPPORTED)
                     if name in self.keywords:
-                        self.error += [err.MAP_LOC_RESERVED_KEYWORD % name]
+                        self.error.append(err.MAP_LOC_RESERVED_KEYWORD % name)
                         normed = name
                     else:
                         normed = self.norm(name)
                     if name in self.loc_name or normed in self.aliases:
-                        self.error += [err.MAP_DUP_LOC_OR_POWER % name]
+                        self.error.append(err.MAP_DUP_LOC_OR_POWER % name)
                     self.loc_name[name] = self.aliases[normed] = word[0]
 
                     # Ambiguous place names end with a ?
@@ -389,7 +389,7 @@ class Map():
                             self.unclear[normed] = word[0]
                         elif normed in self.aliases:
                             if self.aliases[normed] != word[0]:
-                                self.error += [err.MAP_DUP_ALIAS_OR_POWER % alias]
+                                self.error.append(err.MAP_DUP_ALIAS_OR_POWER % alias)
                         else:
                             self.aliases[normed] = word[0]
 
@@ -399,7 +399,7 @@ class Map():
                 # -- CENTERS [center...]
                 elif upword in ('OWNS', 'CENTERS'):
                     if not power:
-                        self.error += [err.MAP_OWNS_BEFORE_POWER % (upword, ' '.join(word))]
+                        self.error.append(err.MAP_OWNS_BEFORE_POWER % (upword, ' '.join(word)))
                     else:
                         if power not in self.owns:
                             self.owns.append(power)
@@ -415,7 +415,7 @@ class Map():
                 # -- INHABITS center...
                 elif upword == 'INHABITS':
                     if not power:
-                        self.error += [err.MAP_INHABITS_BEFORE_POWER % ' '.join(word)]
+                        self.error.append(err.MAP_INHABITS_BEFORE_POWER % ' '.join(word))
                     else:
                         reinit = power not in self.inhabits
                         if reinit:
@@ -425,7 +425,7 @@ class Map():
                 # -- HOME(S) [center...]
                 elif upword in ('HOME', 'HOMES'):
                     if not power:
-                        self.error += [err.MAP_HOME_BEFORE_POWER % (upword, ' '.join(word))]
+                        self.error.append(err.MAP_HOME_BEFORE_POWER % (upword, ' '.join(word)))
                     else:
                         if power not in self.inhabits:
                             self.inhabits.append(power)
@@ -438,7 +438,7 @@ class Map():
                     if power:
                         self.units[power] = []
                     else:
-                        self.error += [err.MAP_UNITS_BEFORE_POWER]
+                        self.error.append(err.MAP_UNITS_BEFORE_POWER)
 
                 # ------------------------------------
                 # Unit Designation (A or F)
@@ -446,7 +446,7 @@ class Map():
                 elif upword in ('A', 'F'):
                     unit = ' '.join(word).upper()
                     if not power:
-                        self.error += [err.MAP_UNIT_BEFORE_POWER]
+                        self.error.append(err.MAP_UNIT_BEFORE_POWER)
                     elif len(word) == 2:
                         for units in self.units.values():
                             for current_unit in units:
@@ -454,7 +454,7 @@ class Map():
                                     units.remove(current_unit)
                         self.units.setdefault(power, []).append(unit)
                     else:
-                        self.error += [err.MAP_INVALID_UNIT % unit]
+                        self.error.append(err.MAP_INVALID_UNIT % unit)
 
                 # ------------------------------------
                 # Dummies
@@ -468,11 +468,11 @@ class Map():
                     # DUMMY
                     if len(word) == 1:
                         if upword == 'DUMMIES':
-                            self.error += [err.MAP_DUMMY_REQ_LIST_POWERS]
+                            self.error.append(err.MAP_DUMMY_REQ_LIST_POWERS)
                         elif not power:
-                            self.error += [err.MAP_DUMMY_BEFORE_POWER]
+                            self.error.append(err.MAP_DUMMY_BEFORE_POWER)
                         elif power not in self.dummies:
-                            self.dummies += [power]
+                            self.dummies.append(power)
                     # DUMMY powerName powerName
                     elif word[1].upper() != 'ALL':
                         self.dummies.extend(
@@ -483,10 +483,10 @@ class Map():
                         self.dummies = [power_name for power_name in self.homes if power_name != 'UNOWNED']
                     # DUMMY ALL powerName
                     elif word[2].upper() != 'EXCEPT':
-                        self.error += [err.MAP_NO_EXCEPT_AFTER_DUMMY_ALL % upword]
+                        self.error.append(err.MAP_NO_EXCEPT_AFTER_DUMMY_ALL % upword)
                     # DUMMY ALL EXCEPT
                     elif len(word) == 3:
-                        self.error += [err.MAP_NO_POWER_AFTER_DUMMY_ALL_EXCEPT % upword]
+                        self.error.append(err.MAP_NO_POWER_AFTER_DUMMY_ALL_EXCEPT % upword)
                     # DUMMY ALL EXCEPT powerName powerName
                     else:
                         self.dummies = [power_name for power_name in self.homes if power_name not in
@@ -526,15 +526,15 @@ class Map():
                         self.locs.remove(place)
 
                     # Re-adding the place and its type
-                    self.locs += [place]
+                    self.locs.append(place)
                     if upword != 'AMEND':
                         self.loc_type[place] = word[0]
                         if len(word) > 2:
                             self.loc_abut[place] = []
                     elif place not in self.loc_type:
-                        self.error += [err.MAP_NO_DATA_TO_AMEND_FOR % place]
+                        self.error.append(err.MAP_NO_DATA_TO_AMEND_FOR % place)
                     if len(word) > 2 and word[2].upper() != 'ABUTS':
-                        self.error += [err.MAP_NO_ABUTS_FOR % place]
+                        self.error.append(err.MAP_NO_ABUTS_FOR % place)
 
                     # Processing ABUTS (adjacencies)
                     for dest in word[3:]:
@@ -547,7 +547,7 @@ class Map():
                             continue
 
                         # Now add the adjacency
-                        self.loc_abut[place] += [dest]
+                        self.loc_abut[place].append(dest)
 
                 # ------------------------------------
                 # Removal of an existing power
@@ -558,7 +558,7 @@ class Map():
                     # UNPLAYED powerName
                     if len(word) == 1:
                         if not power:
-                            self.error += [err.MAP_UNPLAYED_BEFORE_POWER]
+                            self.error.append(err.MAP_UNPLAYED_BEFORE_POWER)
                         else:
                             goners = [power]
                     # UNPLAYED powerName powerName
@@ -569,10 +569,10 @@ class Map():
                         goners = [power_name for power_name in self.homes if power_name != 'UNOWNED']
                     # UNPLAYED ALL playerName
                     elif word[2].upper() != 'EXCEPT':
-                        self.error += [err.MAP_NO_EXCEPT_AFTER_UNPLAYED_ALL]
+                        self.error.append(err.MAP_NO_EXCEPT_AFTER_UNPLAYED_ALL)
                     # UNPLAYED ALL EXCEPT
                     elif len(word) == 3:
-                        self.error += [err.MAP_NO_POWER_AFTER_UNPLAYED_ALL_EXCEPT]
+                        self.error.append(err.MAP_NO_POWER_AFTER_UNPLAYED_ALL_EXCEPT)
                     # UNPLAYED ALL EXCEPT powerName
                     else:
                         goners = [power_name for power_name in self.homes if power_name not in
@@ -595,7 +595,7 @@ class Map():
                                 del self.units[goner]
                             self.powers = [x for x in self.powers if x != goner]
                         except KeyError:
-                            self.error += [err.MAP_NO_SUCH_POWER_TO_REMOVE % goner]
+                            self.error.append(err.MAP_NO_SUCH_POWER_TO_REMOVE % goner)
                     power = None
 
                 else:
@@ -618,11 +618,11 @@ class Map():
                             upword = 'UNOWNED'
                         power = self.norm_power(upword) if upword != 'UNOWNED' else 0
                         if not old_power or not power:
-                            self.error += [err.MAP_RENAMING_UNOWNED_DIR_NOT_ALLOWED]
+                            self.error.append(err.MAP_RENAMING_UNOWNED_DIR_NOT_ALLOWED)
                         elif not self.pow_name.get(old_power):
-                            self.error += [err.MAP_RENAMING_UNDEF_POWER % old_power]
+                            self.error.append(err.MAP_RENAMING_UNDEF_POWER % old_power)
                         else:
-                            self.error += [err.MAP_RENAMING_POWER_NOT_SUPPORTED]
+                            self.error.append(err.MAP_RENAMING_POWER_NOT_SUPPORTED)
 
                     # Adding power
                     if power and not self.pow_name.get(power):
@@ -631,14 +631,14 @@ class Map():
                         # Add power to aliases even if the normed form is identical. That way
                         # it becomes part of the vocabulary.
                         if not normed:
-                            self.error += [err.MAP_POWER_NAME_EMPTY_KEYWORD % power]
+                            self.error.append(err.MAP_POWER_NAME_EMPTY_KEYWORD % power)
                             normed = power
                         if normed not in self.aliases:
                             if len(normed.split('/')[0]) in (1, 3):
-                                self.error += [err.MAP_POWER_NAME_CAN_BE_CONFUSED % normed]
+                                self.error.append(err.MAP_POWER_NAME_CAN_BE_CONFUSED % normed)
                             self.aliases[normed] = power
                         elif self.aliases[normed] != power:
-                            self.error += [err.MAP_DUP_LOC_OR_POWER % normed]
+                            self.error.append(err.MAP_DUP_LOC_OR_POWER % normed)
 
                     # Processing own word and abbreviations
                     upword = power or upword
@@ -650,13 +650,13 @@ class Map():
                         elif normed not in self.aliases:
                             self.aliases[normed] = power
                         elif self.aliases[normed] != power:
-                            self.error += [err.MAP_DUP_LOC_OR_POWER % normed]
+                            self.error.append(err.MAP_DUP_LOC_OR_POWER % normed)
                         if ':' in word[1]:
                             owner, abbrev = self.own_word[upword].split(':')
                             self.own_word[upword] = owner or power
                             self.abbrev[upword] = abbrev[:1].upper()
                             if not abbrev or self.abbrev[upword] in 'M?':
-                                self.error += [err.MAP_ILLEGAL_POWER_ABBREV]
+                                self.error.append(err.MAP_ILLEGAL_POWER_ABBREV)
                         del word[1]
                     else:
                         self.own_word.setdefault(upword, upword)
@@ -854,7 +854,7 @@ class Map():
             while word2:
                 alias2, i = self.alias(word2)
                 if alias2:
-                    result += [alias2]
+                    result.append(alias2)
                 word2 = word2[i:]
             return ' '.join(result), j + 1
         for i in range(len(word), 0, -1):
@@ -933,7 +933,7 @@ class Map():
                 data_type = POWER
             if strict and thing not in list(self.aliases.values()) + list(self.keywords.values()):
                 data_type = -data_type
-            result += [(thing, data_type)]
+            result.append((thing, data_type))
         return result
 
     def rearrange(self, word):
@@ -1198,7 +1198,7 @@ class Map():
             abut_list = abut_list[:]
             for loc in list(abut_list):
                 if '/' in loc and loc[:3] not in abut_list:
-                    abut_list += [loc[:3]]
+                    abut_list.append(loc[:3])
         return abut_list
 
     def find_next_phase(self, phase, phase_type=None, skip=0):

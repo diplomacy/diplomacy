@@ -95,7 +95,7 @@ def get_convoy_paths(map_object, start_location, max_convoy_length, queue):
                     if path.issubset(fleets_loc):
                         break
                 else:
-                    dest_paths[loc] += [fleets_loc]
+                    dest_paths[loc].append(fleets_loc)
 
             # If we find adjacent water/port, we add them to the queue
             elif map_object.area_type(loc) in ('WATER', 'PORT') \
@@ -114,7 +114,7 @@ def get_convoy_paths(map_object, start_location, max_convoy_length, queue):
     # Converting to list
     results = []
     for fleets, dests in similar_paths.items():
-        results += [(start_location, set(fleets), dests)]
+        results.append((start_location, set(fleets), dests))
 
     # Returning
     queue.put(1)
@@ -150,7 +150,7 @@ def build_convoy_paths_cache(map_object, max_convoy_length):
     # Splitting into buckets
     buckets = collections.OrderedDict({i: [] for i in range(1, len(map_object.locs) + 1)})
     for start, fleets, dests in results:
-        buckets[len(fleets)] += [(start, fleets, dests)]
+        buckets[len(fleets)].append((start, fleets, dests))
 
     # Returning
     print('Found {} convoy paths for {}\n'.format(len(results), map_object.name))
