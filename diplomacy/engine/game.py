@@ -2946,22 +2946,10 @@ class Game(Jsonable):
             if not hasattr(who, 'orders'):
                 return self.error.append('%s HAS NO UNITS OF ITS OWN TO ORDER' % who.name)
 
-            # NMR = No Moves Received (NMR or CLEAR command)
-            nmr = (len(word) == 1
-                   and word[0][word[0][:1] in '([':len(word[0]) - (word[0][-1:] in '])')].upper() in ('NMR', 'CLEAR'))
+            # Empty orders before sticking any new orders in it.
             if who not in powers:
-
-                # Empty orders before sticking any new orders in it.
                 had_orders.append(who.orders)
                 powers.append(who)
-                if nmr:
-                    continue
-
-            # If CLEAR or NMR, clear orders
-            elif nmr:
-                who.orders = {}
-                has_orders = [x for x in has_orders if x is not who]
-                continue
 
             # Adds orders
             if 'NO_CHECK' in self.rules:
