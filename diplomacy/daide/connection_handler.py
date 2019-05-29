@@ -24,6 +24,7 @@ from tornado.iostream import StreamClosedError
 import diplomacy.daide as daide
 from diplomacy.daide.messages import DaideMessage, MessageType
 from diplomacy.daide.requests import RequestBuilder
+import diplomacy.daide.request_managers
 import diplomacy.daide.responses
 from diplomacy.daide.utils import bytes_to_str
 from diplomacy.utils import exceptions
@@ -34,10 +35,16 @@ class ConnectionHandler():
     """ ConnectionHandler class. Properties:
         - server: server object representing running server.
     """
+    _NAME_VARIANT_PREFIX = "DAIDE"
+    _NAME_VARIANTS_POOL = []
+    _USED_NAME_VARIANTS = []
+
     def __init__(self):
         self.stream = None
         self.server = None
         self.game_id = None
+        self.token = None
+        self._name_variant = None
         self._socket_no = None
         self._local_addr = ('::1', 0, 0, 0)
         self._remote_addr = ('::1', 0, 0, 0)
@@ -69,6 +76,18 @@ class ConnectionHandler():
     @property
     def remote_addr(self):
         return self._remote_addr
+
+    def get_name_variant(self):
+        if self._name_variant is None:
+            self._name_variant = self._NAME_VARIANTS_POOL.pop(0) if self._NAME_VARIANTS_POOL \
+                                 else len(self._USED_NAME_VARIANTS)
+            self._USED_NAME_VARIANTS.append(self._name_variant)
+        return self._NAME_VARIANT_PREFIX + str(self._name_variant)
+
+    def release_name_variant(self):
+        self._USED_NAME_VARIANTS.remove(self._name_variant)
+        self._NAME_VARIANTS_POOL.append(self._name_variant)
+        self._name_variant = None
 
     @gen.coroutine
     def close_connection(self):
@@ -137,6 +156,7 @@ class ConnectionHandler():
         try:
             LOGGER.info('[{}] request:[{}]'.format(self._socket_no, bytes_to_str(in_message.content)))
             request.game_id = self.game_id
+            responses = yield daide.request_managers.handle_request(self.server, request, self)
         except exceptions.ResponseException as exc:
             responses = [daide.responses.REJ(bytes(request))]
 

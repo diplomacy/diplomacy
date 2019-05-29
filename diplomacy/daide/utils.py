@@ -14,8 +14,21 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
+from collections import namedtuple
 import diplomacy.daide as daide
 from diplomacy.daide.tokens import is_integer_token, Token
+
+ClientConnection = namedtuple('ClientConnection', ['username', 'user_additions', 'token', 'power_name'])
+
+def get_user_connection(server_users, game, connection_handler):
+    token = connection_handler.token
+    username = server_users.get_name(token) if server_users.has_token(token) else None
+    user_additions = server_users.get_daide_user_additions(username)
+
+    # Assumed to be only one power name in the list
+    user_powers = [power_name for power_name, power in game.powers.items() if power.is_controlled_by(username)]
+    power_name = user_powers[0] if user_powers else None
+    return ClientConnection(username, user_additions, token, power_name)
 
 def str_to_bytes(daide_str):
     """ Converts a str into its bytes representation

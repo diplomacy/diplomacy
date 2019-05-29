@@ -26,6 +26,7 @@
 """
 import logging
 
+from diplomacy.daide.user_additions import UserAdditions as DAIDEUserAdditions
 from diplomacy.server.user import User
 from diplomacy.utils import common, parsing, strings
 from diplomacy.utils.common import generate_token
@@ -46,11 +47,14 @@ class Users(Jsonable):
         - token_to_connection_handler: (memory only) dictionary mapping each token to a connection handler
         - connection_handler_to_tokens (memory only) dictionary mapping a connection handler to a set of its tokens
     """
-    __slots__ = ['users', 'administrators', 'token_timestamp', 'token_to_username', 'username_to_tokens',
-                 'token_to_connection_handler', 'connection_handler_to_tokens']
+    __slots__ = ['users', 'daide_users_additions', 'administrators', 'token_timestamp', 'token_to_username',
+                 'username_to_tokens', 'token_to_connection_handler', 'connection_handler_to_tokens']
     model = {
         strings.USERS: parsing.DefaultValueType(parsing.DictType(str, parsing.JsonableClassType(User)), {}),
         # {username => User}
+        strings.DAIDE_USERS_ADDITIONS: parsing.DefaultValueType(
+            parsing.DictType(str, parsing.JsonableClassType(DAIDEUserAdditions)), {}),
+        # {username => DAIDEUserAdditions}
         strings.ADMINISTRATORS: parsing.DefaultValueType(parsing.SequenceType(str, sequence_builder=set), ()),
         # {usernames}
         strings.TOKEN_TIMESTAMP: parsing.DefaultValueType(parsing.DictType(str, int), {}),
@@ -60,6 +64,7 @@ class Users(Jsonable):
 
     def __init__(self, **kwargs):
         self.users = {}
+        self.daide_users_additions = {}
         self.administrators = set()
         self.token_timestamp = {}
         self.token_to_username = {}
@@ -145,9 +150,17 @@ class Users(Jsonable):
         self.users[username] = user
         return user
 
+    def set_daide_user_additions(self, username, daide_user_additions):
+        assert username in self.users
+        self.daide_users_additions[username] = daide_user_additions
+
+    def get_daide_user_additions(self, username):
+        return self.daide_users_additions.get(username, None)
+
     def remove_user(self, username):
         """ Remove user related to given username. """
         user = self.users.pop(username)
+        self.daide_users_additions.pop(username, None)
         self.remove_admin(username)
         for token in self.username_to_tokens.pop(user.username):
             self.token_timestamp.pop(token)
