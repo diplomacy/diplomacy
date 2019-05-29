@@ -150,6 +150,8 @@ def on_create_game(server, request, connection_handler):
     # Register game on server.
     server.add_new_game(server_game)
 
+    server.start_new_daide_server(game_id)
+
     # Start game immediately if possible (e.g. if it's a solitaire game).
     if server_game.game_can_start():
         server.start_game(server_game)
@@ -216,6 +218,7 @@ def on_delete_game(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     server.delete_game(level.game)
     server.unschedule_game(level.game)
+    server.stop_daide_server(level.game.game_id)
     Notifier(server, ignore_tokens=[request.token]).notify_game_deleted(level.game)
 
 def on_get_dummy_waiting_powers(server, request, connection_handler):
