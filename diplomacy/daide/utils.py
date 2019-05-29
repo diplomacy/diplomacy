@@ -33,3 +33,19 @@ def str_to_bytes(daide_str):
         else:
             buffer.append(bytes(Token(from_str=word)))
     return b''.join(buffer)
+
+def bytes_to_str(daide_bytes):
+    """ Converts a bytes into its str representation
+        :param daide_bytes: A DAIDE bytes with tokens separated by spaces
+        :return: The bytes representation of the string
+
+        Note: Integers starts with a '#' character
+    """
+    buffer = []
+    for i in range(0, len(daide_bytes), 2):
+        token = Token(from_bytes=(daide_bytes[i], daide_bytes[i + 1]))
+        if is_integer_token(token):
+            buffer.append('#' + str(token))
+        else:
+            buffer.append(str(token))
+    return ' '.join(buffer)
