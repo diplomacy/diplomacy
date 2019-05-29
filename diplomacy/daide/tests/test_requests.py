@@ -16,10 +16,7 @@
 # ==============================================================================
 """ Tests for request objects """
 import diplomacy.daide as daide
-import diplomacy.daide.requests
 from diplomacy.daide.requests import RequestBuilder
-import diplomacy.daide.tokens
-from diplomacy.daide.tokens import Token
 from diplomacy.daide.utils import str_to_bytes
 
 def test_nme_001():

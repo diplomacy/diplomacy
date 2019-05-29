@@ -14,13 +14,19 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
+""" Settings - Contains a list of utils to help handle DAIDE com """
 from collections import namedtuple
-import diplomacy.daide as daide
 from diplomacy.daide.tokens import is_integer_token, Token
 
 ClientConnection = namedtuple('ClientConnection', ['username', 'user_additions', 'token', 'power_name'])
 
 def get_user_connection(server_users, game, connection_handler):
+    """ Get the DAIDE user connection informations
+        :param server_users: The instance of `diplomacy.server.users` of the game's server
+        :param game: The game the user has joined
+        :param connection_handler: The connection_handler of the user
+        :return: A tuple of username, user_additions, token, power_name
+    """
     token = connection_handler.token
     username = server_users.get_name(token) if server_users.has_token(token) else None
     user_additions = server_users.get_daide_user_additions(username)
@@ -38,7 +44,8 @@ def str_to_bytes(daide_str):
         Note: Integers starts with a '#' character
     """
     buffer = []
-    for word in daide_str.split(' '):
+    str_split = daide_str.split(' ') if daide_str else []
+    for word in str_split:
         if word == '':
             buffer.append(bytes(Token(from_str=' ')))
         elif word[0] == '#':
@@ -55,7 +62,8 @@ def bytes_to_str(daide_bytes):
         Note: Integers starts with a '#' character
     """
     buffer = []
-    for i in range(0, len(daide_bytes), 2):
+    length = len(daide_bytes) if daide_bytes else 0
+    for i in range(0, length, 2):
         token = Token(from_bytes=(daide_bytes[i], daide_bytes[i + 1]))
         if is_integer_token(token):
             buffer.append('#' + str(token))

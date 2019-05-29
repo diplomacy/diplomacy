@@ -18,64 +18,50 @@
     - Contains the error messages and code used by the engine
 """
 
-MAP_ERROR_OFFSET = 1000
-GAME_ERROR_OFFSET = 2000
-STD_ERROR_OFFSET = 3000
+import diplomacy.utils.results  as res
+from diplomacy.utils.results import Result
 
-class Error():
-    def __init__(self, code, message):
-        self._code = code
-        self._message = message
+MAP_ERROR_OFFSET = 20000
+GAME_ERROR_OFFSET = 21000
+STD_ERROR_OFFSET = 22000
 
-    def __eq__(self, other):
-        """ Define the equal """
-        if isinstance(other, Error):
-            return self._code == other.code
-
-        return self._message == str(other)
-
-    def __hash__(self):
-        return hash(self._message)
-
-    def __mod__(self, values):
-        return Error(self._code, self._message % values)
-
-    def __repr__(self):
-        return '{}:{}'.format(self._code, self._message)
-
-    def __str__(self):
-        return self._message
-
-    @property
-    def code(self):
-        return self._code
-
-    @property
-    def message(self):
-        return self._message
-
-    def format(self, *values):
-        return Error(self._code, self._message.format(*values))
+class Error(Result):
+    """ Represents an error """
 
 class MapError(Error):
+    """ Represents a map error """
     def __init__(self, code, message):
+        """ Build a MapError
+            :param code: int code of the error
+            :param message: humain readable string message associated to the error
+        """
         super(MapError, self).__init__(self.OFFSET+code, message)
 
     OFFSET = MAP_ERROR_OFFSET
 
 class GameError(Error):
+    """ Represents a game error """
     def __init__(self, code, message):
+        """ Build a GameError
+            :param code: int code of the error
+            :param message: humain readable string message associated to the error
+        """
         super(GameError, self).__init__(self.OFFSET+code, message)
 
     OFFSET = GAME_ERROR_OFFSET
 
 class StdError(Error):
+    """ Represents a standard error """
     def __init__(self, code, message):
+        """ Build a StdError
+            :param code: int code of the error
+            :param message: humain readable string message associated to the error
+        """
         super(StdError, self).__init__(self.OFFSET+code, message)
 
     OFFSET = STD_ERROR_OFFSET
 
-OK = Error(0, '')
+OK = res.OK
 
 MAP_LEAST_TWO_POWERS = MapError(0, 'MAP DOES NOT SPECIFY AT LEAST TWO POWERS')
 MAP_LOC_NOT_FOUND = MapError(1, 'NAMED LOCATION NOT ON MAP: %s')

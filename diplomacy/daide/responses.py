@@ -15,12 +15,10 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ DAIDE Responses - Contains a list of responses sent by the server to the client """
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 from diplomacy.communication.responses import _AbstractResponse
 import diplomacy.daide as daide
-import diplomacy.daide.clauses
 from diplomacy.daide.clauses import add_parentheses, strip_parentheses, parse_string
-import diplomacy.daide.tokens
 from diplomacy.daide.utils import bytes_to_str
 from diplomacy.daide.tokens import Token
 from diplomacy import Map
@@ -101,22 +99,37 @@ class MapDefinitionResponse(DaideResponse):
             :param map_name: The name of the map
         """
         super(MapDefinitionResponse, self).__init__(**kwargs)
-        map = Map(map_name)
+        game_map = Map(map_name)
 
         # (Powers): (power power ...)
-        powers_clause = self._build_powers_clause(map)
+        powers_clause = self._build_powers_clause(game_map)
         # (Provinces): ((supply_centers) (non_supply_centres))
-        provinces_clause = self._build_provinces_clause(map)
+        provinces_clause = self._build_provinces_clause(game_map)
         # (Adjacencies): ((prov_adjacencies) (prov_adjacencies) ...)
-        adjacencies_clause = self._build_adjacencies_clause(map)
+        adjacencies_clause = self._build_adjacencies_clause(game_map)
 
         self._bytes = bytes(daide.tokens.MDF) \
                       + powers_clause \
                       + provinces_clause \
                       + adjacencies_clause
 
-    def _build_powers_clause(self, map):
-        power_names = map.powers[:]
+    @staticmethod
+    def _build_powers_clause(game_map):
+        """ Build the powers clause
+            Syntax:
+                (powers)
+            powers syntax:
+                power power ...
+            power syntax:
+                AUS                     # Austria
+                ENG                     # England
+                FRA                     # France
+                GER                     # Germany
+                ITA                     # Italy
+                RUS                     # Russia
+                TUR                     # Turkey
+        """
+        power_names = game_map.powers[:]
         power_names.sort()
         powers_clause = [bytes(parse_string(daide.clauses.Power, power_name)) for power_name in power_names]
         # (Powers): (power power ...)
@@ -124,10 +137,31 @@ class MapDefinitionResponse(DaideResponse):
 
         return powers_clause
 
-    def _build_provinces_clause(self, map):
+    @staticmethod
+    def _build_provinces_clause(game_map):
+        """ Build the provinces clause
+            Syntax:
+                (provinces)
+            provinces syntax:
+                (supply_centres) (non_supply_centres)
+            supply_centres syntax:
+                (power centre centre ...) (power centre centre ...) ...
+            supply_centres power syntax:
+                (power power ...)       # This is currently not supported
+                AUS                     # Austria
+                ENG                     # England
+                FRA                     # France
+                GER                     # Germany
+                ITA                     # Italy
+                RUS                     # Russia
+                TUR                     # Turkey
+                UNO                     # Unknown power
+            non_supply_centres syntax:
+                province province ...   # List of provinces
+        """
         provinces_clause = None
 
-        unowned_scs = map.scs[:]
+        unowned_scs = game_map.scs[:]
         unowned_scs.sort()
 
         # (Supply centers): ((power centre centre ...) (power centre centre ...) ...)
@@ -135,7 +169,7 @@ class MapDefinitionResponse(DaideResponse):
         # (Non supply centres): (province province ...)
         non_scs_clause = []
 
-        power_names_centers = [(power_name, centers[:]) for power_name, centers in map.centers.items()]
+        power_names_centers = [(power_name, centers[:]) for power_name, centers in game_map.centers.items()]
         power_names_centers.sort(key=lambda power_name_center: power_name_center[0])
 
         # Parsing each power centers
@@ -158,15 +192,15 @@ class MapDefinitionResponse(DaideResponse):
         # (Supply centers): ((power centre centre ...) (power centre centre ...) ...)
         scs_clause = add_parentheses(b''.join(scs_clause))
 
-        provinces = map.locs[:]
+        provinces = game_map.locs[:]
         provinces.sort()
         for province in provinces:
-            if map.area_type(province) == 'SHUT':
+            if game_map.area_type(province) == 'SHUT':
                 continue
 
             province = province[:3].upper()
             province_clause = bytes(parse_string(daide.clauses.Province, province))
-            if province_clause not in non_scs_clause and province not in map.scs:
+            if province_clause not in non_scs_clause and province not in game_map.scs:
                 non_scs_clause.append(province_clause)
 
         # (Non supply centres): (province province ...)
@@ -178,7 +212,23 @@ class MapDefinitionResponse(DaideResponse):
 
         return provinces_clause
 
-    def _build_adjacencies_clause(self, map):
+    @staticmethod
+    def _build_adjacencies_clause(game_map):
+        """ Build the adjacencies clause
+            Syntax:
+                (adjacencies)
+            adjacencies syntax:
+                (prov_adjacencies) (prov_adjacencies) ...
+            prov_adjacencies syntax:
+                province (unit_type adjacent_prov adjacent_prov ...) (unit_type adjacent_prov adjacent_prov ...) ...
+            unit_type syntax:
+                AMY                     # List of provinces an army can move to
+                FLT                     # List of provinces a fleet can move to
+                (FLT coast)             # List of provinces a fleet can move to from the given coast
+            adjacent_prov syntax:
+                province                # A province which can be moved to
+                (province coast)        # A coast of a province that can be moved to
+        """
         ProvAdjacencies = namedtuple('ProvAdjacencies', ['amy_provinces', 'flt_provinces', 'coast_flt_provinces'])
 
         adjacencies_clause = None
@@ -186,13 +236,13 @@ class MapDefinitionResponse(DaideResponse):
         adjacencies = {}
 
         provinces_adjacencies = [(province_w_coast, adjacent_provinces[:])
-                                 for province_w_coast, adjacent_provinces in map.dest_with_coasts.items()]
+                                 for province_w_coast, adjacent_provinces in game_map.dest_with_coasts.items()]
         provinces_adjacencies.sort(key=lambda province_adjacencies: province_adjacencies[0])
 
         for province_w_coast, adjacent_provinces in provinces_adjacencies:
             adjacent_provinces.sort()
 
-            province_type = map.area_type(province_w_coast)
+            province_type = game_map.area_type(province_w_coast)
 
             if province_type == 'SHUT':
                 continue
@@ -206,7 +256,6 @@ class MapDefinitionResponse(DaideResponse):
                 adjacencies[province] = prov_adjacencies
 
             amy_provinces = None
-            not coast and prov_adjacencies.amy_provinces if province_type not in ["PORT", "WATER"] else None
             flt_provinces = None
 
             if coast:
@@ -224,8 +273,10 @@ class MapDefinitionResponse(DaideResponse):
                 prov_adjacencies.flt_provinces[:] = []
 
             for adjacent_prov in adjacent_provinces:
-                is_amy_adjacent_prov = amy_provinces is not None and map.abuts('A', province_w_coast, '-', adjacent_prov)
-                is_flt_adjacent_prov = flt_provinces is not None and map.abuts('F', province_w_coast, '-', adjacent_prov)
+                is_amy_adjacent_prov = amy_provinces is not None and \
+                                       game_map.abuts('A', province_w_coast, '-', adjacent_prov)
+                is_flt_adjacent_prov = flt_provinces is not None and \
+                                       game_map.abuts('F', province_w_coast, '-', adjacent_prov)
 
                 if is_amy_adjacent_prov:
                     amy_provinces.append(bytes(parse_string(daide.clauses.Province, adjacent_prov[:3])))
@@ -269,88 +320,6 @@ class MapDefinitionResponse(DaideResponse):
         adjacencies_clause = add_parentheses(b''.join(adjacencies_clause))
 
         return adjacencies_clause
-
-    # def _build_adjacencies_clause(self, map):
-    #     adjacencies_clause = None
-    #
-    #     adjacencies = {}
-    #
-    #     for province_w_coast, adjacent_provinces in map.dest_with_coasts.items():
-    #         coast = province_w_coast[3:]
-    #         province = province_w_coast[:3]
-    #
-    #         prov_adjacencies = adjacencies.get(province, None)
-    #         if not prov_adjacencies:
-    #             prov_adjacencies = ProvAdjacencies([], [], {})
-    #             adjacencies[province] = prov_adjacencies
-    #
-    #         # COAST
-    #         if coast and prov_adjacencies.flt_provinces:
-    #             prov_adjacencies.flt_provinces = []
-    #
-    #         for adjacent_prov in adjacent_provinces:
-    #             adjacent_prov_coast = adjacent_prov[3:]
-    #             adjacent_prov_type = map.area_type(adjacent_prov)
-    #
-    #             if adjacent_prov_type in ['WATER', 'COAST', 'PORT']:
-    #                 coast_provinces = None
-    #
-    #                 if coast:
-    #                     coast_provinces = prov_adjacencies.coast_flt_provinces.get(coast, None)
-    #                     if not coast_provinces:
-    #                         coast_provinces = []
-    #                         prov_adjacencies.coast_flt_provinces[coast] = provinces
-    #
-    #                 elif not prov_adjacencies.coast_flt_provinces:
-    #                     coast_provinces = prov_adjacencies.flt_provinces
-    #
-    #                 coast_provinces.append(bytes(parse_string(daide.clauses.Province, adjacent_prov)))
-    #
-    #             if not adjacent_prov_coast and adjacent_prov_type in ['COAST', 'LAND']:
-    #                 prov_adjacencies.amy_provinces.append(bytes(parse_string(daide.clauses.Province, adjacent_prov[:3])))
-    #
-    #     adjacencies_clause = []
-    #
-    #     for province, prov_adjacencies in adjacencies:
-    #         prov_adjacencies_clause = [bytes(parse_string(daide.clauses.Province, province))]
-    #
-    #         if prov_adjacencies.amy_provinces:
-    #             amy_adjacencies_clause = [bytes(daide.tokens.AMY)]
-    #             for amy_province in prov_adjacencies.amy_provinces:
-    #                 amy_adjacencies_clause.append(bytes(parse_string(daide.clauses.Province, amy_province)))
-    #             # (Army adjacencies): (AMY adjacent_prov adjacent_prov ...)
-    #             amy_adjacencies_clause = add_parentheses(b''.join(amy_adjacencies_clause))
-    #             prov_adjacencies_clause += amy_adjacencies_clause
-    #
-    #         if prov_adjacencies.flt_provinces:
-    #             flt_adjacencies_clause = [bytes(daide.tokens.FLT)]
-    #             for flt_province in prov_adjacencies.flt_provinces:
-    #                 flt_adjacencies_clause.append(bytes(parse_string(daide.clauses.Province, flt_province)))
-    #             # (Fleet provinces): (FLT adjacent_prov adjacent_prov ...)
-    #             flt_adjacencies_clause = add_parentheses(b''.join(flt_adjacencies_clause))
-    #             prov_adjacencies_clause += flt_adjacencies_clause
-    #         else:
-    #             for coast, flt_provinces in prov_adjacencies.coast_flt_provinces:
-    #                 flt_clause = bytes(daide.tokens.FLT)
-    #                 coast_clause = bytes(parse_string(daide.clauses.Province, coast))
-    #                 # (Fleet coast): (FLT coast)
-    #                 coast_flt_adjacencies_clause = [add_parentheses(flt_clause+coast_clause)]
-    #                 for flt_province in flt_provinces:
-    #                     coast_flt_adjacencies_clause.append(bytes(parse_string(daide.clauses.Province, flt_province)))
-    #                 # (Fleet coast provinces): ((FLT coast) adjacent_prov adjacent_prov ...)
-    #                 coast_flt_adjacencies_clause = add_parentheses(b''.join(coast_flt_adjacencies_clause))
-    #                 prov_adjacencies_clause += coast_flt_adjacencies_clause
-    #
-    #         # (Province adjacencies): (province (unit_type adjacent_prov adjacent_prov ...)
-    #         #                          (unit_type adjacent_prov adjacent_prov ...) ...)
-    #         prov_adjacencies_clause = add_parentheses(b''.join(prov_adjacencies_clause))
-    #
-    #         adjacencies_clause.append(prov_adjacencies_clause)
-    #
-    #     # (Adjacencies): ((prov_adjacencies) (prov_adjacencies) ...)
-    #     adjacencies_clause = add_parentheses(b''.join(adjacencies_clause))
-    #
-    #     return adjacencies_clause
 
 class HelloResponse(DaideResponse):
     """ Represents a HLO DAIDE response. Sends the power to be played by the client with the passcode to rejoin the
@@ -499,7 +468,8 @@ class ThanksResponse(DaideResponse):
             ESC     # Not an empty supply centre
             HSC     # Not a home supply centre
             NSC     # Not a supply centre
-            CST     # No coast specified for fleet build in StP, or an attempt to build a fleet inland, or an army at sea.
+            CST     # No coast specified for fleet build in StP, or an attempt
+                      to build a fleet inland, or an army at sea.
             NMB     # No more builds allowed
             NMR     # No more removals allowed
             NRS     # Not the right season
@@ -582,7 +552,7 @@ class MissingOrdersResponse(DaideResponse):
 
     def _build_adjustment_phase(self, power):
         """ Builds the missing orders response for a build phase """
-        adjusts = [OrderSplit.split(adjust) for adjust in power.adjust]
+        adjusts = [OrderSplit(adjust) for adjust in power.adjust]
         build_cnt = sum(1 for adjust in adjusts if adjust.command == 'B')
         disband_cnt = sum(1 for adjust in adjusts if adjust.command == 'D')
         disbands_status = (len(power.units) + build_cnt) - (len(power.centers) + disband_cnt)
@@ -645,7 +615,8 @@ class TimeToDeadlineResponse(DaideResponse):
 class AcceptResponse(DaideResponse):
     """ Represents a YES DAIDE request.
         Syntax:
-            YES (TME (seconds))                                 # Accepts to set the time when a TME message will be sent
+            YES (TME (seconds))                                 # Accepts to set the time when a
+                                                                  TME message will be sent
             YES (NOT (TME))                                     # Accepts to cancel all requested time messages
             YES (NOT (TME (seconds)))                           # Accepts to cancel a specific requested time message
             YES (GOF)                                           # Accepts to wait until the deadline before processing
@@ -656,7 +627,8 @@ class AcceptResponse(DaideResponse):
             YES (NOT (DRW))                                     # Accepts to cancel a draw request
         LVL 10:
             YES (DRW (power power ...))                         # Accepts a partial draw
-            YES (NOT (DRW (power power ...)))                   # Accepts to cancel a partial draw request (? not mentinned in the DAIDE doc)
+            YES (NOT (DRW (power power ...)))                   # Accepts to cancel a partial draw request
+                                                                  (? not mentinned in the DAIDE doc)
             YES (SND (power power ...) (press_message))         # Accepts a press message
             YES (SND (turn) (power power ...) (press_message))  # Accepts a press message
     """
@@ -673,7 +645,8 @@ class RejectResponse(DaideResponse):
             REJ (NME ('name') ('version'))                      # Rejects a client in the game
             REJ (IAM (power) (passcode))                        # Rejects a client to rejoin the game
             REJ (HLO)                                           # Rejects to send the HLO message
-            REJ (HST (turn))                                    # Rejects to send a copy of a previous ORD, SCO and NOW messages
+            REJ (HST (turn))                                    # Rejects to send a copy of a previous
+                                                                  ORD, SCO and NOW messages
             REJ (SUB (order) (order))                           # Rejects a submition of orders
             REJ (SUB (turn) (order) (order))                    # Rejects a submition of orders
             REJ (NOT (SUB (order)))                             # Rejects a cancellation of a submitted order
@@ -682,7 +655,8 @@ class RejectResponse(DaideResponse):
                                                                   the orders for the turn
             REJ (NOT (GOF))                                     # Rejects to cancel to wait until the deadline before
                                                                   processing the orders for the turn
-            REJ (TME (seconds))                                 # Rejects to set the time when a TME message will be sent
+            REJ (TME (seconds))                                 # Rejects to set the time when a
+                                                                  TME message will be sent
             REJ (NOT (TME))                                     # Rejects to cancel all requested time messages
             REJ (NOT (TME (seconds)))                           # Rejects to cancel a specific requested time message
             REJ (ADM ('name') ('message')                       # Rejects the admin message

@@ -17,7 +17,6 @@
 """ Tests for request objects """
 from diplomacy import Game
 import diplomacy.daide as daide
-import diplomacy.daide.responses
 from diplomacy.daide.utils import str_to_bytes
 import diplomacy.utils.errors as err
 import diplomacy.utils.results as res
@@ -248,7 +247,8 @@ def test_ord_002():
     order_daide_str = '( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY'
     game = Game(map_name='standard')
     phase_name = game.map.phase_abbr(game.phase)
-    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str), results=[res.ORDER_BOUNCE.code])
+    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
+                                   results=[res.ORDER_BOUNCE.code])
     assert isinstance(response, daide.responses.ORD), 'Expected a ORD response'
     assert bytes(response) == str_to_bytes(daide_str)
 
@@ -258,7 +258,8 @@ def test_ord_003():
     order_daide_str = '( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY'
     game = Game(map_name='standard')
     phase_name = game.map.phase_abbr(game.phase)
-    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str), results=[res.ORDER_DISLODGED])
+    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
+                                   results=[res.ORDER_DISLODGED])
     assert isinstance(response, daide.responses.ORD), 'Expected a ORD response'
     assert bytes(response) == str_to_bytes(daide_str)
 

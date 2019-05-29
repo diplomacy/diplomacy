@@ -627,6 +627,11 @@ class OrderType(SingleToken):
         super(OrderType, self).from_string(str_order_type, on_error)
 
 def parse_order_to_bytes(phase_type, order_split):
+    """ Builds an order clause from a byte array
+        :param phase_type: The game phase
+        :param order_split: An instance of diplomacy.utils.subject_split.OrderSplit
+        :return: The order clause's bytes
+    """
     buffer = []
 
     # FRANCE WAIVE
@@ -795,4 +800,3 @@ class Order(AbstractClause):
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
         raise NotImplementedError()
-
