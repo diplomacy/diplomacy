@@ -405,9 +405,9 @@ class SupplyCenterResponse(DaideResponse):
         Syntax:
             SCO (power centre centre ...) (power centre centre ...) ...
     """
-    def __init__(self, powers, map_name, **kwargs):
+    def __init__(self, powers_centers, map_name, **kwargs):
         """ Builds the response
-            :param powers: A list of `diplomacy.engine.power.Power` objects
+            :param powers_centers: A dict of {power_name: centers} objects
             :param map_name: The name of the map
         """
         super(SupplyCenterResponse, self).__init__(**kwargs)
@@ -415,11 +415,11 @@ class SupplyCenterResponse(DaideResponse):
         all_powers_bytes = []
 
         # Parsing each power
-        for power in powers:
-            power_clause = parse_string(daide.clauses.Power, power.name)
+        for power_name, centers in powers_centers.items():
+            power_clause = parse_string(daide.clauses.Power, power_name)
             power_bytes = bytes(power_clause)
 
-            for center in power.centers:
+            for center in centers:
                 sc_clause = parse_string(daide.clauses.Province, center)
                 power_bytes += bytes(sc_clause)
                 remaining_scs.remove(center)
@@ -448,7 +448,8 @@ class CurrentPositionResponse(DaideResponse):
             power unit_type province
             power unit_type province MRT (province province ...)
     """
-    def __init__(self, phase_name, powers, **kwargs):
+
+    def __init__(self, phase_name, powers_units, powers_retreats, **kwargs):
         """ Builds the response
             :param phase_name: The name of the current phase (e.g. 'S1901M')
             :param powers: A list of `diplomacy.engine.power.Power` objects
@@ -460,15 +461,15 @@ class CurrentPositionResponse(DaideResponse):
         turn_clause = parse_string(daide.clauses.Turn, phase_name)
 
         # Units
-        for power in powers:
+        for power_name, units in powers_units.items():
             # Regular units
-            for unit in power.units:
-                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit))
+            for unit in units:
+                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power_name, unit))
                 units_bytes_buffer += [bytes(unit_clause)]
 
             # Dislodged units
-            for unit, retreat_provinces in power.retreats.items():
-                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit))
+            for unit, retreat_provinces in powers_retreats[power_name].items():
+                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power_name, unit))
                 retreat_clauses = [parse_string(daide.clauses.Province, province)
                                    for province in retreat_provinces]
                 units_bytes_buffer += [add_parentheses(strip_parentheses(bytes(unit_clause))

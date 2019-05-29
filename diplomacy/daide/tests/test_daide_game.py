@@ -206,3 +206,6 @@ def test_game_reject_map():
 
 def test_game():
     run_game_data("game_data_1.csv")
+
+def test_game_history():
+    run_game_data("game_data_1_history.csv")
