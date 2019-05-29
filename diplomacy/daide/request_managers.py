@@ -14,17 +14,15 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-
+""" DAIDE request managers """
 # =================
 # Request managers.
 # =================
 
 import random
-import uuid
 from tornado import gen
 from tornado.concurrent import Future
 import diplomacy.communication.requests as internal_requests
-import diplomacy.communication.responses as internal_responses
 import diplomacy.daide as daide
 import diplomacy.daide.clauses
 import diplomacy.daide.requests
@@ -39,11 +37,18 @@ from diplomacy.utils import errors as err, exceptions, results as res, strings, 
 
 @gen.coroutine
 def on_name_request(server, request, connection_handler, game):
+    """ Manage NME request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     username = connection_handler.get_name_variant() + request.client_name
 
     try:
         server.assert_token(connection_handler.token, connection_handler)
-    except:
+    except exceptions.TokenException:
         connection_handler.token = None
 
     if not connection_handler.token:
@@ -63,7 +68,7 @@ def on_name_request(server, request, connection_handler, game):
                                                client_version=request.client_version)
                 server.users.set_daide_user_additions(username, user_additions)
                 server.save_data()
-        except exceptions.UserException as e:
+        except exceptions.UserException:
             return [daide.responses.REJ(bytes(request))]
 
     # find next available power
@@ -74,27 +79,44 @@ def on_name_request(server, request, connection_handler, game):
     return [daide.responses.YES(bytes(request)), daide.responses.MAP(game.map.name)]
 
 def on_observer_request(server, request, connection_handler, game):
+    """ Manage OBS request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del connection_handler
+    del game
     # No DAIDE observeres allowed
     return [daide.responses.REJ(bytes(request))]
 
 @gen.coroutine
 def on_i_am_request(server, request, connection_handler, game):
+    """ Manage IAM request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     power_name, passcode = request.power_name, request.passcode
 
     # find user
-    is_user_found = False
-    for username, user_additions in server.users.daide_users_additions.items():
+    username = None
+    for username_candicate, user_additions in server.users.daide_users_additions.items():
         is_passcode_valid = user_additions.passcode == passcode
-        is_user_found = game.is_controlled_by(power_name, username) if is_passcode_valid else False
-        if is_user_found:
+        if is_passcode_valid and game.is_controlled_by(power_name, username_candicate):
+            username = username_candicate
             break
 
-    if not is_user_found:
+    if username is None:
         return [daide.responses.REJ(bytes(request))]
 
     try:
         server.assert_token(connection_handler.token, connection_handler)
-    except:
+    except exceptions.TokenException:
         connection_handler.token = None
 
     if not connection_handler.token:
@@ -107,7 +129,7 @@ def on_i_am_request(server, request, connection_handler, game):
         try:
             token_response = yield internal_request_managers.handle_request(server, sign_in_request, connection_handler)
             connection_handler.token = token_response.data
-        except exceptions.UserException as e:
+        except exceptions.UserException:
             return [daide.responses.REJ(bytes(request))]
 
     join_game_request = internal_requests.JoinGame(
@@ -117,11 +139,18 @@ def on_i_am_request(server, request, connection_handler, game):
         token=connection_handler.token
     )
 
-    join_game_response = yield internal_request_managers.handle_request(server, join_game_request, connection_handler)
+    yield internal_request_managers.handle_request(server, join_game_request, connection_handler)
 
     return [daide.responses.YES(bytes(request))]
 
 def on_hello_request(server, request, connection_handler, game):
+    """ Manage HLO request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     _, user_additions, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     # User not in game
@@ -136,47 +165,94 @@ def on_hello_request(server, request, connection_handler, game):
     return [daide.responses.HLO(power_name, passcode, level, deadline, rules)]
 
 def on_map_request(server, request, connection_handler, game):
+    """ Manage MAP request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del request
+    del connection_handler
     return [daide.responses.MAP(game.map.name)]
 
 def on_map_definition_request(server, request, connection_handler, game):
+    """ Manage MDF request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del request
+    del connection_handler
     return [daide.responses.MDF(game.map_name)]
 
 def on_supply_centre_ownership_request(server, request, connection_handler, game):
+    """ Manage SCO request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del request
+    del connection_handler
     power_centers = {power.name: power.centers for power in game.powers.values()}
     return [daide.responses.SCO(power_centers, game.map_name)]
 
 def on_current_position_request(server, request, connection_handler, game):
+    """ Manage NOW request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del request
+    del connection_handler
     units = {power.name: power.units for power in game.powers.values()}
     retreats = {power.name: power.retreats for power in game.powers.values()}
     return [daide.responses.NOW(game.get_current_phase(), units, retreats)]
 
 def on_history_request(server, request, connection_handler, game):
+    """ Manage HST request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     responses = []
 
     _, _, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
-    phase, current_phase, map = request.phase, game.get_current_phase(), game.map
+    phase, current_phase = request.phase, game.get_current_phase()
     phase_order = game.order_history.get(phase, None)
     phase_result = game.result_history.get(phase, None)
 
     if phase_result is None:
         return [daide.responses.REJ(bytes(request))]
 
-    next_phase = map.phase_abbr(map.find_next_phase(map.phase_long(phase)))
+    next_phase = game.map.phase_abbr(game.map.find_next_phase(game.map.phase_long(phase)))
     next_phase_state = game.state_history.get(next_phase, None)
 
     while next_phase_state is None and next_phase != current_phase:
-        next_phase = map.phase_abbr(map.find_next_phase(map.phase_long(next_phase)))
+        next_phase = game.map.phase_abbr(game.map.find_next_phase(game.map.phase_long(next_phase)))
         next_phase_state = game.state_history.get(next_phase, None)
 
     if next_phase == current_phase:
         next_phase_state = game.get_state()
 
-    phase = subject_split.PhaseSplit.split(phase)
-    next_phase = subject_split.PhaseSplit.split(next_phase)
+    phase = subject_split.PhaseSplit(phase)
+    next_phase = subject_split.PhaseSplit(next_phase)
 
     # ORD responses
     for order in phase_order[power_name]:
-        order = subject_split.OrderSplit.split(order)
+        order = subject_split.OrderSplit(order)
         results = None
 
         # WAIVE
@@ -194,7 +270,7 @@ def on_history_request(server, request, connection_handler, game):
         responses.append(daide.notifications.ORD(phase.in_str, order_bytes, [result.code for result in results]))
 
     # SCO response
-    responses.append(daide.responses.SCO(next_phase_state['centers'], map.name))
+    responses.append(daide.responses.SCO(next_phase_state['centers'], game.map.name))
 
     # NOW response
     units = {power_name: [unit for unit in units if not unit.startswith('*')] for power_name, units in
@@ -205,57 +281,15 @@ def on_history_request(server, request, connection_handler, game):
     return responses
 
 @gen.coroutine
-# def on_submit_orders_request(server, request, connection_handler, game):
-#     _, user_additions, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
-#     token = server.users.connection_handler_to_tokens.get(connection_handler, None)
-#
-#     if request.phase and not request.phase == game.get_current_phase():
-#         return [daide.responses.REJ(bytes(request))]
-#
-#     power_name = user_additions.power_name
-#
-#     initial_power_orders = game.get_power(power_name).orders
-#     initial_game_errors = game.errors[:]
-#     # initial_game_results = game.results[:]
-#
-#     responses = []
-#
-#     # Parsing
-#     lead_token, request_bytes = parse_bytes(daide.clauses.SingleToken, bytes(request))
-#     _, request_bytes = parse_bytes(daide.clauses.Turn, request_bytes, on_error='ignore')
-#
-#     if game.phase_type == 'R':
-#         retreated = []
-#         while request_bytes:
-#             daide_order, request_bytes = parse_bytes(daide.clauses.Order, request_bytes)
-#             order = str(daide_order)
-#
-#             order, error = game._valid_retreat_order(power, order, order.split(), retreated)
-#             if order and not error:
-#                 # Marking unit as retreated
-#                 retreated.append(' '.join(order.split()[:2]))
-#             else if not order and not error:
-#                 error = err.GAME_UNRECOGNIZED_ORDER_DATA % order
-#
-#             responses.append(daide.responses.THX(daide_order, [error.code if error else res.OK.code]))
-#     elif game.phase_type == 'A':
-#         game._update_adjust_orders(power, orders, expand=expand, replace=replace)
-#     else:
-#         game._update_orders(power, orders, expand=expand, replace=replace)
-#
-#     request.game_id = game.game_id
-#     request.token = token
-#     # TODO: check if this should be wrapped in try except or if the request
-#     # should be considered to have failed in whole as soon as an exception
-#     # is raised
-#     set_orders_response = yield internal_request_managers.handle_request(server, set_orders_request, connection_handler)
-#
-#     responses.append(daide.responses.MIS(game.get_current_phase(), game.get_power(power_name)))
-#
-#     return responses
-
 def on_submit_orders_request(server, request, connection_handler, game):
-    _, user_additions, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
+    """ Manage SUB request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     if request.phase and not request.phase == game.get_current_phase():
         return [daide.responses.REJ(bytes(request))]
@@ -270,8 +304,8 @@ def on_submit_orders_request(server, request, connection_handler, game):
 
     responses = []
 
-    # Parsing
-    lead_token, request_bytes = daide.clauses.parse_bytes(daide.clauses.SingleToken, bytes(request))
+    # Parsing lead token and turn
+    _, request_bytes = daide.clauses.parse_bytes(daide.clauses.SingleToken, bytes(request))
     _, request_bytes = daide.clauses.parse_bytes(daide.clauses.Turn, request_bytes, on_error='ignore')
 
     # Validate each order individually
@@ -287,10 +321,7 @@ def on_submit_orders_request(server, request, connection_handler, game):
             phase=request.phase,
             token=request.token
         )
-        # TODO: check if this should be wrapped in try except or if the request
-        # should be considered to have failed in whole as soon as an exception
-        # is raised
-        set_orders_response = yield internal_request_managers.handle_request(server, set_orders_request, connection_handler)
+        yield internal_request_managers.handle_request(server, set_orders_request, connection_handler)
 
         new_power_adjusts = [adjust for adjust in power.adjust if adjust not in initial_power_adjusts]
         new_power_orders = {id: val for id, val in power.orders.items() if id not in initial_power_orders}
@@ -310,13 +341,20 @@ def on_submit_orders_request(server, request, connection_handler, game):
         phase=request.phase,
         token=request.token
     )
-    set_orders_response = yield internal_request_managers.handle_request(server, set_orders_request, connection_handler)
+    yield internal_request_managers.handle_request(server, set_orders_request, connection_handler)
 
     responses.append(daide.responses.MIS(game.get_current_phase(), power))
 
     return responses
 
 def on_missing_orders_request(server, request, connection_handler, game):
+    """ Manage MIS request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     _, _, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
     if not power_name:
         return [daide.responses.REJ(bytes(request))]
@@ -324,6 +362,13 @@ def on_missing_orders_request(server, request, connection_handler, game):
 
 @gen.coroutine
 def on_go_flag_request(server, request, connection_handler, game):
+    """ Manage GOF request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     set_wait_flag_request = internal_requests.SetWaitFlag(
@@ -334,7 +379,7 @@ def on_go_flag_request(server, request, connection_handler, game):
         phase=game.get_current_phase(),
         token=token
     )
-    set_wait_flag_response = yield internal_request_managers.handle_request(server, set_wait_flag_request, connection_handler)
+    yield internal_request_managers.handle_request(server, set_wait_flag_request, connection_handler)
 
     if not game.get_power(power_name).order_is_set:
         set_orders_request = internal_requests.SetOrders(
@@ -345,16 +390,32 @@ def on_go_flag_request(server, request, connection_handler, game):
             phase=game.get_current_phase(),
             token=token
         )
-        set_orders_response = yield internal_request_managers.handle_request(server, set_orders_request,
-                                                                             connection_handler)
+        yield internal_request_managers.handle_request(server, set_orders_request, connection_handler)
 
     return [daide.responses.YES(bytes(request))]
 
 def on_time_to_deadline_request(server, request, connection_handler, game):
+    """ Manage TME request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del connection_handler
+    del game
     return [daide.responses.REJ(bytes(request))]
 
 @gen.coroutine
 def on_draw_request(server, request, connection_handler, game):
+    """ Manage DRW request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     vote_request = internal_requests.Vote(
@@ -365,12 +426,19 @@ def on_draw_request(server, request, connection_handler, game):
         game_id=game.game_id,
         token=token
     )
-    vote_response = yield internal_request_managers.handle_request(server, vote_request, connection_handler)
+    yield internal_request_managers.handle_request(server, vote_request, connection_handler)
 
     return [daide.responses.YES(bytes(request))]
 
 @gen.coroutine
 def on_send_message_request(server, request, connection_handler, game):
+    """ Manage SND request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     message = ' '.join([str(daide.tokens.Token(from_bytes=(request.message_bytes[i], request.message_bytes[i+1])))
@@ -391,13 +459,19 @@ def on_send_message_request(server, request, connection_handler, game):
             game_id=game.game_id,
             token=token
         )
-        send_game_message_response = \
-            yield internal_request_managers.handle_request(server, send_game_message_request, connection_handler)
+        yield internal_request_managers.handle_request(server, send_game_message_request, connection_handler)
 
     return [daide.responses.YES(bytes(request))]
 
 @gen.coroutine
 def on_not_request(server, request, connection_handler, game):
+    """ Manage NOT request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     response = None
@@ -415,7 +489,7 @@ def on_not_request(server, request, connection_handler, game):
                 phase=game.get_current_phase(),
                 token=token
             )
-            clear_orders_response = yield internal_request_managers.handle_request(server, clear_orders_request, connection_handler)
+            yield internal_request_managers.handle_request(server, clear_orders_request, connection_handler)
             response = daide.responses.YES(bytes(request))
 
     elif isinstance(not_request, daide.requests.GOF):
@@ -427,7 +501,7 @@ def on_not_request(server, request, connection_handler, game):
             phase=game.get_current_phase(),
             token=token
         )
-        set_wait_flag_response = yield internal_request_managers.handle_request(server, set_wait_flag_request, connection_handler)
+        yield internal_request_managers.handle_request(server, set_wait_flag_request, connection_handler)
 
         response = daide.responses.YES(bytes(request))
 
@@ -443,7 +517,7 @@ def on_not_request(server, request, connection_handler, game):
             game_id=game.game_id,
             token=token
         )
-        vote_response = yield internal_request_managers.handle_request(server, vote_request, connection_handler)
+        yield internal_request_managers.handle_request(server, vote_request, connection_handler)
 
         response = daide.responses.YES(bytes(request))
 
@@ -451,6 +525,13 @@ def on_not_request(server, request, connection_handler, game):
 
 @gen.coroutine
 def on_accept_request(server, request, connection_handler, game):
+    """ Manage YES request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
     _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     response = None
@@ -473,14 +554,21 @@ def on_accept_request(server, request, connection_handler, game):
                 token=token
             )
 
-            join_game_response = yield internal_request_managers.handle_request(server, join_game_request,
-                                                                                connection_handler)
+            yield internal_request_managers.handle_request(server, join_game_request, connection_handler)
 
     return [response] if response else None
 
 def on_reject_request(server, request, connection_handler, game):
-    _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
-
+    """ Manage REJ request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del connection_handler
+    del game
     response = None
     reject_response = request.response_bytes
 
@@ -492,13 +580,43 @@ def on_reject_request(server, request, connection_handler, game):
     return [response] if response else None
 
 def on_parenthesis_error_request(server, request, connection_handler, game):
-    return None
+    """ Manage PAR request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del request
+    del connection_handler
+    del game
 
 def on_syntax_error_request(server, request, connection_handler, game):
-    return None
+    """ Manage ERR request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del request
+    del connection_handler
+    del game
 
 def on_admin_message_request(server, request, connection_handler, game):
-    return None
+    """ Manage ADM request
+        :param server: server which receives the request
+        :param request: request to manage
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: the list of responses
+    """
+    del server
+    del request
+    del connection_handler
+    del game
 
 # Mapping dictionary from request class to request handler function.
 MAPPING = {

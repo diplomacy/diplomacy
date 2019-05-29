@@ -26,7 +26,7 @@
 """
 import logging
 
-from diplomacy.daide.user_additions import UserAdditions as DAIDEUserAdditions
+from diplomacy.daide.user_additions import UserAdditions as DaideUserAdditions
 from diplomacy.server.user import User
 from diplomacy.utils import common, parsing, strings
 from diplomacy.utils.common import generate_token
@@ -53,8 +53,8 @@ class Users(Jsonable):
         strings.USERS: parsing.DefaultValueType(parsing.DictType(str, parsing.JsonableClassType(User)), {}),
         # {username => User}
         strings.DAIDE_USERS_ADDITIONS: parsing.DefaultValueType(
-            parsing.DictType(str, parsing.JsonableClassType(DAIDEUserAdditions)), {}),
-        # {username => DAIDEUserAdditions}
+            parsing.DictType(str, parsing.JsonableClassType(DaideUserAdditions)), {}),
+        # {username => DaideUserAdditions}
         strings.ADMINISTRATORS: parsing.DefaultValueType(parsing.SequenceType(str, sequence_builder=set), ()),
         # {usernames}
         strings.TOKEN_TIMESTAMP: parsing.DefaultValueType(parsing.DictType(str, int), {}),
@@ -151,10 +151,17 @@ class Users(Jsonable):
         return user
 
     def set_daide_user_additions(self, username, daide_user_additions):
+        """ Set Daide user additions
+            :param username: The user name
+            :param daide_user_additions: An instance of `diplomacy.daide.user_additions`
+        """
         assert username in self.users
         self.daide_users_additions[username] = daide_user_additions
 
     def get_daide_user_additions(self, username):
+        """ Get Daide user additions associated to a user
+            :param username: The user name
+        """
         return self.daide_users_additions.get(username, None)
 
     def remove_user(self, username):

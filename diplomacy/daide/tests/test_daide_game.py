@@ -14,10 +14,10 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
+""" Tests for complete DAIDE games """
 from collections import namedtuple
 import logging
 import os
-import sys
 
 from tornado import gen
 from tornado.ioloop import IOLoop
@@ -26,38 +26,32 @@ from tornado.tcpclient import TCPClient
 
 from diplomacy import Server
 import diplomacy.daide as daide
-import diplomacy.daide.messages
-import diplomacy.daide.responses
 from diplomacy.daide.tokens import Token
-import diplomacy.daide.utils
 from diplomacy.server.server_game import ServerGame
 from diplomacy.client.connection import connect
 from diplomacy.utils import common, strings
 from diplomacy.utils.subject_split import PhaseSplit
+DaideCom = namedtuple("DaideCom", ["request", "resp_notif"])
 
-DAIDECom = namedtuple("DAIDECom", ["request", "resp_notif"])
+LOGGER = logging.getLogger(os.path.basename(__file__))
+LOGGER.setLevel(logging.INFO)
 
-logger = logging.getLogger(os.path.basename(__file__))
-logger.setLevel(logging.INFO)
-
-@gen.coroutine
-def _read_data(stream):
-    # Read 4 bytes.
-    header = yield stream.read_bytes(4)
-
-    # Convert from network order to int.
-    length = _UNPACK_INT(header)[0]
-
-    data = yield stream.read_bytes(length)
-    return data.decode()
+HOSTNAME = 'localhost'
+PORTS_POOL = [9500+i for i in range(0, 200, 2)]
+FILE_FOLDER_NAME = os.path.abspath(os.path.dirname(__file__))
 
 def get_next_request(daide_coms):
+    """ Pop the next request from a DAIDE communications list
+        :param daide_coms: A list of communications
+        :return: The next request along with the updated list of communications
+                 or None and the updated list of communications
+    """
     daide_com = next(iter(daide_coms), None)
     request = None
     while daide_com:
         if daide_com.request:
             request = daide_com.request
-            daide_coms[0] = DAIDECom('', daide_com.resp_notif)
+            daide_coms[0] = DaideCom('', daide_com.resp_notif)
             break
         elif daide_com.resp_notif:
             break
@@ -67,6 +61,11 @@ def get_next_request(daide_coms):
     return request, daide_coms
 
 def get_next_resp_notif(daide_coms):
+    """ Pop the next response or notifcation from a DAIDE communications list
+        :param daide_coms: A list of communications
+        :return: The next response or notifcation along with the updated list of communications
+                 or None and the updated list of communications
+    """
     daide_com = next(iter(daide_coms), None)
     resp_notif = None
     while daide_com:
@@ -81,18 +80,22 @@ def get_next_resp_notif(daide_coms):
     return resp_notif, daide_coms
 
 @gen.coroutine
-def daide_client(port, data_file):
+def daide_client(daide_port, csv_file):
+    """ Simulate a client communicating with the server and validate server's responses and notifcations
+        :param daide_port: The port of the DAIDE server
+        :param csv_file: the csv file containing the list of DAIDE communications
+    """
     daide_coms = ()
-    
+
     try:
-        with open(data_file, "r") as file:
+        with open(csv_file, "r") as file:
             content = file.read()
 
         content = [line.split(',') for line in content.split('\n') if not line.startswith('#')]
-        daide_coms = [DAIDECom(line[0], line[1:]) for line in content]
+        daide_coms = [DaideCom(line[0], line[1:]) for line in content]
 
-        stream = yield TCPClient().connect('localhost', port)
-        logging.info("Connected to %d", port)
+        stream = yield TCPClient().connect('localhost', daide_port)
+        LOGGER.info("Connected to %d", daide_port)
 
         # Set TCP_NODELAY / disable Nagle's Algorithm.
         stream.set_nodelay(True)
@@ -106,7 +109,7 @@ def daide_client(port, data_file):
             if not request:
                 break
 
-            logging.info("Sending request [{}]".format(request))
+            LOGGER.info("Sending request [%s]", str(request))
             message = daide.messages.DiplomacyMessage()
             message.content = daide.utils.str_to_bytes(request)
             yield stream.write(bytes(message))
@@ -122,29 +125,27 @@ def daide_client(port, data_file):
                     resp_notif = resp_notif.split(' ')
                     resp_notif[5] = expected_resp_notif.split(' ')[5]
                     resp_notif = ' '.join(resp_notif)
-                logging.info("Received reply [{}] for request [{}]".format(resp_notif, request))
+                LOGGER.info("Received reply [%s] for request [%s]", str(resp_notif), str(request))
                 assert resp_notif == expected_resp_notif
                 expected_resp_notif, daide_coms = get_next_resp_notif(daide_coms)
 
     except StreamClosedError as exc:
-        logger.error("Error connecting to %d: %s", port, exc)
+        LOGGER.error("Error connecting to %d: %s", daide_port, exc)
 
-    assert len(daide_coms) == 0
+    assert not daide_coms
 
-def run_game_data(data_file):
-    hostname = 'localhost'
-    port = 9456
-    daide_port = 9500
+    return True
 
-    io_loop = IOLoop()
-    io_loop.make_current()
-    common.Tornado.stop_loop_on_callback_error(io_loop)
-
-    server = Server()
-
+def run_game_data(port, csv_file):
+    """ Start a server and a client to test DAIDE communications
+        :param port: The port of the DAIDE server
+        :param csv_file: the csv file containing the list of DAIDE communications
+    """
     @gen.coroutine
-    def coroutine_func():
+    def coroutine_func(server):
         """ Concrete call to main function. """
+        server_port = server.backend.port
+        daide_port = server_port + 1
         server_game = ServerGame(map_name='standard', n_controls=2, rules=['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'])
         server_game.server = server
 
@@ -155,57 +156,70 @@ def run_game_data(data_file):
 
         username = 'user'
         password = 'password'
-        connection = yield connect(hostname, port)
+        connection = yield connect(HOSTNAME, server_port)
         user_channel = yield connection.authenticate(username, password,
                                                      create_user=not server.users.has_user(username, password))
         user_game = yield user_channel.join_game(game_id=server_game.game_id, power_name='AUSTRIA')
 
-        daide_future = daide_client(daide_port, data_file)
+        daide_future = daide_client(daide_port, csv_file)
 
-        for attempt_idx in range(4):
+        for _ in range(4):
             if daide_future.done() or server_game.count_controlled_powers() == 2:
                 break
             yield gen.sleep(2.5)
         else:
             raise RuntimeError()
 
-        try:
-            phase = PhaseSplit.split(server_game.get_current_phase())
+        phase = PhaseSplit(server_game.get_current_phase())
 
-            while not daide_future.done() and server_game.status == strings.ACTIVE:
-                yield user_game.wait()
-                yield user_game.set_orders(orders=[])
-                yield user_game.no_wait()
+        while not daide_future.done() and server_game.status == strings.ACTIVE:
+            yield user_game.wait()
+            yield user_game.set_orders(orders=[])
+            yield user_game.no_wait()
 
-                while not daide_future.done() and phase.in_str == server_game.get_current_phase():
-                    yield gen.sleep(2.5)
+            while not daide_future.done() and phase.in_str == server_game.get_current_phase():
+                yield gen.sleep(2.5)
 
-                if server_game.status != strings.ACTIVE:
-                    break
+            if server_game.status != strings.ACTIVE:
+                break
 
-                phase = PhaseSplit.split(server_game.get_current_phase())
-        except Exception as exception:
-            logging.error('Exception: {}'.format(exception))
+            phase = PhaseSplit(server_game.get_current_phase())
 
         yield daide_future
-
         io_loop.stop()
 
-    try:
-        io_loop.add_callback(coroutine_func)
-        server.start(port=port, io_loop=io_loop)
-    finally:
-        io_loop.clear_current()
-        io_loop.close()
-        server.stop_daide_server(None)
-        server.backend.http_server.stop()
-        Server.__cache__.clear()
+    test_complete = False
+    while not test_complete:
+        try:
+            io_loop = IOLoop()
+            io_loop.make_current()
+            common.Tornado.stop_loop_on_callback_error(io_loop)
+
+            server = Server()
+            io_loop.add_callback(coroutine_func, server)
+
+            server.start(port=port, io_loop=io_loop)
+        except IOError:
+            port = PORTS_POOL.pop(0)
+        finally:
+            test_complete = server.backend.http_server is not None
+            io_loop.stop()
+            io_loop.clear_current()
+            io_loop.close()
+            server.stop_daide_server(None)
+            if server.backend.http_server:
+                server.backend.http_server.stop()
+            server = None
+            Server.__cache__.clear()
 
 def test_game_reject_map():
-    run_game_data("game_data_1_reject_map.csv")
+    """ Test a game where the client rejects the map """
+    run_game_data(PORTS_POOL.pop(0), os.path.join(FILE_FOLDER_NAME, "game_data_1_reject_map.csv"))
 
 def test_game():
-    run_game_data("game_data_1.csv")
+    """ Test a complete 1 player game """
+    run_game_data(PORTS_POOL.pop(0), os.path.join(FILE_FOLDER_NAME, "game_data_1.csv"))
 
 def test_game_history():
-    run_game_data("game_data_1_history.csv")
+    """ Test a complete 1 player game and validate the full history (except last phase) """
+    run_game_data(PORTS_POOL.pop(0), os.path.join(FILE_FOLDER_NAME, "game_data_1_history.csv"))

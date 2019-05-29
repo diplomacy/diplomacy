@@ -18,15 +18,20 @@
 # =================
 # Request managers.
 # =================
-
+""" DAIDE Notification managers """
 import diplomacy.communication.notifications as notifications
 import diplomacy.daide as daide
-import diplomacy.daide.notifications
 from diplomacy.daide.settings import MAX_LVL
-import diplomacy.daide.utils
 from diplomacy.utils import results as res, strings, subject_split
 
-def _send_active_notfications(current_phase, powers, map_name, deadline):
+def _build_active_notfications(current_phase, powers, map_name, deadline):
+    """ Build the list of notifications corresponding to an active game state
+        :param current_phase: the current phase
+        :param powers: the list of game's powers
+        :param map_name: the map name
+        :param deadline: the deadline of the game
+        :return: list of notifications
+    """
     notififcations = []
 
     # SCO notification
@@ -43,7 +48,14 @@ def _send_active_notfications(current_phase, powers, map_name, deadline):
 
     return notififcations
 
-def _send_completed_notfications(server_users, has_draw_vote, powers, state_history):
+def _build_completed_notfications(server_users, has_draw_vote, powers, state_history):
+    """ Build the list of notifications corresponding to a completed game state
+        :param server_users: the instance of `diplomacy.server.users` of the game's server
+        :param has_draw_vote: true if the game has completed due to a draw vote
+        :param powers: the list of game's powers
+        :param state_history: the states history of the game
+        :return: list of notifications
+    """
     notififcations = []
 
     if has_draw_vote:
@@ -53,16 +65,16 @@ def _send_completed_notfications(server_users, has_draw_vote, powers, state_hist
         if len(winners) == 1:
             notififcations.append(daide.notifications.SLO(winners[0]))
 
-    last_phase = subject_split.PhaseSplit.split(state_history.last_value()['name'])
+    last_phase = subject_split.PhaseSplit(state_history.last_value()['name'])
     users_additions = [server_users.get_daide_user_additions(power.get_controller())
                        for power in powers]
     powers_year_of_elimnation = {power.name: None for power in powers}
     for phase, state in state_history.items():
         eliminated_powers = [power_name for power_name, units in state['units'].items()
-                                        if not powers_year_of_elimnation[power_name] and
-                                        all(unit.startswith('*') for unit in units)]
+                             if not powers_year_of_elimnation[power_name] and
+                             all(unit.startswith('*') for unit in units)]
         for power_name in eliminated_powers:
-            powers_year_of_elimnation[power_name] = subject_split.PhaseSplit.split(phase.value).year
+            powers_year_of_elimnation[power_name] = subject_split.PhaseSplit(phase.value).year
 
     years_of_elimnation = powers_year_of_elimnation.values()
 
@@ -72,11 +84,18 @@ def _send_completed_notfications(server_users, has_draw_vote, powers, state_hist
 
     return notififcations
 
-def on_game_processed_notification(server, notification, connection_handler, game):
+def on_processed_notification(server, notification, connection_handler, game):
+    """ Build the list of notificaitons for a game processed event
+        :param server: server which receives the request
+        :param notification: internal notification
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: list of notificaitons
+    """
     _, _, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
     previous_phase_data = notification.previous_phase_data
     previous_state = previous_phase_data.state
-    previous_phase = subject_split.PhaseSplit.split(previous_state['name'])
+    previous_phase = subject_split.PhaseSplit(previous_state['name'])
     phase_data = notification.current_phase_data
     state = phase_data.state
 
@@ -84,7 +103,7 @@ def on_game_processed_notification(server, notification, connection_handler, gam
 
     # ORD notifications
     for order in previous_phase_data.orders[power_name]:
-        order = subject_split.OrderSplit.split(order)
+        order = subject_split.OrderSplit(order)
         results = None
 
         # WAIVE
@@ -102,16 +121,23 @@ def on_game_processed_notification(server, notification, connection_handler, gam
         notifs.append(daide.notifications.ORD(previous_phase.in_str, order_bytes, [result.code for result in results]))
 
     if state['status'] == strings.ACTIVE:
-        notifs += _send_active_notfications(game.get_current_phase(), game.powers.values(),
-                                            game.map_name, game.deadline)
+        notifs += _build_active_notfications(game.get_current_phase(), game.powers.values(),
+                                             game.map_name, game.deadline)
 
     elif state['status'] == strings.COMPLETED:
-        notifs += _send_completed_notfications(server.users, game.has_draw_vote(),
-                                               game.powers.values(), game.state_history)
+        notifs += _build_completed_notfications(server.users, game.has_draw_vote(),
+                                                game.powers.values(), game.state_history)
 
     return notifs
 
-def on_game_status_update_notification(server, notification, connection_handler, game):
+def on_status_update_notification(server, notification, connection_handler, game):
+    """ Build the list of notificaitons for a status update event
+        :param server: server which receives the request
+        :param notification: internal notification
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: list of notificaitons
+    """
     _, user_additions, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
     notifs = []
 
@@ -123,20 +149,29 @@ def on_game_status_update_notification(server, notification, connection_handler,
         rules = game.rules
         notifs.append(daide.notifications.HLO(power_name, passcode, level, deadline, rules))
 
-        notifs += _send_active_notfications(game.get_current_phase(), game.powers.values(),
-                                            game.map_name, game.deadline)
+        notifs += _build_active_notfications(game.get_current_phase(), game.powers.values(),
+                                             game.map_name, game.deadline)
 
     elif notification.status == strings.COMPLETED:
-        notifs += _send_completed_notfications(server.users, game.has_draw_vote(),
-                                               game.powers.values(), game.state_history)
+        notifs += _build_completed_notfications(server.users, game.has_draw_vote(),
+                                                game.powers.values(), game.state_history)
 
     elif notification.status == strings.CANCELED:
         notifs.append(daide.notifications.OFF())
 
     return notifs
 
-def on_game_message_received_notification(server, notification, connection_handler, game):
-    _, user_additions, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
+def on_message_received_notification(server, notification, connection_handler, game):
+    """ Build the list of notificaitons for a message received event
+        :param server: server which receives the request
+        :param notification: internal notification
+        :param connection_handler: connection handler from which the request was sent
+        :param game: the game
+        :return: list of notificaitons
+    """
+    del server
+    del connection_handler
+    del game
     notifs = []
 
     message = notification.message
@@ -146,9 +181,9 @@ def on_game_message_received_notification(server, notification, connection_handl
     return notifs
 
 MAPPING = {
-    notifications.GameProcessed: on_game_processed_notification,
-    notifications.GameStatusUpdate: on_game_status_update_notification,
-    notifications.GameMessageReceived: on_game_message_received_notification
+    notifications.GameProcessed: on_processed_notification,
+    notifications.GameStatusUpdate: on_status_update_notification,
+    notifications.GameMessageReceived: on_message_received_notification
 }
 
 def translate_notification(server, notification, connection_handler):

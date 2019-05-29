@@ -14,9 +14,8 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Tornado connection handler class, used internally to manage data received by server application. """
+""" Tornado stream wrapper, used internally to abstract a DAIDE stream connection from a WebSocketConnection. """
 import logging
-import uuid
 
 from tornado import gen
 from tornado.concurrent import Future
@@ -73,13 +72,16 @@ class ConnectionHandler():
 
     @property
     def local_addr(self):
+        """ Return the address of the local endpoint """
         return self._local_addr
 
     @property
     def remote_addr(self):
+        """ Return the address of the remote endpoint """
         return self._remote_addr
 
     def get_name_variant(self):
+        """ Return the address of the remote endpoint """
         if self._name_variant is None:
             self._name_variant = self._NAME_VARIANTS_POOL.pop(0) if self._NAME_VARIANTS_POOL \
                                  else len(self._USED_NAME_VARIANTS)
@@ -87,12 +89,14 @@ class ConnectionHandler():
         return self._NAME_VARIANT_PREFIX + str(self._name_variant)
 
     def release_name_variant(self):
+        """ Return the next available user name variant """
         self._USED_NAME_VARIANTS.remove(self._name_variant)
         self._NAME_VARIANTS_POOL.append(self._name_variant)
         self._name_variant = None
 
     @gen.coroutine
     def close_connection(self):
+        """ Close the connection with the client """
         try:
             message = daide.messages.DiplomacyMessage()
             message.content = bytes(daide.responses.TurnOffResponse())
@@ -111,15 +115,16 @@ class ConnectionHandler():
 
     @gen.coroutine
     def read_stream(self):
+        """ Read the next message from the stream """
         messages = []
         in_message = None
 
-        # TODO: add validation checks
         in_message = yield DaideMessage.from_stream(self.stream)
 
         if in_message and in_message.is_valid:
             message_handler = self.message_mapping.get(in_message.message_type, None)
-            # TODO: raise if None
+            if not message_handler:
+                raise RuntimeError("Unreconized DAIDE message type [{}]".format(in_message.message_type))
 
             if gen.is_coroutine_function(message_handler):
                 messages = yield message_handler(in_message)
@@ -128,26 +133,31 @@ class ConnectionHandler():
         elif in_message:
             err_message = daide.messages.ErrorMessage()
             err_message.error_code = in_message.error_code
-            messages = [err_messages]
+            messages = [err_message]
 
         for message in messages:
             yield self.write_message(message)
 
     # Added for compatibility with WebSocketHandler interface
     def write_message(self, message, binary=True):
+        """ Write a message into the stream """
         future = None
 
-        if isinstance(message, daide.notifications.DaideNotification):
-            LOGGER.info('[{}] notification:[{}]'.format(self._socket_no, bytes_to_str(bytes(message))))
-            notification = message
-            message = daide.messages.DiplomacyMessage()
-            message.content = bytes(notification)
+        if binary and isinstance(message, bytes):
+            future = self.stream.write(message)
 
-        if isinstance(message, DaideMessage):
-            future = self.stream.write(bytes(message))
         else:
-            future = Future()
-            future.set_result(None)
+            if isinstance(message, daide.notifications.DaideNotification):
+                LOGGER.info('[%d] notification:[%s]', self._socket_no, bytes_to_str(bytes(message)))
+                notification = message
+                message = daide.messages.DiplomacyMessage()
+                message.content = bytes(notification)
+
+            if isinstance(message, DaideMessage):
+                future = self.stream.write(bytes(message))
+            else:
+                future = Future()
+                future.set_result(None)
 
         return future
 
@@ -160,39 +170,43 @@ class ConnectionHandler():
         """
         return translate_notification(self.server, notification, self)
 
-    def _on_initial_message(self, in_message):
-        LOGGER.info('[{}] initial message'.format(self._socket_no))
+    def _on_initial_message(self, _):
+        """ Handle an initial message """
+        LOGGER.info('[%d] initial message', self._socket_no)
         return [daide.messages.RepresentationMessage()]
 
     @gen.coroutine
     def _on_diplomacy_message(self, in_message):
+        """ Handle a diplomacy message """
         messages = []
         responses = []
         request = RequestBuilder.from_bytes(in_message.content)
 
         try:
-            LOGGER.info('[{}] request:[{}]'.format(self._socket_no, bytes_to_str(in_message.content)))
+            LOGGER.info('[%d] request:[%s]', self._socket_no, bytes_to_str(in_message.content))
             request.game_id = self.game_id
             responses = yield daide.request_managers.handle_request(self.server, request, self)
-        except exceptions.ResponseException as exc:
+        except exceptions.ResponseException:
             responses = [daide.responses.REJ(bytes(request))]
 
         if responses:
-            # TODO: add try except
             for response in responses:
                 response_bytes = bytes(response)
-                LOGGER.info('[{}] response:[{}]'.format(self._socket_no, bytes_to_str(response_bytes)))
+                LOGGER.info('[%d] response:[%s]', self._socket_no, bytes_to_str(response_bytes) \
+                                                                   if response_bytes else None)
                 message = daide.messages.DiplomacyMessage()
                 message.content = response_bytes
                 messages.append(message)
 
         return messages
 
-    def _on_final_message(self, in_message):
-        LOGGER.info('[{}] final message'.format(self._socket_no))
+    def _on_final_message(self, _):
+        """ Handle a final message """
+        LOGGER.info('[%d] final message', self._socket_no)
         self.stream.close()
         return []
 
     def _on_error_message(self, in_message):
-        LOGGER.error('[{}] error [{d}]'.format(self._socket_no, in_message.error_code))
+        """ Handle an error message """
+        LOGGER.error('[%d] error [%d]', self._socket_no, in_message.error_code)
         return []

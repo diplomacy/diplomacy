@@ -19,7 +19,6 @@ from abc import ABCMeta, abstractmethod
 from enum import Enum
 import logging
 from tornado import gen
-from tornado.concurrent import Future
 
 # Constants
 DAIDE_VERSION = 1

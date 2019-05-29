@@ -16,9 +16,7 @@
 # ==============================================================================
 """ DAIDE Notifications - Contains a list of responses sent by the server to the client """
 import diplomacy.daide as daide
-import diplomacy.daide.clauses
 from diplomacy.daide.clauses import add_parentheses, strip_parentheses, parse_string
-import diplomacy.daide.tokens
 from diplomacy.daide.tokens import Token
 from diplomacy.daide.utils import bytes_to_str, str_to_bytes
 from diplomacy import Map
@@ -211,8 +209,9 @@ class MissingOrdersNotification(DaideNotification):
                 units_with_no_order.remove(unit)
 
         # Storing full response
-        self._bytes = bytes(daide.tokens.MIS) + b''.join([bytes(parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit)))
-                                                          for unit in units_with_no_order])
+        self._bytes = bytes(daide.tokens.MIS) + \
+                      b''.join([bytes(parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit)))
+                                for unit in units_with_no_order])
 
     def _build_retreat_phase(self, power):
         """ Builds the missing orders response for a retreat phase """
@@ -348,7 +347,8 @@ class MessageFromNotification(DaideNotification):
 
         from_power_clause = bytes(parse_string(daide.clauses.Power, from_power_name))
 
-        to_powers_clause = b''.join([bytes(parse_string(daide.clauses.Power, power_name)) for power_name in to_power_names])
+        to_powers_clause = b''.join([bytes(parse_string(daide.clauses.Power, power_name))
+                                     for power_name in to_power_names])
 
         message_clause = str_to_bytes(message)
 

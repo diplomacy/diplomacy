@@ -85,7 +85,8 @@ class ConnectionHandler(WebSocketHandler):
             message = message.json()
         return super(ConnectionHandler, self).write_message(message, binary)
 
-    def translate_notification(self, notification):
+    @staticmethod
+    def translate_notification(notification):
         """ Translate a notification to an array of notifications.
             :param notification: a notification object to pass to handler function.
                 See diplomacy.communication.notifications for possible notifications.

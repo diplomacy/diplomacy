@@ -65,7 +65,7 @@ import ujson as json
 
 import diplomacy.settings
 from diplomacy.communication import notifications
-from diplomacy.daide.server import Server as DAIDEServer
+from diplomacy.daide.server import Server as DaideServer
 from diplomacy.server.connection_handler import ConnectionHandler
 from diplomacy.server.notifier import Notifier
 from diplomacy.server.scheduler import Scheduler
@@ -808,22 +808,24 @@ class Server():
     def start_new_daide_server(self, game_id, port=None):
         """ Start a new DAIDE TCP server to handle DAIDE clients connections
             :param game_id: game id to pass to the DAIDE server
+            :param port: the port to use. If None, an available random prot will be used
         """
-        # TODO: raise error if port already in use
-        # if port in self.daide_servers:
-        #     raise
+        if port in self.daide_servers:
+            raise RuntimeError("Port already in used by a DAIDE server")
 
         for _, server in self.daide_servers.items():
             if server.game_id == game_id:
-                return
+                return None
 
         while port in self.daide_servers or port is None:
             port = randint(8000, 8999)
 
         # Create DAIDE TCP server
-        daide_server = DAIDEServer(self, game_id)
+        daide_server = DaideServer(self, game_id)
         daide_server.listen(port)
         self.daide_servers[port] = daide_server
+        LOGGER.info('DAIDE server running on port %d', port)
+        return port
 
     def stop_daide_server(self, game_id):
         """ Stop one or all DAIDE TCP server
@@ -834,3 +836,14 @@ class Server():
             if game_id is None or server.game_id == game_id:
                 server.stop()
                 del self.daide_servers[port]
+
+    def get_daide_game_port(self, game_id):
+        """ Get the port DAIDE TCP server
+            :param game_id: game id of the DAIDE server. If None, all servers will be stopped
+        """
+        for port in list(self.daide_servers.keys()):
+            server = self.daide_servers[port]
+            if server.game_id == game_id:
+                return port
+
+        return None
