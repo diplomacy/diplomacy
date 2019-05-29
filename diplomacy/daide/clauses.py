@@ -53,6 +53,12 @@ def break_next_group(daide_bytes):
     # Returning
     return (daide_bytes[:pos + 2], daide_bytes[pos + 2:]) if pos else (None, daide_bytes)
 
+def add_parentheses(daide_bytes):
+    """ Add parentheses to a list of bytes """
+    if not daide_bytes:
+        return daide_bytes
+    return bytes(daide.tokens.OPE_PAR) + daide_bytes + bytes(daide.tokens.CLO_PAR)
+
 def strip_parentheses(daide_bytes):
     """ Removes parentheses from the DAIDE bytes and returns the inner content.
         The first and last token are expected to be parentheses.
@@ -74,6 +80,20 @@ def parse_bytes(clause_constructor, daide_bytes, on_error='raise'):
     if not clause.is_valid:
         return None, daide_bytes
     return clause, daide_bytes
+
+def parse_string(clause_constructor, string, on_error='raise'):
+    """ Creates a clause object from a string
+        :param clause_constructor: The type of clause to build
+        :param string: The string to use to build this clause
+        :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        :return: The clause object
+    """
+    assert on_error in ('raise', 'warn', 'ignore'), 'Valid values for error are "raise", "warn", "ignore"'
+    clause = clause_constructor()
+    clause.from_string(string, on_error=on_error)
+    if not clause.is_valid:
+        return None
+    return clause
 
 class AbstractClause(metaclass=ABCMeta):
     """ Abstract version of a DAIDE clause """
@@ -97,6 +117,14 @@ class AbstractClause(metaclass=ABCMeta):
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build the clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
         raise NotImplementedError()
 
@@ -148,6 +176,16 @@ class SingleToken(AbstractClause):
         self._str = str(Token(from_bytes=token_bytes))
         return remaining_bytes
 
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build this clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        # Not enough bytes to get a token
+        if not string:
+            self.error(on_error, '`string` cannot be empty or None')
+            return
+
         # Getting the token
         self._bytes = bytes(Token(from_str=string))
         self._str = string
@@ -163,6 +201,7 @@ class Power(SingleToken):
                          'ITA': 'ITALY',
                          'RUS': 'RUSSIA',
                          'TUR': 'TURKEY'}
+    _alias_from_string = {value: key for key, value in _alias_from_bytes.items()}
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
@@ -173,6 +212,14 @@ class Power(SingleToken):
         remaining_bytes = super(Power, self).from_bytes(daide_bytes, on_error)
         self._str = self._alias_from_bytes.get(self._str, self._str)
         return remaining_bytes
+
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build this clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        str_power = self._alias_from_string.get(string, string)
+        super(Power, self).from_string(str_power, on_error)
 
 class String(AbstractClause):
     """ A string contained between parentheses
@@ -210,6 +257,14 @@ class String(AbstractClause):
         self._bytes = str_group_bytes
         self._str = ''.join([str(Token(from_bytes=str_group_bytes[pos:pos + 2])) for pos in range(2, nb_bytes - 2, 2)])
         return remaining_bytes
+
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build the clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        self._bytes = add_parentheses(b''.join([bytes(Token(from_str=char)) for char in string]))
+        self._str = string
 
 class Number(AbstractClause):
     """ A number contained between parentheses
@@ -254,6 +309,14 @@ class Number(AbstractClause):
         self._int = int(number_token)
         return remaining_bytes
 
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build the clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        self._bytes = bytes(Token(from_int=int(string)))
+        self._int = int(string)
+
 class Province(AbstractClause):
     """ Each clause is an province token
         Syntax: ADR
@@ -266,6 +329,7 @@ class Province(AbstractClause):
                          'ECH': 'ENG',
                          'GOB': 'BOT',
                          'GOL': 'LYO'}
+    _alias_from_string = {value: key for key, value in _alias_from_bytes.items()}
 
     def __init__(self):
         """ Constructor """
@@ -315,6 +379,33 @@ class Province(AbstractClause):
 
         return remaining_bytes
 
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build the clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        province, coast = string.split('/') if '/' in string else [string, None]
+
+        # Province with coast
+        # Syntax: (STP NCS)
+        if province and coast:
+            str_province = self._alias_from_string.get(province, province)
+            str_coast = self._alias_from_string.get('/' + coast, '')
+
+            if not str_coast:
+                self.error(on_error, 'Unknown coast "%s".' % '/' + coast)
+                return
+
+            self._str = str_province + str_coast
+            self._bytes = add_parentheses(bytes(Token(from_str=str_province)) + bytes(Token(from_str=str_coast)))
+
+        # Province without coast
+        # Syntax: ADR
+        else:
+            str_province = self._alias_from_string.get(string, string)
+            self._str = str_province
+            self._bytes = bytes(Token(from_str=str_province))
+
 class Turn(AbstractClause):
     """ Each clause is a Turn
         Syntax: (SPR 1901)
@@ -324,6 +415,7 @@ class Turn(AbstractClause):
                          'SPR': 'S.M',
                          'SUM': 'S.R',
                          'WIN': 'W.A'}
+    _alias_from_string = {value: key for key, value in _alias_from_bytes.items()}
 
     def __init__(self):
         """ Constructor """
@@ -366,12 +458,28 @@ class Turn(AbstractClause):
         self._str = ''.join([season_alias[0], str(year), season_alias[-1]])
         return remaining_bytes
 
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build the clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        str_season = self._alias_from_string.get('%s.%s' % (string[0], string[-1]), '')
+        str_year = string[1:-1]
+
+        if not str_season or not str_year:
+            self.error(on_error, 'Unknown season and/or year "%s".' % string)
+            return
+
+        self._str = string
+        self._bytes = add_parentheses(bytes(Token(from_str=str_season)) + bytes(Token(from_int=int(str_year))))
+
 class UnitType(SingleToken):
     """ Each clause is an season token
         Syntax: AMY
     """
     _alias_from_bytes = {'AMY': 'A',
                          'FLT': 'F'}
+    _alias_from_string = {value: key for key, value in _alias_from_bytes.items()}
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
@@ -383,10 +491,23 @@ class UnitType(SingleToken):
         self._str = self._alias_from_bytes.get(self._str, self._str)
         return remaining_bytes
 
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build this clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        str_unit_type = self._alias_from_string.get(string, '')
+        if not str_unit_type:
+            self.error(on_error, 'Unknown unit type "%s"' % string)
+        self._str = string
+        self._bytes = bytes(Token(from_str=str_unit_type))
+
 class Unit(AbstractClause):
     """ Each clause is an army or fleet
         Syntax: (ITA AMY TUN)
     """
+    _UNK = 'UNO'                                    # Unknown power
+
     def __init__(self):
         """ Constructor """
         super(Unit, self).__init__()
@@ -436,6 +557,32 @@ class Unit(AbstractClause):
         self._str = ' '.join([str(unit_type), str(province)])
         return remaining_bytes
 
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build the clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        words = string.split()
+
+        # Checking number of words available
+        if len(words) == 2:
+            str_power = self._UNK
+            str_unit_type, str_province = words
+        elif len(words) == 3:
+            str_power, str_unit_type, str_province = words
+        else:
+            self.error(on_error, 'Expected 2 or 3 words (e.g. "A PAR" or "FRANCE A PAR").')
+            return
+
+        # Parsing
+        power = parse_string(Power, str_power, on_error=on_error)
+        unit_type = parse_string(UnitType, str_unit_type, on_error=on_error)
+        province = parse_string(Province, str_province, on_error=on_error)
+
+        self._power_name = str(power)
+        self._str = ' '.join([str(unit_type), str(province)])
+        self._bytes = add_parentheses(bytes(power) + bytes(unit_type) + bytes(province))
+
 class OrderType(SingleToken):
     """ Each clause is an order token
         Syntax: SUB
@@ -470,6 +617,77 @@ class OrderType(SingleToken):
         remaining_bytes = super(OrderType, self).from_bytes(daide_bytes, on_error)
         self._str = self._alias_from_bytes.get(self._str, self._str)
         return remaining_bytes
+
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build this clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        str_order_type = self._alias_from_string.get(string, string)
+        super(OrderType, self).from_string(str_order_type, on_error)
+
+def parse_order_to_bytes(phase_type, order_split):
+    buffer = []
+
+    # FRANCE WAIVE
+    if len(order_split) == 1:
+        words = order_split.command.split()
+        buffer.append(parse_string(Power, words.pop(0)))
+        buffer.append(parse_string(OrderType, words.pop(0)))
+    else:
+        buffer.append(parse_string(Unit, order_split.unit))
+
+        # FRANCE F IRI [-] MAO
+        # FRANCE A IRI [-] MAO VIA
+        if order_split.command == '-':
+            # FRANCE A IRI - MAO VIA
+            if order_split.suffix:
+                buffer.append(Token(daide.tokens.CTO))
+            else:
+                buffer.append(Token(daide.tokens.MTO))
+        # FRANCE A IRO [D]
+        elif order_split.command == 'D':
+            if phase_type == 'R':
+                buffer.append(Token(daide.tokens.DSB))
+            elif phase_type == 'A':
+                buffer.append(Token(daide.tokens.REM))
+        # FRANCE A LON [H]
+        # FRANCE A WAL [S] FRANCE F LON
+        # FRANCE A WAL [S] FRANCE F MAO - IRI
+        # FRANCE F NWG [C] FRANCE A NWY - EDI
+        # FRANCE A IRO [R] MAO
+        # FRANCE A LON [B]
+        # FRANCE F LIV [B]
+        else:
+            buffer.append(parse_string(OrderType, order_split.command))
+
+        # FRANCE A WAL S [FRANCE F LON]
+        # FRANCE A WAL S [FRANCE F MAO] - IRI
+        # FRANCE F NWG C [FRANCE A NWY] - EDI
+        if order_split.additional_unit:
+            buffer.append(parse_string(Unit, order_split.additional_unit))
+
+        # FRANCE A WAL S FRANCE F MAO [- IRI]
+        # FRANCE F NWG C FRANCE A NWY [- EDI]
+        if order_split.additional_command:
+            # FRANCE A WAL S FRANCE F MAO - IRI
+            if order_split.command == 'S':
+                buffer.append(Token(daide.tokens.MTO))
+                buffer.append(parse_string(Province, order_split.province[:3]))
+            else:
+                buffer.append(Token(daide.tokens.CTO))
+                buffer.append(parse_string(Province, order_split.province))
+        # FRANCE F IRI - [MAO]
+        # FRANCE A IRI - [MAO] VIA
+        # FRANCE A IRO R [MAO]
+        elif order_split.province:
+            buffer.append(parse_string(Province, order_split.province))
+
+        # FRANCE A IRI - MAO [VIA]
+        if order_split.suffix:
+            buffer.append(parse_string(OrderType, order_split.suffix))
+
+    return b''.join([bytes(clause) for clause in buffer])
 
 class Order(AbstractClause):
     """ Each clause is an order
@@ -570,3 +788,11 @@ class Order(AbstractClause):
         self._power_name = str(power) if power else unit.power_name
         self._str = ' '.join(str_buffer)
         return remaining_bytes
+
+    def from_string(self, string, on_error='raise'):
+        """ Builds the clause from a string
+            :param string: The string to use to build the clause
+            :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
+        """
+        raise NotImplementedError()
+
