@@ -196,5 +196,5 @@ def run_game_data(data_file):
     io_loop.add_callback(coroutine_func)
     server.start(port=port, io_loop=io_loop)
 
-def test_request_manager_no_notification():
-    run_game_data("game_data_no_notification.csv")
+def test_game():
+    run_game_data("game_data_1.csv")

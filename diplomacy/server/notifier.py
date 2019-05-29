@@ -75,7 +75,10 @@ class Notifier():
         """
         connection_handler = self.server.users.get_connection_handler(notification.token)
         if not self.ignores(notification) and connection_handler:
-            yield self.server.notifications.put((connection_handler, notification))
+            translated_notifications = connection_handler.translate_notification(notification)
+            if translated_notifications:
+                for translated_notification in translated_notifications:
+                    yield self.server.notifications.put((connection_handler, translated_notification))
 
     @gen.coroutine
     def _notify_game(self, server_game, notification_class, **kwargs):

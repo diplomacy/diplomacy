@@ -57,6 +57,7 @@ import tornado
 import tornado.web
 from tornado import gen
 from tornado.ioloop import IOLoop
+from tornado.iostream import StreamClosedError
 from tornado.queues import Queue
 from tornado.websocket import WebSocketClosedError
 
@@ -411,9 +412,11 @@ class Server():
         while True:
             connection_handler, notification = yield self.notifications.get()
             try:
-                yield connection_handler.write_message(notification.json())
+                yield connection_handler.write_message(notification)
             except WebSocketClosedError:
                 LOGGER.error('Websocket was closed while sending a notification.')
+            except StreamClosedError:
+                LOGGER.error('Stream was closed while sending a notification.')
             finally:
                 self.notifications.task_done()
 
