@@ -23,6 +23,8 @@ from tornado.concurrent import Future
 from tornado.iostream import StreamClosedError
 import diplomacy.daide as daide
 from diplomacy.daide.messages import DaideMessage, MessageType
+import diplomacy.daide.notifications
+from diplomacy.daide.notification_managers import translate_notification
 from diplomacy.daide.requests import RequestBuilder
 import diplomacy.daide.request_managers
 import diplomacy.daide.responses
@@ -135,6 +137,12 @@ class ConnectionHandler():
     def write_message(self, message, binary=True):
         future = None
 
+        if isinstance(message, daide.notifications.DaideNotification):
+            LOGGER.info('[{}] notification:[{}]'.format(self._socket_no, bytes_to_str(bytes(message))))
+            notification = message
+            message = daide.messages.DiplomacyMessage()
+            message.content = bytes(notification)
+
         if isinstance(message, DaideMessage):
             future = self.stream.write(bytes(message))
         else:
@@ -142,6 +150,15 @@ class ConnectionHandler():
             future.set_result(None)
 
         return future
+
+    def translate_notification(self, notification):
+        """ Translate a notification to a DAIDE notification.
+            :param notification: a notification object to pass to handler function.
+                See diplomacy.communication.notifications for possible notifications.
+            :return: either None or an array of daide notifications.
+                See module diplomacy.daide.notifications for possible daide notifications.
+        """
+        return translate_notification(self.server, notification, self)
 
     def _on_initial_message(self, in_message):
         LOGGER.info('[{}] initial message'.format(self._socket_no))
