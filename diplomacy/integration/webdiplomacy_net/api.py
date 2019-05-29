@@ -132,7 +132,7 @@ class API():
         LOGGER.info('[%s/%s/%s] - Submitting orders: %s', game.game_id, game.get_current_phase(), power_name, orders)
 
         # Converting orders to dict
-        orders_dict = [Order(order, map_name=game.map_name, phase_type=game.phase_type) for order in orders]
+        orders_dict = [Order(order, map_name=game.map_name, phase_type=game.phase_type, game=game) for order in orders]
 
         # Recording submitted orders
         submitted_orders = {}
