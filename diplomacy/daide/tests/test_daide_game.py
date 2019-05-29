@@ -31,7 +31,9 @@ from diplomacy.server.server_game import ServerGame
 from diplomacy.client.connection import connect
 from diplomacy.utils import common, strings
 from diplomacy.utils.subject_split import PhaseSplit
-DaideCom = namedtuple("DaideCom", ["client_id", "request", "resp_notif"])
+
+DaideCom = namedtuple("DaideCom", ["client_id", "request", "resp_notifs"])
+ClientRequest = namedtuple("ClientRequest", ["client", "request"])
 
 LOGGER = logging.getLogger(os.path.basename(__file__))
 LOGGER.setLevel(logging.INFO)
@@ -40,120 +42,222 @@ HOSTNAME = 'localhost'
 PORTS_POOL = [9500+i for i in range(0, 200, 2)]
 FILE_FOLDER_NAME = os.path.abspath(os.path.dirname(__file__))
 
+class ClientComsSimulator():
+    """ Represents a client's coms """
+    def __init__(self, client_id):
+        """ Constructor
+            :param client_id: the id
+        """
+        self._id = client_id
+        self._stream = None
+        self._resp_notif_future = None
+        self._is_game_joined = False
+
+    @property
+    def stream(self):
+        """ Returns the stream """
+        return self._stream
+
+    @property
+    def is_game_joined(self):
+        """ Returns if the client has joinded the game """
+        return self._is_game_joined
+
+    def group_resp_notifs_coms(self, coms):
+        """ Gruops the client's response / notifications communications into the same entry
+            :param coms: the communications
+            :return: the communications with the client's response / notifications grouped
+        """
+        resp_notif_idx = 0
+        while resp_notif_idx < len(coms):
+            resp_notifs_com = coms[resp_notif_idx]
+
+            if resp_notifs_com.client_id != self._id or resp_notifs_com.request:
+                resp_notif_idx += 1
+                continue
+
+            next_resp_notif_idx = resp_notif_idx + 1
+            while next_resp_notif_idx < len(coms):
+                com = coms[next_resp_notif_idx]
+
+                if com.client_id != self._id:
+                    next_resp_notif_idx += 1
+                    continue
+
+                if com.request:
+                    break
+
+                resp_notifs_com.resp_notifs.extend(com.resp_notifs)
+                coms.pop(next_resp_notif_idx)
+
+            resp_notif_idx += 1
+
+        return coms
+
+    @gen.coroutine
+    def connect(self, port):
+        """ Connect to the DAIDE server
+            :param port: the DAIDE server's port
+        """
+        self._stream = yield TCPClient().connect('localhost', port)
+        # LOGGER.info("Connected to %d", port)
+        message = daide.messages.InitialMessage()
+        yield self._stream.write(bytes(message))
+        yield daide.messages.DaideMessage.from_stream(self._stream)
+
+    @gen.coroutine
+    def send_request(self, request):
+        """ Sends a request
+            :param request: the request to send
+        """
+        if self._resp_notif_future is not None:
+            yield self._resp_notif_future
+            self._resp_notif_future = None
+        message = daide.messages.DiplomacyMessage()
+        message.content = daide.utils.str_to_bytes(request)
+        # Give a little breathing room between each read and writes
+        yield gen.sleep(0.1)
+        yield self._stream.write(bytes(message))
+
+    @gen.coroutine
+    def validate_resp_notif(self, expected_resp_notifs):
+        """ Validate that expected response / notifications are received regardless of the order
+            :param expected_resp_notifs: the response / notifications to receive
+        """
+        while expected_resp_notifs:
+            # Give a little breathing room between each read and writes
+            yield gen.sleep(0)
+            resp_notif_message = yield daide.messages.DaideMessage.from_stream(self._stream)
+
+            resp_notif = daide.utils.bytes_to_str(resp_notif_message.content)
+            if Token(from_bytes=resp_notif_message.content[:2]) == daide.tokens.HLO:
+                resp_notif = resp_notif.split(' ')
+                resp_notif[5] = expected_resp_notifs[0].split(' ')[5]
+                resp_notif = ' '.join(resp_notif)
+                self._is_game_joined = True
+
+            LOGGER.info("[%d:%d] Received reply [%s]", self._id, self.stream.socket.fileno()+1, str(resp_notif))
+            assert resp_notif in expected_resp_notifs
+            expected_resp_notifs.remove(resp_notif)
+
+    @gen.coroutine
+    def execute_iteration(self, coms):
+        """ Execute a single communication iteration
+            :param coms:
+            :return:
+        """
+        request, coms = self.pop_next_request(coms)
+
+        if request is not None:
+            yield self.send_request(request)
+
+        expected_resp_notifs = []
+        expected_resp_notif, coms = self.pop_next_resp_notif(coms)
+
+        while expected_resp_notif is not None:
+            expected_resp_notifs.append(expected_resp_notif)
+            expected_resp_notif, coms = self.pop_next_resp_notif(coms)
+
+        self._resp_notif_future = self.validate_resp_notif(expected_resp_notifs)
+
+        return coms
+
+    def pop_next_request(self, coms):
+        """ Pop the next request from a DAIDE communications list
+            :return: The next request along with the updated list of communications
+                     or None and the updated list of communications
+        """
+        com = next(iter(coms), None)
+        request = None
+
+        while com and com.client_id == self._id:
+            if com.request:
+                request = com.request
+                coms[0] = DaideCom(com.client_id, '', com.resp_notifs)
+                LOGGER.info("[%d:%d] preparing to send request [%s]", self._id, self.stream.socket.fileno()+1, request)
+                break
+            elif com.resp_notifs:
+                break
+            else:
+                coms.pop(0)
+                com = next(iter(coms), None)
+
+        return request, coms
+
+    def pop_next_resp_notif(self, coms):
+        """ Pop the next response or notifcation from a DAIDE communications list
+            :return: The next response or notifcation along with the updated list of communications
+                     or None and the updated list of communications
+        """
+        com = next(iter(coms), None)
+        resp_notif = None
+
+        while com and com.client_id == self._id:
+            if com.request:
+                break
+            elif com.resp_notifs:
+                resp_notif = com.resp_notifs.pop(0)
+                LOGGER.info("[%d:%d] waiting for resp_notif [%s]", self._id, self.stream.socket.fileno()+1, resp_notif)
+                break
+            else:
+                coms.pop(0)
+                com = next(iter(coms), None)
+
+        return resp_notif, coms
+
 class ClientsComsSimulator():
-    def __init__(self, port, csv_file):
+    """ Represents multi clients's coms """
+    def __init__(self, port, nb_clients, csv_file):
+        """ Constructor
+            :param port: the port to connect
+            :param nb_clients: the number of clients
+            :param csv_file: the csv containing the communications in chronological order
+        """
         with open(csv_file, "r") as file:
             content = file.read()
 
         content = [line.split(',') for line in content.split('\n') if not line.startswith('#')]
 
         self._port = port
+        self._nb_clients = nb_clients
         self._coms = [DaideCom(int(line[0]), line[1], line[2:]) for line in content if line[0]]
-        self._client_streams = {}
-
-    @property
-    def coms(self):
-        return self._coms
+        self._clients = {}
+        self._streams_resp_notif_futures = {}
 
     @gen.coroutine
-    def run(self):
-        while self._coms:
-            request, stream = yield self._get_next_request_and_stream()
+    def execute(self):
+        """ Excetues the communications between clients """
+        try:
+            while self._coms:
+                try:
+                    next_com = next(iter(self._coms))
+                except StopIteration:
+                    break
 
-            if request:
-                LOGGER.info("Sending request [%s]", str(request))
-                message = daide.messages.DiplomacyMessage()
-                message.content = daide.utils.str_to_bytes(request)
-                yield stream.write(bytes(message))
+                if next_com.client_id not in self._clients and len(self._clients) < self._nb_clients:
+                    client = ClientComsSimulator(next_com.client_id)
+                    yield client.connect(self._port)
+                    self._coms = client.group_resp_notifs_coms(self._coms)
+                    self._clients[next_com.client_id] = client
 
-            expected_resp_notif, stream = yield self._get_next_resp_notif_and_stream()
+                for client in self._clients.values():
+                    self._coms = yield client.execute_iteration(self._coms)
 
-            while expected_resp_notif:
-                resp_notif_message = yield daide.messages.DaideMessage.from_stream(stream)
-                if resp_notif_message.message_type != daide.messages.MessageType.DIPLOMACY:
-                    continue
-                resp_notif = daide.utils.bytes_to_str(resp_notif_message.content)
-                if Token(from_bytes=resp_notif_message.content[:2]) == daide.tokens.HLO:
-                    resp_notif = resp_notif.split(' ')
-                    resp_notif[5] = expected_resp_notif.split(' ')[5]
-                    resp_notif = ' '.join(resp_notif)
-                LOGGER.info("Received reply [%s] for request [%s]", str(resp_notif), str(request))
-                assert resp_notif == expected_resp_notif
-                expected_resp_notif, stream = yield self._get_next_resp_notif_and_stream()
+        except StreamClosedError as err:
+            LOGGER.error("Stream closed: %s", err)
 
-    @gen.coroutine
-    def _get_client_stream(self, client_id):
-        stream = self._client_streams.get(client_id, None)
-        if not stream:
-            stream = yield TCPClient().connect('localhost', self._port)
-            LOGGER.info("Connected to %d", self._port)
-            # Set TCP_NODELAY / disable Nagle's Algorithm.
-            stream.set_nodelay(True)
-            message = daide.messages.InitialMessage()
-            yield stream.write(bytes(message))
-            self._client_streams[client_id] = stream
-        return stream
-
-    @gen.coroutine
-    def _get_next_request_and_stream(self):
-        """ Pop the next request from a DAIDE communications list
-            :return: The next request along with the updated list of communications
-                     or None and the updated list of communications
-        """
-        com = next(iter(self._coms), None)
-        request = None
-        stream = None
-        while com:
-            if com.request:
-                request = com.request
-                stream = yield self._get_client_stream(com.client_id)
-                self._coms[0] = DaideCom(com.client_id, '', com.resp_notif)
-                break
-            elif com.resp_notif:
-                break
-            else:
-                self._coms.pop(0)
-                com = next(iter(self._coms), None)
-        return request, stream
-
-    @gen.coroutine
-    def _get_next_resp_notif_and_stream(self):
-        """ Pop the next response or notifcation from a DAIDE communications list
-            :return: The next response or notifcation along with the updated list of communications
-                     or None and the updated list of communications
-        """
-        com = next(iter(self._coms), None)
-        resp_notif = None
-        stream = None
-        while com:
-            if com.request:
-                break
-            elif com.resp_notif:
-                resp_notif = com.resp_notif.pop(0)
-                stream = yield self._get_client_stream(com.client_id)
-                break
-            else:
-                self._coms.pop(0)
-                com = next(iter(self._coms), None)
-        return resp_notif, stream
+        assert not self._coms
 
 @gen.coroutine
-def daide_clients(port, csv_file):
+def run_clients_coms(port, nb_daide_players, csv_file):
     """ Simulate a client communicating with the server and validate server's responses and notifcations
         :param port: The port of the DAIDE server
         :param csv_file: the csv file containing the list of DAIDE communications
     """
-    simulator = ClientsComsSimulator(port, csv_file)
+    coms_simulator = ClientsComsSimulator(port, nb_daide_players, csv_file)
+    yield coms_simulator.execute()
 
-    try:
-        yield simulator.run()
-
-    except StreamClosedError as err:
-        LOGGER.error("Error connecting to %d: %s", port, err)
-
-    assert not simulator.coms
-
-def run_game_data(port, nb_daide_players, csv_file):
+def run_game_data(port, nb_daide_clients, rules, csv_file):
     """ Start a server and a client to test DAIDE communications
         :param port: The port of the DAIDE server
         :param csv_file: the csv file containing the list of DAIDE communications
@@ -163,9 +267,9 @@ def run_game_data(port, nb_daide_players, csv_file):
         """ Concrete call to main function. """
         server_port = server.backend.port
         daide_port = server_port + 1
-        nb_regular_players = min(1, 7 - nb_daide_players)
-        server_game = ServerGame(map_name='standard', n_controls=nb_daide_players + nb_regular_players,
-                                 rules=['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'])
+        nb_regular_players = min(1, 7 - nb_daide_clients)
+        server_game = ServerGame(map_name='standard', n_controls=nb_daide_clients + nb_regular_players,
+                                 rules=rules)
         server_game.server = server
 
         # Register game on server.
@@ -182,10 +286,11 @@ def run_game_data(port, nb_daide_players, csv_file):
                                                          create_user=not server.users.has_user(username, password))
             user_game = yield user_channel.join_game(game_id=server_game.game_id, power_name='AUSTRIA')
 
-        daide_future = daide_clients(daide_port, csv_file)
+        coms_simulator = ClientsComsSimulator(daide_port, nb_daide_clients, csv_file)
+        daide_future = coms_simulator.execute()
 
-        for _ in range(3 + nb_daide_players):
-            if daide_future.done() or server_game.count_controlled_powers() == 2:
+        for _ in range(3 + nb_daide_clients):
+            if daide_future.done() or server_game.count_controlled_powers() == nb_daide_clients + nb_regular_players:
                 break
             yield gen.sleep(2.5)
         else:
@@ -236,16 +341,25 @@ def run_game_data(port, nb_daide_players, csv_file):
 
 def test_game_reject_map():
     """ Test a game where the client rejects the map """
-    run_game_data(PORTS_POOL.pop(0), 1, os.path.join(FILE_FOLDER_NAME, "game_data_1_reject_map.csv"))
+    run_game_data(PORTS_POOL.pop(0), 1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+                  os.path.join(FILE_FOLDER_NAME, "game_data_1_reject_map.csv"))
 
 def test_game_1():
     """ Test a complete 1 player game """
-    run_game_data(PORTS_POOL.pop(0), 1, os.path.join(FILE_FOLDER_NAME, "game_data_1.csv"))
+    run_game_data(PORTS_POOL.pop(0), 1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+                  os.path.join(FILE_FOLDER_NAME, "game_data_1.csv"))
 
 def test_game_history():
     """ Test a complete 1 player game and validate the full history (except last phase) """
-    run_game_data(PORTS_POOL.pop(0), 1, os.path.join(FILE_FOLDER_NAME, "game_data_1_history.csv"))
+    run_game_data(PORTS_POOL.pop(0), 1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+                  os.path.join(FILE_FOLDER_NAME, "game_data_1_history.csv"))
 
 def test_game_7():
     """ Test a complete 7 players game """
-    run_game_data(PORTS_POOL.pop(0), 7, os.path.join(FILE_FOLDER_NAME, "game_data_7.csv"))
+    run_game_data(PORTS_POOL.pop(0), 7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+                  os.path.join(FILE_FOLDER_NAME, "game_data_7.csv"))
+
+def test_game_7_press():
+    """ Test a complete 7 players game with press """
+    run_game_data(PORTS_POOL.pop(0), 7, ['IGNORE_ERRORS', 'POWER_CHOICE'],
+                  os.path.join(FILE_FOLDER_NAME, "game_data_7_press.csv"))
