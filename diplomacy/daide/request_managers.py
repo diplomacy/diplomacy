@@ -426,7 +426,17 @@ def on_accept_request(server, request, connection_handler, game):
     return [response] if response else None
 
 def on_reject_request(server, request, connection_handler, game):
-    return None
+    _, _, token, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
+
+    response = None
+    reject_response = request.response_bytes
+
+    lead_token, _ = daide.clauses.parse_bytes(daide.clauses.SingleToken, reject_response)
+
+    if bytes(lead_token) == bytes(daide.tokens.MAP):
+        response = daide.responses.OFF()
+
+    return [response] if response else None
 
 def on_parenthesis_error_request(server, request, connection_handler, game):
     return None

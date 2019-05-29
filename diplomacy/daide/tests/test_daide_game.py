@@ -163,7 +163,7 @@ def run_game_data(data_file):
         daide_future = daide_client(daide_port, data_file)
 
         for attempt_idx in range(4):
-            if server_game.count_controlled_powers() == 2:
+            if daide_future.done() or server_game.count_controlled_powers() == 2:
                 break
             yield gen.sleep(2.5)
         else:
@@ -187,14 +187,22 @@ def run_game_data(data_file):
         except Exception as exception:
             logging.error('Exception: {}'.format(exception))
 
-        server.stop_daide_server(server_game.game_id)
-
         yield daide_future
 
         io_loop.stop()
 
-    io_loop.add_callback(coroutine_func)
-    server.start(port=port, io_loop=io_loop)
+    try:
+        io_loop.add_callback(coroutine_func)
+        server.start(port=port, io_loop=io_loop)
+    finally:
+        io_loop.clear_current()
+        io_loop.close()
+        server.stop_daide_server(None)
+        server.backend.http_server.stop()
+        Server.__cache__.clear()
+
+def test_game_reject_map():
+    run_game_data("game_data_1_reject_map.csv")
 
 def test_game():
     run_game_data("game_data_1.csv")
