@@ -49,8 +49,8 @@ def test_sco():
                 '( GER BER KIE MUN ) ( ITA NAP ROM VEN ) ( RUS MOS SEV STP WAR ) ' \
                 '( TUR ANK CON SMY ) ( UNO BEL BUL DEN GRE HOL NWY POR RUM SER SPA SWE TUN )'
     game = Game(map_name='standard')
-    powers = game.powers.values()
-    response = daide.responses.SCO(powers=powers, map_name='standard')
+    power_centers = {power.name: power.centers for power in game.powers.values()}
+    response = daide.responses.SCO(power_centers, map_name='standard')
     assert isinstance(response, daide.responses.SCO), 'Expected a SCO response'
     assert bytes(response) == str_to_bytes(daide_str)
 
@@ -62,9 +62,10 @@ def test_now():
                 ' ( ITA AMY VEN ) ( RUS AMY WAR ) ( RUS AMY MOS ) ( RUS FLT SEV )' \
                 ' ( RUS FLT ( STP SCS ) ) ( TUR FLT ANK ) ( TUR AMY CON ) ( TUR AMY SMY )'
     game = Game(map_name='standard')
-    phase_name = game.map.phase_abbr(game.phase)
-    powers = game.powers.values()
-    response = daide.responses.NOW(phase_name=phase_name, powers=powers)
+    phase_name = game.get_current_phase()
+    units = {power.name: power.units for power in game.powers.values()}
+    retreats = {power.name: power.retreats for power in game.powers.values()}
+    response = daide.responses.NOW(phase_name=phase_name, powers_units=units, powers_retreats=retreats)
     assert isinstance(response, daide.responses.NOW), 'Expected a NOW response'
     assert bytes(response) == str_to_bytes(daide_str)
 

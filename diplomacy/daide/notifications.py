@@ -100,13 +100,13 @@ class HelloNotification(DaideNotification):
                       + add_parentheses(bytes(variants))
 
 class SupplyCenterNotification(DaideNotification):
-    """ Represents a SCO DAIDE response. Sends the current supply centre ownership.
+    """ Represents a SCO DAIDE notification. Sends the current supply centre ownership.
         Syntax:
             SCO (power centre centre ...) (power centre centre ...) ...
     """
     def __init__(self, powers_centers, map_name, **kwargs):
-        """ Builds the response
-            :param powers: A list of `diplomacy.engine.power.Power` objects
+        """ Builds the notification
+            :param powers_centers: A dict of {power_name: centers} objects
             :param map_name: The name of the map
         """
         super(SupplyCenterNotification, self).__init__(**kwargs)
@@ -140,7 +140,7 @@ class SupplyCenterNotification(DaideNotification):
                       + b''.join([add_parentheses(power_bytes) for power_bytes in all_powers_bytes])
 
 class CurrentPositionNotification(DaideNotification):
-    """ Represents a NOW DAIDE response. Sends the current turn, and the current unit positions.
+    """ Represents a NOW DAIDE notification. Sends the current turn, and the current unit positions.
         Syntax:
             NOW (turn) (unit) (unit) ...
         Unit syntax:
@@ -148,7 +148,7 @@ class CurrentPositionNotification(DaideNotification):
             power unit_type province MRT (province province ...)
     """
     def __init__(self, phase_name, powers_units, powers_retreats, **kwargs):
-        """ Builds the response
+        """ Builds the notification
             :param phase_name: The name of the current phase (e.g. 'S1901M')
             :param powers: A list of `diplomacy.engine.power.Power` objects
         """

@@ -35,7 +35,7 @@ from diplomacy.daide.user_additions import UserAdditions
 import diplomacy.daide.utils
 from diplomacy.engine.message import Message
 import diplomacy.server.request_managers as internal_request_managers
-from diplomacy.utils import errors as err, exceptions, results as res, strings
+from diplomacy.utils import errors as err, exceptions, results as res, strings, subject_split
 
 @gen.coroutine
 def on_name_request(server, request, connection_handler, game):
@@ -142,14 +142,67 @@ def on_map_definition_request(server, request, connection_handler, game):
     return [daide.responses.MDF(game.map_name)]
 
 def on_supply_centre_ownership_request(server, request, connection_handler, game):
-    return [daide.responses.SCO(game.powers.values(), game.map_name)]
+    power_centers = {power.name: power.centers for power in game.powers.values()}
+    return [daide.responses.SCO(power_centers, game.map_name)]
 
 def on_current_position_request(server, request, connection_handler, game):
-    return [daide.responses.NOW(game.map.phase_abbr(game.phase), game.powers)]
+    units = {power.name: power.units for power in game.powers.values()}
+    retreats = {power.name: power.retreats for power in game.powers.values()}
+    return [daide.responses.NOW(game.get_current_phase(), units, retreats)]
 
 def on_history_request(server, request, connection_handler, game):
-    # TODO: implement
-    raise NotImplementedError
+    responses = []
+
+    _, _, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
+    phase, current_phase, map = request.phase, game.get_current_phase(), game.map
+    phase_order = game.order_history.get(phase, None)
+    phase_result = game.result_history.get(phase, None)
+
+    if phase_result is None:
+        return [daide.responses.REJ(bytes(request))]
+
+    next_phase = map.phase_abbr(map.find_next_phase(map.phase_long(phase)))
+    next_phase_state = game.state_history.get(next_phase, None)
+
+    while next_phase_state is None and next_phase != current_phase:
+        next_phase = map.phase_abbr(map.find_next_phase(map.phase_long(next_phase)))
+        next_phase_state = game.state_history.get(next_phase, None)
+
+    if next_phase == current_phase:
+        next_phase_state = game.get_state()
+
+    phase = subject_split.PhaseSplit.split(phase)
+    next_phase = subject_split.PhaseSplit.split(next_phase)
+
+    # ORD responses
+    for order in phase_order[power_name]:
+        order = subject_split.OrderSplit.split(order)
+        results = None
+
+        # WAIVE
+        if len(order) == 1:
+            order.command = ' '.join([power_name, order.command])
+            results = [res.OK]
+        else:
+            results = phase_result[order.unit]
+            order.unit = ' '.join([power_name, order.unit])
+
+        if order.additional_unit:
+            order.additional_unit = ' '.join([power_name, order.additional_unit])
+
+        order_bytes = daide.clauses.parse_order_to_bytes(phase.type, order)
+        responses.append(daide.notifications.ORD(phase.in_str, order_bytes, [result.code for result in results]))
+
+    # SCO response
+    responses.append(daide.responses.SCO(next_phase_state['centers'], map.name))
+
+    # NOW response
+    units = {power_name: [unit for unit in units if not unit.startswith('*')] for power_name, units in
+             next_phase_state['units'].items()}
+    retreats = next_phase_state['retreats'].copy()
+    responses.append(daide.responses.NOW(next_phase.in_str, units, retreats))
+
+    return responses
 
 @gen.coroutine
 # def on_submit_orders_request(server, request, connection_handler, game):
