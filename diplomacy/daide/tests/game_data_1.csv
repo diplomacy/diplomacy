@@ -264,4 +264,4 @@ NOT ( GOF ),YES ( NOT ( GOF ) )
 GOF,YES ( GOF )
 # === NEW PHASE ===
 # F1914R
-,OFF
+,SMR ( AUT #1914 ) ( AUS ( u s e r ) ( v 0 . 0 . 0 ) #3 ) ( ENG ( A l b e r t ) ( v 6 . 0 . 1 ) #22 ) ( FRA ( d u m m y ) ( v 0 . 0 . 0 ) #0 #1914 ) ( GER ( d u m m y ) ( v 0 . 0 . 0 ) #0 #1905 ) ( ITA ( d u m m y ) ( v 0 . 0 . 0 ) #3 ) ( RUS ( d u m m y ) ( v 0 . 0 . 0 ) #2 ) ( TUR ( d u m m y ) ( v 0 . 0 . 0 ) #3 ),OFF

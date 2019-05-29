@@ -369,7 +369,6 @@ class SoloNotification(DaideNotification):
         power = parse_string(daide.clauses.Power, power_name)
         self._bytes = bytes(daide.tokens.SLO) + add_parentheses(bytes(power))
 
-# TODO: implement
 class SummaryNotification(DaideNotification):
     """ Represents a SMR DAIDE response. Sends the summary for each power at the end of the game
         Syntax:
@@ -378,10 +377,44 @@ class SummaryNotification(DaideNotification):
             power ('name') ('version') number_of_centres
             power ('name') ('version') number_of_centres year_of_elimination
     """
-    def __init__(self, phase_name, powers, **kwargs):
-        """ Builds the response
+    def __init__(self, phase_name, powers, users_additions, years_of_elimnation, **kwargs):
+        """ Builds the Notification
         """
-        raise NotImplementedError
+        super(SummaryNotification, self).__init__(**kwargs)
+
+        # Turn
+        turn_clause = parse_string(daide.clauses.Turn, phase_name)
+
+        powers_smrs_clause = []
+
+        for power, user_additions, year_of_elimnation in zip(powers, users_additions, years_of_elimnation):
+            power_smr_clause = []
+
+            name = user_additions.client_name if user_additions else power.get_controller()
+            version = user_additions.client_version if user_additions else "v0.0.0"
+
+            power_name_clause = bytes(parse_string(daide.clauses.Power, power.name))
+            power_smr_clause.append(power_name_clause)
+
+            # (name)
+            name_clause = bytes(parse_string(daide.clauses.String, name))
+            power_smr_clause.append(name_clause)
+
+            # (version)
+            version_clause = bytes(parse_string(daide.clauses.String, version))
+            power_smr_clause.append(version_clause)
+
+            number_of_centres_clause = bytes(Token(from_int=len(power.centers)))
+            power_smr_clause.append(number_of_centres_clause)
+
+            if not power.centers:
+                year_of_elimnation_clause = bytes(Token(from_int=year_of_elimnation))
+                power_smr_clause.append(year_of_elimnation_clause)
+
+            power_smr_clause = add_parentheses(b''.join(power_smr_clause))
+            powers_smrs_clause.append(power_smr_clause)
+
+        self._bytes = bytes(daide.tokens.SMR) + bytes(turn_clause) + b''.join(powers_smrs_clause)
 
 class TurnOffNotification(DaideNotification):
     """ Represents an OFF DAIDE response. Requests a client to exit

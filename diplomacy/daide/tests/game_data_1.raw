@@ -1964,6 +1964,7 @@ Sending orders
 All orders sent
 2019-05-16 11:11:31 diplomacy.server.server[14760] DEBUG Processing game JCHWK1AgHpdUDzWd (status active).
 2019-05-16 11:11:31 diplomacy.client.notification_managers[14760] INFO Notification received: powers_controllers
+2019-05-16 11:11:31 diplomacy.daide.connection_handler[14760] INFO [17] notification:[SMR ( AUT #1914 ) ( AUS ( u s e r ) ( v 0 . 0 . 0 ) #3 ) ( ENG ( A l b e r t ) ( v 6 . 0 . 1 ) #22 ) ( FRA ( d u m m y ) ( v 0 . 0 . 0 ) #0 #1914 ) ( GER ( d u m m y ) ( v 0 . 0 . 0 ) #0 #1905 ) ( ITA ( d u m m y ) ( v 0 . 0 . 0 ) #3 ) ( RUS ( d u m m y ) ( v 0 . 0 . 0 ) #2 ) ( TUR ( d u m m y ) ( v 0 . 0 . 0 ) #3 )]
 2019-05-16 11:11:31 diplomacy.daide.connection_handler[14760] INFO [17] notification:[OFF]
 2019-05-16 11:11:31 diplomacy.daide.connection_handler[14760] INFO Removed connection. Remaining 1 connection(s).
 2019-05-16 11:11:31 diplomacy.client.notification_managers[14760] INFO Notification received: game_processed
