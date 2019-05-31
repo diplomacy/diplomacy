@@ -18,8 +18,11 @@
 from collections import namedtuple
 import logging
 import os
+import random
+import socket
 
 from tornado import gen
+from tornado.concurrent import Future
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.tcpclient import TCPClient
@@ -39,8 +42,18 @@ LOGGER = logging.getLogger(os.path.basename(__file__))
 LOGGER.setLevel(logging.INFO)
 
 HOSTNAME = 'localhost'
-PORTS_POOL = [9500+i for i in range(0, 200, 2)]
 FILE_FOLDER_NAME = os.path.abspath(os.path.dirname(__file__))
+
+def is_port_opened(port, hostname=HOSTNAME):
+    """ Checks if the specified port is opened
+        :param port: The port to check
+        :param hostname: The hostname to check, defaults to '127.0.0.1'
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex((hostname, port))
+    if result == 0:
+        return True
+    return False
 
 class ClientComsSimulator():
     """ Represents a client's coms """
@@ -94,12 +107,55 @@ class ClientComsSimulator():
 
         return coms
 
-    @gen.coroutine
-    def connect(self, port):
-        """ Connect to the DAIDE server
-            :param port: the DAIDE server's port
+    def pop_next_request(self, coms):
+        """ Pop the next request from a DAIDE communications list
+            :return: The next request along with the updated list of communications
+                     or None and the updated list of communications
         """
-        self._stream = yield TCPClient().connect('localhost', port)
+        com = next(iter(coms), None)
+        request = None
+
+        while com and com.client_id == self._id:
+            if com.request:
+                request = com.request
+                coms[0] = DaideCom(com.client_id, '', com.resp_notifs)
+                LOGGER.info("[%d:%d] preparing to send request [%s]", self._id, self.stream.socket.fileno()+1, request)
+                break
+            elif com.resp_notifs:
+                break
+            else:
+                coms.pop(0)
+                com = next(iter(coms), None)
+
+        return request, coms
+
+    def pop_next_resp_notif(self, coms):
+        """ Pop the next response or notifcation from a DAIDE communications list
+            :return: The next response or notifcation along with the updated list of communications
+                     or None and the updated list of communications
+        """
+        com = next(iter(coms), None)
+        resp_notif = None
+
+        while com and com.client_id == self._id:
+            if com.request:
+                break
+            elif com.resp_notifs:
+                resp_notif = com.resp_notifs.pop(0)
+                LOGGER.info("[%d:%d] waiting for resp_notif [%s]", self._id, self.stream.socket.fileno()+1, resp_notif)
+                break
+            else:
+                coms.pop(0)
+                com = next(iter(coms), None)
+
+        return resp_notif, coms
+
+    @gen.coroutine
+    def connect(self, game_port):
+        """ Connect to the DAIDE server
+            :param game_port: the DAIDE game's port
+        """
+        self._stream = yield TCPClient().connect('localhost', game_port)
         # LOGGER.info("Connected to %d", port)
         message = daide.messages.InitialMessage()
         yield self._stream.write(bytes(message))
@@ -116,7 +172,7 @@ class ClientComsSimulator():
         message = daide.messages.DiplomacyMessage()
         message.content = daide.utils.str_to_bytes(request)
         # Give a little breathing room between each read and writes
-        yield gen.sleep(0.1)
+        yield gen.sleep(0.25)
         yield self._stream.write(bytes(message))
 
     @gen.coroutine
@@ -162,54 +218,11 @@ class ClientComsSimulator():
 
         return coms
 
-    def pop_next_request(self, coms):
-        """ Pop the next request from a DAIDE communications list
-            :return: The next request along with the updated list of communications
-                     or None and the updated list of communications
-        """
-        com = next(iter(coms), None)
-        request = None
-
-        while com and com.client_id == self._id:
-            if com.request:
-                request = com.request
-                coms[0] = DaideCom(com.client_id, '', com.resp_notifs)
-                LOGGER.info("[%d:%d] preparing to send request [%s]", self._id, self.stream.socket.fileno()+1, request)
-                break
-            elif com.resp_notifs:
-                break
-            else:
-                coms.pop(0)
-                com = next(iter(coms), None)
-
-        return request, coms
-
-    def pop_next_resp_notif(self, coms):
-        """ Pop the next response or notifcation from a DAIDE communications list
-            :return: The next response or notifcation along with the updated list of communications
-                     or None and the updated list of communications
-        """
-        com = next(iter(coms), None)
-        resp_notif = None
-
-        while com and com.client_id == self._id:
-            if com.request:
-                break
-            elif com.resp_notifs:
-                resp_notif = com.resp_notifs.pop(0)
-                LOGGER.info("[%d:%d] waiting for resp_notif [%s]", self._id, self.stream.socket.fileno()+1, resp_notif)
-                break
-            else:
-                coms.pop(0)
-                com = next(iter(coms), None)
-
-        return resp_notif, coms
-
 class ClientsComsSimulator():
     """ Represents multi clients's coms """
-    def __init__(self, port, nb_clients, csv_file):
+    def __init__(self, game_port, nb_clients, csv_file):
         """ Constructor
-            :param port: the port to connect
+            :param game_port: the port of the game
             :param nb_clients: the number of clients
             :param csv_file: the csv containing the communications in chronological order
         """
@@ -218,15 +231,17 @@ class ClientsComsSimulator():
 
         content = [line.split(',') for line in content.split('\n') if not line.startswith('#')]
 
-        self._port = port
+        self._game_port = game_port
         self._nb_clients = nb_clients
         self._coms = [DaideCom(int(line[0]), line[1], line[2:]) for line in content if line[0]]
         self._clients = {}
         self._streams_resp_notif_futures = {}
 
     @gen.coroutine
-    def execute(self):
-        """ Excetues the communications between clients """
+    def execute(self, future):
+        """ Executes the communications between clients
+           :param future: the future to update when the execution is completed
+        """
         try:
             while self._coms:
                 try:
@@ -236,7 +251,7 @@ class ClientsComsSimulator():
 
                 if next_com.client_id not in self._clients and len(self._clients) < self._nb_clients:
                     client = ClientComsSimulator(next_com.client_id)
-                    yield client.connect(self._port)
+                    yield client.connect(self._game_port)
                     self._coms = client.group_resp_notifs_coms(self._coms)
                     self._clients[next_com.client_id] = client
 
@@ -248,28 +263,31 @@ class ClientsComsSimulator():
 
         assert not self._coms
 
-@gen.coroutine
-def run_clients_coms(port, nb_daide_players, csv_file):
-    """ Simulate a client communicating with the server and validate server's responses and notifcations
-        :param port: The port of the DAIDE server
-        :param csv_file: the csv file containing the list of DAIDE communications
-    """
-    coms_simulator = ClientsComsSimulator(port, nb_daide_players, csv_file)
-    yield coms_simulator.execute()
+        future.set_result(None)
 
-def run_game_data(port, nb_daide_clients, rules, csv_file):
+def run_game_data(nb_daide_clients, rules, csv_file):
     """ Start a server and a client to test DAIDE communications
         :param port: The port of the DAIDE server
         :param csv_file: the csv file containing the list of DAIDE communications
     """
+    server = Server()
+    io_loop = IOLoop()
+    io_loop.make_current()
+    common.Tornado.stop_loop_on_callback_error(io_loop)
+
     @gen.coroutine
-    def coroutine_func(server):
+    def coroutine_func():
         """ Concrete call to main function. """
-        server_port = server.backend.port
-        daide_port = server_port + 1
+        port = random.randint(9000, 9999)
+
+        while is_port_opened(port):
+            port = random.randint(9000, 9999)
+
+        server.start(port=port)
+
+        daide_port = port - 1000
         nb_regular_players = min(1, 7 - nb_daide_clients)
-        server_game = ServerGame(map_name='standard', n_controls=nb_daide_clients + nb_regular_players,
-                                 rules=rules)
+        server_game = ServerGame(map_name='standard', n_controls=nb_daide_clients + nb_regular_players, rules=rules)
         server_game.server = server
 
         # Register game on server.
@@ -281,13 +299,14 @@ def run_game_data(port, nb_daide_clients, rules, csv_file):
         if nb_regular_players:
             username = 'user'
             password = 'password'
-            connection = yield connect(HOSTNAME, server_port)
+            connection = yield connect(HOSTNAME, port)
             user_channel = yield connection.authenticate(username, password,
                                                          create_user=not server.users.has_user(username, password))
             user_game = yield user_channel.join_game(game_id=server_game.game_id, power_name='AUSTRIA')
 
         coms_simulator = ClientsComsSimulator(daide_port, nb_daide_clients, csv_file)
-        daide_future = coms_simulator.execute()
+        daide_future = Future()
+        coms_simulator.execute(daide_future)
 
         for _ in range(3 + nb_daide_clients):
             if daide_future.done() or server_game.count_controlled_powers() == nb_daide_clients + nb_regular_players:
@@ -313,53 +332,43 @@ def run_game_data(port, nb_daide_clients, rules, csv_file):
                 phase = PhaseSplit(server_game.get_current_phase())
 
         yield daide_future
+
+    try:
+        io_loop.run_sync(coroutine_func)
+
+    finally:
+        server.stop_daide_server(None)
+        if server.backend.http_server:
+            server.backend.http_server.stop()
+
         io_loop.stop()
+        io_loop.clear_current()
+        io_loop.close()
 
-    test_complete = False
-    while not test_complete:
-        try:
-            io_loop = IOLoop()
-            io_loop.make_current()
-            common.Tornado.stop_loop_on_callback_error(io_loop)
-
-            server = Server()
-            io_loop.add_callback(coroutine_func, server)
-
-            server.start(port=port, io_loop=io_loop)
-        except IOError:
-            port = PORTS_POOL.pop(0)
-        finally:
-            test_complete = server.backend.http_server is not None
-            io_loop.stop()
-            io_loop.clear_current()
-            io_loop.close()
-            server.stop_daide_server(None)
-            if server.backend.http_server:
-                server.backend.http_server.stop()
-            server = None
-            Server.__cache__.clear()
+        server = None
+        Server.__cache__.clear()
 
 def test_game_reject_map():
     """ Test a game where the client rejects the map """
-    run_game_data(PORTS_POOL.pop(0), 1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+    run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
                   os.path.join(FILE_FOLDER_NAME, "game_data_1_reject_map.csv"))
 
 def test_game_1():
     """ Test a complete 1 player game """
-    run_game_data(PORTS_POOL.pop(0), 1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+    run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
                   os.path.join(FILE_FOLDER_NAME, "game_data_1.csv"))
 
 def test_game_history():
     """ Test a complete 1 player game and validate the full history (except last phase) """
-    run_game_data(PORTS_POOL.pop(0), 1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+    run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
                   os.path.join(FILE_FOLDER_NAME, "game_data_1_history.csv"))
 
 def test_game_7():
     """ Test a complete 7 players game """
-    run_game_data(PORTS_POOL.pop(0), 7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
+    run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
                   os.path.join(FILE_FOLDER_NAME, "game_data_7.csv"))
 
 def test_game_7_press():
     """ Test a complete 7 players game with press """
-    run_game_data(PORTS_POOL.pop(0), 7, ['IGNORE_ERRORS', 'POWER_CHOICE'],
+    run_game_data(7, ['IGNORE_ERRORS', 'POWER_CHOICE'],
                   os.path.join(FILE_FOLDER_NAME, "game_data_7_press.csv"))
