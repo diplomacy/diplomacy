@@ -461,7 +461,8 @@ class Server():
         self.backend.port = port
         self.set_tasks(io_loop)
         LOGGER.info('Running on port %d', self.backend.port)
-        io_loop.start()
+        if not io_loop.asyncio_loop.is_running():
+            io_loop.start()
 
     def get_game_indices(self):
         """ Iterate over all game indices in server database.
