@@ -96,8 +96,6 @@ def on_processed_notification(server, notification, connection_handler, game):
     previous_phase_data = notification.previous_phase_data
     previous_state = previous_phase_data.state
     previous_phase = subject_split.PhaseSplit(previous_state['name'])
-    phase_data = notification.current_phase_data
-    state = phase_data.state
 
     notifs = []
 
@@ -120,11 +118,11 @@ def on_processed_notification(server, notification, connection_handler, game):
         order_bytes = daide.clauses.parse_order_to_bytes(previous_phase.type, order)
         notifs.append(daide.notifications.ORD(previous_phase.in_str, order_bytes, [result.code for result in results]))
 
-    if state['status'] == strings.ACTIVE:
+    if game.status == strings.ACTIVE:
         notifs += _build_active_notfications(game.get_current_phase(), game.powers.values(),
                                              game.map_name, game.deadline)
 
-    elif state['status'] == strings.COMPLETED:
+    elif game.status == strings.COMPLETED:
         notifs += _build_completed_notfications(server.users, game.has_draw_vote(),
                                                 game.powers.values(), game.state_history)
 

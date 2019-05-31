@@ -996,11 +996,21 @@ class Game(Jsonable):
                 continue
             unit_type, unit_loc = word
             if unit_type in ('A', 'F') and unit_loc in [loc.upper() for loc in self.map.locs]:
-                abuts = [abut.upper() for abut in self.map.abut_list(unit_loc, incl_no_coast=True)
-                         if self._abuts(unit_type, unit_loc, '-', abut.upper())]
                 if power and unit not in power.retreats:
                     self.update_hash(power_name, unit_type=unit_type, loc=unit_loc, is_dislodged=True)
-                    power.retreats[unit] = abuts
+                    power.retreats[unit] = []
+
+        # Set retreats locations for all powers
+        for power in self.powers.values():
+            for unit in power.retreats:
+                word = unit.upper().split()
+                if len(word) != 2:
+                    continue
+                unit_type, unit_loc = word
+                abuts = [abut.upper() for abut in self.map.abut_list(unit_loc, incl_no_coast=True)
+                         if self._abuts(unit_type, unit_loc, '-', abut.upper()) and
+                         not self._occupant(abut)]
+                power.retreats[unit] = abuts
 
         # Clearing cache
         self.clear_cache()
@@ -1398,7 +1408,6 @@ class Game(Jsonable):
         """
         state = {}
         state['timestamp'] = common.timestamp_microseconds()
-        state['status'] = self.status
         state['zobrist_hash'] = self.get_hash()
         state['note'] = self.note
         state['name'] = self._phase_abbr()
@@ -1456,6 +1465,9 @@ class Game(Jsonable):
         if 'units' in state:
             for power_name, units in state['units'].items():
                 self.set_units(power_name, units, reset=True)
+        if 'retreats' in state:
+            for power in self.powers.values():
+                power.retreats = state['retreats'][power.name].copy()
         if 'centers' in state:
             for power_name, centers in state['centers'].items():
                 self.set_centers(power_name, centers, reset=True)
