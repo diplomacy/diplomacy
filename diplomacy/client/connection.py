@@ -30,6 +30,7 @@ import ujson as json
 from diplomacy.client import notification_managers
 from diplomacy.client.response_managers import RequestFutureContext, handle_response
 from diplomacy.communication import notifications, requests, responses
+from diplomacy.daide.requests import GetGameDaidePort
 from diplomacy.utils import exceptions, strings, constants
 
 LOGGER = logging.getLogger(__name__)
@@ -447,6 +448,15 @@ class Connection():
             :return: a Channel object representing the authentication.
         """
         request = requests.SignIn(username=username, password=password, create_user=create_user)
+        return (yield self.send(request))
+
+    @gen.coroutine
+    def get_game_daide_port(self, game_id):
+        """ Send a GetGameDaidePort request.
+            :param game_id: game id
+            :return: the game DAIDE port
+        """
+        request = GetGameDaidePort(game_id=game_id)
         return (yield self.send(request))
 
     def send(self, request, for_game=None):

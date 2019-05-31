@@ -24,6 +24,19 @@ from diplomacy.utils.exceptions import ResponseException
 from diplomacy.utils.network_data import NetworkData
 from diplomacy.utils.game_phase_data import GamePhaseData
 
+_REGISTERED_RESPONSES = {}
+
+def register_responses(responses_cls):
+    """ Register a list of requests classes
+        :param requests_cls: the list of requests classes
+    """
+    for response_cls in responses_cls:
+        if inspect.isclass(response_cls) and issubclass(response_cls, _AbstractResponse):
+            if response_cls.__name__ in _REGISTERED_RESPONSES:
+                raise RuntimeError("{} is already a registered request".format(response_cls.__name__))
+
+            _REGISTERED_RESPONSES[response_cls.__name__] = response_cls
+
 class _AbstractResponse(NetworkData):
     """ Base response object """
     __slots__ = ['request_id']
@@ -196,6 +209,8 @@ class DataGamesToPowerNames(UniqueData):
         strings.DATA: parsing.DictType(str, parsing.SequenceType(str))
     }
 
+register_responses(globals().values())
+
 def parse_dict(json_response):
     """ Parse a JSON dictionary expected to represent a response.
         Raise an exception if either:
@@ -210,7 +225,7 @@ def parse_dict(json_response):
     if name is None:
         raise ResponseException()
     expected_class_name = common.snake_case_to_upper_camel_case(name)
-    response_class = globals()[expected_class_name]
+    response_class = _REGISTERED_RESPONSES[expected_class_name]
     assert inspect.isclass(response_class) and issubclass(response_class, _AbstractResponse)
     response_object = response_class.from_dict(json_response)
     if isinstance(response_object, Error):
