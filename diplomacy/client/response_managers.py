@@ -24,6 +24,7 @@ from diplomacy.client.game_instances_set import GameInstancesSet
 from diplomacy.client.network_game import NetworkGame
 from diplomacy.client.channel import Channel
 from diplomacy.communication import requests, responses
+from diplomacy.daide.requests import GetGameDaidePort
 from diplomacy.engine.game import Game
 from diplomacy.utils import exceptions
 from diplomacy.utils.game_phase_data import GamePhaseData
@@ -288,6 +289,15 @@ def on_vote(context, response):
     assert context.game.power.name == context.request.game_role
     context.game.power.vote = vote
 
+def on_get_game_daide_port(context, response):
+    """ Manage response for request VoteAboutDraw.
+        :param context: request context
+        :param response: response received
+        :return: the game DAIDE port
+        :type context: RequestFutureContext
+    """
+    return response.data
+
 # Mapping dictionary from request class to response handler function.
 MAPPING = {
     requests.ClearCenters: on_clear_centers,
@@ -320,6 +330,8 @@ MAPPING = {
     requests.SignIn: on_sign_in,
     requests.Synchronize: default_manager,
     requests.Vote: on_vote,
+    # DAIDE Responses
+    GetGameDaidePort: on_get_game_daide_port
 }
 
 def handle_response(context, response):

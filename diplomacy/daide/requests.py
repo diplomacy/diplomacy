@@ -15,7 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Daide Requests - Contains a list of requests sent by client to server """
-from diplomacy.communication.requests import _AbstractGameRequest
+from diplomacy.communication.requests import _AbstractRequest, _AbstractGameRequest, register_requests
 import diplomacy.daide as daide
 from diplomacy.daide.clauses import parse_bytes
 from diplomacy.daide.tokens import is_ascii_token
@@ -75,10 +75,21 @@ class DaideRequest(_AbstractGameRequest):
                          or (is_ascii_token(token) and new_str != '(')) else ' '
             self._str = self._str + pad + new_str
 
-
 # ====================
 # Connection requests
 # ====================
+
+class GetGameDaidePort(_AbstractRequest):
+    """ Get game DAIDE port """
+    __slots__ = ['game_id']
+    params = {
+        strings.GAME_ID: str
+    }
+
+    def __init__(self, **kwargs):
+        self.game_id = None
+        super(GetGameDaidePort, self).__init__(**kwargs)
+register_requests([GetGameDaidePort])
 
 class NameRequest(DaideRequest):
     """ Represents a NME DAIDE request. Can be sent by the client as soon as it connects to the server.

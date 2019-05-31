@@ -16,12 +16,13 @@
 # ==============================================================================
 """ DAIDE Responses - Contains a list of responses sent by the server to the client """
 from collections import namedtuple
-from diplomacy.communication.responses import _AbstractResponse
+from diplomacy.communication.responses import _AbstractResponse, UniqueData, register_responses
 import diplomacy.daide as daide
 from diplomacy.daide.clauses import add_parentheses, strip_parentheses, parse_string
 from diplomacy.daide.utils import bytes_to_str
 from diplomacy.daide.tokens import Token
 from diplomacy import Map
+from diplomacy.utils import strings
 from diplomacy.utils.subject_split import OrderSplit
 
 class DaideResponse(_AbstractResponse):
@@ -38,6 +39,14 @@ class DaideResponse(_AbstractResponse):
     def __str__(self):
         """ Returning the string representation of the response """
         return bytes_to_str(self._bytes)
+
+class GameDaidePort(UniqueData):
+    """ Unique data containing a game DAIDE port. """
+    __slots__ = []
+    params = {
+        strings.DATA: int
+    }
+register_responses([GameDaidePort])
 
 class MapNameResponse(DaideResponse):
     """ Represents a MAP DAIDE response. Sends the name of the current map to the client.

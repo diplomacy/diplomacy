@@ -220,9 +220,8 @@ class ClientComsSimulator():
 
 class ClientsComsSimulator():
     """ Represents multi clients's coms """
-    def __init__(self, game_port, nb_clients, csv_file):
+    def __init__(self, nb_clients, csv_file):
         """ Constructor
-            :param game_port: the port of the game
             :param nb_clients: the number of clients
             :param csv_file: the csv containing the communications in chronological order
         """
@@ -231,16 +230,26 @@ class ClientsComsSimulator():
 
         content = [line.split(',') for line in content.split('\n') if not line.startswith('#')]
 
-        self._game_port = game_port
+        self._game_port = None
         self._nb_clients = nb_clients
         self._coms = [DaideCom(int(line[0]), line[1], line[2:]) for line in content if line[0]]
         self._clients = {}
         self._streams_resp_notif_futures = {}
 
     @gen.coroutine
+    def retrieve_game_port(self, host, port, game_id):
+        """ Retreive and store the game port
+            :param host: the host
+            :param port: the port
+            :param game_id: the game id
+        """
+        connection = yield connect(host, port)
+        self._game_port = yield connection.get_game_daide_port(game_id)
+
+    @gen.coroutine
     def execute(self, future):
         """ Executes the communications between clients
-           :param future: the future to update when the execution is completed
+            :param future: the future to update when the execution is completed
         """
         try:
             while self._coms:
@@ -285,7 +294,6 @@ def run_game_data(nb_daide_clients, rules, csv_file):
 
         server.start(port=port)
 
-        daide_port = port - 1000
         nb_regular_players = min(1, 7 - nb_daide_clients)
         server_game = ServerGame(map_name='standard', n_controls=nb_daide_clients + nb_regular_players, rules=rules)
         server_game.server = server
@@ -293,7 +301,7 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         # Register game on server.
         server.add_new_game(server_game)
 
-        server.start_new_daide_server(server_game.game_id, port=daide_port)
+        server.start_new_daide_server(server_game.game_id)
 
         user_game = None
         if nb_regular_players:
@@ -304,7 +312,8 @@ def run_game_data(nb_daide_clients, rules, csv_file):
                                                          create_user=not server.users.has_user(username, password))
             user_game = yield user_channel.join_game(game_id=server_game.game_id, power_name='AUSTRIA')
 
-        coms_simulator = ClientsComsSimulator(daide_port, nb_daide_clients, csv_file)
+        coms_simulator = ClientsComsSimulator(nb_daide_clients, csv_file)
+        yield coms_simulator.retrieve_game_port(HOSTNAME, port, server_game.game_id)
         daide_future = Future()
         coms_simulator.execute(daide_future)
 
