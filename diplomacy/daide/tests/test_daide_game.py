@@ -55,16 +55,16 @@ def is_port_opened(port, hostname=HOSTNAME):
         return True
     return False
 
-class ClientComsSimulator():
-    """ Represents a client's coms """
+class ClientCommsSimulator():
+    """ Represents a client's comms """
     def __init__(self, client_id):
         """ Constructor
             :param client_id: the id
         """
         self._id = client_id
         self._stream = None
-        self._resp_notif_future = None
         self._is_game_joined = False
+        self._comms = False
 
     @property
     def stream(self):
@@ -72,69 +72,79 @@ class ClientComsSimulator():
         return self._stream
 
     @property
+    def comms(self):
+        """ Returns the comms """
+        return self._comms
+
+    @property
     def is_game_joined(self):
         """ Returns if the client has joinded the game """
         return self._is_game_joined
 
-    def group_resp_notifs_coms(self, coms):
-        """ Gruops the client's response / notifications communications into the same entry
-            :param coms: the communications
-            :return: the communications with the client's response / notifications grouped
-        """
-        resp_notif_idx = 0
-        while resp_notif_idx < len(coms):
-            resp_notifs_com = coms[resp_notif_idx]
+    def set_comms(self, comms):
+        """ Set the client's communications.
 
-            if resp_notifs_com.client_id != self._id or resp_notifs_com.request:
-                resp_notif_idx += 1
+            The client's comms will be sorted to have the requests of a phase
+            preceeding the responses / notifications of the phase
+            :param comms: the game's communications
+        """
+        self._comms = [com for com in comms if com.client_id == self._id]
+
+        comm_idx = 0
+        while comm_idx < len(self._comms):
+            comm = self._comms[comm_idx]
+
+            # Find the request being right after a synchonization point (TME notification)
+            if not comm.request:
+                comm_idx += 1
                 continue
 
-            next_resp_notif_idx = resp_notif_idx + 1
-            while next_resp_notif_idx < len(coms):
-                com = coms[next_resp_notif_idx]
+            # Next communication to sort
+            next_comm_idx = comm_idx + 1
+            while next_comm_idx < len(self._comms):
+                next_comm = self._comms[next_comm_idx]
 
-                if com.client_id != self._id:
-                    next_resp_notif_idx += 1
-                    continue
+                # Group the request at the beginning of the communications in the phase
+                if next_comm.request:
+                    comm_idx += 1
+                    self._comms.insert(comm_idx, self._comms.pop(next_comm_idx))
 
-                if com.request:
+                # Synchonization point is a TME notif as it marks the beginning of a phase
+                if any(resp_notif.startswith("TME") for resp_notif in next_comm.resp_notifs):
                     break
 
-                resp_notifs_com.resp_notifs.extend(com.resp_notifs)
-                coms.pop(next_resp_notif_idx)
+                next_comm_idx += 1
 
-            resp_notif_idx += 1
+            comm_idx += 1
 
-        return coms
-
-    def pop_next_request(self, coms):
+    def pop_next_request(self, comms):
         """ Pop the next request from a DAIDE communications list
             :return: The next request along with the updated list of communications
                      or None and the updated list of communications
         """
-        com = next(iter(coms), None)
+        com = next(iter(comms), None)
         request = None
 
         while com and com.client_id == self._id:
             if com.request:
                 request = com.request
-                coms[0] = DaideCom(com.client_id, '', com.resp_notifs)
+                comms[0] = DaideCom(com.client_id, '', com.resp_notifs)
                 LOGGER.info("[%d:%d] preparing to send request [%s]", self._id, self.stream.socket.fileno()+1, request)
                 break
             elif com.resp_notifs:
                 break
             else:
-                coms.pop(0)
-                com = next(iter(coms), None)
+                comms.pop(0)
+                com = next(iter(comms), None)
 
-        return request, coms
+        return request, comms
 
-    def pop_next_resp_notif(self, coms):
+    def pop_next_resp_notif(self, comms):
         """ Pop the next response or notifcation from a DAIDE communications list
             :return: The next response or notifcation along with the updated list of communications
                      or None and the updated list of communications
         """
-        com = next(iter(coms), None)
+        com = next(iter(comms), None)
         resp_notif = None
 
         while com and com.client_id == self._id:
@@ -145,10 +155,10 @@ class ClientComsSimulator():
                 LOGGER.info("[%d:%d] waiting for resp_notif [%s]", self._id, self.stream.socket.fileno()+1, resp_notif)
                 break
             else:
-                coms.pop(0)
-                com = next(iter(coms), None)
+                comms.pop(0)
+                com = next(iter(comms), None)
 
-        return resp_notif, coms
+        return resp_notif, comms
 
     @gen.coroutine
     def connect(self, game_port):
@@ -156,7 +166,7 @@ class ClientComsSimulator():
             :param game_port: the DAIDE game's port
         """
         self._stream = yield TCPClient().connect('localhost', game_port)
-        # LOGGER.info("Connected to %d", port)
+        LOGGER.info("Connected to %d", game_port)
         message = daide.messages.InitialMessage()
         yield self._stream.write(bytes(message))
         yield daide.messages.DaideMessage.from_stream(self._stream)
@@ -166,13 +176,8 @@ class ClientComsSimulator():
         """ Sends a request
             :param request: the request to send
         """
-        if self._resp_notif_future is not None:
-            yield self._resp_notif_future
-            self._resp_notif_future = None
         message = daide.messages.DiplomacyMessage()
         message.content = daide.utils.str_to_bytes(request)
-        # Give a little breathing room between each read and writes
-        yield gen.sleep(0.25)
         yield self._stream.write(bytes(message))
 
     @gen.coroutine
@@ -181,8 +186,6 @@ class ClientComsSimulator():
             :param expected_resp_notifs: the response / notifications to receive
         """
         while expected_resp_notifs:
-            # Give a little breathing room between each read and writes
-            yield gen.sleep(0)
             resp_notif_message = yield daide.messages.DaideMessage.from_stream(self._stream)
 
             resp_notif = daide.utils.bytes_to_str(resp_notif_message.content)
@@ -193,33 +196,46 @@ class ClientComsSimulator():
                 self._is_game_joined = True
 
             LOGGER.info("[%d:%d] Received reply [%s]", self._id, self.stream.socket.fileno()+1, str(resp_notif))
+            LOGGER.info("[%d:%d] Replies in buffer [%s]", self._id, self.stream.socket.fileno()+1,
+                        ','.join(expected_resp_notifs))
             assert resp_notif in expected_resp_notifs
             expected_resp_notifs.remove(resp_notif)
 
     @gen.coroutine
-    def execute_iteration(self, coms):
-        """ Execute a single communication iteration
-            :param coms:
-            :return:
+    def execute_phase(self):
+        """ Execute a single communications phase
+            :return: True if there are communications left to execute in the game
         """
-        request, coms = self.pop_next_request(coms)
+        try:
+            while self._comms:
+                request, self._comms = self.pop_next_request(self._comms)
 
-        if request is not None:
-            yield self.send_request(request)
+                if request is not None:
+                    yield self.send_request(request)
 
-        expected_resp_notifs = []
-        expected_resp_notif, coms = self.pop_next_resp_notif(coms)
+                expected_resp_notifs = []
+                expected_resp_notif, self._comms = self.pop_next_resp_notif(self._comms)
 
-        while expected_resp_notif is not None:
-            expected_resp_notifs.append(expected_resp_notif)
-            expected_resp_notif, coms = self.pop_next_resp_notif(coms)
+                while expected_resp_notif is not None:
+                    expected_resp_notifs.append(expected_resp_notif)
+                    # Synchonization point is the request being right after a TME notif or
+                    # the next set ofresponses / notifications
+                    if expected_resp_notif.startswith("TME"):
+                        break
+                    expected_resp_notif, self._comms = self.pop_next_resp_notif(self._comms)
 
-        self._resp_notif_future = self.validate_resp_notif(expected_resp_notifs)
+                if expected_resp_notifs:
+                    yield self.validate_resp_notif(expected_resp_notifs)
+                    break
 
-        return coms
+        except StreamClosedError as err:
+            LOGGER.error("Stream closed: %s", err)
+            return False
 
-class ClientsComsSimulator():
-    """ Represents multi clients's coms """
+        return bool(self._comms)
+
+class ClientsCommsSimulator():
+    """ Represents multi clients's communications """
     def __init__(self, nb_clients, csv_file):
         """ Constructor
             :param nb_clients: the number of clients
@@ -232,19 +248,19 @@ class ClientsComsSimulator():
 
         self._game_port = None
         self._nb_clients = nb_clients
-        self._coms = [DaideCom(int(line[0]), line[1], line[2:]) for line in content if line[0]]
+        self._comms = [DaideCom(int(line[0]), line[1], line[2:]) for line in content if line[0]]
         self._clients = {}
-        self._streams_resp_notif_futures = {}
 
     @gen.coroutine
     def retrieve_game_port(self, host, port, game_id):
-        """ Retreive and store the game port
+        """ Retreive and store the game's port
             :param host: the host
             :param port: the port
             :param game_id: the game id
         """
         connection = yield connect(host, port)
         self._game_port = yield connection.get_game_daide_port(game_id)
+        yield connection.connection.close()
 
     @gen.coroutine
     def execute(self, future):
@@ -252,25 +268,46 @@ class ClientsComsSimulator():
             :param future: the future to update when the execution is completed
         """
         try:
-            while self._coms:
+            # Synchronize clients joining the game
+            while self._comms and (
+                    not self._clients or not all(client.is_game_joined for client in self._clients.values())):
                 try:
-                    next_com = next(iter(self._coms))
+                    next_com = next(iter(self._comms))
                 except StopIteration:
                     break
 
                 if next_com.client_id not in self._clients and len(self._clients) < self._nb_clients:
-                    client = ClientComsSimulator(next_com.client_id)
+                    client = ClientCommsSimulator(next_com.client_id)
                     yield client.connect(self._game_port)
-                    self._coms = client.group_resp_notifs_coms(self._coms)
                     self._clients[next_com.client_id] = client
 
                 for client in self._clients.values():
-                    self._coms = yield client.execute_iteration(self._coms)
+                    request, self._comms = client.pop_next_request(self._comms)
+
+                    if request is not None:
+                        yield client.send_request(request)
+
+                    expected_resp_notif, self._comms = client.pop_next_resp_notif(self._comms)
+
+                    while expected_resp_notif is not None:
+                        yield client.validate_resp_notif([expected_resp_notif])
+                        expected_resp_notif, self._comms = client.pop_next_resp_notif(self._comms)
 
         except StreamClosedError as err:
             LOGGER.error("Stream closed: %s", err)
 
-        assert not self._coms
+        execution_running = []
+
+        for client in self._clients.values():
+            client.set_comms(self._comms)
+            execution_running.append(client.execute_phase())
+
+        execution_running = yield execution_running
+
+        while any(execution_running):
+            execution_running = yield [client.execute_phase() for client in self._clients.values()]
+
+        assert all(not client.comms for client in self._clients.values())
 
         future.set_result(None)
 
@@ -312,10 +349,10 @@ def run_game_data(nb_daide_clients, rules, csv_file):
                                                          create_user=not server.users.has_user(username, password))
             user_game = yield user_channel.join_game(game_id=server_game.game_id, power_name='AUSTRIA')
 
-        coms_simulator = ClientsComsSimulator(nb_daide_clients, csv_file)
-        yield coms_simulator.retrieve_game_port(HOSTNAME, port, server_game.game_id)
+        comms_simulator = ClientsCommsSimulator(nb_daide_clients, csv_file)
+        yield comms_simulator.retrieve_game_port(HOSTNAME, port, server_game.game_id)
         daide_future = Future()
-        coms_simulator.execute(daide_future)
+        comms_simulator.execute(daide_future)
 
         for _ in range(3 + nb_daide_clients):
             if daide_future.done() or server_game.count_controlled_powers() == nb_daide_clients + nb_regular_players:
