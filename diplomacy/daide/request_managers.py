@@ -23,6 +23,7 @@ import random
 from tornado import gen
 from tornado.concurrent import Future
 import diplomacy.communication.requests as internal_requests
+from diplomacy.daide import ADM_MESSAGE_ENABLED
 import diplomacy.daide as daide
 import diplomacy.daide.clauses
 import diplomacy.daide.requests
@@ -614,9 +615,13 @@ def on_admin_message_request(server, request, connection_handler, game):
         :return: the list of responses
     """
     del server
-    del request
     del connection_handler
     del game
+
+    if not ADM_MESSAGE_ENABLED:
+        return [daide.responses.REJ(bytes(request))]
+
+    return None
 
 # Mapping dictionary from request class to request handler function.
 MAPPING = {
