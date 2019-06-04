@@ -19,6 +19,7 @@ from collections import namedtuple
 import logging
 import os
 import random
+import signal
 import socket
 
 from tornado import gen
@@ -54,6 +55,22 @@ def is_port_opened(port, hostname=HOSTNAME):
     if result == 0:
         return True
     return False
+
+# Adapted from: https://stackoverflow.com/questions/492519/timeout-on-a-function-call
+def run_with_timeout(callable_fn, timeout):
+    """ Raises an error on timeout """
+    def handler(signum, frame):
+        """ Raises a timeout """
+        raise TimeoutError()
+
+    signal.signal(signal.SIGALRM, handler)
+    signal.alarm(timeout)
+    try:
+        return callable_fn()
+    except TimeoutError as exc:
+        raise exc
+    finally:
+        signal.alarm(0)
 
 class ClientCommsSimulator():
     """ Represents a client's comms """
@@ -359,7 +376,7 @@ def run_game_data(nb_daide_clients, rules, csv_file):
                 break
             yield gen.sleep(2.5)
         else:
-            raise RuntimeError()
+            raise TimeoutError()
 
         if user_game:
             phase = PhaseSplitter(server_game.get_current_phase())
@@ -396,25 +413,25 @@ def run_game_data(nb_daide_clients, rules, csv_file):
 
 def test_game_reject_map():
     """ Test a game where the client rejects the map """
-    run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
-                  os.path.join(FILE_FOLDER_NAME, "game_data_1_reject_map.csv"))
+    game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1_reject_map.csv')
+    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 15)
 
 def test_game_1():
     """ Test a complete 1 player game """
-    run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
-                  os.path.join(FILE_FOLDER_NAME, "game_data_1.csv"))
+    game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1.csv')
+    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
 
 def test_game_history():
     """ Test a complete 1 player game and validate the full history (except last phase) """
-    run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
-                  os.path.join(FILE_FOLDER_NAME, "game_data_1_history.csv"))
+    game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1_history.csv')
+    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
 
 def test_game_7():
     """ Test a complete 7 players game """
-    run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'],
-                  os.path.join(FILE_FOLDER_NAME, "game_data_7.csv"))
+    game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7.csv')
+    run_with_timeout(lambda: run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
 
 def test_game_7_press():
     """ Test a complete 7 players game with press """
-    run_game_data(7, ['IGNORE_ERRORS', 'POWER_CHOICE'],
-                  os.path.join(FILE_FOLDER_NAME, "game_data_7_press.csv"))
+    game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7_press.csv')
+    run_with_timeout(lambda: run_game_data(7, ['IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
