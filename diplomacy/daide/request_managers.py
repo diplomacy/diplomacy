@@ -30,10 +30,10 @@ import diplomacy.daide.requests
 import diplomacy.daide.responses
 from diplomacy.daide.settings import MAX_LVL
 import diplomacy.daide.tokens
-from diplomacy.daide.user_additions import UserAdditions
 import diplomacy.daide.utils
 from diplomacy.engine.message import Message
 import diplomacy.server.request_managers as internal_request_managers
+from diplomacy.server.user import DaideUser
 from diplomacy.utils import errors as err, exceptions, order_results as res, strings, splitter
 
 @gen.coroutine
@@ -64,10 +64,12 @@ def on_name_request(server, request, connection_handler, game):
         try:
             token_response = yield internal_request_managers.handle_request(server, sign_in_request, connection_handler)
             connection_handler.token = token_response.data
-            if not server.users.get_daide_user_additions(username):
-                user_additions = UserAdditions(passcode=random.randint(1, 8191), client_name=request.client_name,
-                                               client_version=request.client_version)
-                server.users.set_daide_user_additions(username, user_additions)
+            if not isinstance(server.users.get_user(username), DaideUser):
+                daide_user = DaideUser(passcode=random.randint(1, 8191),
+                                       client_name=request.client_name,
+                                       client_version=request.client_version,
+                                       **server.users.get_user(username).to_dict())
+                server.users.replace_user(username, daide_user)
                 server.save_data()
         except exceptions.UserException:
             return [daide.responses.REJ(bytes(request))]
@@ -106,10 +108,12 @@ def on_i_am_request(server, request, connection_handler, game):
 
     # find user
     username = None
-    for username_candicate, user_additions in server.users.daide_users_additions.items():
-        is_passcode_valid = user_additions.passcode == passcode
-        if is_passcode_valid and game.is_controlled_by(power_name, username_candicate):
-            username = username_candicate
+    for user in server.users.values():
+        if not isinstance(user, DaideUser):
+            continue
+        is_passcode_valid = bool(user.passcode == passcode)
+        if is_passcode_valid and game.is_controlled_by(power_name, user.username):
+            username = user.username
             break
 
     if username is None:
@@ -152,13 +156,13 @@ def on_hello_request(server, request, connection_handler, game):
         :param game: the game
         :return: the list of responses
     """
-    _, user_additions, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
+    _, daide_user, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
 
     # User not in game
-    if not user_additions or not power_name:
+    if not daide_user or not power_name:
         return [daide.responses.REJ(bytes(request))]
 
-    passcode = user_additions.passcode
+    passcode = daide_user.passcode
     level = MAX_LVL
     deadline = game.deadline
     rules = game.rules

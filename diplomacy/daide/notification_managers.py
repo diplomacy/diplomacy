@@ -22,6 +22,7 @@
 import diplomacy.communication.notifications as notifications
 import diplomacy.daide as daide
 from diplomacy.daide.settings import MAX_LVL
+from diplomacy.server.user import DaideUser
 from diplomacy.utils import order_results as res, strings, splitter
 
 def _build_active_notfications(current_phase, powers, map_name, deadline):
@@ -66,8 +67,8 @@ def _build_completed_notfications(server_users, has_draw_vote, powers, state_his
             notififcations.append(daide.notifications.SLO(winners[0]))
 
     last_phase = splitter.PhaseSplitter(state_history.last_value()['name'])
-    users_additions = [server_users.get_daide_user_additions(power.get_controller())
-                       for power in powers]
+    daide_users = [server_users.get_user(power.get_controller()) for power in powers]
+    daide_users = [daide_user if isinstance(daide_user, DaideUser) else None for daide_user in daide_users]
     powers_year_of_elimnation = {power.name: None for power in powers}
     for phase, state in state_history.items():
         eliminated_powers = [power_name for power_name, units in state['units'].items()
@@ -79,7 +80,7 @@ def _build_completed_notfications(server_users, has_draw_vote, powers, state_his
     years_of_elimnation = powers_year_of_elimnation.values()
 
     notififcations.append(daide.notifications.SMR(last_phase.input_str, powers,
-                                                  users_additions, years_of_elimnation))
+                                                  daide_users, years_of_elimnation))
     notififcations.append(daide.notifications.OFF())
 
     return notififcations
@@ -136,12 +137,12 @@ def on_status_update_notification(server, notification, connection_handler, game
         :param game: the game
         :return: list of notificaitons
     """
-    _, user_additions, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
+    _, daide_user, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
     notifs = []
 
     if notification.status == strings.ACTIVE and game.get_current_phase() == 'S1901M':
         # HLO notification
-        passcode = user_additions.passcode
+        passcode = daide_user.passcode
         level = MAX_LVL
         deadline = game.deadline
         rules = game.rules

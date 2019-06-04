@@ -26,7 +26,6 @@
 """
 import logging
 
-from diplomacy.daide.user_additions import UserAdditions as DaideUserAdditions
 from diplomacy.server.user import User
 from diplomacy.utils import common, parsing, strings
 from diplomacy.utils.common import generate_token
@@ -47,14 +46,11 @@ class Users(Jsonable):
         - token_to_connection_handler: (memory only) dictionary mapping each token to a connection handler
         - connection_handler_to_tokens (memory only) dictionary mapping a connection handler to a set of its tokens
     """
-    __slots__ = ['users', 'daide_users_additions', 'administrators', 'token_timestamp', 'token_to_username',
-                 'username_to_tokens', 'token_to_connection_handler', 'connection_handler_to_tokens']
+    __slots__ = ['users', 'administrators', 'token_timestamp', 'token_to_username', 'username_to_tokens',
+                 'token_to_connection_handler', 'connection_handler_to_tokens']
     model = {
         strings.USERS: parsing.DefaultValueType(parsing.DictType(str, parsing.JsonableClassType(User)), {}),
         # {username => User}
-        strings.DAIDE_USERS_ADDITIONS: parsing.DefaultValueType(
-            parsing.DictType(str, parsing.JsonableClassType(DaideUserAdditions)), {}),
-        # {username => DaideUserAdditions}
         strings.ADMINISTRATORS: parsing.DefaultValueType(parsing.SequenceType(str, sequence_builder=set), ()),
         # {usernames}
         strings.TOKEN_TIMESTAMP: parsing.DefaultValueType(parsing.DictType(str, int), {}),
@@ -64,7 +60,6 @@ class Users(Jsonable):
 
     def __init__(self, **kwargs):
         self.users = {}
-        self.daide_users_additions = {}
         self.administrators = set()
         self.token_timestamp = {}
         self.token_to_username = {}
@@ -121,6 +116,10 @@ class Users(Jsonable):
         """ Return username of given token. """
         return self.token_to_username[token]
 
+    def get_user(self, username):
+        """ Returns user linked to username """
+        return self.users.get(username, None)
+
     def get_connection_handler(self, token):
         """ Return connection handler associated to given token, or None if no handler currently associated. """
         return self.token_to_connection_handler.get(token, None)
@@ -150,24 +149,13 @@ class Users(Jsonable):
         self.users[username] = user
         return user
 
-    def set_daide_user_additions(self, username, daide_user_additions):
-        """ Set Daide user additions
-            :param username: The user name
-            :param daide_user_additions: An instance of `diplomacy.daide.user_additions`
-        """
-        assert username in self.users
-        self.daide_users_additions[username] = daide_user_additions
-
-    def get_daide_user_additions(self, username):
-        """ Get Daide user additions associated to a user
-            :param username: The user name
-        """
-        return self.daide_users_additions.get(username, None)
+    def replace_user(self, username, new_user):
+        """ Replaces user object with a new user """
+        self.users[username] = new_user
 
     def remove_user(self, username):
         """ Remove user related to given username. """
         user = self.users.pop(username)
-        self.daide_users_additions.pop(username, None)
         self.remove_admin(username)
         for token in self.username_to_tokens.pop(user.username):
             self.token_timestamp.pop(token)

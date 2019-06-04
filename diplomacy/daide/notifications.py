@@ -377,7 +377,7 @@ class SummaryNotification(DaideNotification):
             power ('name') ('version') number_of_centres
             power ('name') ('version') number_of_centres year_of_elimination
     """
-    def __init__(self, phase_name, powers, users_additions, years_of_elimnation, **kwargs):
+    def __init__(self, phase_name, powers, daide_users, years_of_elimnation, **kwargs):
         """ Builds the Notification
         """
         super(SummaryNotification, self).__init__(**kwargs)
@@ -387,11 +387,11 @@ class SummaryNotification(DaideNotification):
 
         powers_smrs_clause = []
 
-        for power, user_additions, year_of_elimnation in zip(powers, users_additions, years_of_elimnation):
+        for power, daide_user, year_of_elimnation in zip(powers, daide_users, years_of_elimnation):
             power_smr_clause = []
 
-            name = user_additions.client_name if user_additions else power.get_controller()
-            version = user_additions.client_version if user_additions else "v0.0.0"
+            name = daide_user.client_name if daide_user else power.get_controller()
+            version = daide_user.client_version if daide_user else "v0.0.0"
 
             power_name_clause = bytes(parse_string(daide.clauses.Power, power.name))
             power_smr_clause.append(power_name_clause)
