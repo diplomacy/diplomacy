@@ -33,7 +33,7 @@ from diplomacy.daide.tokens import Token
 from diplomacy.server.server_game import ServerGame
 from diplomacy.client.connection import connect
 from diplomacy.utils import common, strings
-from diplomacy.utils.subject_split import PhaseSplit
+from diplomacy.utils.splitter import PhaseSplitter
 
 DaideCom = namedtuple("DaideCom", ["client_id", "request", "resp_notifs"])
 ClientRequest = namedtuple("ClientRequest", ["client", "request"])
@@ -259,7 +259,7 @@ class ClientsCommsSimulator():
             :param game_id: the game id
         """
         connection = yield connect(host, port)
-        self._game_port = yield connection.get_game_daide_port(game_id)
+        self._game_port = yield connection.get_daide_port(game_id)
         yield connection.connection.close()
 
     @gen.coroutine
@@ -362,20 +362,20 @@ def run_game_data(nb_daide_clients, rules, csv_file):
             raise RuntimeError()
 
         if user_game:
-            phase = PhaseSplit(server_game.get_current_phase())
+            phase = PhaseSplitter(server_game.get_current_phase())
 
             while not daide_future.done() and server_game.status == strings.ACTIVE:
                 yield user_game.wait()
                 yield user_game.set_orders(orders=[])
                 yield user_game.no_wait()
 
-                while not daide_future.done() and phase.in_str == server_game.get_current_phase():
+                while not daide_future.done() and phase.input_str == server_game.get_current_phase():
                     yield gen.sleep(2.5)
 
                 if server_game.status != strings.ACTIVE:
                     break
 
-                phase = PhaseSplit(server_game.get_current_phase())
+                phase = PhaseSplitter(server_game.get_current_phase())
 
         yield daide_future
 

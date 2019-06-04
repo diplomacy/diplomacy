@@ -19,6 +19,7 @@
 """
 from copy import deepcopy
 from diplomacy.engine.game import Game
+from diplomacy.utils.order_results import BOUNCE
 
 def test_is_game_done():
     """ Tests if the game is done """
@@ -218,12 +219,12 @@ def test_get_order_status():
     game.set_orders('AUSTRIA', 'A VIE - TYR')
     game.process()
     results = game.get_order_status()
-    assert 'bounce' in results['ITALY']['A VEN']
-    assert 'bounce' in results['AUSTRIA']['A VIE']
-    assert 'bounce' in game.get_order_status(unit='A VEN')
-    assert 'bounce' in game.get_order_status(unit='A VIE')
-    assert 'bounce' in game.get_order_status('ITALY')['A VEN']
-    assert 'bounce' in game.get_order_status('AUSTRIA')['A VIE']
+    assert BOUNCE in results['ITALY']['A VEN']
+    assert BOUNCE in results['AUSTRIA']['A VIE']
+    assert BOUNCE in game.get_order_status(unit='A VEN')
+    assert BOUNCE in game.get_order_status(unit='A VIE')
+    assert BOUNCE in game.get_order_status('ITALY')['A VEN']
+    assert BOUNCE in game.get_order_status('AUSTRIA')['A VIE']
 
 def test_set_units():
     """ Test - Sets units """
@@ -297,8 +298,8 @@ def test_set_orders():
 
     game.process()
     results = game.get_order_status()
-    assert 'bounce' in results['ITALY']['A VEN']
-    assert 'bounce' in results['AUSTRIA']['A VIE']
+    assert BOUNCE in results['ITALY']['A VEN']
+    assert BOUNCE in results['AUSTRIA']['A VIE']
 
 def test_set_orders_replace():
     """ Test - Sets orders with replace=True """
@@ -530,8 +531,8 @@ def test_process_game():
     game.set_orders('AUSTRIA', 'A VIE - TYR')
     game.process()
     results = game.get_order_status()
-    assert 'bounce' in results['ITALY']['A VEN']
-    assert 'bounce' in results['AUSTRIA']['A VIE']
+    assert BOUNCE in results['ITALY']['A VEN']
+    assert BOUNCE in results['AUSTRIA']['A VIE']
 
 def test_deepcopy():
     """ Tests - deepcopy """
@@ -647,8 +648,8 @@ def test_result_history():
     game.process()
     assert game.current_short_phase == 'F1901M'
     phase_data = game.get_phase_from_history(short_phase_name)
-    assert 'bounce' in phase_data.results['A PAR']
-    assert 'bounce' in phase_data.results['A MAR']
+    assert BOUNCE in phase_data.results['A PAR']
+    assert BOUNCE in phase_data.results['A MAR']
 
 def test_unit_owner():
     """ Test Unit Owner Resolver making sure the cached results are correct """

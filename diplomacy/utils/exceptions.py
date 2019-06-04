@@ -86,6 +86,9 @@ class RequestException(ResponseException):
 class AdminTokenException(ResponseException):
     """ Invalid token for admin operations. """
 
+class DaidePortException(ResponseException):
+    """ Daide server not started for the game """
+
 class GameCanceledException(ResponseException):
     """ Game was cancelled. """
 

@@ -636,7 +636,7 @@ def parse_order_to_bytes(phase_type, order_split):
 
     # FRANCE WAIVE
     if len(order_split) == 1:
-        words = order_split.command.split()
+        words = order_split.order_type.split()
         buffer.append(parse_string(Power, words.pop(0)))
         buffer.append(parse_string(OrderType, words.pop(0)))
     else:
@@ -644,14 +644,14 @@ def parse_order_to_bytes(phase_type, order_split):
 
         # FRANCE F IRI [-] MAO
         # FRANCE A IRI [-] MAO VIA
-        if order_split.command == '-':
+        if order_split.order_type == '-':
             # FRANCE A IRI - MAO VIA
-            if order_split.suffix:
+            if order_split.via_flag:
                 buffer.append(Token(daide.tokens.CTO))
             else:
                 buffer.append(Token(daide.tokens.MTO))
         # FRANCE A IRO [D]
-        elif order_split.command == 'D':
+        elif order_split.order_type == 'D':
             if phase_type == 'R':
                 buffer.append(Token(daide.tokens.DSB))
             elif phase_type == 'A':
@@ -664,33 +664,33 @@ def parse_order_to_bytes(phase_type, order_split):
         # FRANCE A LON [B]
         # FRANCE F LIV [B]
         else:
-            buffer.append(parse_string(OrderType, order_split.command))
+            buffer.append(parse_string(OrderType, order_split.order_type))
 
         # FRANCE A WAL S [FRANCE F LON]
         # FRANCE A WAL S [FRANCE F MAO] - IRI
         # FRANCE F NWG C [FRANCE A NWY] - EDI
-        if order_split.additional_unit:
-            buffer.append(parse_string(Unit, order_split.additional_unit))
+        if order_split.supported_unit:
+            buffer.append(parse_string(Unit, order_split.supported_unit))
 
         # FRANCE A WAL S FRANCE F MAO [- IRI]
         # FRANCE F NWG C FRANCE A NWY [- EDI]
-        if order_split.additional_command:
+        if order_split.support_order_type:
             # FRANCE A WAL S FRANCE F MAO - IRI
-            if order_split.command == 'S':
+            if order_split.order_type == 'S':
                 buffer.append(Token(daide.tokens.MTO))
-                buffer.append(parse_string(Province, order_split.province[:3]))
+                buffer.append(parse_string(Province, order_split.destination[:3]))
             else:
                 buffer.append(Token(daide.tokens.CTO))
-                buffer.append(parse_string(Province, order_split.province))
+                buffer.append(parse_string(Province, order_split.destination))
         # FRANCE F IRI - [MAO]
         # FRANCE A IRI - [MAO] VIA
         # FRANCE A IRO R [MAO]
-        elif order_split.province:
-            buffer.append(parse_string(Province, order_split.province))
+        elif order_split.destination:
+            buffer.append(parse_string(Province, order_split.destination))
 
         # FRANCE A IRI - MAO [VIA]
-        if order_split.suffix:
-            buffer.append(parse_string(OrderType, order_split.suffix))
+        if order_split.via_flag:
+            buffer.append(parse_string(OrderType, order_split.via_flag))
 
     return b''.join([bytes(clause) for clause in buffer])
 

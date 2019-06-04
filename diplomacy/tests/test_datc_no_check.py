@@ -19,6 +19,7 @@
 """
 from diplomacy.engine.game import Game
 from diplomacy.tests.test_datc import TestDATC as RootDATC
+from diplomacy.utils.order_results import OK, VOID
 
 # -----------------
 # DATC TEST CASES (Without order validation)
@@ -49,9 +50,9 @@ class TestDATCNoCheck(RootDATC):
 
         # Done self.processing a retreats phase
         if phase == 'R':
-            if value == 'void' and 'void' in unit_result:
+            if value == VOID and VOID in unit_result:
                 return True
-            if value == '':
+            if value == OK:
                 success = unit not in game.popped and unit_result == []
                 if not success:
                     print('Results: %s - Expected: []' % result.get(unit, '<Not Found>'))
@@ -64,7 +65,7 @@ class TestDATCNoCheck(RootDATC):
 
         # Done self.processing a retreats phase
         if phase == 'A':
-            if value == 'void' and 'void' in unit_result:
+            if value == VOID and VOID in unit_result:
                 return True
             success = value == unit_result
             if not success:
@@ -79,8 +80,8 @@ class TestDATCNoCheck(RootDATC):
         # As opposed to a regular game, where an invalid order is dropped
         # <<<<<<<<<<<<<<<<<<<<<<<<
         # Invalid order
-        if value == 'void':
-            if 'void' in result.get(unit, []):
+        if value == VOID:
+            if VOID in result.get(unit, []):
                 return True
             return False
 
@@ -90,7 +91,7 @@ class TestDATCNoCheck(RootDATC):
             return False
 
         # Expected no errors
-        if value == '':
+        if value == OK:
             if order_status:
                 print('Results: %s - Expected: []' % order_status)
                 return False

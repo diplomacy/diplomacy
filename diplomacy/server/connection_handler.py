@@ -81,6 +81,7 @@ class ConnectionHandler(WebSocketHandler):
         LOGGER.info("Removed connection. Remaining %d connection(s).", self.server.users.count_connections())
 
     def write_message(self, message, binary=False):
+        """ Sends the given message to the client of this Web Socket. """
         if isinstance(message, NetworkData):
             message = message.json()
         return super(ConnectionHandler, self).write_message(message, binary)

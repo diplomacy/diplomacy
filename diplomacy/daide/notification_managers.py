@@ -22,7 +22,7 @@
 import diplomacy.communication.notifications as notifications
 import diplomacy.daide as daide
 from diplomacy.daide.settings import MAX_LVL
-from diplomacy.utils import results as res, strings, subject_split
+from diplomacy.utils import order_results as res, strings, splitter
 
 def _build_active_notfications(current_phase, powers, map_name, deadline):
     """ Build the list of notifications corresponding to an active game state
@@ -65,7 +65,7 @@ def _build_completed_notfications(server_users, has_draw_vote, powers, state_his
         if len(winners) == 1:
             notififcations.append(daide.notifications.SLO(winners[0]))
 
-    last_phase = subject_split.PhaseSplit(state_history.last_value()['name'])
+    last_phase = splitter.PhaseSplitter(state_history.last_value()['name'])
     users_additions = [server_users.get_daide_user_additions(power.get_controller())
                        for power in powers]
     powers_year_of_elimnation = {power.name: None for power in powers}
@@ -74,11 +74,11 @@ def _build_completed_notfications(server_users, has_draw_vote, powers, state_his
                              if not powers_year_of_elimnation[power_name] and
                              all(unit.startswith('*') for unit in units)]
         for power_name in eliminated_powers:
-            powers_year_of_elimnation[power_name] = subject_split.PhaseSplit(phase.value).year
+            powers_year_of_elimnation[power_name] = splitter.PhaseSplitter(phase.value).year
 
     years_of_elimnation = powers_year_of_elimnation.values()
 
-    notififcations.append(daide.notifications.SMR(last_phase.in_str, powers,
+    notififcations.append(daide.notifications.SMR(last_phase.input_str, powers,
                                                   users_additions, years_of_elimnation))
     notififcations.append(daide.notifications.OFF())
 
@@ -95,13 +95,13 @@ def on_processed_notification(server, notification, connection_handler, game):
     _, _, _, power_name = daide.utils.get_user_connection(server.users, game, connection_handler)
     previous_phase_data = notification.previous_phase_data
     previous_state = previous_phase_data.state
-    previous_phase = subject_split.PhaseSplit(previous_state['name'])
+    previous_phase = splitter.PhaseSplitter(previous_state['name'])
 
     notifs = []
 
     # ORD notifications
     for order in previous_phase_data.orders[power_name]:
-        order = subject_split.OrderSplit(order)
+        order = splitter.OrderSplitter(order)
         results = None
 
         # WAIVE
@@ -112,11 +112,11 @@ def on_processed_notification(server, notification, connection_handler, game):
             results = previous_phase_data.results[order.unit]
             order.unit = ' '.join([power_name, order.unit])
 
-        if order.additional_unit:
-            order.additional_unit = ' '.join([power_name, order.additional_unit])
+        if order.supported_unit:
+            order.supported_unit = ' '.join([power_name, order.supported_unit])
 
-        order_bytes = daide.clauses.parse_order_to_bytes(previous_phase.type, order)
-        notifs.append(daide.notifications.ORD(previous_phase.in_str, order_bytes, [result.code for result in results]))
+        order_bytes = daide.clauses.parse_order_to_bytes(previous_phase.phase_type, order)
+        notifs.append(daide.notifications.ORD(previous_phase.input_str, order_bytes, [result.code for result in results]))
 
     if game.status == strings.ACTIVE:
         notifs += _build_active_notfications(game.get_current_phase(), game.powers.values(),

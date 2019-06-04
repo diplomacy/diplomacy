@@ -233,7 +233,7 @@ class Server():
         self.dispatched_dummy_powers = {} # type: dict{str, tuple}
 
         # DAIDE TCP servers listening to a game's dedicated port.
-        self.daide_servers = {}
+        self.daide_servers = {}             # {port: daide_server}
 
         # Load data on memory.
         self._load()
@@ -812,9 +812,9 @@ class Server():
             :param port: the port to use. If None, an available random prot will be used
         """
         if port in self.daide_servers:
-            raise RuntimeError("Port already in used by a DAIDE server")
+            raise RuntimeError('Port already in used by a DAIDE server')
 
-        for _, server in self.daide_servers.items():
+        for server in self.daide_servers.values():
             if server.game_id == game_id:
                 return None
 
@@ -838,13 +838,11 @@ class Server():
                 server.stop()
                 del self.daide_servers[port]
 
-    def get_daide_game_port(self, game_id):
-        """ Get the port DAIDE TCP server
-            :param game_id: game id of the DAIDE server. If None, all servers will be stopped
+    def get_daide_port(self, game_id):
+        """ Get the DAIDE port opened for a specific game_id
+            :param game_id: game id of the DAIDE server.
         """
-        for port in list(self.daide_servers.keys()):
-            server = self.daide_servers[port]
+        for port, server in self.daide_servers.items():
             if server.game_id == game_id:
                 return port
-
         return None

@@ -31,9 +31,6 @@ from tornado import gen
 from tornado.concurrent import Future
 
 from diplomacy.communication import notifications, requests, responses
-from diplomacy.daide.exceptions import GameDaidePortException
-from diplomacy.daide.requests import GetGameDaidePort
-from diplomacy.daide.responses import GameDaidePort
 from diplomacy.server.notifier import Notifier
 from diplomacy.server.server_game import ServerGame
 from diplomacy.server.request_manager_utils import (SynchronizedData, verify_request, transfer_special_tokens,
@@ -45,9 +42,9 @@ from diplomacy.utils.game_phase_data import GamePhaseData
 
 LOGGER = logging.getLogger(__name__)
 
-# =======================
+# =================
 # Request managers.
-# =======================
+# =================
 
 def on_clear_centers(server, request, connection_handler):
     """ Manage request ClearCenters.
@@ -152,7 +149,6 @@ def on_create_game(server, request, connection_handler):
 
     # Register game on server.
     server.add_new_game(server_game)
-
     server.start_new_daide_server(game_id)
 
     # Start game immediately if possible (e.g. if it's a solitaire game).
@@ -261,6 +257,21 @@ def on_get_available_maps(server, request, connection_handler):
     """
     verify_request(server, request, connection_handler)
     return responses.DataMaps(data=server.available_maps, request_id=request.request_id)
+
+def on_get_daide_port(server, request, connection_handler):
+    """ Manage request GetDaidePort.
+        :param server: server which receives the request.
+        :param request: request to manage.
+        :param connection_handler: connection handler from which the request was sent.
+        :return: None
+        :type server: diplomacy.Server
+        :type request: diplomacy.communication.requests.GetDaidePort
+    """
+    del connection_handler
+    daide_port = server.get_daide_port(request.game_id)
+    if daide_port is None:
+        raise exceptions.DaidePortException('Invalid game id or game\'s DAIDE server is not started for that game')
+    return responses.DataPort(data=daide_port, request_id=request.request_id)
 
 def on_get_playable_powers(server, request, connection_handler):
     """ Manage request GetPlayablePowers.
@@ -1127,24 +1138,6 @@ def on_vote(server, request, connection_handler):
         Notifier(server).notify_game_processed(level.game, phase_data_before_draw, phase_data_after_draw)
     server.save_game(level.game)
 
-# =======================
-# DAIDE request managers.
-# =======================
-
-def on_get_game_daide_port(server, request, connection_handler):
-    """ Manage request GetGameDaidePort.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetGameDaidePort
-    """
-    del connection_handler
-    game_daide_port = server.get_daide_game_port(request.game_id)
-    if game_daide_port is None:
-        raise GameDaidePortException("Invalid game id or game's DAIDE server is not started for that game")
-    return GameDaidePort(data=game_daide_port, request_id=request.request_id)
 
 # Mapping dictionary from request class to request handler function.
 MAPPING = {
@@ -1157,6 +1150,7 @@ MAPPING = {
     requests.GetDummyWaitingPowers: on_get_dummy_waiting_powers,
     requests.GetAllPossibleOrders: on_get_all_possible_orders,
     requests.GetAvailableMaps: on_get_available_maps,
+    requests.GetDaidePort: on_get_daide_port,
     requests.GetPlayablePowers: on_get_playable_powers,
     requests.GetPhaseHistory: on_get_phase_history,
     requests.JoinGame: on_join_game,
@@ -1178,8 +1172,6 @@ MAPPING = {
     requests.SignIn: on_sign_in,
     requests.Synchronize: on_synchronize,
     requests.Vote: on_vote,
-    # DAIDE Reqests
-    GetGameDaidePort: on_get_game_daide_port
 }
 
 def handle_request(server, request, connection_handler):

@@ -34,7 +34,7 @@ from diplomacy.daide.user_additions import UserAdditions
 import diplomacy.daide.utils
 from diplomacy.engine.message import Message
 import diplomacy.server.request_managers as internal_request_managers
-from diplomacy.utils import errors as err, exceptions, results as res, strings, subject_split
+from diplomacy.utils import errors as err, exceptions, order_results as res, strings, splitter
 
 @gen.coroutine
 def on_name_request(server, request, connection_handler, game):
@@ -248,27 +248,27 @@ def on_history_request(server, request, connection_handler, game):
     if next_phase == current_phase:
         next_phase_state = game.get_state()
 
-    phase = subject_split.PhaseSplit(phase)
-    next_phase = subject_split.PhaseSplit(next_phase)
+    phase = splitter.PhaseSplitter(phase)
+    next_phase = splitter.PhaseSplitter(next_phase)
 
     # ORD responses
     for order in phase_order[power_name]:
-        order = subject_split.OrderSplit(order)
+        order = splitter.OrderSplitter(order)
         results = None
 
         # WAIVE
         if len(order) == 1:
-            order.command = ' '.join([power_name, order.command])
+            order.order_type = ' '.join([power_name, order.order_type])
             results = [res.OK]
         else:
             results = phase_result[order.unit]
             order.unit = ' '.join([power_name, order.unit])
 
-        if order.additional_unit:
-            order.additional_unit = ' '.join([power_name, order.additional_unit])
+        if order.supported_unit:
+            order.supported_unit = ' '.join([power_name, order.supported_unit])
 
-        order_bytes = daide.clauses.parse_order_to_bytes(phase.type, order)
-        responses.append(daide.notifications.ORD(phase.in_str, order_bytes, [result.code for result in results]))
+        order_bytes = daide.clauses.parse_order_to_bytes(phase.phase_type, order)
+        responses.append(daide.notifications.ORD(phase.input_str, order_bytes, [result.code for result in results]))
 
     # SCO response
     responses.append(daide.responses.SCO(next_phase_state['centers'], game.map.name))
@@ -277,7 +277,7 @@ def on_history_request(server, request, connection_handler, game):
     units = {power_name: [unit for unit in units if not unit.startswith('*')] for power_name, units in
              next_phase_state['units'].items()}
     retreats = next_phase_state['retreats'].copy()
-    responses.append(daide.responses.NOW(next_phase.in_str, units, retreats))
+    responses.append(daide.responses.NOW(next_phase.input_str, units, retreats))
 
     return responses
 

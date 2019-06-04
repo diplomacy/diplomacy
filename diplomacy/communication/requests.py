@@ -30,18 +30,6 @@ from diplomacy.utils.parsing import OptionalValueType
 from diplomacy.utils.sorted_dict import SortedDict
 
 LOGGER = logging.getLogger(__name__)
-_REGISTERED_REQUESTS = {}
-
-def register_requests(requests_cls):
-    """ Register a list of requests classes
-        :param requests_cls: the list of requests classes
-    """
-    for request_cls in requests_cls:
-        if inspect.isclass(request_cls) and issubclass(request_cls, _AbstractRequest):
-            if request_cls.__name__ in _REGISTERED_REQUESTS:
-                raise RuntimeError("{} is already a registered request".format(request_cls.__name__))
-
-            _REGISTERED_REQUESTS[request_cls.__name__] = request_cls
 
 class _AbstractRequest(NetworkData):
     """ Abstract request class.
@@ -125,6 +113,17 @@ class _AbstractGameRequest(_AbstractChannelRequest):
 # ====================
 # Connection requests.
 # ====================
+
+class GetDaidePort(_AbstractRequest):
+    """ Get game DAIDE port """
+    __slots__ = ['game_id']
+    params = {
+        strings.GAME_ID: str
+    }
+
+    def __init__(self, **kwargs):
+        self.game_id = None
+        super(GetDaidePort, self).__init__(**kwargs)
 
 class SignIn(_AbstractRequest):
     """ SignIn request.
@@ -563,8 +562,6 @@ class Vote(_AbstractGameRequest):
         self.vote = ''
         super(Vote, self).__init__(**kwargs)
 
-register_requests(globals().values())
-
 def parse_dict(json_request):
     """ Parse a JSON dictionary expected to represent a request. Raise an exception if parsing failed.
         :param json_request: JSON dictionary.
@@ -576,7 +573,7 @@ def parse_dict(json_request):
     if name is None:
         raise exceptions.RequestException()
     expected_class_name = common.snake_case_to_upper_camel_case(name)
-    request_class = _REGISTERED_REQUESTS.get(expected_class_name, None)
+    request_class = globals().get(expected_class_name, None)
     if request_class is None or not inspect.isclass(request_class) or not issubclass(request_class, _AbstractRequest):
         raise exceptions.RequestException('Unknown request name %s' % expected_class_name)
     try:

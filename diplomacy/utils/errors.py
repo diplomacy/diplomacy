@@ -17,15 +17,14 @@
 """ Error
     - Contains the error messages and code used by the engine
 """
+from diplomacy.utils.common import StringableCode
 
-import diplomacy.utils.results  as res
-from diplomacy.utils.results import Result
-
+# Constants
 MAP_ERROR_OFFSET = 20000
 GAME_ERROR_OFFSET = 21000
 STD_ERROR_OFFSET = 22000
 
-class Error(Result):
+class Error(StringableCode):
     """ Represents an error """
 
 class MapError(Error):
@@ -33,35 +32,27 @@ class MapError(Error):
     def __init__(self, code, message):
         """ Build a MapError
             :param code: int code of the error
-            :param message: humain readable string message associated to the error
+            :param message: human readable string message associated to the error
         """
-        super(MapError, self).__init__(self.OFFSET+code, message)
-
-    OFFSET = MAP_ERROR_OFFSET
+        super(MapError, self).__init__(MAP_ERROR_OFFSET + code, message)
 
 class GameError(Error):
     """ Represents a game error """
     def __init__(self, code, message):
         """ Build a GameError
             :param code: int code of the error
-            :param message: humain readable string message associated to the error
+            :param message: human readable string message associated to the error
         """
-        super(GameError, self).__init__(self.OFFSET+code, message)
-
-    OFFSET = GAME_ERROR_OFFSET
+        super(GameError, self).__init__(GAME_ERROR_OFFSET + code, message)
 
 class StdError(Error):
     """ Represents a standard error """
     def __init__(self, code, message):
         """ Build a StdError
             :param code: int code of the error
-            :param message: humain readable string message associated to the error
+            :param message: human readable string message associated to the error
         """
-        super(StdError, self).__init__(self.OFFSET+code, message)
-
-    OFFSET = STD_ERROR_OFFSET
-
-OK = res.OK
+        super(StdError, self).__init__(STD_ERROR_OFFSET + code, message)
 
 MAP_LEAST_TWO_POWERS = MapError(0, 'MAP DOES NOT SPECIFY AT LEAST TWO POWERS')
 MAP_LOC_NOT_FOUND = MapError(1, 'NAMED LOCATION NOT ON MAP: %s')
@@ -167,7 +158,6 @@ GAME_MULTIPLE_ORDERS_FOR_UNIT = GameError(55, 'MULTIPLE ORDERS FOR UNIT: %s')
 GAME_INVALID_BUILD_SITE = GameError(56, 'INVALID BUILD SITE: %s')
 GAME_MULT_BUILDS_IN_SITE = GameError(57, 'MULTIPLE BUILDS IN SITE: %s')
 GAME_INVALID_BUILD_ORDER = GameError(58, 'INVALID BUILD ORDER: %s')
-
 GAME_NO_WAIVE_WITH_DISBAND = GameError(59, 'WAIVE NOT ALLOWED FOR DISBAND')
 GAME_ORDER_NOT_ALLOWED = GameError(60, 'ORDER NOT ALLOWED: %s')
 
