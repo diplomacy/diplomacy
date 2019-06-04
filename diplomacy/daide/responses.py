@@ -102,10 +102,10 @@ class MapDefinitionResponse(DaideResponse):
         game_map = Map(map_name)
 
         # (Powers): (power power ...)
-        powers_clause = self._build_powers_clause(game_map)
         # (Provinces): ((supply_centers) (non_supply_centres))
-        provinces_clause = self._build_provinces_clause(game_map)
         # (Adjacencies): ((prov_adjacencies) (prov_adjacencies) ...)
+        powers_clause = self._build_powers_clause(game_map)
+        provinces_clause = self._build_provinces_clause(game_map)
         adjacencies_clause = self._build_adjacencies_clause(game_map)
 
         self._bytes = bytes(daide.tokens.MDF) \
@@ -131,10 +131,10 @@ class MapDefinitionResponse(DaideResponse):
         """
         power_names = game_map.powers[:]
         power_names.sort()
-        powers_clause = [bytes(parse_string(daide.clauses.Power, power_name)) for power_name in power_names]
-        # (Powers): (power power ...)
-        powers_clause = add_parentheses(b''.join(powers_clause))
 
+        # (Powers): (power power ...)
+        powers_clause = [bytes(parse_string(daide.clauses.Power, power_name)) for power_name in power_names]
+        powers_clause = add_parentheses(b''.join(powers_clause))
         return powers_clause
 
     @staticmethod
@@ -159,14 +159,12 @@ class MapDefinitionResponse(DaideResponse):
             non_supply_centres syntax:
                 province province ...   # List of provinces
         """
-        provinces_clause = None
-
         unowned_scs = game_map.scs[:]
         unowned_scs.sort()
 
         # (Supply centers): ((power centre centre ...) (power centre centre ...) ...)
-        scs_clause = []
         # (Non supply centres): (province province ...)
+        scs_clause = []
         non_scs_clause = []
 
         power_names_centers = [(power_name, centers[:]) for power_name, centers in game_map.centers.items()]
@@ -180,16 +178,18 @@ class MapDefinitionResponse(DaideResponse):
             for center in centers:
                 power_scs_clause.append(bytes(parse_string(daide.clauses.Province, center)))
                 unowned_scs.remove(center)
+
             # (Power supply centers): (power centre centre ...)
             power_scs_clause = add_parentheses(b''.join(power_scs_clause))
             scs_clause.append(power_scs_clause)
 
+        # (Power supply centers): (power centre centre ...)
         power_scs_clause = [bytes(daide.tokens.UNO)]
         power_scs_clause += [bytes(parse_string(daide.clauses.Province, center)) for center in unowned_scs]
-        # (Power supply centers): (power centre centre ...)
         power_scs_clause = add_parentheses(b''.join(power_scs_clause))
-        scs_clause.append(power_scs_clause)
+
         # (Supply centers): ((power centre centre ...) (power centre centre ...) ...)
+        scs_clause.append(power_scs_clause)
         scs_clause = add_parentheses(b''.join(scs_clause))
 
         provinces = game_map.locs[:]
@@ -206,8 +206,8 @@ class MapDefinitionResponse(DaideResponse):
         # (Non supply centres): (province province ...)
         non_scs_clause = add_parentheses(b''.join(non_scs_clause))
 
-        provinces_clause = [scs_clause, non_scs_clause]
         # (Provinces): ((supply_centers) (non_supply_centres))
+        provinces_clause = [scs_clause, non_scs_clause]
         provinces_clause = add_parentheses(b''.join(provinces_clause))
 
         return provinces_clause
@@ -229,96 +229,81 @@ class MapDefinitionResponse(DaideResponse):
                 province                # A province which can be moved to
                 (province coast)        # A coast of a province that can be moved to
         """
-        ProvAdjacencies = namedtuple('ProvAdjacencies', ['amy_provinces', 'flt_provinces', 'coast_flt_provinces'])
+        adjacencies = {}                # {province: {'A': [], 'F': [], '/': []}        army abuts, fleet abuts, / abuts
 
-        adjacencies_clause = None
-
-        adjacencies = {}
-
-        provinces_adjacencies = [(province_w_coast, adjacent_provinces[:])
-                                 for province_w_coast, adjacent_provinces in game_map.dest_with_coasts.items()]
-        provinces_adjacencies.sort(key=lambda province_adjacencies: province_adjacencies[0])
-
-        for province_w_coast, adjacent_provinces in provinces_adjacencies:
-            adjacent_provinces.sort()
-
-            province_type = game_map.area_type(province_w_coast)
+        # For each province
+        for province in sorted([loc.upper() for loc in game_map.locs if '/' not in loc]):
+            province_type = game_map.area_type(province)
 
             if province_type == 'SHUT':
                 continue
 
-            coast = province_w_coast[3:].upper()
-            province = province_w_coast[:3].upper()
+            # Creating empty list of adjacent provinces
+            adjacencies.setdefault(province, {})
+            adjacencies[province].setdefault('A', [])               # List of adjacent provinces where armies can move
+            for province_w_coast in sorted(game_map.find_coasts(province)):
+                coast = province_w_coast[3:]
+                adjacencies[province].setdefault(coast, [])         # List of adjacent provinces where fleets can move
 
-            prov_adjacencies = adjacencies.get(province, None)
-            if not prov_adjacencies:
-                prov_adjacencies = ProvAdjacencies([], [], {})
-                adjacencies[province] = prov_adjacencies
+            # Building list of adjacent provinces
+            for coast in adjacencies[province]:                     # 'A', '', '/NC', '/SC', '/EC', '/WC'
 
-            amy_provinces = None
-            flt_provinces = None
+                # Army adjacencies
+                if coast == 'A':
+                    for dest in sorted(game_map.dest_with_coasts[province]):
+                        if game_map.abuts('A', province, '-', dest):
+                            adjacencies[province]['A'].append(bytes(parse_string(daide.clauses.Province, dest)))
 
-            if coast:
-                flt_provinces = prov_adjacencies.coast_flt_provinces.get(coast, None)
-                if not flt_provinces:
-                    flt_provinces = []
-                    prov_adjacencies.coast_flt_provinces[coast] = flt_provinces
+                # Fleet adjacencies
+                else:
+                    for dest in sorted(game_map.dest_with_coasts[province + coast]):
+                        if game_map.abuts('F', province + coast, '-', dest):
+                            adjacencies[province][coast].append(bytes(parse_string(daide.clauses.Province, dest)))
 
-            else:
-                amy_provinces = prov_adjacencies.amy_provinces if province_type not in ["PORT", "WATER"] else None
-                flt_provinces = prov_adjacencies.flt_provinces if not prov_adjacencies.coast_flt_provinces else None
+            # If province has coasts ('/NC', '/SC'), removing the adjacency for fleets without coast
+            if len(adjacencies[province]) > 2:
+                del adjacencies[province]['']
 
-            # COAST
-            if coast and prov_adjacencies.flt_provinces:
-                prov_adjacencies.flt_provinces[:] = []
-
-            for adjacent_prov in adjacent_provinces:
-                is_amy_adjacent_prov = amy_provinces is not None and \
-                                       game_map.abuts('A', province_w_coast, '-', adjacent_prov)
-                is_flt_adjacent_prov = flt_provinces is not None and \
-                                       game_map.abuts('F', province_w_coast, '-', adjacent_prov)
-
-                if is_amy_adjacent_prov:
-                    amy_provinces.append(bytes(parse_string(daide.clauses.Province, adjacent_prov[:3])))
-
-                if is_flt_adjacent_prov:
-                    flt_provinces.append(bytes(parse_string(daide.clauses.Province, adjacent_prov)))
-
+        # Building adjacencies clause
         adjacencies_clause = []
-
-        for province, prov_adjacencies in adjacencies.items():
+        for province in adjacencies:
             prov_adjacencies_clause = [bytes(parse_string(daide.clauses.Province, province))]
 
-            if prov_adjacencies.amy_provinces:
-                amy_adjacencies_clause = [bytes(daide.tokens.AMY)] + prov_adjacencies.amy_provinces
-                # (Army adjacencies): (AMY adjacent_prov adjacent_prov ...)
-                amy_adjacencies_clause = add_parentheses(b''.join(amy_adjacencies_clause))
-                prov_adjacencies_clause.append(amy_adjacencies_clause)
+            for coast in ('A', '', '/EC', '/NC', '/SC', '/WC'):
+                if coast not in adjacencies[province]:
+                    continue
+                if not adjacencies[province][coast]:
+                    continue
 
-            if prov_adjacencies.flt_provinces:
-                flt_adjacencies_clause = [bytes(daide.tokens.FLT)] + prov_adjacencies.flt_provinces
+                # (Army adjacencies): (AMY adjacent_prov adjacent_prov ...)
+                if coast == 'A':
+                    amy_adjacencies_clause = [bytes(daide.tokens.AMY)] + adjacencies[province][coast]
+                    amy_adjacencies_clause = add_parentheses(b''.join(amy_adjacencies_clause))
+                    prov_adjacencies_clause.append(amy_adjacencies_clause)
+
                 # (Fleet provinces): (FLT adjacent_prov adjacent_prov ...)
-                flt_adjacencies_clause = add_parentheses(b''.join(flt_adjacencies_clause))
-                prov_adjacencies_clause.append(flt_adjacencies_clause)
-            else:
-                for coast, flt_provinces in prov_adjacencies.coast_flt_provinces.items():
+                elif coast == '':
+                    flt_adjacencies_clause = [bytes(daide.tokens.FLT)] + adjacencies[province][coast]
+                    flt_adjacencies_clause = add_parentheses(b''.join(flt_adjacencies_clause))
+                    prov_adjacencies_clause.append(flt_adjacencies_clause)
+
+                # (Fleet coast): (FLT coast)
+                # (Fleet coast provinces): ((FLT coast) adjacent_prov adjacent_prov ...)
+                else:
                     flt_clause = bytes(daide.tokens.FLT)
                     coast_clause = bytes(parse_string(daide.clauses.Province, coast))
-                    # (Fleet coast): (FLT coast)
-                    coast_flt_adjacencies_clause = [add_parentheses(flt_clause+coast_clause)] + flt_provinces
-                    # (Fleet coast provinces): ((FLT coast) adjacent_prov adjacent_prov ...)
+                    coast_flt_adjacencies_clause = [add_parentheses(flt_clause + coast_clause)] \
+                                                   + adjacencies[province][coast]
                     coast_flt_adjacencies_clause = add_parentheses(b''.join(coast_flt_adjacencies_clause))
                     prov_adjacencies_clause.append(coast_flt_adjacencies_clause)
 
             # (Province adjacencies): (province (unit_type adjacent_prov adjacent_prov ...)
             #                          (unit_type adjacent_prov adjacent_prov ...) ...)
             prov_adjacencies_clause = add_parentheses(b''.join(prov_adjacencies_clause))
-
             adjacencies_clause.append(prov_adjacencies_clause)
 
         # (Adjacencies): ((prov_adjacencies) (prov_adjacencies) ...)
         adjacencies_clause = add_parentheses(b''.join(adjacencies_clause))
-
         return adjacencies_clause
 
 class HelloResponse(DaideResponse):

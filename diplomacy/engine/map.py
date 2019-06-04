@@ -208,11 +208,13 @@ class Map():
                 self.error += [err.MAP_NO_FULL_NAME % place]
 
             # Checking one-way adjacency
+            # Adjacencies between lower-case coast and water are supposed to be one-way
             for loc in abuts:
                 if self.area_type(place) != 'SHUT' \
                         and self.area_type(loc) != 'SHUT' \
                         and not self.abuts('A', loc, '-', place) \
-                        and not self.abuts('F', loc, '-', place):
+                        and not self.abuts('F', loc, '-', place) \
+                        and not (place.islower() and self.area_type(loc) == 'WATER'):
                     self.error.append(err.MAP_ONE_WAY_ADJ % (place, loc))
 
         # Validating home centers
@@ -1108,6 +1110,10 @@ class Map():
         """
         # pylint: disable=too-many-return-statements
         unit_loc, other_loc = unit_loc.upper(), other_loc.upper()
+
+        # If the unit is not valid on the current location, returning 0
+        if not self.is_valid_unit(unit_type + ' ' + unit_loc):
+            return 0
 
         # Removing coasts for support
         # Otherwise, if army, not adjacent since army can't move, hold, or convoy on coasts
