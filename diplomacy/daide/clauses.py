@@ -17,7 +17,7 @@
 """ Daide Clauses - Contains clauses that can be used to build / parse requests and responses """
 from abc import ABCMeta, abstractmethod
 import logging
-import diplomacy.daide as daide
+from diplomacy.daide import tokens
 from diplomacy.daide.tokens import Token
 
 # Constants
@@ -39,9 +39,9 @@ def break_next_group(daide_bytes):
     pos = 0
     parentheses_level = 0
     while True:
-        if daide_bytes[pos:pos + 2] == bytes(daide.tokens.OPE_PAR):
+        if daide_bytes[pos:pos + 2] == bytes(tokens.OPE_PAR):
             parentheses_level += 1
-        elif daide_bytes[pos:pos + 2] == bytes(daide.tokens.CLO_PAR):
+        elif daide_bytes[pos:pos + 2] == bytes(tokens.CLO_PAR):
             parentheses_level -= 1
         if parentheses_level <= 0:
             break
@@ -57,14 +57,14 @@ def add_parentheses(daide_bytes):
     """ Add parentheses to a list of bytes """
     if not daide_bytes:
         return daide_bytes
-    return bytes(daide.tokens.OPE_PAR) + daide_bytes + bytes(daide.tokens.CLO_PAR)
+    return bytes(tokens.OPE_PAR) + daide_bytes + bytes(tokens.CLO_PAR)
 
 def strip_parentheses(daide_bytes):
     """ Removes parentheses from the DAIDE bytes and returns the inner content.
         The first and last token are expected to be parentheses.
     """
-    assert daide_bytes[:2] == bytes(daide.tokens.OPE_PAR), 'Expected bytes to start with "("'
-    assert daide_bytes[-2:] == bytes(daide.tokens.CLO_PAR), 'Expected bytes to end wth ")"'
+    assert daide_bytes[:2] == bytes(tokens.OPE_PAR), 'Expected bytes to start with "("'
+    assert daide_bytes[-2:] == bytes(tokens.CLO_PAR), 'Expected bytes to end wth ")"'
     return daide_bytes[2:-2]
 
 def parse_bytes(clause_constructor, daide_bytes, on_error='raise'):
@@ -300,7 +300,7 @@ class Number(AbstractClause):
 
         number_bytes, remaining_bytes = daide_bytes[:2], daide_bytes[2:]
         number_token = Token(from_bytes=number_bytes)
-        if not daide.tokens.is_integer_token(number_token):
+        if not tokens.is_integer_token(number_token):
             self.error(on_error, 'The token is not an integer. Got %s' % number_token)
             return daide_bytes
 
@@ -647,15 +647,15 @@ def parse_order_to_bytes(phase_type, order_split):
         if order_split.order_type == '-':
             # FRANCE A IRI - MAO VIA
             if order_split.via_flag:
-                buffer.append(Token(daide.tokens.CTO))
+                buffer.append(Token(tokens.CTO))
             else:
-                buffer.append(Token(daide.tokens.MTO))
+                buffer.append(Token(tokens.MTO))
         # FRANCE A IRO [D]
         elif order_split.order_type == 'D':
             if phase_type == 'R':
-                buffer.append(Token(daide.tokens.DSB))
+                buffer.append(Token(tokens.DSB))
             elif phase_type == 'A':
-                buffer.append(Token(daide.tokens.REM))
+                buffer.append(Token(tokens.REM))
         # FRANCE A LON [H]
         # FRANCE A WAL [S] FRANCE F LON
         # FRANCE A WAL [S] FRANCE F MAO - IRI
@@ -677,10 +677,10 @@ def parse_order_to_bytes(phase_type, order_split):
         if order_split.support_order_type:
             # FRANCE A WAL S FRANCE F MAO - IRI
             if order_split.order_type == 'S':
-                buffer.append(Token(daide.tokens.MTO))
+                buffer.append(Token(tokens.MTO))
                 buffer.append(parse_string(Province, order_split.destination[:3]))
             else:
-                buffer.append(Token(daide.tokens.CTO))
+                buffer.append(Token(tokens.CTO))
                 buffer.append(parse_string(Province, order_split.destination))
         # FRANCE F IRI - [MAO]
         # FRANCE A IRI - [MAO] VIA

@@ -16,10 +16,10 @@
 # ==============================================================================
 """ Daide Requests - Contains a list of requests sent by client to server """
 from diplomacy.communication.requests import _AbstractGameRequest
-import diplomacy.daide as daide
-from diplomacy.daide.clauses import parse_bytes
-from diplomacy.daide.tokens import is_ascii_token
-from diplomacy.daide.tokens import Token
+from diplomacy.daide.clauses import String, Number, Power, Order, Turn, SingleToken, strip_parentheses, \
+    break_next_group, parse_bytes
+from diplomacy.daide import tokens
+from diplomacy.daide.tokens import Token, is_ascii_token
 from diplomacy.utils import parsing, strings
 
 class RequestBuilder():
@@ -101,9 +101,9 @@ class NameRequest(DaideRequest):
         super(NameRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        client_name, daide_bytes = parse_bytes(daide.clauses.String, daide_bytes)
-        client_version, daide_bytes = parse_bytes(daide.clauses.String, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        client_name, daide_bytes = parse_bytes(String, daide_bytes)
+        client_version, daide_bytes = parse_bytes(String, daide_bytes)
         assert str(lead_token) == 'NME', 'Expected NME request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -124,7 +124,7 @@ class ObserverRequest(DaideRequest):
         super(ObserverRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'OBS', 'Expected OBS request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -150,19 +150,19 @@ class IAmRequest(DaideRequest):
         super(IAmRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'IAM', 'Expected IAM request'
 
         # Power
-        power_group_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
-        power_group_bytes = daide.clauses.strip_parentheses(power_group_bytes)
-        power, power_group_bytes = parse_bytes(daide.clauses.Power, power_group_bytes)
+        power_group_bytes, daide_bytes = break_next_group(daide_bytes)
+        power_group_bytes = strip_parentheses(power_group_bytes)
+        power, power_group_bytes = parse_bytes(Power, power_group_bytes)
         assert not power_group_bytes, '%s bytes remaining in power group. Request is malformed' % len(power_group_bytes)
 
         # Passcode
-        passcode_group_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
-        passcode_group_bytes = daide.clauses.strip_parentheses(passcode_group_bytes)
-        passcode, passcode_group_bytes = parse_bytes(daide.clauses.SingleToken, passcode_group_bytes)
+        passcode_group_bytes, daide_bytes = break_next_group(daide_bytes)
+        passcode_group_bytes = strip_parentheses(passcode_group_bytes)
+        passcode, passcode_group_bytes = parse_bytes(SingleToken, passcode_group_bytes)
         assert not passcode_group_bytes, '%s bytes remaining in passcode group. Req. error' % len(passcode_group_bytes)
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -183,7 +183,7 @@ class HelloRequest(DaideRequest):
         super(HelloRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'HLO', 'Expected HLO request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -200,7 +200,7 @@ class MapRequest(DaideRequest):
         super(MapRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'MAP', 'Expected MAP request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -217,7 +217,7 @@ class MapDefinitionRequest(DaideRequest):
         super(MapDefinitionRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'MDF', 'Expected MDF request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -239,7 +239,7 @@ class SupplyCentreOwnershipRequest(DaideRequest):
         super(SupplyCentreOwnershipRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'SCO', 'Expected SCO request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -256,7 +256,7 @@ class CurrentPositionRequest(DaideRequest):
         super(CurrentPositionRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'NOW', 'Expected NOW request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -275,11 +275,11 @@ class HistoryRequest(DaideRequest):
         super(HistoryRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'HST', 'Expected HST request'
 
         # Turn
-        turn, daide_bytes = parse_bytes(daide.clauses.Turn, daide_bytes)
+        turn, daide_bytes = parse_bytes(Turn, daide_bytes)
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
         # Setting properties
@@ -327,10 +327,10 @@ class SubmitOrdersRequest(DaideRequest):
         orders = []
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        turn, daide_bytes = parse_bytes(daide.clauses.Turn, daide_bytes, on_error='ignore')
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        turn, daide_bytes = parse_bytes(Turn, daide_bytes, on_error='ignore')
         while daide_bytes:
-            order, daide_bytes = parse_bytes(daide.clauses.Order, daide_bytes)
+            order, daide_bytes = parse_bytes(Order, daide_bytes)
             orders += [order]
         assert str(lead_token) == 'SUB', 'Expected SUB request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
@@ -353,7 +353,7 @@ class MissingOrdersRequest(DaideRequest):
         super(MissingOrdersRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'MIS', 'Expected MIS request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -370,7 +370,7 @@ class GoFlagRequest(DaideRequest):
         super(GoFlagRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'GOF', 'Expected GOF request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -400,14 +400,14 @@ class TimeToDeadlineRequest(DaideRequest):
         super(TimeToDeadlineRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        seconds_group_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        seconds_group_bytes, daide_bytes = break_next_group(daide_bytes)
         assert str(lead_token) == 'TME', 'Expected TME request'
 
         # Seconds
         if seconds_group_bytes:
-            seconds_group_bytes = daide.clauses.strip_parentheses(seconds_group_bytes)
-            seconds, daide_bytes = parse_bytes(daide.clauses.Number, seconds_group_bytes)
+            seconds_group_bytes = strip_parentheses(seconds_group_bytes)
+            seconds, daide_bytes = parse_bytes(Number, seconds_group_bytes)
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
         # Setting properties
@@ -441,15 +441,15 @@ class DrawRequest(DaideRequest):
         powers = []
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'DRW', 'Expected DRW request'
 
         # Powers
-        powers_group_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
+        powers_group_bytes, daide_bytes = break_next_group(daide_bytes)
         if powers_group_bytes:
-            powers_group_bytes = daide.clauses.strip_parentheses(powers_group_bytes)
+            powers_group_bytes = strip_parentheses(powers_group_bytes)
             while powers_group_bytes:
-                power, powers_group_bytes = parse_bytes(daide.clauses.Power, powers_group_bytes)
+                power, powers_group_bytes = parse_bytes(Power, powers_group_bytes)
                 powers += [power]
 
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
@@ -498,24 +498,24 @@ class SendMessageRequest(DaideRequest):
         super(SendMessageRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
         assert str(lead_token) == 'SND', 'Expected SND request'
 
         # Turn
-        turn, daide_bytes = parse_bytes(daide.clauses.Turn, daide_bytes, on_error='ignore')
+        turn, daide_bytes = parse_bytes(Turn, daide_bytes, on_error='ignore')
 
         # Powers
         powers = []
-        powers_group_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
-        powers_group_bytes = daide.clauses.strip_parentheses(powers_group_bytes)
+        powers_group_bytes, daide_bytes = break_next_group(daide_bytes)
+        powers_group_bytes = strip_parentheses(powers_group_bytes)
         while powers_group_bytes:
-            power, powers_group_bytes = parse_bytes(daide.clauses.Power, powers_group_bytes)
+            power, powers_group_bytes = parse_bytes(Power, powers_group_bytes)
             powers += [power]
         assert powers, 'Expected a group of `power`. Request is malformed'
 
         # Press message or reply
-        message_group_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
-        message_group_bytes = daide.clauses.strip_parentheses(message_group_bytes)
+        message_group_bytes, daide_bytes = break_next_group(daide_bytes)
+        message_group_bytes = strip_parentheses(message_group_bytes)
         assert message_group_bytes, 'Expected a `press_message` or a `reply`. Request is malformed'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -553,12 +553,12 @@ class NotRequest(DaideRequest):
         super(NotRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        request_group_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        request_group_bytes, daide_bytes = break_next_group(daide_bytes)
         assert str(lead_token) == 'NOT', 'Expected NOT request'
 
         # Request
-        request_group_bytes = daide.clauses.strip_parentheses(request_group_bytes)
+        request_group_bytes = strip_parentheses(request_group_bytes)
         request = RequestBuilder.from_bytes(request_group_bytes)
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -590,9 +590,9 @@ class AcceptRequest(DaideRequest):
         super(AcceptRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        response_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
-        response_bytes = daide.clauses.strip_parentheses(response_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        response_bytes, daide_bytes = break_next_group(daide_bytes)
+        response_bytes = strip_parentheses(response_bytes)
         assert str(lead_token) == 'YES', 'Expected YES request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -619,9 +619,9 @@ class RejectRequest(DaideRequest):
         super(RejectRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        response_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
-        response_bytes = daide.clauses.strip_parentheses(response_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        response_bytes, daide_bytes = break_next_group(daide_bytes)
+        response_bytes = strip_parentheses(response_bytes)
         assert str(lead_token) == 'REJ', 'Expected REJ request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -652,12 +652,12 @@ class ParenthesisErrorRequest(DaideRequest):
         super(ParenthesisErrorRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        message_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        message_bytes, daide_bytes = break_next_group(daide_bytes)
         if message_bytes:
-            message_bytes = daide.clauses.strip_parentheses(message_bytes)
+            message_bytes = strip_parentheses(message_bytes)
         else:
-            message_bytes = daide.clauses.strip_parentheses(daide_bytes)
+            message_bytes = strip_parentheses(daide_bytes)
             daide_bytes = b''
         assert str(lead_token) == 'PRN', 'Expected PRN request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
@@ -685,9 +685,9 @@ class SyntaxErrorRequest(DaideRequest):
         super(SyntaxErrorRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        message_bytes, daide_bytes = daide.clauses.break_next_group(daide_bytes)
-        message_bytes = daide.clauses.strip_parentheses(message_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        message_bytes, daide_bytes = break_next_group(daide_bytes)
+        message_bytes = strip_parentheses(message_bytes)
         assert str(lead_token) == 'HUH', 'Expected HUH request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -721,8 +721,8 @@ class AdminMessageRequest(DaideRequest):
         super(AdminMessageRequest, self).parse_bytes(daide_bytes)
 
         # Parsing
-        lead_token, daide_bytes = parse_bytes(daide.clauses.SingleToken, daide_bytes)
-        adm_message, daide_bytes = parse_bytes(daide.clauses.String, daide_bytes)
+        lead_token, daide_bytes = parse_bytes(SingleToken, daide_bytes)
+        adm_message, daide_bytes = parse_bytes(String, daide_bytes)
         assert str(lead_token) == 'ADM', 'Expected ADM request'
         assert not daide_bytes, '%s bytes remaining. Request is malformed' % len(daide_bytes)
 
@@ -755,24 +755,24 @@ HUH = SyntaxErrorRequest
 ADM = AdminMessageRequest
 
 # Constants
-__REQUEST_CONSTRUCTORS__ = {bytes(daide.tokens.NME): NME,
-                            bytes(daide.tokens.OBS): OBS,
-                            bytes(daide.tokens.IAM): IAM,
-                            bytes(daide.tokens.HLO): HLO,
-                            bytes(daide.tokens.MAP): MAP,
-                            bytes(daide.tokens.MDF): MDF,
-                            bytes(daide.tokens.SCO): SCO,
-                            bytes(daide.tokens.NOW): NOW,
-                            bytes(daide.tokens.HST): HST,
-                            bytes(daide.tokens.SUB): SUB,
-                            bytes(daide.tokens.MIS): MIS,
-                            bytes(daide.tokens.GOF): GOF,
-                            bytes(daide.tokens.TME): TME,
-                            bytes(daide.tokens.DRW): DRW,
-                            bytes(daide.tokens.SND): SND,
-                            bytes(daide.tokens.NOT): NOT,
-                            bytes(daide.tokens.YES): YES,
-                            bytes(daide.tokens.REJ): REJ,
-                            bytes(daide.tokens.PRN): PRN,
-                            bytes(daide.tokens.HUH): HUH,
-                            bytes(daide.tokens.ADM): ADM}
+__REQUEST_CONSTRUCTORS__ = {bytes(tokens.NME): NME,
+                            bytes(tokens.OBS): OBS,
+                            bytes(tokens.IAM): IAM,
+                            bytes(tokens.HLO): HLO,
+                            bytes(tokens.MAP): MAP,
+                            bytes(tokens.MDF): MDF,
+                            bytes(tokens.SCO): SCO,
+                            bytes(tokens.NOW): NOW,
+                            bytes(tokens.HST): HST,
+                            bytes(tokens.SUB): SUB,
+                            bytes(tokens.MIS): MIS,
+                            bytes(tokens.GOF): GOF,
+                            bytes(tokens.TME): TME,
+                            bytes(tokens.DRW): DRW,
+                            bytes(tokens.SND): SND,
+                            bytes(tokens.NOT): NOT,
+                            bytes(tokens.YES): YES,
+                            bytes(tokens.REJ): REJ,
+                            bytes(tokens.PRN): PRN,
+                            bytes(tokens.HUH): HUH,
+                            bytes(tokens.ADM): ADM}

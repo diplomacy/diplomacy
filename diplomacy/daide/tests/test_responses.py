@@ -16,30 +16,30 @@
 # ==============================================================================
 """ Tests for request objects """
 from diplomacy import Game
-import diplomacy.daide as daide
+from diplomacy.daide import responses
 from diplomacy.daide.utils import str_to_bytes
 import diplomacy.utils.errors as err
-import diplomacy.utils.order_results as res
+from diplomacy.utils.order_results import OK, BOUNCE, DISLODGED
 
 def test_map():
     """ Tests the MAP response """
     daide_str = 'MAP ( s t a n d a r d )'
-    response = daide.responses.MAP("standard")
-    assert isinstance(response, daide.responses.MAP), 'Expected a MAP response'
+    response = responses.MAP('standard')
+    assert isinstance(response, responses.MAP), 'Expected a MAP response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_hlo():
     """ Tests the HLO response """
     daide_str = 'HLO ( FRA ) ( #1234 ) ( ( LVL #0 ) ( MTL #1200 ) ( RTL #1200 ) ( BTL #1200 ) ( AOA ) )'
-    response = daide.responses.HLO("FRANCE", 1234, 0, 1200, ['NO_CHECK'])
-    assert isinstance(response, daide.responses.HLO), 'Expected a HLO response'
+    response = responses.HLO('FRANCE', 1234, 0, 1200, ['NO_CHECK'])
+    assert isinstance(response, responses.HLO), 'Expected a HLO response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_hlo_no_deadline():
     """ Tests the HLO response """
     daide_str = 'HLO ( FRA ) ( #1234 ) ( ( LVL #0 ) ( AOA ) )'
-    response = daide.responses.HLO("FRANCE", 1234, 0, 0, ['NO_CHECK'])
-    assert isinstance(response, daide.responses.HLO), 'Expected a HLO response'
+    response = responses.HLO('FRANCE', 1234, 0, 0, ['NO_CHECK'])
+    assert isinstance(response, responses.HLO), 'Expected a HLO response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_sco():
@@ -49,8 +49,8 @@ def test_sco():
                 '( TUR ANK CON SMY ) ( UNO BEL BUL DEN GRE HOL NWY POR RUM SER SPA SWE TUN )'
     game = Game(map_name='standard')
     power_centers = {power.name: power.centers for power in game.powers.values()}
-    response = daide.responses.SCO(power_centers, map_name='standard')
-    assert isinstance(response, daide.responses.SCO), 'Expected a SCO response'
+    response = responses.SCO(power_centers, map_name='standard')
+    assert isinstance(response, responses.SCO), 'Expected a SCO response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_now():
@@ -64,34 +64,34 @@ def test_now():
     phase_name = game.get_current_phase()
     units = {power.name: power.units for power in game.powers.values()}
     retreats = {power.name: power.retreats for power in game.powers.values()}
-    response = daide.responses.NOW(phase_name=phase_name, powers_units=units, powers_retreats=retreats)
-    assert isinstance(response, daide.responses.NOW), 'Expected a NOW response'
+    response = responses.NOW(phase_name=phase_name, powers_units=units, powers_retreats=retreats)
+    assert isinstance(response, responses.NOW), 'Expected a NOW response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_thx_001():
     """ Tests the THX response """
     daide_str = 'THX ( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY ) ( MBV )'
     order_daide_str = '( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY )'
-    response = daide.responses.THX(order_bytes=str_to_bytes(order_daide_str), results=[])
-    assert isinstance(response, daide.responses.THX), 'Expected a THX response'
+    response = responses.THX(order_bytes=str_to_bytes(order_daide_str), results=[])
+    assert isinstance(response, responses.THX), 'Expected a THX response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_thx_002():
     """ Tests the THX response """
     daide_str = 'THX ( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY ) ( NYU )'
     order_daide_str = '( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY )'
-    response = daide.responses.THX(order_bytes=str_to_bytes(order_daide_str),
-                                   results=[error.code for error in [err.GAME_ORDER_TO_FOREIGN_UNIT % 'A MAR']])
-    assert isinstance(response, daide.responses.THX), 'Expected a THX response'
+    response = responses.THX(order_bytes=str_to_bytes(order_daide_str),
+                             results=[error.code for error in [err.GAME_ORDER_TO_FOREIGN_UNIT % 'A MAR']])
+    assert isinstance(response, responses.THX), 'Expected a THX response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_thx_003():
     """ Tests the THX response """
     daide_str = 'THX ( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY ) ( MBV )'
     order_daide_str = '( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY )'
-    response = daide.responses.THX(order_bytes=str_to_bytes(order_daide_str),
-                                   results=[error.code for error in [res.OK, err.MAP_LEAST_TWO_POWERS]])
-    assert isinstance(response, daide.responses.THX), 'Expected a THX response'
+    response = responses.THX(order_bytes=str_to_bytes(order_daide_str),
+                             results=[error.code for error in [OK, err.MAP_LEAST_TWO_POWERS]])
+    assert isinstance(response, responses.THX), 'Expected a THX response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_001():
@@ -100,8 +100,8 @@ def test_mis_001():
     game = Game(map_name='standard')
     phase_name = 'S1901M'
     power = game.get_power('FRANCE')
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_002():
@@ -116,8 +116,8 @@ def test_mis_002():
     power.retreats['F ANK'] = ['ARM']
     power.retreats['F CON'] = ['BLA', 'SMY', 'BUL/EC', 'BUL/SC']
     power.retreats['A SMY'] = ['SYR']
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_003():
@@ -126,8 +126,8 @@ def test_mis_003():
     game = Game(map_name='standard')
     phase_name = 'W1901A'
     power = game.get_power('FRANCE')
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_004():
@@ -137,8 +137,8 @@ def test_mis_004():
     phase_name = 'W1901A'
     power = game.get_power('FRANCE')
     power.centers = power.centers[:-1]
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_005():
@@ -148,8 +148,8 @@ def test_mis_005():
     phase_name = 'W1901A'
     power = game.get_power('FRANCE')
     power.units = power.units[:-1]
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_006():
@@ -159,8 +159,8 @@ def test_mis_006():
     phase_name = 'W1901A'
     power = game.get_power('FRANCE')
     power.units = power.units + ['F LON']
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_007():
@@ -170,8 +170,8 @@ def test_mis_007():
     game.set_orders('FRANCE', ['A PAR - BUR'])
     phase_name = 'S1901M'
     power = game.get_power('FRANCE')
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_008():
@@ -182,8 +182,8 @@ def test_mis_008():
     game.set_orders('FRANCE', ['A PAR - BUR'])
     phase_name = 'S1901M'
     power = game.get_power('FRANCE')
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_009():
@@ -193,8 +193,8 @@ def test_mis_009():
     phase_name = 'S1901M'
     power = game.get_power('FRANCE')
     power.orders['REORDER 1'] = 'A PAR - BUR'
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_010():
@@ -204,8 +204,8 @@ def test_mis_010():
     phase_name = 'S1901M'
     power = game.get_power('FRANCE')
     power.orders['INVALID'] = 'A PAR - BUR'
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_011():
@@ -215,8 +215,8 @@ def test_mis_011():
     phase_name = 'W1901A'
     power = game.get_power('FRANCE')
     power.centers += ['LON']
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_mis_012():
@@ -227,8 +227,8 @@ def test_mis_012():
     power = game.get_power('FRANCE')
     power.centers += ['LON']
     power.units = power.units[:2]
-    response = daide.responses.MIS(phase_name=phase_name, power=power)
-    assert isinstance(response, daide.responses.MIS), 'Expected a MIS response'
+    response = responses.MIS(phase_name=phase_name, power=power)
+    assert isinstance(response, responses.MIS), 'Expected a MIS response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_ord_001():
@@ -237,8 +237,8 @@ def test_ord_001():
     order_daide_str = '( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY'
     game = Game(map_name='standard')
     phase_name = game.map.phase_abbr(game.phase)
-    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str), results=[])
-    assert isinstance(response, daide.responses.ORD), 'Expected a ORD response'
+    response = responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str), results=[])
+    assert isinstance(response, responses.ORD), 'Expected a ORD response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_ord_002():
@@ -247,9 +247,9 @@ def test_ord_002():
     order_daide_str = '( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY'
     game = Game(map_name='standard')
     phase_name = game.map.phase_abbr(game.phase)
-    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
-                                   results=[res.BOUNCE.code])
-    assert isinstance(response, daide.responses.ORD), 'Expected a ORD response'
+    response = responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
+                             results=[BOUNCE.code])
+    assert isinstance(response, responses.ORD), 'Expected a ORD response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_ord_003():
@@ -258,9 +258,9 @@ def test_ord_003():
     order_daide_str = '( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY'
     game = Game(map_name='standard')
     phase_name = game.map.phase_abbr(game.phase)
-    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
-                                   results=[res.DISLODGED])
-    assert isinstance(response, daide.responses.ORD), 'Expected a ORD response'
+    response = responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
+                             results=[DISLODGED])
+    assert isinstance(response, responses.ORD), 'Expected a ORD response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_ord_004():
@@ -269,54 +269,54 @@ def test_ord_004():
     order_daide_str = '( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY'
     game = Game(map_name='standard')
     phase_name = game.map.phase_abbr(game.phase)
-    response = daide.responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
-                                   results=[res.BOUNCE.code, res.DISLODGED])
-    assert isinstance(response, daide.responses.ORD), 'Expected a ORD response'
+    response = responses.ORD(phase_name=phase_name, order_bytes=str_to_bytes(order_daide_str),
+                             results=[BOUNCE.code, DISLODGED])
+    assert isinstance(response, responses.ORD), 'Expected a ORD response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_tme():
     """ Tests the TME response """
     daide_str = 'TME ( #60 )'
-    response = daide.responses.TME(seconds=60)
-    assert isinstance(response, daide.responses.TME), 'Expected a TME response'
+    response = responses.TME(seconds=60)
+    assert isinstance(response, responses.TME), 'Expected a TME response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_yes():
     """ Tests the YES response """
     daide_str = 'YES ( TME ( #60 ) )'
     request_daide_str = 'TME ( #60 )'
-    response = daide.responses.YES(request_bytes=str_to_bytes(request_daide_str))
-    assert isinstance(response, daide.responses.YES), 'Expected a YES response'
+    response = responses.YES(request_bytes=str_to_bytes(request_daide_str))
+    assert isinstance(response, responses.YES), 'Expected a YES response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_rej():
     """ Tests the REJ response """
     daide_str = 'REJ ( TME ( #60 ) )'
     request_daide_str = 'TME ( #60 )'
-    response = daide.responses.REJ(request_bytes=str_to_bytes(request_daide_str))
-    assert isinstance(response, daide.responses.REJ), 'Expected a REJ response'
+    response = responses.REJ(request_bytes=str_to_bytes(request_daide_str))
+    assert isinstance(response, responses.REJ), 'Expected a REJ response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_not():
     """ Tests the NOT response """
     daide_str = 'NOT ( CCD ( FRA ) )'
     response_daide_str = 'CCD ( FRA )'
-    response = daide.responses.NOT(response_bytes=str_to_bytes(response_daide_str))
-    assert isinstance(response, daide.responses.NOT), 'Expected a NOT response'
+    response = responses.NOT(response_bytes=str_to_bytes(response_daide_str))
+    assert isinstance(response, responses.NOT), 'Expected a NOT response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_ccd():
     """ Tests the CCD response """
     daide_str = 'CCD ( AUS )'
-    response = daide.responses.CCD(power_name='AUSTRIA')
-    assert isinstance(response, daide.responses.CCD), 'Expected a CCD response'
+    response = responses.CCD(power_name='AUSTRIA')
+    assert isinstance(response, responses.CCD), 'Expected a CCD response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_out():
     """ Tests the OUT response """
     daide_str = 'OUT ( AUS )'
-    response = daide.responses.OUT(power_name='AUSTRIA')
-    assert isinstance(response, daide.responses.OUT), 'Expected a OUT response'
+    response = responses.OUT(power_name='AUSTRIA')
+    assert isinstance(response, responses.OUT), 'Expected a OUT response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_prn():
@@ -327,13 +327,13 @@ def test_prn():
     request_daide_str = 'SUB ( ( ENG AMY LVP ) HLD ) ' \
                         '( ( ENG FLT LON ) MTO NTH ) ' \
                         '( ( ENG FLT EDI ) SUP ( ENG FLT LON ) MTO NTH'
-    response = daide.responses.PRN(request_bytes=str_to_bytes(request_daide_str))
-    assert isinstance(response, daide.responses.PRN), 'Expected a PRN response'
+    response = responses.PRN(request_bytes=str_to_bytes(request_daide_str))
+    assert isinstance(response, responses.PRN), 'Expected a PRN response'
     assert bytes(response) == str_to_bytes(daide_str)
 
 def test_huh():
     """ Tests the HUH response """
     daide_str = 'HUH ( ERR )'
-    response = daide.responses.HUH(b'', 0)
-    assert isinstance(response, daide.responses.HUH), 'Expected a HUH response'
+    response = responses.HUH(b'', 0)
+    assert isinstance(response, responses.HUH), 'Expected a HUH response'
     assert bytes(response) == str_to_bytes(daide_str)

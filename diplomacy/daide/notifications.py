@@ -15,16 +15,18 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ DAIDE Notifications - Contains a list of responses sent by the server to the client """
-import diplomacy.daide as daide
-from diplomacy.daide.clauses import add_parentheses, strip_parentheses, parse_string
+from diplomacy import Map
+from diplomacy.daide.clauses import String, Power, Province, Turn, Unit, add_parentheses, strip_parentheses, \
+    parse_string
+from diplomacy.daide import tokens
 from diplomacy.daide.tokens import Token
 from diplomacy.daide.utils import bytes_to_str, str_to_bytes
-from diplomacy import Map
 
 class DaideNotification():
     """ Represents a DAIDE response. """
     def __init__(self, **kwargs):
         """ Constructor """
+        del kwargs                      # Unused kwargs
         self._bytes = b''
         self._str = ''
 
@@ -36,6 +38,14 @@ class DaideNotification():
         """ Returning the string representation of the response """
         return bytes_to_str(self._bytes)
 
+    def to_bytes(self):
+        """ Returning the bytes representation of the response """
+        return bytes(self)
+
+    def to_string(self):
+        """ Returning the string representation of the response """
+        return str(self)
+
 class MapNameNotification(DaideNotification):
     """ Represents a MAP DAIDE response. Sends the name of the current map to the client.
         Syntax:
@@ -46,8 +56,8 @@ class MapNameNotification(DaideNotification):
             :param map_name: String. The name of the current map.
         """
         super(MapNameNotification, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.MAP) \
-                      + bytes(parse_string(daide.clauses.String, map_name))
+        self._bytes = bytes(tokens.MAP) \
+                      + bytes(parse_string(String, map_name))
 
 class HelloNotification(DaideNotification):
     """ Represents a HLO DAIDE response. Sends the power to be played by the client with the passcode to rejoin the
@@ -77,22 +87,22 @@ class HelloNotification(DaideNotification):
             :param rules: The list of game rules.
         """
         super(HelloNotification, self).__init__(**kwargs)
-        power = parse_string(daide.clauses.Power, power_name)
+        power = parse_string(Power, power_name)
         passcode = Token(from_int=passcode)
 
         if 'NO_PRESS' in rules:
             level = 0
-        variants = add_parentheses(bytes(daide.tokens.LVL) + bytes(Token(from_int=level)))
+        variants = add_parentheses(bytes(tokens.LVL) + bytes(Token(from_int=level)))
 
         if deadline > 0:
-            variants += add_parentheses(bytes(daide.tokens.MTL) + bytes(Token(from_int=deadline)))
-            variants += add_parentheses(bytes(daide.tokens.RTL) + bytes(Token(from_int=deadline)))
-            variants += add_parentheses(bytes(daide.tokens.BTL) + bytes(Token(from_int=deadline)))
+            variants += add_parentheses(bytes(tokens.MTL) + bytes(Token(from_int=deadline)))
+            variants += add_parentheses(bytes(tokens.RTL) + bytes(Token(from_int=deadline)))
+            variants += add_parentheses(bytes(tokens.BTL) + bytes(Token(from_int=deadline)))
 
         if 'NO_CHECK' in rules:
-            variants += add_parentheses(bytes(daide.tokens.AOA))
+            variants += add_parentheses(bytes(tokens.AOA))
 
-        self._bytes = bytes(daide.tokens.HLO) \
+        self._bytes = bytes(tokens.HLO) \
                       + add_parentheses(bytes(power)) \
                       + add_parentheses(bytes(passcode)) \
                       + add_parentheses(bytes(variants))
@@ -113,28 +123,28 @@ class SupplyCenterNotification(DaideNotification):
 
         # Parsing each power
         for power_name, centers in powers_centers.items():
-            power_clause = parse_string(daide.clauses.Power, power_name)
+            power_clause = parse_string(Power, power_name)
             power_bytes = bytes(power_clause)
 
             for center in centers:
-                sc_clause = parse_string(daide.clauses.Province, center)
+                sc_clause = parse_string(Province, center)
                 power_bytes += bytes(sc_clause)
                 remaining_scs.remove(center)
 
             all_powers_bytes += [power_bytes]
 
         # Parsing unowned center
-        uno_token = daide.tokens.UNO
+        uno_token = tokens.UNO
         power_bytes = bytes(uno_token)
 
         for center in remaining_scs:
-            sc_clause = parse_string(daide.clauses.Province, center)
+            sc_clause = parse_string(Province, center)
             power_bytes += bytes(sc_clause)
 
         all_powers_bytes += [power_bytes]
 
         # Storing full response
-        self._bytes = bytes(daide.tokens.SCO) \
+        self._bytes = bytes(tokens.SCO) \
                       + b''.join([add_parentheses(power_bytes) for power_bytes in all_powers_bytes])
 
 class CurrentPositionNotification(DaideNotification):
@@ -154,27 +164,26 @@ class CurrentPositionNotification(DaideNotification):
         units_bytes_buffer = []
 
         # Turn
-        turn_clause = parse_string(daide.clauses.Turn, phase_name)
+        turn_clause = parse_string(Turn, phase_name)
 
         # Units
         for power_name, units in powers_units.items():
             # Regular units
             for unit in units:
-                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power_name, unit))
+                unit_clause = parse_string(Unit, '%s %s' % (power_name, unit))
                 units_bytes_buffer += [bytes(unit_clause)]
 
             # Dislodged units
             for unit, retreat_provinces in powers_retreats[power_name].items():
-                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power_name, unit))
-                retreat_clauses = [parse_string(daide.clauses.Province, province)
-                                   for province in retreat_provinces]
+                unit_clause = parse_string(Unit, '%s %s' % (power_name, unit))
+                retreat_clauses = [parse_string(Province, province) for province in retreat_provinces]
                 units_bytes_buffer += [add_parentheses(strip_parentheses(bytes(unit_clause))
-                                                       + bytes(daide.tokens.MRT)
+                                                       + bytes(tokens.MRT)
                                                        + add_parentheses(b''.join([bytes(province)
                                                                                    for province in retreat_clauses])))]
 
         # Storing full response
-        self._bytes = bytes(daide.tokens.NOW) + bytes(turn_clause) + b''.join(units_bytes_buffer)
+        self._bytes = bytes(tokens.NOW) + bytes(turn_clause) + b''.join(units_bytes_buffer)
 
 class MissingOrdersNotification(DaideNotification):
     """ Represents a MIS DAIDE response. Sends the list of unit for which an order is missing or indication about
@@ -209,8 +218,8 @@ class MissingOrdersNotification(DaideNotification):
                 units_with_no_order.remove(unit)
 
         # Storing full response
-        self._bytes = bytes(daide.tokens.MIS) + \
-                      b''.join([bytes(parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit)))
+        self._bytes = bytes(tokens.MIS) + \
+                      b''.join([bytes(parse_string(Unit, '%s %s' % (power.name, unit)))
                                 for unit in units_with_no_order])
 
     def _build_retreat_phase(self, power):
@@ -225,18 +234,18 @@ class MissingOrdersNotification(DaideNotification):
             if key[0] in 'RIO':                     # No-check game (key is INVALID, ORDER x, REORDER x)
                 unit = ' '.join(value.split()[:2])
             if unit in units_with_no_order:
-                units_with_no_order.remove(unit)
+                del units_with_no_order[unit]
 
         for unit, retreat_provinces in units_with_no_order.items():
-            unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit))
-            retreat_clauses = [parse_string(daide.clauses.Province, province)
+            unit_clause = parse_string(Unit, '%s %s' % (power.name, unit))
+            retreat_clauses = [parse_string(Province, province)
                                for province in retreat_provinces]
             units_bytes_buffer += [add_parentheses(strip_parentheses(bytes(unit_clause))
-                                                   + bytes(daide.tokens.MRT)
+                                                   + bytes(tokens.MRT)
                                                    + add_parentheses(b''.join([bytes(province)
                                                                                for province in retreat_clauses])))]
 
-        self._bytes = bytes(daide.tokens.MIS) + b''.join(units_bytes_buffer)
+        self._bytes = bytes(tokens.MIS) + b''.join(units_bytes_buffer)
 
     def _build_adjustment_phase(self, power):
         """ Builds the missing orders response for a build phase """
@@ -253,7 +262,7 @@ class MissingOrdersNotification(DaideNotification):
 
             disbands_status = max(-len(available_homes), disbands_status)
 
-        self._bytes += bytes(daide.tokens.MIS) + add_parentheses(bytes(daide.tokens.Token(from_int=disbands_status)))
+        self._bytes += bytes(tokens.MIS) + add_parentheses(bytes(Token(from_int=disbands_status)))
 
 class OrderResultNotification(DaideNotification):
     """ Represents a ORD DAIDE response. Sends the result of an order after the turn has been processed.
@@ -275,15 +284,16 @@ class OrderResultNotification(DaideNotification):
             :param results: An array containing the error codes.
         """
         super(OrderResultNotification, self).__init__(**kwargs)
-        turn_clause = parse_string(daide.clauses.Turn, phase_name)
-        result_clause = None
-        if not results or 0 in results:         # Order success response
-            result_clause = daide.tokens.SUC
-        else:                                   # Generic order failure response
-            result_clause = daide.tokens.NSO
+        turn_clause = parse_string(Turn, phase_name)
+        if not results or 0 in results:                 # Order success response
+            result_clause = tokens.SUC
+        else:                                           # Generic order failure response
+            result_clause = tokens.NSO
 
-        self._bytes = bytes(daide.tokens.ORD) + bytes(turn_clause) + add_parentheses(order_bytes) + \
-                      add_parentheses(bytes(result_clause))
+        self._bytes = bytes(tokens.ORD) \
+                      + bytes(turn_clause) \
+                      + add_parentheses(order_bytes) \
+                      + add_parentheses(bytes(result_clause))
 
 class TimeToDeadlineNotification(DaideNotification):
     """ Represents a TME DAIDE response. Sends the time to the next deadline.
@@ -295,7 +305,7 @@ class TimeToDeadlineNotification(DaideNotification):
             :param seconds: Integer. The number of seconds before deadline
         """
         super(TimeToDeadlineNotification, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.TME) + add_parentheses(bytes(daide.tokens.Token(from_int=seconds)))
+        self._bytes = bytes(tokens.TME) + add_parentheses(bytes(tokens.Token(from_int=seconds)))
 
 class PowerInCivilDisorderNotification(DaideNotification):
     """ Represents a CCD DAIDE response. Sends the name of the power in civil disorder.
@@ -307,8 +317,8 @@ class PowerInCivilDisorderNotification(DaideNotification):
             :param power_name: The name of the power being played.
         """
         super(PowerInCivilDisorderNotification, self).__init__(**kwargs)
-        power = parse_string(daide.clauses.Power, power_name)
-        self._bytes = bytes(daide.tokens.CCD) + add_parentheses(bytes(power))
+        power = parse_string(Power, power_name)
+        self._bytes = bytes(tokens.CCD) + add_parentheses(bytes(power))
 
 class PowerIsEliminatedNotification(DaideNotification):
     """ Represents a OUT DAIDE response. Sends the name of the power eliminated.
@@ -320,8 +330,8 @@ class PowerIsEliminatedNotification(DaideNotification):
             :param power_name: The name of the power being played.
         """
         super(PowerIsEliminatedNotification, self).__init__(**kwargs)
-        power = parse_string(daide.clauses.Power, power_name)
-        self._bytes = bytes(daide.tokens.OUT) + add_parentheses(bytes(power))
+        power = parse_string(Power, power_name)
+        self._bytes = bytes(tokens.OUT) + add_parentheses(bytes(power))
 
 class DrawNotification(DaideNotification):
     """ Represents a DRW DAIDE response. Indicates that the game has ended due to a draw
@@ -332,7 +342,7 @@ class DrawNotification(DaideNotification):
         """ Builds the response
         """
         super(DrawNotification, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.DRW)
+        self._bytes = bytes(tokens.DRW)
 
 class MessageFromNotification(DaideNotification):
     """ Represents a FRM DAIDE response. Indicates that the game has ended due to a draw
@@ -345,14 +355,11 @@ class MessageFromNotification(DaideNotification):
         """
         super(MessageFromNotification, self).__init__(**kwargs)
 
-        from_power_clause = bytes(parse_string(daide.clauses.Power, from_power_name))
-
-        to_powers_clause = b''.join([bytes(parse_string(daide.clauses.Power, power_name))
-                                     for power_name in to_power_names])
-
+        from_power_clause = bytes(parse_string(Power, from_power_name))
+        to_powers_clause = b''.join([bytes(parse_string(Power, power_name)) for power_name in to_power_names])
         message_clause = str_to_bytes(message)
 
-        self._bytes = bytes(daide.tokens.FRM) \
+        self._bytes = bytes(tokens.FRM) \
                       + b''.join([add_parentheses(clause)
                                   for clause in [from_power_clause, to_powers_clause, message_clause]])
 
@@ -366,8 +373,8 @@ class SoloNotification(DaideNotification):
             :param power_name: The name of the power being solo.
         """
         super(SoloNotification, self).__init__(**kwargs)
-        power = parse_string(daide.clauses.Power, power_name)
-        self._bytes = bytes(daide.tokens.SLO) + add_parentheses(bytes(power))
+        power = parse_string(Power, power_name)
+        self._bytes = bytes(tokens.SLO) + add_parentheses(bytes(power))
 
 class SummaryNotification(DaideNotification):
     """ Represents a SMR DAIDE response. Sends the summary for each power at the end of the game
@@ -377,44 +384,42 @@ class SummaryNotification(DaideNotification):
             power ('name') ('version') number_of_centres
             power ('name') ('version') number_of_centres year_of_elimination
     """
-    def __init__(self, phase_name, powers, daide_users, years_of_elimnation, **kwargs):
-        """ Builds the Notification
-        """
+    def __init__(self, phase_name, powers, daide_users, years_of_elimination, **kwargs):
+        """ Builds the Notification """
         super(SummaryNotification, self).__init__(**kwargs)
-
-        # Turn
-        turn_clause = parse_string(daide.clauses.Turn, phase_name)
-
         powers_smrs_clause = []
 
-        for power, daide_user, year_of_elimnation in zip(powers, daide_users, years_of_elimnation):
+        # Turn
+        turn_clause = parse_string(Turn, phase_name)
+
+        for power, daide_user, year_of_elimination in zip(powers, daide_users, years_of_elimination):
             power_smr_clause = []
 
             name = daide_user.client_name if daide_user else power.get_controller()
-            version = daide_user.client_version if daide_user else "v0.0.0"
+            version = daide_user.client_version if daide_user else 'v0.0.0'
 
-            power_name_clause = bytes(parse_string(daide.clauses.Power, power.name))
+            power_name_clause = bytes(parse_string(Power, power.name))
             power_smr_clause.append(power_name_clause)
 
             # (name)
-            name_clause = bytes(parse_string(daide.clauses.String, name))
+            name_clause = bytes(parse_string(String, name))
             power_smr_clause.append(name_clause)
 
             # (version)
-            version_clause = bytes(parse_string(daide.clauses.String, version))
+            version_clause = bytes(parse_string(String, version))
             power_smr_clause.append(version_clause)
 
             number_of_centres_clause = bytes(Token(from_int=len(power.centers)))
             power_smr_clause.append(number_of_centres_clause)
 
             if not power.centers:
-                year_of_elimnation_clause = bytes(Token(from_int=year_of_elimnation))
-                power_smr_clause.append(year_of_elimnation_clause)
+                year_of_elimination_clause = bytes(Token(from_int=year_of_elimination))
+                power_smr_clause.append(year_of_elimination_clause)
 
             power_smr_clause = add_parentheses(b''.join(power_smr_clause))
             powers_smrs_clause.append(power_smr_clause)
 
-        self._bytes = bytes(daide.tokens.SMR) + bytes(turn_clause) + b''.join(powers_smrs_clause)
+        self._bytes = bytes(tokens.SMR) + bytes(turn_clause) + b''.join(powers_smrs_clause)
 
 class TurnOffNotification(DaideNotification):
     """ Represents an OFF DAIDE response. Requests a client to exit
@@ -422,10 +427,9 @@ class TurnOffNotification(DaideNotification):
             OFF
     """
     def __init__(self, **kwargs):
-        """ Builds the response
-        """
+        """ Builds the response """
         super(TurnOffNotification, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.OFF)
+        self._bytes = bytes(tokens.OFF)
 
 MAP = MapNameNotification
 HLO = HelloNotification

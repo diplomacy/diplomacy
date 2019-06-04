@@ -21,6 +21,7 @@ from tornado.iostream import StreamClosedError
 from tornado.tcpserver import TCPServer
 from diplomacy.daide.connection_handler import ConnectionHandler
 
+# Constants
 LOGGER = logging.getLogger(__name__)
 
 class Server(TCPServer):
@@ -47,7 +48,7 @@ class Server(TCPServer):
 
     def stop(self):
         """ Stop the server and close all connections """
-        for _, connection_handler in self._registered_connections.items():
+        for connection_handler in self._registered_connections.values():
             connection_handler.close_connection()
         super(Server, self).stop()
 
@@ -57,7 +58,7 @@ class Server(TCPServer):
             :param stream: the stream to handle
             :param address: the address of the client
         """
-        LOGGER.info("Connection from client [%s]", str(address))
+        LOGGER.info('Connection from client [%s]', str(address))
 
         handler = ConnectionHandler()
         handler.initialize(stream, self._master_server, self._game_id)
@@ -66,8 +67,7 @@ class Server(TCPServer):
         try:
             while not handler.stream.closed():
                 yield handler.read_stream()
-
         except StreamClosedError:
-            LOGGER.error("[%s] disconnected", str(address))
+            LOGGER.error('[%s] disconnected', str(address))
 
         del self._registered_connections[stream]

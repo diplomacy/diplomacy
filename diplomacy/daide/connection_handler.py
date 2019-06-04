@@ -16,27 +16,24 @@
 # ==============================================================================
 """ Tornado stream wrapper, used internally to abstract a DAIDE stream connection from a WebSocketConnection. """
 import logging
-
 from tornado import gen
 from tornado.concurrent import Future
 from tornado.iostream import StreamClosedError
-import diplomacy.daide as daide
-from diplomacy.daide.messages import DaideMessage, MessageType
-import diplomacy.daide.notifications
+from diplomacy.daide import notifications, request_managers, responses
+from diplomacy.daide.messages import DiplomacyMessage, DaideMessage, ErrorMessage, RepresentationMessage, MessageType
 from diplomacy.daide.notification_managers import translate_notification
 from diplomacy.daide.requests import RequestBuilder
-import diplomacy.daide.request_managers
-import diplomacy.daide.responses
 from diplomacy.daide.utils import bytes_to_str
 from diplomacy.utils import exceptions
 
+# Constants
 LOGGER = logging.getLogger(__name__)
 
 class ConnectionHandler():
     """ ConnectionHandler class. Properties:
         - server: server object representing running server.
     """
-    _NAME_VARIANT_PREFIX = "DAIDE"
+    _NAME_VARIANT_PREFIX = 'DAIDE'
     _NAME_VARIANTS_POOL = []
     _USED_NAME_VARIANTS = []
 
@@ -50,12 +47,10 @@ class ConnectionHandler():
         self._local_addr = ('::1', 0, 0, 0)
         self._remote_addr = ('::1', 0, 0, 0)
 
-        self.message_mapping = {
-            MessageType.INITIAL: self._on_initial_message,
-            MessageType.DIPLOMACY: self._on_diplomacy_message,
-            MessageType.FINAL: self._on_final_message,
-            MessageType.ERROR: self._on_error_message
-        }
+        self.message_mapping = {MessageType.INITIAL: self._on_initial_message,
+                                MessageType.DIPLOMACY: self._on_diplomacy_message,
+                                MessageType.FINAL: self._on_final_message,
+                                MessageType.ERROR: self._on_error_message}
 
     def initialize(self, stream, server, game_id):
         """ Initialize the connection handler.
@@ -98,8 +93,8 @@ class ConnectionHandler():
     def close_connection(self):
         """ Close the connection with the client """
         try:
-            message = daide.messages.DiplomacyMessage()
-            message.content = bytes(daide.responses.TurnOffResponse())
+            message = DiplomacyMessage()
+            message.content = bytes(responses.TurnOffResponse())
             yield self.write_message(message)
             self.stream.close()
         except StreamClosedError:
@@ -111,27 +106,25 @@ class ConnectionHandler():
         """
         self.release_name_variant()
         self.server.users.remove_connection(self, remove_tokens=False)
-        LOGGER.info("Removed connection. Remaining %d connection(s).", self.server.users.count_connections())
+        LOGGER.info('Removed connection. Remaining %d connection(s).', self.server.users.count_connections())
 
     @gen.coroutine
     def read_stream(self):
         """ Read the next message from the stream """
         messages = []
-        in_message = None
-
         in_message = yield DaideMessage.from_stream(self.stream)
 
         if in_message and in_message.is_valid:
             message_handler = self.message_mapping.get(in_message.message_type, None)
             if not message_handler:
-                raise RuntimeError("Unreconized DAIDE message type [{}]".format(in_message.message_type))
+                raise RuntimeError('Unrecognized DAIDE message type [{}]'.format(in_message.message_type))
 
             if gen.is_coroutine_function(message_handler):
                 messages = yield message_handler(in_message)
             else:
                 messages = message_handler(in_message)
         elif in_message:
-            err_message = daide.messages.ErrorMessage()
+            err_message = ErrorMessage()
             err_message.error_code = in_message.error_code
             messages = [err_message]
 
@@ -141,16 +134,13 @@ class ConnectionHandler():
     # Added for compatibility with WebSocketHandler interface
     def write_message(self, message, binary=True):
         """ Write a message into the stream """
-        future = None
-
         if binary and isinstance(message, bytes):
             future = self.stream.write(message)
-
         else:
-            if isinstance(message, daide.notifications.DaideNotification):
+            if isinstance(message, notifications.DaideNotification):
                 LOGGER.info('[%d] notification:[%s]', self._socket_no, bytes_to_str(bytes(message)))
                 notification = message
-                message = daide.messages.DiplomacyMessage()
+                message = DiplomacyMessage()
                 message.content = bytes(notification)
 
             if isinstance(message, DaideMessage):
@@ -158,7 +148,6 @@ class ConnectionHandler():
             else:
                 future = Future()
                 future.set_result(None)
-
         return future
 
     def translate_notification(self, notification):
@@ -173,28 +162,27 @@ class ConnectionHandler():
     def _on_initial_message(self, _):
         """ Handle an initial message """
         LOGGER.info('[%d] initial message', self._socket_no)
-        return [daide.messages.RepresentationMessage()]
+        return [RepresentationMessage()]
 
     @gen.coroutine
     def _on_diplomacy_message(self, in_message):
         """ Handle a diplomacy message """
         messages = []
-        responses = []
         request = RequestBuilder.from_bytes(in_message.content)
 
         try:
             LOGGER.info('[%d] request:[%s]', self._socket_no, bytes_to_str(in_message.content))
             request.game_id = self.game_id
-            responses = yield daide.request_managers.handle_request(self.server, request, self)
+            message_responses = yield request_managers.handle_request(self.server, request, self)
         except exceptions.ResponseException:
-            responses = [daide.responses.REJ(bytes(request))]
+            message_responses = [responses.REJ(bytes(request))]
 
-        if responses:
-            for response in responses:
+        if message_responses:
+            for response in message_responses:
                 response_bytes = bytes(response)
                 LOGGER.info('[%d] response:[%s]', self._socket_no, bytes_to_str(response_bytes) \
                                                                    if response_bytes else None)
-                message = daide.messages.DiplomacyMessage()
+                message = DiplomacyMessage()
                 message.content = response_bytes
                 messages.append(message)
 

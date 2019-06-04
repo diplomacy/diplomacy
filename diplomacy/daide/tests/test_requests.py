@@ -15,7 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Tests for request objects """
-import diplomacy.daide as daide
+from diplomacy.daide import requests, tokens
 from diplomacy.daide.requests import RequestBuilder
 from diplomacy.daide.utils import str_to_bytes
 
@@ -24,7 +24,7 @@ def test_nme_001():
     daide_str = 'NME ( A l b e r t ) ( v 6 . 0 . 1 )'
     expected_str = 'NME (Albert) (v6.0.1)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NME), 'Expected a NME request'
+    assert isinstance(request, requests.NME), 'Expected a NME request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.client_name == 'Albert'
@@ -35,7 +35,7 @@ def test_nme_002():
     daide_str = 'NME ( J o h n D o e ) ( v 1 . 2 )'
     expected_str = 'NME (JohnDoe) (v1.2)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NME), 'Expected a NME request'
+    assert isinstance(request, requests.NME), 'Expected a NME request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.client_name == 'JohnDoe'
@@ -46,7 +46,7 @@ def test_obs():
     daide_str = 'OBS'
     expected_str = 'OBS'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.OBS), 'Expected a OBS request'
+    assert isinstance(request, requests.OBS), 'Expected a OBS request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -55,7 +55,7 @@ def test_iam():
     daide_str = 'IAM ( FRA ) ( #1234 )'
     expected_str = 'IAM (FRA) (1234)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.IAM), 'Expected a IAM request'
+    assert isinstance(request, requests.IAM), 'Expected a IAM request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.power_name == 'FRANCE'
@@ -66,7 +66,7 @@ def test_hlo():
     daide_str = 'HLO'
     expected_str = 'HLO'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.HLO), 'Expected a HLO request'
+    assert isinstance(request, requests.HLO), 'Expected a HLO request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -75,7 +75,7 @@ def test_map():
     daide_str = 'MAP'
     expected_str = 'MAP'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.MAP), 'Expected a MAP request'
+    assert isinstance(request, requests.MAP), 'Expected a MAP request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -84,7 +84,7 @@ def test_mdf():
     daide_str = 'MDF'
     expected_str = 'MDF'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.MDF), 'Expected a MDF request'
+    assert isinstance(request, requests.MDF), 'Expected a MDF request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -93,7 +93,7 @@ def test_sco():
     daide_str = 'SCO'
     expected_str = 'SCO'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SCO), 'Expected a SCO request'
+    assert isinstance(request, requests.SCO), 'Expected a SCO request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -102,7 +102,7 @@ def test_now():
     daide_str = 'NOW'
     expected_str = 'NOW'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NOW), 'Expected a NOW request'
+    assert isinstance(request, requests.NOW), 'Expected a NOW request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -111,7 +111,7 @@ def test_hst_spr():
     daide_str = 'HST ( SPR #1901 )'
     expected_str = 'HST (SPR 1901)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.HST), 'Expected a HST request'
+    assert isinstance(request, requests.HST), 'Expected a HST request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == 'S1901M'
@@ -121,7 +121,7 @@ def test_sub_spr_hold():
     daide_str = 'SUB ( SPR #1901 ) ( ( ENG AMY LVP ) HLD )'
     expected_str = 'SUB (SPR 1901) ((ENG AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == 'S1901M'
@@ -133,7 +133,7 @@ def test_sub_sum_hold():
     daide_str = 'SUB ( SUM #1902 ) ( ( ENG AMY LVP ) HLD )'
     expected_str = 'SUB (SUM 1902) ((ENG AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == 'S1902R'
@@ -145,7 +145,7 @@ def test_sub_fal_hold():
     daide_str = 'SUB ( FAL #1903 ) ( ( ENG AMY LVP ) HLD )'
     expected_str = 'SUB (FAL 1903) ((ENG AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == 'F1903M'
@@ -157,7 +157,7 @@ def test_sub_aut_hold():
     daide_str = 'SUB ( AUT #1904 ) ( ( ENG AMY LVP ) HLD )'
     expected_str = 'SUB (AUT 1904) ((ENG AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == 'F1904R'
@@ -169,7 +169,7 @@ def test_sub_win_hold():
     daide_str = 'SUB ( WIN #1905 ) ( ( ENG AMY LVP ) HLD )'
     expected_str = 'SUB (WIN 1905) ((ENG AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == 'W1905A'
@@ -181,7 +181,7 @@ def test_sub_austria_hold():
     daide_str = 'SUB ( ( AUS AMY LVP ) HLD )'
     expected_str = 'SUB ((AUS AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -193,7 +193,7 @@ def test_sub_english_hold():
     daide_str = 'SUB ( ( ENG AMY LVP ) HLD )'
     expected_str = 'SUB ((ENG AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -205,7 +205,7 @@ def test_sub_france_hold():
     daide_str = 'SUB ( ( FRA AMY LVP ) HLD )'
     expected_str = 'SUB ((FRA AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -217,7 +217,7 @@ def test_sub_germany_hold():
     daide_str = 'SUB ( ( GER AMY LVP ) HLD )'
     expected_str = 'SUB ((GER AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -229,7 +229,7 @@ def test_sub_italy_hold():
     daide_str = 'SUB ( ( ITA AMY LVP ) HLD )'
     expected_str = 'SUB ((ITA AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -241,7 +241,7 @@ def test_sub_russia_hold():
     daide_str = 'SUB ( ( RUS AMY LVP ) HLD )'
     expected_str = 'SUB ((RUS AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -253,7 +253,7 @@ def test_sub_turkey_hold():
     daide_str = 'SUB ( ( TUR AMY LVP ) HLD )'
     expected_str = 'SUB ((TUR AMY LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -265,7 +265,7 @@ def test_sub_fleet_hold():
     daide_str = 'SUB ( ( ENG FLT LVP ) HLD )'
     expected_str = 'SUB ((ENG FLT LVP) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -277,7 +277,7 @@ def test_sub_eng_ech_hold():
     daide_str = 'SUB ( ( FRA FLT ECH ) HLD )'
     expected_str = 'SUB ((FRA FLT ECH) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -289,7 +289,7 @@ def test_sub_gob_bot_hold():
     daide_str = 'SUB ( ( FRA FLT GOB ) HLD )'
     expected_str = 'SUB ((FRA FLT GOB) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -301,7 +301,7 @@ def test_sub_gol_lyo_hold():
     daide_str = 'SUB ( ( FRA FLT GOL ) HLD )'
     expected_str = 'SUB ((FRA FLT GOL) HLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -313,7 +313,7 @@ def test_sub_move():
     daide_str = 'SUB ( ( ENG FLT LON ) MTO NTH )'
     expected_str = 'SUB ((ENG FLT LON) MTO NTH)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -325,7 +325,7 @@ def test_sub_move_coast():
     daide_str = 'SUB ( ( ENG FLT BAR ) MTO ( STP NCS ) )'
     expected_str = 'SUB ((ENG FLT BAR) MTO (STP NCS))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -337,7 +337,7 @@ def test_sub_support_hold_001():
     daide_str = 'SUB ( ( ENG FLT EDI ) SUP ( ENG FLT LON ) )'
     expected_str = 'SUB ((ENG FLT EDI) SUP (ENG FLT LON))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -349,7 +349,7 @@ def test_sub_support_hold_002():
     daide_str = 'SUB ( ( ENG FLT NWY ) SUP ( ENG FLT BAR ) )'
     expected_str = 'SUB ((ENG FLT NWY) SUP (ENG FLT BAR))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -361,7 +361,7 @@ def test_sub_support_hold_003():
     daide_str = 'SUB ( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) )'
     expected_str = 'SUB ((ENG FLT NWG) SUP (ENG AMY YOR))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -373,7 +373,7 @@ def test_sub_support_move_001():
     daide_str = 'SUB ( ( ENG FLT EDI ) SUP ( ENG FLT LON ) MTO NTH )'
     expected_str = 'SUB ((ENG FLT EDI) SUP (ENG FLT LON) MTO NTH)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -385,7 +385,7 @@ def test_sub_support_move_002():
     daide_str = 'SUB ( ( ENG FLT NWY ) SUP ( ENG FLT BAR ) MTO STP )'
     expected_str = 'SUB ((ENG FLT NWY) SUP (ENG FLT BAR) MTO STP)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -397,7 +397,7 @@ def test_sub_support_move_003():
     daide_str = 'SUB ( ( ENG FLT NWG ) SUP ( ENG AMY YOR ) MTO NWY )'
     expected_str = 'SUB ((ENG FLT NWG) SUP (ENG AMY YOR) MTO NWY)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -409,7 +409,7 @@ def test_sub_move_via_001():
     daide_str = 'SUB ( ( ITA AMY TUN ) CTO SYR VIA ( ION EAS ) )'
     expected_str = 'SUB ((ITA AMY TUN) CTO SYR VIA (ION EAS))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -421,7 +421,7 @@ def test_sub_move_via_002():
     daide_str = 'SUB ( ( ENG AMY YOR ) CTO NWY VIA ( NTH ) )'
     expected_str = 'SUB ((ENG AMY YOR) CTO NWY VIA (NTH))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -433,7 +433,7 @@ def test_sub_convoy_001():
     daide_str = 'SUB ( ( ITA FLT ION ) CVY ( ITA AMY TUN ) CTO SYR )'
     expected_str = 'SUB ((ITA FLT ION) CVY (ITA AMY TUN) CTO SYR)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -445,7 +445,7 @@ def test_sub_convoy_002():
     daide_str = 'SUB ( ( ITA FLT EAS ) CVY ( ITA AMY TUN ) CTO SYR )'
     expected_str = 'SUB ((ITA FLT EAS) CVY (ITA AMY TUN) CTO SYR)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -457,7 +457,7 @@ def test_sub_convoy_003():
     daide_str = 'SUB ( ( ENG FLT NTH ) CVY ( ENG AMY YOR ) CTO STP )'
     expected_str = 'SUB ((ENG FLT NTH) CVY (ENG AMY YOR) CTO STP)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -469,7 +469,7 @@ def test_sub_retreat():
     daide_str = 'SUB ( ( ENG FLT LON ) RTO NTH )'
     expected_str = 'SUB ((ENG FLT LON) RTO NTH)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -481,7 +481,7 @@ def test_sub_retreat_coast():
     daide_str = 'SUB ( ( ENG FLT LON ) RTO ( STP NCS ) )'
     expected_str = 'SUB ((ENG FLT LON) RTO (STP NCS))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -493,7 +493,7 @@ def test_sub_disband():
     daide_str = 'SUB ( ( RUS FLT GOB ) DSB )'
     expected_str = 'SUB ((RUS FLT GOB) DSB)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -505,7 +505,7 @@ def test_sub_build():
     daide_str = 'SUB ( ( ITA FLT NAP ) BLD )'
     expected_str = 'SUB ((ITA FLT NAP) BLD)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -517,7 +517,7 @@ def test_sub_remove():
     daide_str = 'SUB ( ( RUS FLT GOB ) REM )'
     expected_str = 'SUB ((RUS FLT GOB) REM)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -529,7 +529,7 @@ def test_sub_waive():
     daide_str = 'SUB ( ENG WVE )'
     expected_str = 'SUB (ENG WVE)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -545,7 +545,7 @@ def test_sub_multi_001():
                    '((ENG FLT LON) MTO NTH) ' \
                    '((ENG FLT EDI) SUP (ENG FLT LON) MTO NTH)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -559,7 +559,7 @@ def test_sub_multi_002():
     expected_str = 'SUB ((ENG FLT BAR) MTO (STP NCS)) ' \
                    '((ITA FLT NWY) SUP (ENG FLT BAR) MTO STP)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -575,7 +575,7 @@ def test_sub_multi_003():
                    '((ITA FLT ION) CVY (ITA AMY TUN) CTO SYR) ' \
                    '((ITA FLT EAS) CVY (ITA AMY TUN) CTO SYR)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -591,7 +591,7 @@ def test_sub_multi_004():
                    '((ENG FLT NTH) CVY (ENG AMY YOR) CTO NWY) ' \
                    '((ENG FLT NWG) SUP (ENG AMY YOR) MTO NWY)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SUB), 'Expected a SUB request'
+    assert isinstance(request, requests.SUB), 'Expected a SUB request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -603,7 +603,7 @@ def test_mis():
     daide_str = 'MIS'
     expected_str = 'MIS'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.MIS), 'Expected a MIS request'
+    assert isinstance(request, requests.MIS), 'Expected a MIS request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -612,7 +612,7 @@ def test_gof():
     daide_str = 'GOF'
     expected_str = 'GOF'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.GOF), 'Expected a GOF request'
+    assert isinstance(request, requests.GOF), 'Expected a GOF request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
 
@@ -621,7 +621,7 @@ def test_tme():
     daide_str = 'TME'
     expected_str = 'TME'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.TME), 'Expected a TME request'
+    assert isinstance(request, requests.TME), 'Expected a TME request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.seconds is None
@@ -631,7 +631,7 @@ def test_tme_sec():
     daide_str = 'TME ( #60 )'
     expected_str = 'TME (60)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.TME), 'Expected a TME request'
+    assert isinstance(request, requests.TME), 'Expected a TME request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.seconds == 60
@@ -641,7 +641,7 @@ def test_drw_001():
     daide_str = 'DRW'
     expected_str = 'DRW'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.DRW), 'Expected a DRW request'
+    assert isinstance(request, requests.DRW), 'Expected a DRW request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.powers == []
@@ -651,7 +651,7 @@ def test_drw_002():
     daide_str = 'DRW ( FRA ENG ITA )'
     expected_str = 'DRW (FRA ENG ITA)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.DRW), 'Expected a DRW request'
+    assert isinstance(request, requests.DRW), 'Expected a DRW request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.powers == ['FRANCE', 'ENGLAND', 'ITALY']
@@ -661,7 +661,7 @@ def test_snd_001():
     daide_str = 'SND ( FRA ENG ) ( PRP ( PCE ( FRA ENG GER ) ) )'
     expected_str = 'SND (FRA ENG) (PRP (PCE (FRA ENG GER)))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -673,7 +673,7 @@ def test_snd_002():
     daide_str = 'SND ( SPR #1901 ) ( FRA ENG ) ( PRP ( PCE ( FRA ENG GER ) ) )'
     expected_str = 'SND (SPR 1901) (FRA ENG) (PRP (PCE (FRA ENG GER)))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == 'S1901M'
@@ -685,7 +685,7 @@ def test_snd_003():
     daide_str = 'SND ( FRA ENG ) ( CCL ( PRP ( PCE ( FRA ENG GER ) ) ) )'
     expected_str = 'SND (FRA ENG) (CCL (PRP (PCE (FRA ENG GER))))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -697,7 +697,7 @@ def test_snd_004():
     daide_str = 'SND ( FRA ENG ) ( FCT ( PCE ( FRA ENG GER ) ) )'
     expected_str = 'SND (FRA ENG) (FCT (PCE (FRA ENG GER)))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -709,7 +709,7 @@ def test_snd_005():
     daide_str = 'SND ( FRA ENG ) ( TRY ( PRP PCE ALY VSS DRW SLO NOT YES REJ BWX ) )'
     expected_str = 'SND (FRA ENG) (TRY (PRP PCE ALY VSS DRW SLO NOT YES REJ BWX))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -721,7 +721,7 @@ def test_snd_006():
     daide_str = 'SND ( FRA GER ) ( YES ( PRP ( ALY ( FRA ENG GER ) VSS ( ITA ) ) ) )'
     expected_str = 'SND (FRA GER) (YES (PRP (ALY (FRA ENG GER) VSS (ITA))))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -733,7 +733,7 @@ def test_snd_007():
     daide_str = 'SND ( FRA GER ) ( REJ ( PRP ( ALY ( FRA ENG GER ) VSS ( ITA ) ) ) )'
     expected_str = 'SND (FRA GER) (REJ (PRP (ALY (FRA ENG GER) VSS (ITA))))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -745,7 +745,7 @@ def test_snd_008():
     daide_str = 'SND ( FRA GER ) ( BWX ( PRP ( ALY ( FRA ENG GER ) VSS ( ITA ) ) ) )'
     expected_str = 'SND (FRA GER) (BWX (PRP (ALY (FRA ENG GER) VSS (ITA))))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -757,7 +757,7 @@ def test_snd_009():
     daide_str = 'SND ( FRA GER ) ( HUH ( ERR PRP ( ALY ( FRA ENG GER ) VSS ( ITA ) ) ) )'
     expected_str = 'SND (FRA GER) (HUH (ERR PRP (ALY (FRA ENG GER) VSS (ITA))))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.SND), 'Expected a SND request'
+    assert isinstance(request, requests.SND), 'Expected a SND request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.phase == ''
@@ -769,10 +769,10 @@ def test_not_sub():
     daide_str = 'NOT ( SUB )'
     expected_str = 'NOT (SUB)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NOT), 'Expected a NOT request'
+    assert isinstance(request, requests.NOT), 'Expected a NOT request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert isinstance(request.request, daide.requests.SUB), 'Expected a SUB not request'
+    assert isinstance(request.request, requests.SUB), 'Expected a SUB not request'
 
 def test_not_sub_orders():
     """ Tests the NOT request """
@@ -783,70 +783,70 @@ def test_not_sub_orders():
                    '((ENG FLT NTH) CVY (ENG AMY YOR) CTO NWY) ' \
                    '((ENG FLT NWG) SUP (ENG AMY YOR) MTO NWY))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NOT), 'Expected a NOT request'
+    assert isinstance(request, requests.NOT), 'Expected a NOT request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert isinstance(request.request, daide.requests.SUB), 'Expected a SUB not request'
+    assert isinstance(request.request, requests.SUB), 'Expected a SUB not request'
 
 def test_not_gof():
     """ Tests the NOT request """
     daide_str = 'NOT ( GOF )'
     expected_str = 'NOT (GOF)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NOT), 'Expected a NOT request'
+    assert isinstance(request, requests.NOT), 'Expected a NOT request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert isinstance(request.request, daide.requests.GOF), 'Expected a GOF not request'
+    assert isinstance(request.request, requests.GOF), 'Expected a GOF not request'
 
 def test_not_tme():
     """ Tests the NOT request """
     daide_str = 'NOT ( TME )'
     expected_str = 'NOT (TME)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NOT), 'Expected a NOT request'
+    assert isinstance(request, requests.NOT), 'Expected a NOT request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert isinstance(request.request, daide.requests.TME), 'Expected a TME not request'
+    assert isinstance(request.request, requests.TME), 'Expected a TME not request'
 
 def test_not_tme_sec():
     """ Tests the NOT request """
     daide_str = 'NOT ( TME ( #60 ) )'
     expected_str = 'NOT (TME (60))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NOT), 'Expected a NOT request'
+    assert isinstance(request, requests.NOT), 'Expected a NOT request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert isinstance(request.request, daide.requests.TME), 'Expected a TME not request'
+    assert isinstance(request.request, requests.TME), 'Expected a TME not request'
 
 def test_not_drw():
     """ Tests the NOT request """
     daide_str = 'NOT ( DRW )'
     expected_str = 'NOT (DRW)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.NOT), 'Expected a NOT request'
+    assert isinstance(request, requests.NOT), 'Expected a NOT request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert isinstance(request.request, daide.requests.DRW), 'Expected a DRW not request'
+    assert isinstance(request.request, requests.DRW), 'Expected a DRW not request'
 
 def test_yes():
     """ Tests the YES request """
     daide_str = 'YES ( MAP ( s t a n d a r d ) )'
     expected_str = 'YES (MAP (standard))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.YES), 'Expected a YES request'
+    assert isinstance(request, requests.YES), 'Expected a YES request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert daide.tokens.Token(from_bytes=request.response_bytes[:2]) == daide.tokens.MAP
+    assert tokens.Token(from_bytes=request.response_bytes[:2]) == tokens.MAP
 
 def test_rej():
     """ Tests the REJ request """
     daide_str = 'REJ ( SVE ( g a m e n a m e ) )'
     expected_str = 'REJ (SVE (gamename))'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.REJ), 'Expected a REJ request'
+    assert isinstance(request, requests.REJ), 'Expected a REJ request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
-    assert daide.tokens.Token(from_bytes=request.response_bytes[:2]) == daide.tokens.SVE
+    assert tokens.Token(from_bytes=request.response_bytes[:2]) == tokens.SVE
 
 def test_prn_sub():
     """ Tests the PRN request """
@@ -860,7 +860,7 @@ def test_prn_sub():
                    '((ENG FLT LON) MTO NTH) ' \
                    '((ENG FLT EDI) SUP (ENG FLT LON) MTO NTH)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.PRN), 'Expected a PRN request'
+    assert isinstance(request, requests.PRN), 'Expected a PRN request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.message_bytes == str_to_bytes(request_message_daide_str)
@@ -870,7 +870,7 @@ def test_huh_sub():
     daide_str = 'HUH ( )'
     expected_str = 'HUH ()'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.HUH), 'Expected a HUH request'
+    assert isinstance(request, requests.HUH), 'Expected a HUH request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.message_bytes == b''
@@ -880,7 +880,7 @@ def test_adm():
     daide_str = 'ADM ( I \' m  h a v i n g  c o n n e c t i o n  p r o b l e m s )'
     expected_str = 'ADM (I\'m having connection problems)'
     request = RequestBuilder.from_bytes(str_to_bytes(daide_str))
-    assert isinstance(request, daide.requests.ADM), 'Expected a ADM request'
+    assert isinstance(request, requests.ADM), 'Expected a ADM request'
     assert bytes(request) == str_to_bytes(daide_str)
     assert str(request) == expected_str
     assert request.adm_message == 'I\'m having connection problems'

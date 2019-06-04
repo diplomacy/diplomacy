@@ -14,7 +14,7 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Settings - Contains a list of utils to help handle DAIDE com """
+""" Settings - Contains a list of utils to help handle DAIDE communication """
 from collections import namedtuple
 from diplomacy.daide.tokens import is_integer_token, Token
 

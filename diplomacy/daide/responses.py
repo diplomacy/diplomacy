@@ -15,13 +15,13 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ DAIDE Responses - Contains a list of responses sent by the server to the client """
-from collections import namedtuple
-from diplomacy.communication.responses import _AbstractResponse
-import diplomacy.daide as daide
-from diplomacy.daide.clauses import add_parentheses, strip_parentheses, parse_string
-from diplomacy.daide.utils import bytes_to_str
-from diplomacy.daide.tokens import Token
 from diplomacy import Map
+from diplomacy.communication.responses import _AbstractResponse
+from diplomacy.daide.clauses import String, Power, Province, Turn, Unit, add_parentheses, strip_parentheses, \
+    parse_string
+from diplomacy.daide import tokens
+from diplomacy.daide.tokens import Token
+from diplomacy.daide.utils import bytes_to_str
 from diplomacy.utils.splitter import OrderSplitter
 
 class DaideResponse(_AbstractResponse):
@@ -49,8 +49,8 @@ class MapNameResponse(DaideResponse):
             :param map_name: String. The name of the current map.
         """
         super(MapNameResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.MAP) \
-                      + bytes(parse_string(daide.clauses.String, map_name))
+        self._bytes = bytes(tokens.MAP) \
+                      + bytes(parse_string(String, map_name))
 
 class MapDefinitionResponse(DaideResponse):
     """ Represents a MDF DAIDE response. Sends configuration of a map to a client
@@ -108,7 +108,7 @@ class MapDefinitionResponse(DaideResponse):
         provinces_clause = self._build_provinces_clause(game_map)
         adjacencies_clause = self._build_adjacencies_clause(game_map)
 
-        self._bytes = bytes(daide.tokens.MDF) \
+        self._bytes = bytes(tokens.MDF) \
                       + powers_clause \
                       + provinces_clause \
                       + adjacencies_clause
@@ -133,7 +133,7 @@ class MapDefinitionResponse(DaideResponse):
         power_names.sort()
 
         # (Powers): (power power ...)
-        powers_clause = [bytes(parse_string(daide.clauses.Power, power_name)) for power_name in power_names]
+        powers_clause = [bytes(parse_string(Power, power_name)) for power_name in power_names]
         powers_clause = add_parentheses(b''.join(powers_clause))
         return powers_clause
 
@@ -174,9 +174,9 @@ class MapDefinitionResponse(DaideResponse):
         for power_name, centers in power_names_centers:
             centers.sort()
 
-            power_scs_clause = [bytes(parse_string(daide.clauses.Power, power_name))]
+            power_scs_clause = [bytes(parse_string(Power, power_name))]
             for center in centers:
-                power_scs_clause.append(bytes(parse_string(daide.clauses.Province, center)))
+                power_scs_clause.append(bytes(parse_string(Province, center)))
                 unowned_scs.remove(center)
 
             # (Power supply centers): (power centre centre ...)
@@ -184,8 +184,8 @@ class MapDefinitionResponse(DaideResponse):
             scs_clause.append(power_scs_clause)
 
         # (Power supply centers): (power centre centre ...)
-        power_scs_clause = [bytes(daide.tokens.UNO)]
-        power_scs_clause += [bytes(parse_string(daide.clauses.Province, center)) for center in unowned_scs]
+        power_scs_clause = [bytes(tokens.UNO)]
+        power_scs_clause += [bytes(parse_string(Province, center)) for center in unowned_scs]
         power_scs_clause = add_parentheses(b''.join(power_scs_clause))
 
         # (Supply centers): ((power centre centre ...) (power centre centre ...) ...)
@@ -199,7 +199,7 @@ class MapDefinitionResponse(DaideResponse):
                 continue
 
             province = province[:3].upper()
-            province_clause = bytes(parse_string(daide.clauses.Province, province))
+            province_clause = bytes(parse_string(Province, province))
             if province_clause not in non_scs_clause and province not in game_map.scs:
                 non_scs_clause.append(province_clause)
 
@@ -252,13 +252,13 @@ class MapDefinitionResponse(DaideResponse):
                 if coast == 'A':
                     for dest in sorted(game_map.dest_with_coasts[province]):
                         if game_map.abuts('A', province, '-', dest):
-                            adjacencies[province]['A'].append(bytes(parse_string(daide.clauses.Province, dest)))
+                            adjacencies[province]['A'].append(bytes(parse_string(Province, dest)))
 
                 # Fleet adjacencies
                 else:
                     for dest in sorted(game_map.dest_with_coasts[province + coast]):
                         if game_map.abuts('F', province + coast, '-', dest):
-                            adjacencies[province][coast].append(bytes(parse_string(daide.clauses.Province, dest)))
+                            adjacencies[province][coast].append(bytes(parse_string(Province, dest)))
 
             # If province has coasts ('/NC', '/SC'), removing the adjacency for fleets without coast
             if len(adjacencies[province]) > 2:
@@ -267,7 +267,7 @@ class MapDefinitionResponse(DaideResponse):
         # Building adjacencies clause
         adjacencies_clause = []
         for province in adjacencies:
-            prov_adjacencies_clause = [bytes(parse_string(daide.clauses.Province, province))]
+            prov_adjacencies_clause = [bytes(parse_string(Province, province))]
 
             for coast in ('A', '', '/EC', '/NC', '/SC', '/WC'):
                 if coast not in adjacencies[province]:
@@ -277,21 +277,21 @@ class MapDefinitionResponse(DaideResponse):
 
                 # (Army adjacencies): (AMY adjacent_prov adjacent_prov ...)
                 if coast == 'A':
-                    amy_adjacencies_clause = [bytes(daide.tokens.AMY)] + adjacencies[province][coast]
+                    amy_adjacencies_clause = [bytes(tokens.AMY)] + adjacencies[province][coast]
                     amy_adjacencies_clause = add_parentheses(b''.join(amy_adjacencies_clause))
                     prov_adjacencies_clause.append(amy_adjacencies_clause)
 
                 # (Fleet provinces): (FLT adjacent_prov adjacent_prov ...)
                 elif coast == '':
-                    flt_adjacencies_clause = [bytes(daide.tokens.FLT)] + adjacencies[province][coast]
+                    flt_adjacencies_clause = [bytes(tokens.FLT)] + adjacencies[province][coast]
                     flt_adjacencies_clause = add_parentheses(b''.join(flt_adjacencies_clause))
                     prov_adjacencies_clause.append(flt_adjacencies_clause)
 
                 # (Fleet coast): (FLT coast)
                 # (Fleet coast provinces): ((FLT coast) adjacent_prov adjacent_prov ...)
                 else:
-                    flt_clause = bytes(daide.tokens.FLT)
-                    coast_clause = bytes(parse_string(daide.clauses.Province, coast))
+                    flt_clause = bytes(tokens.FLT)
+                    coast_clause = bytes(parse_string(Province, coast))
                     coast_flt_adjacencies_clause = [add_parentheses(flt_clause + coast_clause)] \
                                                    + adjacencies[province][coast]
                     coast_flt_adjacencies_clause = add_parentheses(b''.join(coast_flt_adjacencies_clause))
@@ -334,22 +334,22 @@ class HelloResponse(DaideResponse):
             :param rules: The list of game rules.
         """
         super(HelloResponse, self).__init__(**kwargs)
-        power = parse_string(daide.clauses.Power, power_name)
+        power = parse_string(Power, power_name)
         passcode = Token(from_int=passcode)
 
         if 'NO_PRESS' in rules:
             level = 0
-        variants = add_parentheses(bytes(daide.tokens.LVL) + bytes(Token(from_int=level)))
+        variants = add_parentheses(bytes(tokens.LVL) + bytes(Token(from_int=level)))
 
         if deadline > 0:
-            variants += add_parentheses(bytes(daide.tokens.MTL) + bytes(Token(from_int=deadline)))
-            variants += add_parentheses(bytes(daide.tokens.RTL) + bytes(Token(from_int=deadline)))
-            variants += add_parentheses(bytes(daide.tokens.BTL) + bytes(Token(from_int=deadline)))
+            variants += add_parentheses(bytes(tokens.MTL) + bytes(Token(from_int=deadline)))
+            variants += add_parentheses(bytes(tokens.RTL) + bytes(Token(from_int=deadline)))
+            variants += add_parentheses(bytes(tokens.BTL) + bytes(Token(from_int=deadline)))
 
         if 'NO_CHECK' in rules:
-            variants += add_parentheses(bytes(daide.tokens.AOA))
+            variants += add_parentheses(bytes(tokens.AOA))
 
-        self._bytes = bytes(daide.tokens.HLO) \
+        self._bytes = bytes(tokens.HLO) \
                       + add_parentheses(bytes(power)) \
                       + add_parentheses(bytes(passcode)) \
                       + add_parentheses(bytes(variants))
@@ -370,28 +370,28 @@ class SupplyCenterResponse(DaideResponse):
 
         # Parsing each power
         for power_name, centers in powers_centers.items():
-            power_clause = parse_string(daide.clauses.Power, power_name)
+            power_clause = parse_string(Power, power_name)
             power_bytes = bytes(power_clause)
 
             for center in centers:
-                sc_clause = parse_string(daide.clauses.Province, center)
+                sc_clause = parse_string(Province, center)
                 power_bytes += bytes(sc_clause)
                 remaining_scs.remove(center)
 
             all_powers_bytes += [power_bytes]
 
         # Parsing unowned center
-        uno_token = daide.tokens.UNO
+        uno_token = tokens.UNO
         power_bytes = bytes(uno_token)
 
         for center in remaining_scs:
-            sc_clause = parse_string(daide.clauses.Province, center)
+            sc_clause = parse_string(Province, center)
             power_bytes += bytes(sc_clause)
 
         all_powers_bytes += [power_bytes]
 
         # Storing full response
-        self._bytes = bytes(daide.tokens.SCO) \
+        self._bytes = bytes(tokens.SCO) \
                       + b''.join([add_parentheses(power_bytes) for power_bytes in all_powers_bytes])
 
 class CurrentPositionResponse(DaideResponse):
@@ -412,27 +412,26 @@ class CurrentPositionResponse(DaideResponse):
         units_bytes_buffer = []
 
         # Turn
-        turn_clause = parse_string(daide.clauses.Turn, phase_name)
+        turn_clause = parse_string(Turn, phase_name)
 
         # Units
         for power_name, units in powers_units.items():
             # Regular units
             for unit in units:
-                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power_name, unit))
+                unit_clause = parse_string(Unit, '%s %s' % (power_name, unit))
                 units_bytes_buffer += [bytes(unit_clause)]
 
             # Dislodged units
             for unit, retreat_provinces in powers_retreats[power_name].items():
-                unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power_name, unit))
-                retreat_clauses = [parse_string(daide.clauses.Province, province)
-                                   for province in retreat_provinces]
+                unit_clause = parse_string(Unit, '%s %s' % (power_name, unit))
+                retreat_clauses = [parse_string(Province, province) for province in retreat_provinces]
                 units_bytes_buffer += [add_parentheses(strip_parentheses(bytes(unit_clause))
-                                                       + bytes(daide.tokens.MRT)
+                                                       + bytes(tokens.MRT)
                                                        + add_parentheses(b''.join([bytes(province)
                                                                                    for province in retreat_clauses])))]
 
         # Storing full response
-        self._bytes = bytes(daide.tokens.NOW) + bytes(turn_clause) + b''.join(units_bytes_buffer)
+        self._bytes = bytes(tokens.NOW) + bytes(turn_clause) + b''.join(units_bytes_buffer)
 
 class ThanksResponse(DaideResponse):
     """ Represents a THX DAIDE response. Sends the result of an order after submission.
@@ -465,13 +464,13 @@ class ThanksResponse(DaideResponse):
             :param results: An array containing the error codes.
         """
         super(ThanksResponse, self).__init__(**kwargs)
-        note_clause = None
-        if not results or 0 in results:         # Order success response
-            note_clause = daide.tokens.MBV
-        else:                                   # Generic order failure response
-            note_clause = daide.tokens.NYU
+        if not results or 0 in results:                 # Order success response
+            note_clause = tokens.MBV
+        else:                                           # Generic order failure response
+            note_clause = tokens.NYU
 
-        self._bytes = bytes(daide.tokens.THX) + order_bytes + add_parentheses(bytes(note_clause))
+        # Storing full response
+        self._bytes = bytes(tokens.THX) + order_bytes + add_parentheses(bytes(note_clause))
 
 class MissingOrdersResponse(DaideResponse):
     """ Represents a MIS DAIDE response. Sends the list of unit for which an order is missing or indication about
@@ -506,8 +505,8 @@ class MissingOrdersResponse(DaideResponse):
                 units_with_no_order.remove(unit)
 
         # Storing full response
-        self._bytes = bytes(daide.tokens.MIS) + \
-                      b''.join([bytes(parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit)))
+        self._bytes = bytes(tokens.MIS) + \
+                      b''.join([bytes(parse_string(Unit, '%s %s' % (power.name, unit)))
                                 for unit in units_with_no_order])
 
     def _build_retreat_phase(self, power):
@@ -522,18 +521,17 @@ class MissingOrdersResponse(DaideResponse):
             if key[0] in 'RIO':                     # No-check game (key is INVALID, ORDER x, REORDER x)
                 unit = ' '.join(value.split()[:2])
             if unit in units_with_no_order:
-                units_with_no_order.remove(unit)
+                del units_with_no_order[unit]
 
         for unit, retreat_provinces in units_with_no_order.items():
-            unit_clause = parse_string(daide.clauses.Unit, '%s %s' % (power.name, unit))
-            retreat_clauses = [parse_string(daide.clauses.Province, province)
-                               for province in retreat_provinces]
+            unit_clause = parse_string(Unit, '%s %s' % (power.name, unit))
+            retreat_clauses = [parse_string(Province, province) for province in retreat_provinces]
             units_bytes_buffer += [add_parentheses(strip_parentheses(bytes(unit_clause))
-                                                   + bytes(daide.tokens.MRT)
+                                                   + bytes(tokens.MRT)
                                                    + add_parentheses(b''.join([bytes(province)
                                                                                for province in retreat_clauses])))]
 
-        self._bytes = bytes(daide.tokens.MIS) + b''.join(units_bytes_buffer)
+        self._bytes = bytes(tokens.MIS) + b''.join(units_bytes_buffer)
 
     def _build_adjustment_phase(self, power):
         """ Builds the missing orders response for a build phase """
@@ -553,7 +551,7 @@ class MissingOrdersResponse(DaideResponse):
 
             disbands_status = max(-len(available_homes), disbands_status)
 
-        self._bytes += bytes(daide.tokens.MIS) + add_parentheses(bytes(daide.tokens.Token(from_int=disbands_status)))
+        self._bytes += bytes(tokens.MIS) + add_parentheses(bytes(Token(from_int=disbands_status)))
 
 class OrderResultResponse(DaideResponse):
     """ Represents a ORD DAIDE response. Sends the result of an order after the turn has been processed.
@@ -575,14 +573,13 @@ class OrderResultResponse(DaideResponse):
             :param results: An array containing the error codes.
         """
         super(OrderResultResponse, self).__init__(**kwargs)
-        turn_clause = parse_string(daide.clauses.Turn, phase_name)
-        result_clause = None
-        if not results or 0 in results:         # Order success response
-            result_clause = daide.tokens.SUC
-        else:                                   # Generic order failure response
-            result_clause = daide.tokens.NSO
+        turn_clause = parse_string(Turn, phase_name)
+        if not results or 0 in results:                 # Order success response
+            result_clause = tokens.SUC
+        else:                                           # Generic order failure response
+            result_clause = tokens.NSO
 
-        self._bytes = bytes(daide.tokens.ORD) + bytes(turn_clause) + add_parentheses(order_bytes) + \
+        self._bytes = bytes(tokens.ORD) + bytes(turn_clause) + add_parentheses(order_bytes) + \
                       add_parentheses(bytes(result_clause))
 
 class TimeToDeadlineResponse(DaideResponse):
@@ -595,7 +592,7 @@ class TimeToDeadlineResponse(DaideResponse):
             :param seconds: Integer. The number of seconds before deadline
         """
         super(TimeToDeadlineResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.TME) + add_parentheses(bytes(daide.tokens.Token(from_int=seconds)))
+        self._bytes = bytes(tokens.TME) + add_parentheses(bytes(Token(from_int=seconds)))
 
 class AcceptResponse(DaideResponse):
     """ Represents a YES DAIDE request.
@@ -622,7 +619,7 @@ class AcceptResponse(DaideResponse):
             :param request_bytes: The bytes received for the request
         """
         super(AcceptResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.YES) + add_parentheses(request_bytes)
+        self._bytes = bytes(tokens.YES) + add_parentheses(request_bytes)
 
 class RejectResponse(DaideResponse):
     """ Represents a REJ DAIDE request.
@@ -658,7 +655,7 @@ class RejectResponse(DaideResponse):
             :param request_bytes: The bytes received for the request
         """
         super(RejectResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.REJ) + add_parentheses(request_bytes)
+        self._bytes = bytes(tokens.REJ) + add_parentheses(request_bytes)
 
 class NotResponse(DaideResponse):
     """ Represents a NOT DAIDE response.
@@ -670,7 +667,7 @@ class NotResponse(DaideResponse):
             :param response_bytes: The bytes received for the request
         """
         super(NotResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.NOT) + add_parentheses(response_bytes)
+        self._bytes = bytes(tokens.NOT) + add_parentheses(response_bytes)
 
 class PowerInCivilDisorderResponse(DaideResponse):
     """ Represents a CCD DAIDE response. Sends the name of the power in civil disorder.
@@ -682,8 +679,8 @@ class PowerInCivilDisorderResponse(DaideResponse):
             :param power_name: The name of the power being played.
         """
         super(PowerInCivilDisorderResponse, self).__init__(**kwargs)
-        power = parse_string(daide.clauses.Power, power_name)
-        self._bytes = bytes(daide.tokens.CCD) + add_parentheses(bytes(power))
+        power = parse_string(Power, power_name)
+        self._bytes = bytes(tokens.CCD) + add_parentheses(bytes(power))
 
 class PowerIsEliminatedResponse(DaideResponse):
     """ Represents a OUT DAIDE response. Sends the name of the power eliminated.
@@ -695,8 +692,8 @@ class PowerIsEliminatedResponse(DaideResponse):
             :param power_name: The name of the power being played.
         """
         super(PowerIsEliminatedResponse, self).__init__(**kwargs)
-        power = parse_string(daide.clauses.Power, power_name)
-        self._bytes = bytes(daide.tokens.OUT) + add_parentheses(bytes(power))
+        power = parse_string(Power, power_name)
+        self._bytes = bytes(tokens.OUT) + add_parentheses(bytes(power))
 
 class ParenthesisErrorResponse(DaideResponse):
     """ Represents a PRN DAIDE response.
@@ -708,7 +705,7 @@ class ParenthesisErrorResponse(DaideResponse):
             :param request_bytes: The bytes received for the request
         """
         super(ParenthesisErrorResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.PRN) + add_parentheses(request_bytes)
+        self._bytes = bytes(tokens.PRN) + add_parentheses(request_bytes)
 
 class SyntaxErrorResponse(DaideResponse):
     """ Represents a HUH DAIDE response.
@@ -721,9 +718,8 @@ class SyntaxErrorResponse(DaideResponse):
             :param error_index: The index of the faulty token
         """
         super(SyntaxErrorResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.HUH) + add_parentheses(request_bytes[:error_index] +
-                                                                bytes(daide.tokens.ERR) +
-                                                                request_bytes[error_index:])
+        message_with_err = request_bytes[:error_index] + bytes(tokens.ERR) + request_bytes[error_index:]
+        self._bytes = bytes(tokens.HUH) + add_parentheses(message_with_err)
 
 class TurnOffResponse(DaideResponse):
     """ Represents an OFF DAIDE response. Requests a client to exit
@@ -734,7 +730,7 @@ class TurnOffResponse(DaideResponse):
         """ Builds the response
         """
         super(TurnOffResponse, self).__init__(**kwargs)
-        self._bytes = bytes(daide.tokens.OFF)
+        self._bytes = bytes(tokens.OFF)
 
 MAP = MapNameResponse
 MDF = MapDefinitionResponse
