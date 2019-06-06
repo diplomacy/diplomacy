@@ -143,7 +143,7 @@ class ParserType(metaclass=ABCMeta):
     """ Abstract base class to check a specific type. """
     __slots__ = []
     # We include dict into primitive types to allow parser to accept raw untyped dict (e.g. engine game state).
-    primitives = (int, float, bool, str, dict)
+    primitives = (bytes, int, float, bool, str, dict)
 
     @abstractmethod
     def validate(self, element):
