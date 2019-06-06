@@ -76,7 +76,7 @@ def _build_completed_notifications(server_users, has_draw_vote, powers, state_hi
     for phase, state in state_history.items():
         eliminated_powers = [power_name for power_name, units in state['units'].items()
                              if not powers_year_of_elimination[power_name] and
-                             all(unit.startswith('*') for unit in units)]
+                             (all(unit.startswith('*') for unit in units) or not units)]
         for power_name in eliminated_powers:
             powers_year_of_elimination[power_name] = splitter.PhaseSplitter(phase.value).year
 

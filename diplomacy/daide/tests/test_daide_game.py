@@ -20,7 +20,6 @@ import logging
 import os
 import random
 import signal
-import socket
 
 from tornado import gen
 from tornado.concurrent import chain_future, Future
@@ -33,6 +32,7 @@ from diplomacy.daide import messages, tokens
 from diplomacy.daide.tokens import Token
 from diplomacy.daide.utils import str_to_bytes, bytes_to_str
 from diplomacy.server.server_game import ServerGame
+from diplomacy.server.server import is_port_opened
 from diplomacy.client.connection import connect
 from diplomacy.utils import common, strings
 from diplomacy.utils.splitter import PhaseSplitter
@@ -45,17 +45,6 @@ FILE_FOLDER_NAME = os.path.abspath(os.path.dirname(__file__))
 # Named Tuples
 DaideComm = namedtuple('DaideComm', ['client_id', 'request', 'resp_notifs'])
 ClientRequest = namedtuple('ClientRequest', ['client', 'request'])
-
-def is_port_opened(port, hostname=HOSTNAME):
-    """ Checks if the specified port is opened
-        :param port: The port to check
-        :param hostname: The hostname to check, defaults to '127.0.0.1'
-    """
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    result = sock.connect_ex((hostname, port))
-    if result == 0:
-        return True
-    return False
 
 # Adapted from: https://stackoverflow.com/questions/492519/timeout-on-a-function-call
 def run_with_timeout(callable_fn, timeout):
@@ -345,7 +334,7 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         """ Concrete call to main function. """
         port = random.randint(9000, 9999)
 
-        while is_port_opened(port):
+        while is_port_opened(port, HOSTNAME):
             port = random.randint(9000, 9999)
 
         server.start(port=port)
@@ -418,30 +407,42 @@ def run_game_data(nb_daide_clients, rules, csv_file):
 
 def test_game_reject_map():
     """ Test a game where the client rejects the map """
+    # Initialize cache to prevent timeouts during tests
+    Server()
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1_reject_map.csv')
-    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
+    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_1():
     """ Test a complete 1 player game """
+    # Initialize cache to prevent timeouts during tests
+    Server()
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1.csv')
     run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_history():
     """ Test a complete 1 player game and validate the full history (except last phase) """
+    # Initialize cache to prevent timeouts during tests
+    Server()
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1_history.csv')
     run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_7():
     """ Test a complete 7 players game """
+    # Initialize cache to prevent timeouts during tests
+    Server()
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7.csv')
     run_with_timeout(lambda: run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_7_draw():
     """ Test a complete 7 players game that ends with a draw """
+    # Initialize cache to prevent timeouts during tests
+    Server()
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7_draw.csv')
     run_with_timeout(lambda: run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_7_press():
     """ Test a complete 7 players game with press """
+    # Initialize cache to prevent timeouts during tests
+    Server()
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7_press.csv')
     run_with_timeout(lambda: run_game_data(7, ['IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)

@@ -51,6 +51,7 @@ import base64
 import logging
 import os
 from random import randint
+import socket
 import signal
 
 import tornado
@@ -75,6 +76,17 @@ from diplomacy.engine.map import Map
 from diplomacy.utils import common, exceptions, strings, constants
 
 LOGGER = logging.getLogger(__name__)
+
+def is_port_opened(port, hostname="localhost"):
+    """ Checks if the specified port is opened
+        :param port: The port to check
+        :param hostname: The hostname to check, defaults to '127.0.0.1'
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    result = sock.connect_ex((hostname, port))
+    if result == 0:
+        return True
+    return False
 
 def get_absolute_path(directory=None):
     """ Return absolute path of given directory.
@@ -818,7 +830,7 @@ class Server():
             if server.game_id == game_id:
                 return None
 
-        while port in self.daide_servers or port is None:
+        while port is None or is_port_opened(port):
             port = randint(8000, 8999)
 
         # Create DAIDE TCP server
