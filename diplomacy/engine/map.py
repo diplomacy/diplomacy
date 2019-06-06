@@ -217,6 +217,21 @@ class Map():
                         and not (place.islower() and self.area_type(loc) == 'WATER'):
                     self.error.append(err.MAP_ONE_WAY_ADJ % (place, loc))
 
+            # Loc without coasts (e.g. 'spa' on the standard map) need to be adjacent to all nearby water locations
+            # Computing the list of water locs adjacent from coast locs (e.g. 'SPA/NC') and making sure they
+            # are also adjacent to the coast without loc (i.e. 'spa')
+            if place != place.lower():
+                continue
+
+            adj_water_locs = set()
+            for coast_loc in self.find_coasts(place):
+                if coast_loc.upper() == place.upper():
+                    continue
+                adj_water_locs |= {loc.upper() for loc in self.loc_abut[coast_loc] if self.area_type(loc) == 'WATER'}
+            missing_water_locs = adj_water_locs - set(up_abuts)
+            for water_loc in missing_water_locs:
+                self.error.append(err.MAP_MISSING_ADJ % (place, water_loc))
+
         # Validating home centers
         for power_name, places in self.homes.items():
             for site in places:
