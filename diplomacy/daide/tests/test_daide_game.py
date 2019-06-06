@@ -23,7 +23,7 @@ import signal
 import socket
 
 from tornado import gen
-from tornado.concurrent import Future
+from tornado.concurrent import chain_future, Future
 from tornado.ioloop import IOLoop
 from tornado.iostream import StreamClosedError
 from tornado.tcpclient import TCPClient
@@ -198,7 +198,7 @@ class ClientCommsSimulator():
         yield self._stream.write(bytes(message))
 
     @gen.coroutine
-    def validate_resp_notif(self, expected_resp_notifs):
+    def validate_resp_notifs(self, expected_resp_notifs):
         """ Validate that expected response / notifications are received regardless of the order
             :param expected_resp_notifs: the response / notifications to receive
         """
@@ -242,7 +242,12 @@ class ClientCommsSimulator():
                     expected_resp_notif, self._comms = self.pop_next_resp_notif(self._comms)
 
                 if expected_resp_notifs:
-                    yield self.validate_resp_notif(expected_resp_notifs)
+                    future = self.validate_resp_notifs(expected_resp_notifs)
+                    @gen.coroutine
+                    def validate_resp_notifs():
+                        yield future
+                    run_with_timeout(validate_resp_notifs, 1)
+                    yield future
                     break
 
         except StreamClosedError as err:
@@ -280,10 +285,8 @@ class ClientsCommsSimulator():
         yield connection.connection.close()
 
     @gen.coroutine
-    def execute(self, future):
-        """ Executes the communications between clients
-            :param future: the future to update when the execution is completed
-        """
+    def execute(self):
+        """ Executes the communications between clients """
         try:
             # Synchronize clients joining the game
             while self._comms and (
@@ -307,7 +310,7 @@ class ClientsCommsSimulator():
                     expected_resp_notif, self._comms = client.pop_next_resp_notif(self._comms)
 
                     while expected_resp_notif is not None:
-                        yield client.validate_resp_notif([expected_resp_notif])
+                        yield client.validate_resp_notifs([expected_resp_notif])
                         expected_resp_notif, self._comms = client.pop_next_resp_notif(self._comms)
 
         except StreamClosedError as err:
@@ -325,8 +328,6 @@ class ClientsCommsSimulator():
             execution_running = yield [client.execute_phase() for client in self._clients.values()]
 
         assert all(not client.comms for client in self._clients.values())
-
-        future.set_result(None)
 
 def run_game_data(nb_daide_clients, rules, csv_file):
     """ Start a server and a client to test DAIDE communications
@@ -368,11 +369,14 @@ def run_game_data(nb_daide_clients, rules, csv_file):
 
         comms_simulator = ClientsCommsSimulator(nb_daide_clients, csv_file)
         yield comms_simulator.retrieve_game_port(HOSTNAME, port, server_game.game_id)
-        daide_future = Future()
-        comms_simulator.execute(daide_future)
+
+        # done_future is only used to prevent pylint E1101 errors on daide_future
+        done_future = Future()
+        daide_future = comms_simulator.execute()
+        chain_future(daide_future, done_future)
 
         for _ in range(3 + nb_daide_clients):
-            if daide_future.done() or server_game.count_controlled_powers() == nb_daide_clients + nb_regular_players:
+            if done_future.done() or server_game.count_controlled_powers() == nb_daide_clients + nb_regular_players:
                 break
             yield gen.sleep(2.5)
         else:
@@ -381,12 +385,12 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         if user_game:
             phase = PhaseSplitter(server_game.get_current_phase())
 
-            while not daide_future.done() and server_game.status == strings.ACTIVE:
+            while not done_future.done() and server_game.status == strings.ACTIVE:
                 yield user_game.wait()
                 yield user_game.set_orders(orders=[])
                 yield user_game.no_wait()
 
-                while not daide_future.done() and phase.input_str == server_game.get_current_phase():
+                while not done_future.done() and phase.input_str == server_game.get_current_phase():
                     yield gen.sleep(2.5)
 
                 if server_game.status != strings.ACTIVE:
