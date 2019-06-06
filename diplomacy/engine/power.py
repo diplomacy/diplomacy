@@ -275,7 +275,10 @@ class Power(Jsonable):
         """ Removes all units from the map """
         for unit in self.units:
             self.game.update_hash(self.name, unit_type=unit[0], loc=unit[2:])
+        for unit in self.retreats:
+            self.game.update_hash(self.name, unit_type=unit[0], loc=unit[2:], is_dislodged=True)
         self.units = []
+        self.retreats = {}
         self.influence = []
         self.game.clear_cache()
 
