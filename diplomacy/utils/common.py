@@ -188,6 +188,64 @@ def str_cmp_class(compare_function):
     StringComparator.__name__ = 'StringComparator%s' % (id(compare_function))
     return StringComparator
 
+class StringableCode():
+    """ Represents a stringable version of a code (with an optional message) """
+    def __init__(self, code, message=None):
+        """ Build a StringableCode
+            :param code: int - code
+            :param message: Optional. human readable string message associated to the cide
+        """
+        if isinstance(code, str) or message is None:
+            message = code
+            code = None
+
+        if code is None:
+            message_parts = message.split(':')
+            if message_parts and message_parts[0].isdigit():
+                code = int(message_parts[0])
+                message = ':'.join(message_parts[1:])
+            elif len(message_parts) == 1:
+                message = message_parts[0]
+
+        self._code = code
+        self._message = message
+
+    def __eq__(self, other):
+        """ Define the equal """
+        if isinstance(other, StringableCode):
+            return self._code == other.code
+        return self._message == str(other)
+
+    def __hash__(self):
+        """ Define the hash """
+        return hash(self._message)
+
+    def __mod__(self, values):
+        """ Define the modulus. Apply the modulus on the message """
+        return StringableCode(self._code, self._message % values)
+
+    def __str__(self):
+        """ Defines the str representation """
+        return str(self.message)
+
+    def __repr__(self):
+        """ Define the string representation """
+        return '{}:{}'.format(self._code, self._message)
+
+    @property
+    def code(self):
+        """ Return the code of the result """
+        return self._code
+
+    @property
+    def message(self):
+        """ Return the message of the result """
+        return self._message
+
+    def format(self, *values):
+        """ Format the message of the result """
+        return StringableCode(self._code, self._message.format(*values))
+
 class Tornado():
     """ Utilities for Tornado. """
 
