@@ -27,9 +27,10 @@ MODULE_PATH = sys.modules['diplomacy'].__path__[0]
 
 def test_map_creation():
     """ Tests for map creation """
-    maps = glob.glob(os.path.join(MODULE_PATH, 'diplomacy', 'maps', '*.map'))
+    maps = glob.glob(os.path.join(MODULE_PATH, 'maps', '*.map'))
+    assert maps, 'Expected maps to be found.'
     for current_map in maps:
         map_name = current_map[current_map.rfind('/') + 1:].replace('.map', '')
         this_map = Map(map_name)
         assert this_map.error == [], 'Map %s should have no errors' % map_name
-        this_map = None
+        del this_map
