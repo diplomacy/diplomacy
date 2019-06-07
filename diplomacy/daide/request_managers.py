@@ -507,7 +507,7 @@ def on_accept_request(server, request, connection_handler, game):
             power_names = [power_name for power_name, power in game.powers.items() if not power.is_controlled()]
             if not power_names:
                 return [responses.OFF()]
-            power_name = power_names[0]
+            power_name = sorted(power_names)[0]
 
             join_game_request = internal_requests.JoinGame(game_id=game.game_id,
                                                            power_name=power_name,

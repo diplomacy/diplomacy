@@ -106,9 +106,9 @@ def test_mis_001():
 
 def test_mis_002():
     """ Tests the MIS response """
-    daide_str = 'MIS ( TUR FLT ANK MRT ( ARM ) ) ' \
-                '( TUR FLT CON MRT ( BLA SMY ( BUL ECS ) ( BUL SCS ) ) ) ' \
-                '( TUR AMY SMY MRT ( SYR ) )'
+    daide_str = 'MIS ( TUR AMY SMY MRT ( SYR ) ) ' \
+                '( TUR FLT ANK MRT ( ARM ) ) ' \
+                '( TUR FLT CON MRT ( BLA SMY ( BUL ECS ) ( BUL SCS ) ) )'
     game = Game(map_name='standard')
     phase_name = 'S1901R'
     power = game.get_power('TURKEY')

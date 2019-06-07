@@ -122,7 +122,8 @@ class SupplyCenterNotification(DaideNotification):
         all_powers_bytes = []
 
         # Parsing each power
-        for power_name, centers in powers_centers.items():
+        for power_name in sorted(powers_centers.keys()):
+            centers = sorted(powers_centers[power_name])
             power_clause = parse_string(Power, power_name)
             power_bytes = bytes(power_clause)
 
@@ -167,14 +168,17 @@ class CurrentPositionNotification(DaideNotification):
         turn_clause = parse_string(Turn, phase_name)
 
         # Units
-        for power_name, units in powers_units.items():
+        for power_name in sorted(powers_units.keys()):
+            units = powers_units[power_name]
             # Regular units
             for unit in units:
                 unit_clause = parse_string(Unit, '%s %s' % (power_name, unit))
                 units_bytes_buffer += [bytes(unit_clause)]
 
             # Dislodged units
-            for unit, retreat_provinces in powers_retreats[power_name].items():
+            retreats = powers_retreats[power_name]
+            for unit in sorted(retreats.keys()):
+                retreat_provinces = retreats[unit]
                 unit_clause = parse_string(Unit, '%s %s' % (power_name, unit))
                 retreat_clauses = [parse_string(Province, province) for province in retreat_provinces]
                 units_bytes_buffer += [add_parentheses(strip_parentheses(bytes(unit_clause))
@@ -210,7 +214,8 @@ class MissingOrdersNotification(DaideNotification):
         units_with_no_order = [unit for unit in power.units]
 
         # Removing units for which we have orders
-        for key, value in power.orders.items():
+        for key in sorted(power.orders.keys()):
+            value = power.orders[key]
             unit = key                              # Regular game {e.g. 'A PAR': '- BUR')
             if key[0] in 'RIO':                     # No-check game (key is INVALID, ORDER x, REORDER x)
                 unit = ' '.join(value.split()[:2])
@@ -229,14 +234,16 @@ class MissingOrdersNotification(DaideNotification):
         units_with_no_order = {unit: retreat_provinces for unit, retreat_provinces in power.retreats.items()}
 
         # Removing units for which we have orders
-        for key, value in power.orders.items():
+        for key in sorted(power.orders.keys()):
+            value = power.orders[key]
             unit = key                              # Regular game {e.g. 'A PAR': '- BUR')
             if key[0] in 'RIO':                     # No-check game (key is INVALID, ORDER x, REORDER x)
                 unit = ' '.join(value.split()[:2])
             if unit in units_with_no_order:
                 del units_with_no_order[unit]
 
-        for unit, retreat_provinces in units_with_no_order.items():
+        for unit in sorted(units_with_no_order.keys()):
+            retreat_provinces = units_with_no_order[unit]
             unit_clause = parse_string(Unit, '%s %s' % (power.name, unit))
             retreat_clauses = [parse_string(Province, province)
                                for province in retreat_provinces]

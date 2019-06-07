@@ -419,24 +419,29 @@ def run_game_data(nb_daide_clients, rules, csv_file):
 def test_game_reject_map():
     """ Test a game where the client rejects the map """
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1_reject_map.csv')
-    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 15)
+    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
 
 def test_game_1():
     """ Test a complete 1 player game """
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1.csv')
-    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
+    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_history():
     """ Test a complete 1 player game and validate the full history (except last phase) """
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_1_history.csv')
-    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
+    run_with_timeout(lambda: run_game_data(1, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_7():
     """ Test a complete 7 players game """
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7.csv')
-    run_with_timeout(lambda: run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
+    run_with_timeout(lambda: run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
+
+def test_game_7_draw():
+    """ Test a complete 7 players game that ends with a draw """
+    game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7_draw.csv')
+    run_with_timeout(lambda: run_game_data(7, ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
 
 def test_game_7_press():
     """ Test a complete 7 players game with press """
     game_path = os.path.join(FILE_FOLDER_NAME, 'game_data_7_press.csv')
-    run_with_timeout(lambda: run_game_data(7, ['IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 30)
+    run_with_timeout(lambda: run_game_data(7, ['IGNORE_ERRORS', 'POWER_CHOICE'], game_path), 60)
