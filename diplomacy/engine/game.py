@@ -996,10 +996,20 @@ class Game(Jsonable):
                 continue
             unit_type, unit_loc = word
             if unit_type in ('A', 'F') and unit_loc in [loc.upper() for loc in self.map.locs]:
-                abuts = [abut.upper() for abut in self.map.abut_list(unit_loc, incl_no_coast=True)
-                         if self._abuts(unit_type, unit_loc, '-', abut.upper())]
                 if power and unit not in power.retreats:
                     self.update_hash(power_name, unit_type=unit_type, loc=unit_loc, is_dislodged=True)
+                    power.retreats[unit] = []
+
+        # Set retreats locations for all powers
+        if self.get_current_phase()[-1] == 'R':
+            for power in self.powers.values():
+                for unit in power.retreats:
+                    word = unit.upper().split()
+                    if len(word) != 2:
+                        continue
+                    unit_type, unit_loc = word
+                    abuts = [abut.upper() for abut in self.map.abut_list(unit_loc, incl_no_coast=True)
+                             if self._abuts(unit_type, unit_loc, '-', abut.upper()) and not self._occupant(abut)]
                     power.retreats[unit] = abuts
 
         # Clearing cache
@@ -1402,6 +1412,7 @@ class Game(Jsonable):
         state['note'] = self.note
         state['name'] = self._phase_abbr()
         state['units'] = {}
+        state['retreats'] = {}
         state['centers'] = {}
         state['homes'] = {}
         state['influence'] = {}
@@ -1411,6 +1422,7 @@ class Game(Jsonable):
         # Setting powers data: units, centers, homes, influence and civil disorder.
         for power in self.powers.values():
             state['units'][power.name] = list(power.units) + ['*{}'.format(d) for d in power.retreats]
+            state['retreats'][power.name] = power.retreats.copy()
             state['centers'][power.name] = list(power.centers)
             state['homes'][power.name] = list(power.homes)
             state['influence'][power.name] = list(power.influence)
@@ -1453,6 +1465,11 @@ class Game(Jsonable):
         if 'units' in state:
             for power_name, units in state['units'].items():
                 self.set_units(power_name, units, reset=True)
+        if 'retreats' in state:
+            for power in self.powers.values():
+                for unit in power.retreats:
+                    if power.name in state['retreats'] and unit in state['retreats'][power.name]:
+                        power.retreats[unit] = state['retreats'][power.name][unit]
         if 'centers' in state:
             for power_name, centers in state['centers'].items():
                 self.set_centers(power_name, centers, reset=True)
