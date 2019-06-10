@@ -18,6 +18,7 @@
     - Contains the diplomacy adjudication test cases (without order expansion)
 """
 from diplomacy.tests.test_datc import TestDATC as RootDATC
+from diplomacy.utils.order_results import OK, BOUNCE, VOID
 
 # -----------------
 # DATC TEST CASES (Without order expansion)
@@ -60,10 +61,10 @@ class TestDATCNoExpand(RootDATC):
         self.set_orders(game, 'FRANCE', ['F POR S F MAO - SPA/NC', 'F MAO - SPA/SC'])
         self.set_orders(game, 'ITALY', ['F LYO S F WES - SPA/SC', 'F WES - SPA/SC'])
         self.process(game)
-        assert self.check_results(game, 'F POR', 'void')
-        assert self.check_results(game, 'F MAO', 'bounce')
-        assert self.check_results(game, 'F LYO', '')
-        assert self.check_results(game, 'F WES', '')
+        assert self.check_results(game, 'F POR', VOID)
+        assert self.check_results(game, 'F MAO', BOUNCE)
+        assert self.check_results(game, 'F LYO', OK)
+        assert self.check_results(game, 'F WES', OK)
         assert self.owner_name(game, 'F POR') == 'FRANCE'
         assert self.owner_name(game, 'F MAO') == 'FRANCE'
         assert self.owner_name(game, 'F SPA') == 'ITALY'
