@@ -15,7 +15,26 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Settings - Contains a list of utils to help handle DAIDE communication """
+from collections import namedtuple
 from diplomacy.daide.tokens import is_integer_token, Token
+
+ClientConnection = namedtuple('ClientConnection', ['username', 'daide_user', 'token', 'power_name'])
+
+def get_user_connection(server_users, game, connection_handler):
+    """ Get the DAIDE user connection informations
+        :param server_users: The instance of `diplomacy.server.users` of the game's server
+        :param game: The game the user has joined
+        :param connection_handler: The connection_handler of the user
+        :return: A tuple of username, daide_user, token, power_name
+    """
+    token = connection_handler.token
+    username = server_users.get_name(token) if server_users.has_token(token) else None
+    daide_user = server_users.users.get(username, None)
+
+    # Assumed to be only one power name in the list
+    user_powers = [power_name for power_name, power in game.powers.items() if power.is_controlled_by(username)]
+    power_name = user_powers[0] if user_powers else None
+    return ClientConnection(username, daide_user, token, power_name)
 
 def str_to_bytes(daide_str):
     """ Converts a str into its bytes representation
