@@ -2931,7 +2931,7 @@ class Game(Jsonable):
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
-        cur_power, had_orders, has_orders, powers = power, [], [], []
+        cur_power, has_orders, powers = power, [], []
 
         # For each order
         for line in orders:
@@ -2942,26 +2942,8 @@ class Game(Jsonable):
             if not word:
                 continue
 
-            # Checking if the power can order
-            if not hasattr(who, 'orders'):
-                return self.error.append('%s HAS NO UNITS OF ITS OWN TO ORDER' % who.name)
-
-            # NMR = No Moves Received (NMR or CLEAR command)
-            nmr = (len(word) == 1
-                   and word[0][word[0][:1] in '([':len(word[0]) - (word[0][-1:] in '])')].upper() in ('NMR', 'CLEAR'))
             if who not in powers:
-
-                # Empty orders before sticking any new orders in it.
-                had_orders += [who.orders]
                 powers += [who]
-                if nmr:
-                    continue
-
-            # If CLEAR or NMR, clear orders
-            elif nmr:
-                who.orders = {}
-                has_orders = [x for x in has_orders if x is not who]
-                continue
 
             # Adds orders
             if 'NO_CHECK' in self.rules:
