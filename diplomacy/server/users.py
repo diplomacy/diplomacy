@@ -116,6 +116,10 @@ class Users(Jsonable):
         """ Return username of given token. """
         return self.token_to_username[token]
 
+    def get_user(self, username):
+        """ Returns user linked to username """
+        return self.users.get(username, None)
+
     def get_connection_handler(self, token):
         """ Return connection handler associated to given token, or None if no handler currently associated. """
         return self.token_to_connection_handler.get(token, None)
@@ -144,6 +148,10 @@ class Users(Jsonable):
         user = User(username=username, password_hash=password_hash)
         self.users[username] = user
         return user
+
+    def replace_user(self, username, new_user):
+        """ Replaces user object with a new user """
+        self.users[username] = new_user
 
     def remove_user(self, username):
         """ Remove user related to given username. """
