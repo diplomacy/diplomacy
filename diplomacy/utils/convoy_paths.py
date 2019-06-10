@@ -176,11 +176,16 @@ def add_to_cache(map_name):
 
     # Loading cache from disk (only if it's the correct version)
     if os.path.exists(DISK_CACHE_PATH):
-        cache_data = pickle.load(open(DISK_CACHE_PATH, 'rb'))
-        if cache_data.get('__version__', '') != __VERSION__:
-            print('Upgrading cache from version "%s" to "%s"' % (cache_data.get('__version__', '<N/A>'), __VERSION__))
-        else:
-            disk_convoy_paths.update(cache_data)
+        try:
+            cache_data = pickle.load(open(DISK_CACHE_PATH, 'rb'))
+            if cache_data.get('__version__', '') != __VERSION__:
+                print('Upgrading cache from "%s" to "%s"' % (cache_data.get('__version__', '<N/A>'), __VERSION__))
+            else:
+                disk_convoy_paths.update(cache_data)
+
+        # Invalid pickle file - Rebuilding
+        except (pickle.UnpicklingError, EOFError):
+            pass
 
     # Getting map MD5 hash
     map_path = os.path.join(settings.PACKAGE_DIR, 'maps', map_name + '.map')
@@ -208,9 +213,12 @@ def get_convoy_paths_cache():
 
     # Loading cache from disk (only if it's the correct version)
     if os.path.exists(DISK_CACHE_PATH):
-        cache_data = pickle.load(open(DISK_CACHE_PATH, 'rb'))
-        if cache_data.get('__version__', '') == __VERSION__:
-            disk_convoy_paths.update(cache_data)
+        try:
+            cache_data = pickle.load(open(DISK_CACHE_PATH, 'rb'))
+            if cache_data.get('__version__', '') == __VERSION__:
+                disk_convoy_paths.update(cache_data)
+        except (pickle.UnpicklingError, EOFError):
+            pass
 
     # Getting map name and file paths
     files_path = glob.glob(settings.PACKAGE_DIR + '/maps/*.map')
