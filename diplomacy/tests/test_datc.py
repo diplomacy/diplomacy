@@ -19,6 +19,7 @@
 """
 # pylint: disable=too-many-lines
 from diplomacy.engine.game import Game
+from diplomacy.utils.order_results import OK, NO_CONVOY, BOUNCE, VOID, CUT, DISLODGED, DISRUPTED, DISBAND
 
 # -----------------
 # DATC TEST CASES
@@ -100,9 +101,9 @@ class TestDATC():
 
         # Done self.processing a retreats phase
         if phase == 'R':
-            if value == 'void' and 'void' in unit_result:
+            if value == VOID and VOID in unit_result:
                 return True
-            if value == '':
+            if value == OK:
                 success = unit not in game.popped and unit_result == []
                 if not success:
                     print('Results: %s - Expected: []' % result.get(unit, '<Not Found>'))
@@ -115,7 +116,7 @@ class TestDATC():
 
         # Done self.processing a retreats phase
         if phase == 'A':
-            if value == 'void' and 'void' in unit_result:
+            if value == VOID and VOID in unit_result:
                 return True
             success = value == unit_result
             if not success:
@@ -130,8 +131,8 @@ class TestDATC():
             ordered_units += game.ordered_units[power_name]
 
         # Invalid order
-        if value == 'void':
-            if 'void' in result.get(unit, []):
+        if value == VOID:
+            if VOID in result.get(unit, []):
                 return True
             if unit not in ordered_units:
                 return True
@@ -143,7 +144,7 @@ class TestDATC():
             return False
 
         # Expected no errors
-        if value == '':
+        if value == OK:
             if order_status:
                 print('Results: %s - Expected: []' % order_status)
                 return False
@@ -176,7 +177,7 @@ class TestDATC():
         self.set_units(game, 'ENGLAND', 'F NTH')
         self.set_orders(game, 'ENGLAND', 'F NTH - PIC')
         self.process(game)
-        assert self.check_results(game, 'F NTH', 'void')
+        assert self.check_results(game, 'F NTH', VOID)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'F PIC') is None
 
@@ -191,7 +192,7 @@ class TestDATC():
         self.set_units(game, 'ENGLAND', 'A LVP')
         self.set_orders(game, 'ENGLAND', 'A LVP - IRI')
         self.process(game)
-        assert self.check_results(game, 'A LVP', 'void')
+        assert self.check_results(game, 'A LVP', VOID)
         assert self.owner_name(game, 'A LVP') == 'ENGLAND'
         assert self.owner_name(game, 'A IRI') is None
 
@@ -206,7 +207,7 @@ class TestDATC():
         self.set_units(game, 'GERMANY', 'F KIE')
         self.set_orders(game, 'GERMANY', 'F KIE - MUN')
         self.process(game)
-        assert self.check_results(game, 'F KIE', 'void')
+        assert self.check_results(game, 'F KIE', VOID)
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'F MUN') is None
 
@@ -222,7 +223,7 @@ class TestDATC():
         self.set_units(game, 'GERMANY', 'F KIE')
         self.set_orders(game, 'GERMANY', 'F KIE - KIE')
         self.process(game)
-        assert self.check_results(game, 'F KIE', 'void')
+        assert self.check_results(game, 'F KIE', VOID)
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
 
     def test_6_a_5(self):
@@ -244,12 +245,12 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F LON C A YOR - YOR', 'A YOR - YOR', 'A LVP S A YOR - YOR'])
         self.set_orders(game, 'GERMANY', ['F LON - YOR', 'A WAL S F LON - YOR'])
         self.process(game)
-        assert self.check_results(game, 'A YOR', 'void')
-        assert self.check_results(game, 'A YOR', 'dislodged')
-        assert self.check_results(game, 'A LVP', 'void')
+        assert self.check_results(game, 'A YOR', VOID)
+        assert self.check_results(game, 'A YOR', DISLODGED)
+        assert self.check_results(game, 'A LVP', VOID)
         assert check_dislodged(game, 'A YOR', 'F LON')
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'A WAL', '')
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'A WAL', OK)
         assert self.owner_name(game, 'F YOR') == 'GERMANY'
 
     def test_6_a_6(self):
@@ -264,7 +265,7 @@ class TestDATC():
         self.set_units(game, 'ENGLAND', ['F LON'])
         self.set_orders(game, 'GERMANY', ['F LON - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F LON', '')
+        assert self.check_results(game, 'F LON', OK)
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'F NTH') is None
 
@@ -281,8 +282,8 @@ class TestDATC():
         self.set_units(game, 'ENGLAND', ['F LON', 'F NTH'])
         self.set_orders(game, 'ENGLAND', ['F LON - BEL', 'F NTH C A LON - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F LON', 'void')
-        assert self.check_results(game, 'F NTH', 'void')
+        assert self.check_results(game, 'F LON', VOID)
+        assert self.check_results(game, 'F NTH', VOID)
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'F BEL') is None
@@ -292,8 +293,8 @@ class TestDATC():
         self.set_units(game, 'ENGLAND', ['F LON', 'F NTH'])
         self.set_orders(game, 'ENGLAND', ['F LON - BEL', 'F NTH C LON - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F LON', 'void')
-        assert self.check_results(game, 'F NTH', 'void')
+        assert self.check_results(game, 'F LON', VOID)
+        assert self.check_results(game, 'F NTH', VOID)
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'F BEL') is None
@@ -314,8 +315,8 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['A VEN - TRI', 'A TYR S A VEN - TRI'])
         self.set_orders(game, 'AUSTRIA', 'F TRI S F TRI')
         self.process(game)
-        assert self.check_results(game, 'F TRI', 'void')
-        assert self.check_results(game, 'F TRI', 'dislodged')
+        assert self.check_results(game, 'F TRI', VOID)
+        assert self.check_results(game, 'F TRI', DISLODGED)
         assert check_dislodged(game, 'F TRI', 'A VEN')
         assert self.owner_name(game, 'A TRI') == 'ITALY'
         assert self.owner_name(game, 'A VEN') is None
@@ -332,7 +333,7 @@ class TestDATC():
         self.set_units(game, 'ITALY', 'F ROM')
         self.set_orders(game, 'ITALY', 'F ROM - VEN')
         self.process(game)
-        assert self.check_results(game, 'F ROM', 'void')
+        assert self.check_results(game, 'F ROM', VOID)
         assert self.owner_name(game, 'F ROM') == 'ITALY'
         assert self.owner_name(game, 'F VEN') is None
 
@@ -352,8 +353,8 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['F ROM S A APU - VEN', 'A APU - VEN'])
         self.set_orders(game, 'AUSTRIA', 'A VEN H')
         self.process(game)
-        assert self.check_results(game, 'F ROM', 'void')
-        assert self.check_results(game, 'A APU', 'bounce')
+        assert self.check_results(game, 'F ROM', VOID)
+        assert self.check_results(game, 'A APU', BOUNCE)
         assert self.owner_name(game, 'F ROM') == 'ITALY'
         assert self.owner_name(game, 'A VEN') == 'AUSTRIA'
 
@@ -371,8 +372,8 @@ class TestDATC():
         self.set_orders(game, 'ITALY', 'A VEN - TYR')
         self.set_orders(game, 'AUSTRIA', 'A VIE - TYR')
         self.process(game)
-        assert self.check_results(game, 'A VEN', 'bounce')
-        assert self.check_results(game, 'A VIE', 'bounce')
+        assert self.check_results(game, 'A VEN', BOUNCE)
+        assert self.check_results(game, 'A VIE', BOUNCE)
         assert self.owner_name(game, 'A VEN') == 'ITALY'
         assert self.owner_name(game, 'A VIE') == 'AUSTRIA'
         assert self.owner_name(game, 'A TYR') is None
@@ -395,9 +396,9 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', 'A MUN - TYR')
         self.set_orders(game, 'ITALY', 'A VEN - TYR')
         self.process(game)
-        assert self.check_results(game, 'A VEN', 'bounce')
-        assert self.check_results(game, 'A VIE', 'bounce')
-        assert self.check_results(game, 'A MUN', 'bounce')
+        assert self.check_results(game, 'A VEN', BOUNCE)
+        assert self.check_results(game, 'A VIE', BOUNCE)
+        assert self.check_results(game, 'A MUN', BOUNCE)
         assert self.owner_name(game, 'A VIE') == 'AUSTRIA'
         assert self.owner_name(game, 'A MUN') == 'GERMANY'
         assert self.owner_name(game, 'A VEN') == 'ITALY'
@@ -416,7 +417,7 @@ class TestDATC():
         self.set_units(game, 'FRANCE', 'F POR')
         self.set_orders(game, 'FRANCE', 'F POR - SPA')
         self.process(game)
-        assert self.check_results(game, 'F POR', 'void')
+        assert self.check_results(game, 'F POR', VOID)
         assert self.owner_name(game, 'F POR') == 'FRANCE'
         assert self.owner_name(game, 'F SPA') is None
         assert self.owner_name(game, 'F SPA/NC') is None
@@ -436,7 +437,7 @@ class TestDATC():
         self.set_units(game, 'FRANCE', 'F GAS')
         self.set_orders(game, 'FRANCE', 'F GAS - SPA')
         self.process(game)
-        assert self.check_results(game, 'F GAS', '')
+        assert self.check_results(game, 'F GAS', OK)
         assert self.owner_name(game, 'F GAS') is None
         assert self.owner_name(game, 'F SPA/NC') == 'FRANCE'
         assert self.owner_name(game, 'F SPA/SC') is None
@@ -454,7 +455,7 @@ class TestDATC():
         self.set_units(game, 'FRANCE', 'F GAS')
         self.set_orders(game, 'FRANCE', 'F GAS - SPA/SC')
         self.process(game)
-        assert self.check_results(game, 'F GAS', 'void')
+        assert self.check_results(game, 'F GAS', VOID)
         assert self.owner_name(game, 'F GAS') == 'FRANCE'
         assert self.owner_name(game, 'F SPA') is None
         assert self.owner_name(game, 'F SPA/NC') is None
@@ -477,7 +478,7 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F GAS - SPA/NC', 'F MAR S F GAS - SPA/NC'])
         self.set_orders(game, 'ITALY', 'F WES - SPA/SC')
         self.process(game)
-        assert self.check_results(game, 'F WES', 'bounce')
+        assert self.check_results(game, 'F WES', BOUNCE)
         assert self.owner_name(game, 'F SPA/NC') == 'FRANCE'
         assert self.owner_name(game, 'F MAR') == 'FRANCE'
         assert self.owner_name(game, 'F WES') == 'ITALY'
@@ -498,8 +499,8 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F MAR - LYO', 'F SPA/NC S F MAR - LYO'])
         self.set_orders(game, 'ITALY', 'F LYO H')
         self.process(game)
-        assert self.check_results(game, 'F SPA/NC', 'void')
-        assert self.check_results(game, 'F MAR', 'bounce')
+        assert self.check_results(game, 'F SPA/NC', VOID)
+        assert self.check_results(game, 'F MAR', BOUNCE)
         assert self.owner_name(game, 'F MAR') == 'FRANCE'
         assert self.owner_name(game, 'F SPA/NC') == 'FRANCE'
         assert self.owner_name(game, 'F LYO') == 'ITALY'
@@ -525,8 +526,8 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F SPA/NC S F MAO', 'F MAO H'])
         self.set_orders(game, 'ITALY', 'F LYO - SPA/SC')
         self.process(game)
-        assert self.check_results(game, 'F SPA/NC', 'cut')
-        assert self.check_results(game, 'F MAO', 'dislodged')
+        assert self.check_results(game, 'F SPA/NC', CUT)
+        assert self.check_results(game, 'F MAO', DISLODGED)
         assert check_dislodged(game, 'F MAO', 'F NAO')
         assert self.owner_name(game, 'F IRI') == 'ENGLAND'
         assert self.owner_name(game, 'F NAO') is None
@@ -555,10 +556,10 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F POR S F MAO - SPA', 'F MAO - SPA/NC'])
         self.set_orders(game, 'ITALY', ['F LYO S F WES - SPA/SC', 'F WES - SPA/SC'])
         self.process(game)
-        assert self.check_results(game, 'F POR', '')
-        assert self.check_results(game, 'F LYO', '')
-        assert self.check_results(game, 'F MAO', 'bounce')
-        assert self.check_results(game, 'F WES', 'bounce')
+        assert self.check_results(game, 'F POR', OK)
+        assert self.check_results(game, 'F LYO', OK)
+        assert self.check_results(game, 'F MAO', BOUNCE)
+        assert self.check_results(game, 'F WES', BOUNCE)
         assert self.owner_name(game, 'F POR') == 'FRANCE'
         assert self.owner_name(game, 'F MAO') == 'FRANCE'
         assert self.owner_name(game, 'F LYO') == 'ITALY'
@@ -589,10 +590,10 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F POR S F GAS - SPA', 'F GAS - SPA/NC'])
         self.set_orders(game, 'ITALY', ['F LYO S F WES - SPA/SC', 'F WES - SPA/SC'])
         self.process(game)
-        assert self.check_results(game, 'F POR', '')
-        assert self.check_results(game, 'F LYO', '')
-        assert self.check_results(game, 'F GAS', 'bounce')
-        assert self.check_results(game, 'F WES', 'bounce')
+        assert self.check_results(game, 'F POR', OK)
+        assert self.check_results(game, 'F LYO', OK)
+        assert self.check_results(game, 'F GAS', BOUNCE)
+        assert self.check_results(game, 'F WES', BOUNCE)
         assert self.owner_name(game, 'F POR') == 'FRANCE'
         assert self.owner_name(game, 'F GAS') == 'FRANCE'
         assert self.owner_name(game, 'F LYO') == 'ITALY'
@@ -621,10 +622,10 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F POR S F MAO - SPA/NC', 'F MAO - SPA/SC'])
         self.set_orders(game, 'ITALY', ['F LYO S F WES - SPA/SC', 'F WES - SPA/SC'])
         self.process(game)
-        assert self.check_results(game, 'F POR', '')
-        assert self.check_results(game, 'F MAO', 'bounce')
-        assert self.check_results(game, 'F LYO', '')
-        assert self.check_results(game, 'F WES', 'bounce')
+        assert self.check_results(game, 'F POR', OK)
+        assert self.check_results(game, 'F MAO', BOUNCE)
+        assert self.check_results(game, 'F LYO', OK)
+        assert self.check_results(game, 'F WES', BOUNCE)
         assert self.owner_name(game, 'F POR') == 'FRANCE'
         assert self.owner_name(game, 'F MAO') == 'FRANCE'
         assert self.owner_name(game, 'F SPA') is None
@@ -647,7 +648,7 @@ class TestDATC():
         self.set_units(game, 'FRANCE', 'F SPA/SC')
         self.set_orders(game, 'FRANCE', 'F SPA/NC - LYO')
         self.process(game)
-        assert self.check_results(game, 'F SPA/SC', '')
+        assert self.check_results(game, 'F SPA/SC', OK)
         assert self.owner_name(game, 'F SPA') is None
         assert self.owner_name(game, 'F SPA/SC') is None
         assert self.owner_name(game, 'F LYO') == 'FRANCE'
@@ -664,7 +665,7 @@ class TestDATC():
         self.set_units(game, 'FRANCE', 'F SPA/NC')
         self.set_orders(game, 'FRANCE', 'F SPA/SC - LYO')
         self.process(game)
-        assert self.check_results(game, 'F SPA/SC', 'void')
+        assert self.check_results(game, 'F SPA/SC', VOID)
         assert self.owner_name(game, 'F SPA') == 'FRANCE'
         assert self.owner_name(game, 'F SPA/NC') == 'FRANCE'
         assert self.owner_name(game, 'F SPA/SC') is None
@@ -683,7 +684,7 @@ class TestDATC():
         self.set_units(game, 'FRANCE', 'A GAS')
         self.set_orders(game, 'FRANCE', 'A GAS - SPA/NC')
         self.process(game)
-        assert self.check_results(game, 'A GAS', '')
+        assert self.check_results(game, 'A GAS', OK)
         assert self.owner_name(game, 'A GAS') is None
         assert self.owner_name(game, 'A SPA') == 'FRANCE'
         assert self.owner_name(game, 'A SPA/NC') is None
@@ -703,8 +704,8 @@ class TestDATC():
         self.set_units(game, 'TURKEY', ['F BUL/SC', 'F CON'])
         self.set_orders(game, 'TURKEY', ['F BUL/SC - CON', 'F CON - BUL/EC'])
         self.process(game)
-        assert self.check_results(game, 'F BUL/SC', 'bounce')
-        assert self.check_results(game, 'F CON', 'bounce')
+        assert self.check_results(game, 'F BUL/SC', BOUNCE)
+        assert self.check_results(game, 'F CON', BOUNCE)
         assert self.owner_name(game, 'F BUL/SC') == 'TURKEY'
         assert self.owner_name(game, 'F CON') == 'TURKEY'
         assert self.owner_name(game, 'F BUL/EC') is None
@@ -722,7 +723,7 @@ class TestDATC():
         self.move_to_phase(game, 'W1901A')
         self.set_orders(game, 'RUSSIA', 'F STP B')
         self.process(game)
-        assert self.check_results(game, 'F STP', 'void', phase='A')
+        assert self.check_results(game, 'F STP', VOID, phase='A')
         assert self.owner_name(game, 'F STP') is None
         assert self.owner_name(game, 'F STP/SC') is None
         assert self.owner_name(game, 'F STP/NC') is None
@@ -741,9 +742,9 @@ class TestDATC():
         self.set_units(game, 'TURKEY', ['F ANK', 'A CON', 'A SMY'])
         self.set_orders(game, 'TURKEY', ['F ANK - CON', 'A CON - SMY', 'A SMY - ANK'])
         self.process(game)
-        assert self.check_results(game, 'F ANK', '')
-        assert self.check_results(game, 'A CON', '')
-        assert self.check_results(game, 'A SMY', '')
+        assert self.check_results(game, 'F ANK', OK)
+        assert self.check_results(game, 'A CON', OK)
+        assert self.check_results(game, 'A SMY', OK)
         assert self.owner_name(game, 'A ANK') == 'TURKEY'
         assert self.owner_name(game, 'F CON') == 'TURKEY'
         assert self.owner_name(game, 'A SMY') == 'TURKEY'
@@ -762,10 +763,10 @@ class TestDATC():
         self.set_units(game, 'TURKEY', ['F ANK', 'A CON', 'A SMY', 'A BUL'])
         self.set_orders(game, 'TURKEY', ['F ANK - CON', 'A CON - SMY', 'A SMY - ANK', 'A BUL S F ANK - CON'])
         self.process(game)
-        assert self.check_results(game, 'F ANK', '')
-        assert self.check_results(game, 'A CON', '')
-        assert self.check_results(game, 'A SMY', '')
-        assert self.check_results(game, 'A BUL', '')
+        assert self.check_results(game, 'F ANK', OK)
+        assert self.check_results(game, 'A CON', OK)
+        assert self.check_results(game, 'A SMY', OK)
+        assert self.check_results(game, 'A BUL', OK)
         assert self.owner_name(game, 'A ANK') == 'TURKEY'
         assert self.owner_name(game, 'F CON') == 'TURKEY'
         assert self.owner_name(game, 'A SMY') == 'TURKEY'
@@ -785,10 +786,10 @@ class TestDATC():
         self.set_units(game, 'TURKEY', ['F ANK', 'A CON', 'A SMY', 'A BUL'])
         self.set_orders(game, 'TURKEY', ['F ANK - CON', 'A CON - SMY', 'A SMY - ANK', 'A BUL - CON'])
         self.process(game)
-        assert self.check_results(game, 'F ANK', 'bounce')
-        assert self.check_results(game, 'A CON', 'bounce')
-        assert self.check_results(game, 'A SMY', 'bounce')
-        assert self.check_results(game, 'A BUL', 'bounce')
+        assert self.check_results(game, 'F ANK', BOUNCE)
+        assert self.check_results(game, 'A CON', BOUNCE)
+        assert self.check_results(game, 'A SMY', BOUNCE)
+        assert self.check_results(game, 'A BUL', BOUNCE)
         assert self.owner_name(game, 'F ANK') == 'TURKEY'
         assert self.owner_name(game, 'A CON') == 'TURKEY'
         assert self.owner_name(game, 'A SMY') == 'TURKEY'
@@ -818,13 +819,13 @@ class TestDATC():
                                          'F ADR C A BUL - TRI'])
         self.set_orders(game, 'ITALY', 'F NAP - ION')
         self.process(game)
-        assert self.check_results(game, 'A TRI', '')
-        assert self.check_results(game, 'A SER', '')
-        assert self.check_results(game, 'A BUL', '')
-        assert self.check_results(game, 'F AEG', '')
-        assert self.check_results(game, 'F ION', '')
-        assert self.check_results(game, 'F ADR', '')
-        assert self.check_results(game, 'F NAP', 'bounce')
+        assert self.check_results(game, 'A TRI', OK)
+        assert self.check_results(game, 'A SER', OK)
+        assert self.check_results(game, 'A BUL', OK)
+        assert self.check_results(game, 'F AEG', OK)
+        assert self.check_results(game, 'F ION', OK)
+        assert self.check_results(game, 'F ADR', OK)
+        assert self.check_results(game, 'F NAP', BOUNCE)
         assert self.owner_name(game, 'A TRI') == 'TURKEY'
         assert self.owner_name(game, 'A SER') == 'AUSTRIA'
         assert self.owner_name(game, 'A BUL') == 'AUSTRIA'
@@ -857,14 +858,14 @@ class TestDATC():
                                          'F ADR C A BUL - TRI'])
         self.set_orders(game, 'ITALY', ['F NAP - ION', 'F TUN S F NAP - ION'])
         self.process(game)
-        assert self.check_results(game, 'A TRI', 'bounce')
-        assert self.check_results(game, 'A SER', 'bounce')
-        assert self.check_results(game, 'A BUL', 'no convoy')
-        assert self.check_results(game, 'F AEG', 'no convoy')
-        assert self.check_results(game, 'F ION', 'dislodged')
-        assert self.check_results(game, 'F ADR', 'no convoy')
-        assert self.check_results(game, 'F NAP', '')
-        assert self.check_results(game, 'F TUN', '')
+        assert self.check_results(game, 'A TRI', BOUNCE)
+        assert self.check_results(game, 'A SER', BOUNCE)
+        assert self.check_results(game, 'A BUL', NO_CONVOY)
+        assert self.check_results(game, 'F AEG', NO_CONVOY)
+        assert self.check_results(game, 'F ION', DISLODGED)
+        assert self.check_results(game, 'F ADR', NO_CONVOY)
+        assert self.check_results(game, 'F NAP', OK)
+        assert self.check_results(game, 'F TUN', OK)
         assert check_dislodged(game, 'F ION', 'F NAP')
         assert self.owner_name(game, 'A TRI') == 'AUSTRIA'
         assert self.owner_name(game, 'A SER') == 'AUSTRIA'
@@ -891,10 +892,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NTH C A LON - BEL', 'A LON - BEL'])
         self.set_orders(game, 'FRANCE', ['F ENG C A BEL - LON', 'A BEL - LON'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A BEL', '')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A BEL', OK)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A BEL') == 'ENGLAND'
         assert self.owner_name(game, 'F ENG') == 'FRANCE'
@@ -917,11 +918,11 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NTH C A LON - BEL', 'A LON - BEL'])
         self.set_orders(game, 'FRANCE', ['F ENG C A BEL - LON', 'A BEL - LON', 'A BUR - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A LON', 'bounce')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A BEL', 'bounce')
-        assert self.check_results(game, 'A BUR', 'bounce')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A LON', BOUNCE)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A BEL', BOUNCE)
+        assert self.check_results(game, 'A BUR', BOUNCE)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A LON') == 'ENGLAND'
         assert self.owner_name(game, 'F ENG') == 'FRANCE'
@@ -945,10 +946,10 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F ADR S A TRI - VEN', 'A TRI - VEN'])
         self.set_orders(game, 'ITALY', ['A VEN H', 'A TYR S A VEN'])
         self.process(game)
-        assert self.check_results(game, 'F ADR', '')
-        assert self.check_results(game, 'A TRI', 'bounce')
-        assert self.check_results(game, 'A VEN', '')
-        assert self.check_results(game, 'A TYR', '')
+        assert self.check_results(game, 'F ADR', OK)
+        assert self.check_results(game, 'A TRI', BOUNCE)
+        assert self.check_results(game, 'A VEN', OK)
+        assert self.check_results(game, 'A TYR', OK)
         assert self.owner_name(game, 'F ADR') == 'AUSTRIA'
         assert self.owner_name(game, 'A TRI') == 'AUSTRIA'
         assert self.owner_name(game, 'A VEN') == 'ITALY'
@@ -972,11 +973,11 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F ADR S A TRI - VEN', 'A TRI - VEN', 'A VIE - TYR'])
         self.set_orders(game, 'ITALY', ['A VEN H', 'A TYR S A VEN'])
         self.process(game)
-        assert self.check_results(game, 'F ADR', '')
-        assert self.check_results(game, 'A TRI', '')
-        assert self.check_results(game, 'A VIE', 'bounce')
-        assert self.check_results(game, 'A VEN', 'dislodged')
-        assert self.check_results(game, 'A TYR', 'cut')
+        assert self.check_results(game, 'F ADR', OK)
+        assert self.check_results(game, 'A TRI', OK)
+        assert self.check_results(game, 'A VIE', BOUNCE)
+        assert self.check_results(game, 'A VEN', DISLODGED)
+        assert self.check_results(game, 'A TYR', CUT)
         assert check_dislodged(game, 'A VEN', 'A TRI')
         assert self.owner_name(game, 'F ADR') == 'AUSTRIA'
         assert self.owner_name(game, 'A TRI') is None
@@ -1001,10 +1002,10 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F ADR S A TRI - VEN', 'A TRI - VEN'])
         self.set_orders(game, 'ITALY', ['A VEN H', 'F ION - ADR'])
         self.process(game)
-        assert self.check_results(game, 'F ADR', 'cut')
-        assert self.check_results(game, 'A TRI', 'bounce')
-        assert self.check_results(game, 'A VEN', '')
-        assert self.check_results(game, 'F ION', 'bounce')
+        assert self.check_results(game, 'F ADR', CUT)
+        assert self.check_results(game, 'A TRI', BOUNCE)
+        assert self.check_results(game, 'A VEN', OK)
+        assert self.check_results(game, 'F ION', BOUNCE)
         assert self.owner_name(game, 'F ADR') == 'AUSTRIA'
         assert self.owner_name(game, 'A TRI') == 'AUSTRIA'
         assert self.owner_name(game, 'A VEN') == 'ITALY'
@@ -1026,10 +1027,10 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER S F KIE', 'F KIE S A BER'])
         self.set_orders(game, 'RUSSIA', ['F BAL S A PRU - BER', 'A PRU - BER'])
         self.process(game)
-        assert self.check_results(game, 'A BER', 'cut')
-        assert self.check_results(game, 'F KIE', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'A PRU', 'bounce')
+        assert self.check_results(game, 'A BER', CUT)
+        assert self.check_results(game, 'F KIE', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'A PRU', BOUNCE)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'F BAL') == 'RUSSIA'
@@ -1052,11 +1053,11 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER S A MUN - SIL', 'F KIE S A BER', 'A MUN - SIL'])
         self.set_orders(game, 'RUSSIA', ['F BAL S A PRU - BER', 'A PRU - BER'])
         self.process(game)
-        assert self.check_results(game, 'A BER', 'cut')
-        assert self.check_results(game, 'F KIE', '')
-        assert self.check_results(game, 'A MUN', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'A PRU', 'bounce')
+        assert self.check_results(game, 'A BER', CUT)
+        assert self.check_results(game, 'F KIE', OK)
+        assert self.check_results(game, 'A MUN', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'A PRU', BOUNCE)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'A MUN') is None
@@ -1081,11 +1082,11 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER - SWE', 'F BAL C A BER - SWE', 'F PRU S F BAL'])
         self.set_orders(game, 'RUSSIA', ['F LVN - BAL', 'F BOT S F LVN - BAL'])
         self.process(game)
-        assert self.check_results(game, 'A BER', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'F PRU', '')
-        assert self.check_results(game, 'F LVN', 'bounce')
-        assert self.check_results(game, 'F BOT', '')
+        assert self.check_results(game, 'A BER', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'F PRU', OK)
+        assert self.check_results(game, 'F LVN', BOUNCE)
+        assert self.check_results(game, 'F BOT', OK)
         assert self.owner_name(game, 'A BER') is None
         assert self.owner_name(game, 'F BAL') == 'GERMANY'
         assert self.owner_name(game, 'F PRU') == 'GERMANY'
@@ -1111,12 +1112,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F BAL - SWE', 'F PRU S F BAL'])
         self.set_orders(game, 'RUSSIA', ['F LVN - BAL', 'F BOT S F LVN - BAL', 'A FIN - SWE'])
         self.process(game)
-        assert self.check_results(game, 'F BAL', 'bounce')
-        assert self.check_results(game, 'F BAL', 'dislodged')
-        assert self.check_results(game, 'F PRU', 'void')
-        assert self.check_results(game, 'F LVN', '')
-        assert self.check_results(game, 'F BOT', '')
-        assert self.check_results(game, 'A FIN', 'bounce')
+        assert self.check_results(game, 'F BAL', BOUNCE)
+        assert self.check_results(game, 'F BAL', DISLODGED)
+        assert self.check_results(game, 'F PRU', VOID)
+        assert self.check_results(game, 'F LVN', OK)
+        assert self.check_results(game, 'F BOT', OK)
+        assert self.check_results(game, 'A FIN', BOUNCE)
         assert check_dislodged(game, 'F BAL', 'F LVN')
         assert self.owner_name(game, 'F BAL') == 'RUSSIA'
         assert self.owner_name(game, 'F PRU') == 'GERMANY'
@@ -1146,11 +1147,11 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F ION H', 'A SER S A ALB - GRE', 'A ALB - GRE'])
         self.set_orders(game, 'TURKEY', ['A GRE - NAP', 'A BUL S A GRE'])
         self.process(game)
-        assert self.check_results(game, 'F ION', '')
-        assert self.check_results(game, 'A SER', '')
-        assert self.check_results(game, 'A ALB', '')
-        assert self.check_results(game, 'A GRE', 'dislodged')
-        assert self.check_results(game, 'A BUL', 'void')
+        assert self.check_results(game, 'F ION', OK)
+        assert self.check_results(game, 'A SER', OK)
+        assert self.check_results(game, 'A ALB', OK)
+        assert self.check_results(game, 'A GRE', DISLODGED)
+        assert self.check_results(game, 'A BUL', VOID)
         assert check_dislodged(game, 'A GRE', 'A ALB')
         assert self.owner_name(game, 'F ION') == 'AUSTRIA'
         assert self.owner_name(game, 'A SER') == 'AUSTRIA'
@@ -1174,10 +1175,10 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['A VEN - TRI', 'A TYR S A VEN - TRI'])
         self.set_orders(game, 'AUSTRIA', ['A ALB S A TRI - SER', 'A TRI H'])
         self.process(game)
-        assert self.check_results(game, 'A VEN', '')
-        assert self.check_results(game, 'A TYR', '')
-        assert self.check_results(game, 'A ALB', 'void')
-        assert self.check_results(game, 'A TRI', 'dislodged')
+        assert self.check_results(game, 'A VEN', OK)
+        assert self.check_results(game, 'A TYR', OK)
+        assert self.check_results(game, 'A ALB', VOID)
+        assert self.check_results(game, 'A TRI', DISLODGED)
         assert check_dislodged(game, 'A TRI', 'A VEN')
         assert self.owner_name(game, 'A VEN') is None
         assert self.owner_name(game, 'A TYR') == 'ITALY'
@@ -1197,9 +1198,9 @@ class TestDATC():
         self.set_units(game, 'GERMANY', ['A BER', 'F KIE', 'A MUN'])
         self.set_orders(game, 'GERMANY', ['A BER H', 'F KIE - BER', 'A MUN S F KIE - BER'])
         self.process(game)
-        assert self.check_results(game, 'A BER', '')
-        assert self.check_results(game, 'F KIE', 'bounce')
-        assert self.check_results(game, 'A MUN', 'void')
+        assert self.check_results(game, 'A BER', OK)
+        assert self.check_results(game, 'F KIE', BOUNCE)
+        assert self.check_results(game, 'A MUN', VOID)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'A MUN') == 'GERMANY'
@@ -1220,10 +1221,10 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER - PRU', 'F KIE - BER', 'A MUN S F KIE - BER'])
         self.set_orders(game, 'RUSSIA', ['A WAR - PRU'])
         self.process(game)
-        assert self.check_results(game, 'A BER', 'bounce')
-        assert self.check_results(game, 'F KIE', 'bounce')
-        assert self.check_results(game, 'A MUN', 'void')
-        assert self.check_results(game, 'A WAR', 'bounce')
+        assert self.check_results(game, 'A BER', BOUNCE)
+        assert self.check_results(game, 'F KIE', BOUNCE)
+        assert self.check_results(game, 'A MUN', VOID)
+        assert self.check_results(game, 'A WAR', BOUNCE)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'A MUN') == 'GERMANY'
@@ -1244,9 +1245,9 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F TRI H', 'A VIE S A VEN - TRI'])
         self.set_orders(game, 'ITALY', 'A VEN - TRI')
         self.process(game)
-        assert self.check_results(game, 'F TRI', '')
-        assert self.check_results(game, 'A VIE', 'void')
-        assert self.check_results(game, 'A VEN', 'bounce')
+        assert self.check_results(game, 'F TRI', OK)
+        assert self.check_results(game, 'A VIE', VOID)
+        assert self.check_results(game, 'A VEN', BOUNCE)
         assert self.owner_name(game, 'F TRI') == 'AUSTRIA'
         assert self.owner_name(game, 'A VIE') == 'AUSTRIA'
         assert self.owner_name(game, 'A VEN') == 'ITALY'
@@ -1267,10 +1268,10 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F TRI - ADR', 'A VIE S A VEN - TRI'])
         self.set_orders(game, 'ITALY', ['A VEN - TRI', 'F APU - ADR'])
         self.process(game)
-        assert self.check_results(game, 'F TRI', 'bounce')
-        assert self.check_results(game, 'A VIE', 'void')
-        assert self.check_results(game, 'A VEN', 'bounce')
-        assert self.check_results(game, 'F APU', 'bounce')
+        assert self.check_results(game, 'F TRI', BOUNCE)
+        assert self.check_results(game, 'A VIE', VOID)
+        assert self.check_results(game, 'A VEN', BOUNCE)
+        assert self.check_results(game, 'F APU', BOUNCE)
         assert self.owner_name(game, 'F TRI') == 'AUSTRIA'
         assert self.owner_name(game, 'A VIE') == 'AUSTRIA'
         assert self.owner_name(game, 'A VEN') == 'ITALY'
@@ -1294,11 +1295,11 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F TRI H', 'A VIE S A VEN - TRI'])
         self.set_orders(game, 'ITALY', ['A VEN - TRI', 'A TUR S A VEN - TRI', 'F ADR S A VEN - TRI'])
         self.process(game)
-        assert self.check_results(game, 'F TRI', 'dislodged')
-        assert self.check_results(game, 'A VIE', 'void')
-        assert self.check_results(game, 'A VEN', '')
-        assert self.check_results(game, 'A TYR', '')
-        assert self.check_results(game, 'F ADR', '')
+        assert self.check_results(game, 'F TRI', DISLODGED)
+        assert self.check_results(game, 'A VIE', VOID)
+        assert self.check_results(game, 'A VEN', OK)
+        assert self.check_results(game, 'A TYR', OK)
+        assert self.check_results(game, 'F ADR', OK)
         assert check_dislodged(game, 'F TRI', 'A VEN')
         assert self.owner_name(game, 'A TRI') == 'ITALY'
         assert self.owner_name(game, 'A VIE') == 'AUSTRIA'
@@ -1322,10 +1323,10 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', ['F CON S F BLA - ANK', 'F BLA - ANK'])
         self.set_orders(game, 'TURKEY', ['F ANK - CON'])
         self.process(game)
-        assert self.check_results(game, 'F CON', '')
-        assert self.check_results(game, 'F BLA', '')
-        assert self.check_results(game, 'F ANK', 'bounce')
-        assert self.check_results(game, 'F ANK', 'dislodged')
+        assert self.check_results(game, 'F CON', OK)
+        assert self.check_results(game, 'F BLA', OK)
+        assert self.check_results(game, 'F ANK', BOUNCE)
+        assert self.check_results(game, 'F ANK', DISLODGED)
         assert check_dislodged(game, 'F ANK', 'F BLA')
         assert self.owner_name(game, 'F CON') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') is None
@@ -1347,10 +1348,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['A LON H', 'F NTH C A BEL - LON'])
         self.set_orders(game, 'FRANCE', ['F ENG S A BEL - LON', 'A BEL - LON'])
         self.process(game)
-        assert self.check_results(game, 'A LON', 'dislodged')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A BEL', '')
+        assert self.check_results(game, 'A LON', DISLODGED)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A BEL', OK)
         assert check_dislodged(game, 'A LON', 'A BEL')
         assert self.owner_name(game, 'A LON') == 'FRANCE'
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
@@ -1375,12 +1376,12 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', ['F CON S F BLA - ANK', 'F BLA - ANK'])
         self.set_orders(game, 'TURKEY', ['F ANK - CON', 'A SMY S F ANK - CON', 'A ARM - ANK'])
         self.process(game)
-        assert self.check_results(game, 'F CON', 'dislodged')
-        assert self.check_results(game, 'F CON', 'cut')
-        assert self.check_results(game, 'F BLA', 'bounce')
-        assert self.check_results(game, 'F ANK', '')
-        assert self.check_results(game, 'A SMY', '')
-        assert self.check_results(game, 'A ARM', 'bounce')
+        assert self.check_results(game, 'F CON', DISLODGED)
+        assert self.check_results(game, 'F CON', CUT)
+        assert self.check_results(game, 'F BLA', BOUNCE)
+        assert self.check_results(game, 'F ANK', OK)
+        assert self.check_results(game, 'A SMY', OK)
+        assert self.check_results(game, 'A ARM', BOUNCE)
         assert check_dislodged(game, 'F CON', 'F ANK')
         assert self.owner_name(game, 'F CON') == 'TURKEY'
         assert self.owner_name(game, 'F BLA') == 'RUSSIA'
@@ -1406,12 +1407,12 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', ['F CON S F BLA - ANK', 'F BLA - ANK', 'A BUL S F CON'])
         self.set_orders(game, 'TURKEY', ['F ANK - CON', 'A SMY S F ANK - CON', 'A ARM - ANK'])
         self.process(game)
-        assert self.check_results(game, 'F CON', '')
-        assert self.check_results(game, 'F BLA', '')
-        assert self.check_results(game, 'A BUL', '')
-        assert self.check_results(game, 'F ANK', 'dislodged')
-        assert self.check_results(game, 'A SMY', '')
-        assert self.check_results(game, 'A ARM', 'bounce')
+        assert self.check_results(game, 'F CON', OK)
+        assert self.check_results(game, 'F BLA', OK)
+        assert self.check_results(game, 'A BUL', OK)
+        assert self.check_results(game, 'F ANK', DISLODGED)
+        assert self.check_results(game, 'A SMY', OK)
+        assert self.check_results(game, 'A ARM', BOUNCE)
         assert check_dislodged(game, 'F ANK', 'F BLA')
         assert self.owner_name(game, 'F CON') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') is None
@@ -1437,10 +1438,10 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', ['F CON S F BLA - ANK', 'F BLA - ANK', 'A SMY S F ANK - CON'])
         self.set_orders(game, 'TURKEY', 'F ANK - CON')
         self.process(game)
-        assert self.check_results(game, 'F CON', '')
-        assert self.check_results(game, 'F BLA', '')
-        assert self.check_results(game, 'A SMY', 'void')
-        assert self.check_results(game, 'F ANK', 'dislodged')
+        assert self.check_results(game, 'F CON', OK)
+        assert self.check_results(game, 'F BLA', OK)
+        assert self.check_results(game, 'A SMY', VOID)
+        assert self.check_results(game, 'F ANK', DISLODGED)
         assert check_dislodged(game, 'F ANK', 'F BLA')
         assert self.owner_name(game, 'F CON') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') is None
@@ -1465,10 +1466,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F LON S F NTH - ENG', 'F NTH - ENG', 'A YOR - LON'])
         self.set_orders(game, 'FRANCE', 'F ENG H')
         self.process(game)
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A YOR', 'bounce')
-        assert self.check_results(game, 'F ENG', 'dislodged')
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A YOR', BOUNCE)
+        assert self.check_results(game, 'F ENG', DISLODGED)
         assert check_dislodged(game, 'F ENG', 'F NTH')
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'F NTH') is None
@@ -1499,12 +1500,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', 'A MUN - TYR')
         self.set_orders(game, 'RUSSIA', ['A SIL - MUN', 'A BER S A SIL - MUN'])
         self.process(game)
-        assert self.check_results(game, 'F TRI', '')
-        assert self.check_results(game, 'A VEN', 'bounce')
-        assert self.check_results(game, 'A TYR', 'cut')
-        assert self.check_results(game, 'A MUN', 'dislodged')
-        assert self.check_results(game, 'A SIL', '')
-        assert self.check_results(game, 'A BER', '')
+        assert self.check_results(game, 'F TRI', OK)
+        assert self.check_results(game, 'A VEN', BOUNCE)
+        assert self.check_results(game, 'A TYR', CUT)
+        assert self.check_results(game, 'A MUN', DISLODGED)
+        assert self.check_results(game, 'A SIL', OK)
+        assert self.check_results(game, 'A BER', OK)
         assert check_dislodged(game, 'A MUN', 'A SIL')
         assert self.owner_name(game, 'F TRI') == 'AUSTRIA'
         assert self.owner_name(game, 'A VEN') == 'ITALY'
@@ -1534,11 +1535,11 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F KIE - MUN', 'A BUR S F KIE - MUN'])
         self.set_orders(game, 'RUSSIA', ['A MUN - KIE', 'A BER S A MUN - KIE'])
         self.process(game)
-        assert self.check_results(game, 'F KIE', 'void')
-        assert self.check_results(game, 'F KIE', 'dislodged')
-        assert self.check_results(game, 'A BUR', 'void')
-        assert self.check_results(game, 'A MUN', '')
-        assert self.check_results(game, 'A BER', '')
+        assert self.check_results(game, 'F KIE', VOID)
+        assert self.check_results(game, 'F KIE', DISLODGED)
+        assert self.check_results(game, 'A BUR', VOID)
+        assert self.check_results(game, 'A MUN', OK)
+        assert self.check_results(game, 'A BER', OK)
         assert check_dislodged(game, 'F KIE', 'A MUN')
         assert self.owner_name(game, 'A KIE') == 'RUSSIA'
         assert self.owner_name(game, 'A BUR') == 'GERMANY'
@@ -1562,11 +1563,11 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['F LYO - SPA/SC', 'F WES S F LYO - SPA/SC'])
         self.set_orders(game, 'FRANCE', ['F SPA/NC - LYO', 'F MAR S F SPA/NC - LYO'])
         self.process(game)
-        assert self.check_results(game, 'F LYO', '')
-        assert self.check_results(game, 'F WES', '')
-        assert self.check_results(game, 'F SPA/NC', 'void')
-        assert self.check_results(game, 'F SPA/NC', 'dislodged')
-        assert self.check_results(game, 'F MAR', 'void')
+        assert self.check_results(game, 'F LYO', OK)
+        assert self.check_results(game, 'F WES', OK)
+        assert self.check_results(game, 'F SPA/NC', VOID)
+        assert self.check_results(game, 'F SPA/NC', DISLODGED)
+        assert self.check_results(game, 'F MAR', VOID)
         assert check_dislodged(game, 'F SPA/NC', 'F LYO')
         assert self.owner_name(game, 'F LYO') is None
         assert self.owner_name(game, 'F WES') == 'ITALY'
@@ -1596,11 +1597,11 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['F LYO H'])
         self.set_orders(game, 'TURKEY', ['F TYS S F WES - LYO', 'F WES - LYO'])
         self.process(game)
-        assert self.check_results(game, 'A MAR', 'void')
-        assert self.check_results(game, 'F SPA/SC', 'void')
-        assert self.check_results(game, 'F LYO', 'dislodged')
-        assert self.check_results(game, 'F TYS', '')
-        assert self.check_results(game, 'F WES', '')
+        assert self.check_results(game, 'A MAR', VOID)
+        assert self.check_results(game, 'F SPA/SC', VOID)
+        assert self.check_results(game, 'F LYO', DISLODGED)
+        assert self.check_results(game, 'F TYS', OK)
+        assert self.check_results(game, 'F WES', OK)
         assert check_dislodged(game, 'F LYO', 'F WES')
         assert self.owner_name(game, 'A MAR') == 'FRANCE'
         assert self.owner_name(game, 'F SPA/SC') == 'FRANCE'
@@ -1627,10 +1628,10 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER S A PRU', 'F KIE S A BER'])
         self.set_orders(game, 'RUSSIA', ['F BAL S A PRU - BER', 'A PRU - BER'])
         self.process(game)
-        assert self.check_results(game, 'A BER', 'void')
-        assert self.check_results(game, 'F KIE', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'A PRU', 'bounce')
+        assert self.check_results(game, 'A BER', VOID)
+        assert self.check_results(game, 'F KIE', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'A PRU', BOUNCE)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'F BAL') == 'RUSSIA'
@@ -1652,10 +1653,10 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER S A PRU - SIL', 'F KIE S A BER'])
         self.set_orders(game, 'RUSSIA', ['F BAL S A PRU - BER', 'A PRU - BER'])
         self.process(game)
-        assert self.check_results(game, 'A BER', 'void')
-        assert self.check_results(game, 'F KIE', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'A PRU', 'bounce')
+        assert self.check_results(game, 'A BER', VOID)
+        assert self.check_results(game, 'F KIE', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'A PRU', BOUNCE)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'F BAL') == 'RUSSIA'
@@ -1681,11 +1682,11 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', 'A BER H')
         self.set_orders(game, 'RUSSIA', ['F BAL C A BER - LVN', 'F PRU S F BAL'])
         self.process(game)
-        assert self.check_results(game, 'F SWE', 'bounce')
-        assert self.check_results(game, 'F DEN', '')
-        assert self.check_results(game, 'A BER', '')
-        assert self.check_results(game, 'F BAL', 'void')
-        assert self.check_results(game, 'F PRU', '')
+        assert self.check_results(game, 'F SWE', BOUNCE)
+        assert self.check_results(game, 'F DEN', OK)
+        assert self.check_results(game, 'A BER', OK)
+        assert self.check_results(game, 'F BAL', VOID)
+        assert self.check_results(game, 'F PRU', OK)
         assert self.owner_name(game, 'F SWE') == 'ENGLAND'
         assert self.owner_name(game, 'F DEN') == 'ENGLAND'
         assert self.owner_name(game, 'A BER') == 'GERMANY'
@@ -1714,10 +1715,10 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', 'F RUM - HOL')
         self.set_orders(game, 'TURKEY', ['F BLA - RUM', 'A BUL S F BLA - RUM'])
         self.process(game)
-        assert self.check_results(game, 'A BUD', '')
-        assert self.check_results(game, 'F RUM', 'void')
-        assert self.check_results(game, 'F BLA', 'bounce')
-        assert self.check_results(game, 'A BUL', '')
+        assert self.check_results(game, 'A BUD', OK)
+        assert self.check_results(game, 'F RUM', VOID)
+        assert self.check_results(game, 'F BLA', BOUNCE)
+        assert self.check_results(game, 'A BUL', OK)
         assert self.owner_name(game, 'A BUD') == 'AUSTRIA'
         assert self.owner_name(game, 'F RUM') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') == 'TURKEY'
@@ -1746,10 +1747,10 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', 'F RUM - BUL/SC')
         self.set_orders(game, 'TURKEY', ['F BLA - RUM', 'A BUL S F BLA - RUM'])
         self.process(game)
-        assert self.check_results(game, 'A BUD', '')
-        assert self.check_results(game, 'F RUM', 'void')
-        assert self.check_results(game, 'F BLA', 'bounce')
-        assert self.check_results(game, 'A BUL', '')
+        assert self.check_results(game, 'A BUD', OK)
+        assert self.check_results(game, 'F RUM', VOID)
+        assert self.check_results(game, 'F BLA', BOUNCE)
+        assert self.check_results(game, 'A BUL', OK)
         assert self.owner_name(game, 'A BUD') == 'AUSTRIA'
         assert self.owner_name(game, 'F RUM') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') == 'TURKEY'
@@ -1778,10 +1779,10 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', ['F CON - BUL'])
         self.set_orders(game, 'TURKEY', ['F BLA - CON', 'A BUL S F BLA - CON'])
         self.process(game)
-        assert self.check_results(game, 'F AEG', '')
-        assert self.check_results(game, 'F CON', 'void')
-        assert self.check_results(game, 'F BLA', 'bounce')
-        assert self.check_results(game, 'A BUL', '')
+        assert self.check_results(game, 'F AEG', OK)
+        assert self.check_results(game, 'F CON', VOID)
+        assert self.check_results(game, 'F BLA', BOUNCE)
+        assert self.check_results(game, 'A BUL', OK)
         assert self.owner_name(game, 'F AEG') == 'ITALY'
         assert self.owner_name(game, 'F CON') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') == 'TURKEY'
@@ -1810,8 +1811,8 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['A RUM - ARM'])
         self.set_orders(game, 'TURKEY', ['F BLA S A RUM - ARM'])
         self.process(game)
-        assert self.check_results(game, 'A RUM', 'no convoy')
-        assert self.check_results(game, 'F BLA', 'void')
+        assert self.check_results(game, 'A RUM', NO_CONVOY)
+        assert self.check_results(game, 'F BLA', VOID)
         assert self.owner_name(game, 'A RUM') == 'AUSTRIA'
         assert self.owner_name(game, 'F BLA') == 'TURKEY'
 
@@ -1840,10 +1841,10 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F LON S A YOR'])
         self.set_orders(game, 'GERMANY', ['A YOR - HOL'])
         self.process(game)
-        assert self.check_results(game, 'F EDI', '')
-        assert self.check_results(game, 'A LVP', 'bounce')
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'A YOR', 'void')
+        assert self.check_results(game, 'F EDI', OK)
+        assert self.check_results(game, 'A LVP', BOUNCE)
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'A YOR', VOID)
         assert self.owner_name(game, 'F EDI') == 'ENGLAND'
         assert self.owner_name(game, 'A LVP') == 'ENGLAND'
         assert self.owner_name(game, 'F LON') == 'FRANCE'
@@ -1868,10 +1869,10 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', 'A GAL S A SER - BUD')
         self.set_orders(game, 'TURKEY', 'A BUL - SER')
         self.process(game)
-        assert self.check_results(game, 'A SER', '')
-        assert self.check_results(game, 'A VIE', 'bounce')
-        assert self.check_results(game, 'A GAL', '')
-        assert self.check_results(game, 'A BUL', '')
+        assert self.check_results(game, 'A SER', OK)
+        assert self.check_results(game, 'A VIE', BOUNCE)
+        assert self.check_results(game, 'A GAL', OK)
+        assert self.check_results(game, 'A BUL', OK)
         assert self.owner_name(game, 'A SER') == 'TURKEY'
         assert self.owner_name(game, 'A VIE') == 'AUSTRIA'
         assert self.owner_name(game, 'A GAL') == 'RUSSIA'
@@ -1905,13 +1906,13 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['A PRU S LVN - PRU'])
         self.set_orders(game, 'RUSSIA', ['A WAR S A LVN - PRU', 'A LVN - PRU'])
         self.process(game)
-        assert self.check_results(game, 'A BER', '')
-        assert self.check_results(game, 'A SIL', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'A PRU', 'void')
-        assert self.check_results(game, 'A PRU', 'dislodged')
-        assert self.check_results(game, 'A WAR', '')
-        assert self.check_results(game, 'A LVN', 'bounce')
+        assert self.check_results(game, 'A BER', OK)
+        assert self.check_results(game, 'A SIL', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'A PRU', VOID)
+        assert self.check_results(game, 'A PRU', DISLODGED)
+        assert self.check_results(game, 'A WAR', OK)
+        assert self.check_results(game, 'A LVN', BOUNCE)
         assert check_dislodged(game, 'A PRU', 'A BER')
         assert self.owner_name(game, 'A BER') is None
         assert self.owner_name(game, 'A SIL') == 'GERMANY'
@@ -1937,11 +1938,11 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER - PRU', 'F KIE - BER', 'A SIL S A BER - PRU'])
         self.set_orders(game, 'RUSSIA', 'A PRU - BER')
         self.process(game)
-        assert self.check_results(game, 'A BER', '')
-        assert self.check_results(game, 'F KIE', '')
-        assert self.check_results(game, 'A SIL', '')
-        assert self.check_results(game, 'A PRU', 'dislodged')
-        assert self.check_results(game, 'A PRU', 'bounce')
+        assert self.check_results(game, 'A BER', OK)
+        assert self.check_results(game, 'F KIE', OK)
+        assert self.check_results(game, 'A SIL', OK)
+        assert self.check_results(game, 'A PRU', DISLODGED)
+        assert self.check_results(game, 'A PRU', BOUNCE)
         assert check_dislodged(game, 'A PRU', 'A BER')
         assert self.owner_name(game, 'F BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') is None
@@ -1961,9 +1962,9 @@ class TestDATC():
         self.set_units(game, 'GERMANY', ['A BER', 'F KIE', 'A MUN'])
         self.set_orders(game, 'GERMANY', ['A BER - KIE', 'F KIE - BER', 'A MUN S A BER - KIE'])
         self.process(game)
-        assert self.check_results(game, 'A BER', 'bounce')
-        assert self.check_results(game, 'F KIE', 'bounce')
-        assert self.check_results(game, 'A MUN', 'void')
+        assert self.check_results(game, 'A BER', BOUNCE)
+        assert self.check_results(game, 'F KIE', BOUNCE)
+        assert self.check_results(game, 'A MUN', VOID)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'GERMANY'
         assert self.owner_name(game, 'A MUN') == 'GERMANY'
@@ -1983,9 +1984,9 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER - KIE', 'A MUN S F KIE - BER'])
         self.set_orders(game, 'ENGLAND', 'F KIE - BER')
         self.process(game)
-        assert self.check_results(game, 'A BER', 'bounce')
-        assert self.check_results(game, 'A MUN', 'void')
-        assert self.check_results(game, 'F KIE', 'bounce')
+        assert self.check_results(game, 'A BER', BOUNCE)
+        assert self.check_results(game, 'A MUN', VOID)
+        assert self.check_results(game, 'F KIE', BOUNCE)
         assert self.owner_name(game, 'A BER') == 'GERMANY'
         assert self.owner_name(game, 'A MUN') == 'GERMANY'
         assert self.owner_name(game, 'F KIE') == 'ENGLAND'
@@ -2018,16 +2019,16 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F EDI S F NWG - NTH', 'F YOR S F NWG - NTH', 'F NWG - NTH'])
         self.set_orders(game, 'AUSTRIA', ['A KIE S A RUH - HOL', 'A RUH - HOL'])
         self.process(game)
-        assert self.check_results(game, 'F HOL', 'bounce')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NTH', 'bounce')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'F EDI', '')
-        assert self.check_results(game, 'F YOR', '')
-        assert self.check_results(game, 'F NWG', 'bounce')
-        assert self.check_results(game, 'A KIE', '')
-        assert self.check_results(game, 'A RUH', 'bounce')
+        assert self.check_results(game, 'F HOL', BOUNCE)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NTH', BOUNCE)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'F EDI', OK)
+        assert self.check_results(game, 'F YOR', OK)
+        assert self.check_results(game, 'F NWG', BOUNCE)
+        assert self.check_results(game, 'A KIE', OK)
+        assert self.check_results(game, 'A RUH', BOUNCE)
         assert self.owner_name(game, 'F HOL') == 'GERMANY'
         assert self.owner_name(game, 'F HEL') == 'GERMANY'
         assert self.owner_name(game, 'F SKA') == 'GERMANY'
@@ -2070,18 +2071,18 @@ class TestDATC():
                                           'F LON S F NWG - NTH'])
         self.set_orders(game, 'AUSTRIA', ['A KIE S A RUH - HOL', 'A RUH - HOL'])
         self.process(game)
-        assert self.check_results(game, 'F HOL', 'bounce')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NTH', 'dislodged')
-        assert self.check_results(game, 'F NTH', 'bounce')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'F EDI', '')
-        assert self.check_results(game, 'F YOR', '')
-        assert self.check_results(game, 'F NWG', '')
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'A KIE', '')
-        assert self.check_results(game, 'A RUH', 'bounce')
+        assert self.check_results(game, 'F HOL', BOUNCE)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NTH', DISLODGED)
+        assert self.check_results(game, 'F NTH', BOUNCE)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'F EDI', OK)
+        assert self.check_results(game, 'F YOR', OK)
+        assert self.check_results(game, 'F NWG', OK)
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'A KIE', OK)
+        assert self.check_results(game, 'A RUH', BOUNCE)
         assert check_dislodged(game, 'F NTH', 'F NWG')
         assert self.owner_name(game, 'F HOL') == 'GERMANY'
         assert self.owner_name(game, 'F HEL') == 'GERMANY'
@@ -2121,13 +2122,13 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F NTH - HOL', 'F BEL S F NTH - HOL', 'F ENG S F HOL - NTH'])
         self.set_orders(game, 'AUSTRIA', ['A KIE S A RUH - HOL', 'A RUH - HOL'])
         self.process(game)
-        assert self.check_results(game, 'F HOL', 'bounce')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F NTH', 'bounce')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'F ENG', 'void')
-        assert self.check_results(game, 'A KIE', '')
-        assert self.check_results(game, 'A RUH', 'bounce')
+        assert self.check_results(game, 'F HOL', BOUNCE)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F NTH', BOUNCE)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'F ENG', VOID)
+        assert self.check_results(game, 'A KIE', OK)
+        assert self.check_results(game, 'A RUH', BOUNCE)
         assert self.owner_name(game, 'F HOL') == 'GERMANY'
         assert self.owner_name(game, 'F HEL') == 'GERMANY'
         assert self.owner_name(game, 'F NTH') == 'FRANCE'
@@ -2160,12 +2161,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F HOL S F HEL - NTH', 'F HEL - NTH'])
         self.set_orders(game, 'RUSSIA', ['F SKA S F NWY - NTH', 'F NWY - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F YOR', 'void')
-        assert self.check_results(game, 'F HOL', '')
-        assert self.check_results(game, 'F HEL', 'bounce')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NWY', 'bounce')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F YOR', VOID)
+        assert self.check_results(game, 'F HOL', OK)
+        assert self.check_results(game, 'F HEL', BOUNCE)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NWY', BOUNCE)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'F YOR') == 'ENGLAND'
         assert self.owner_name(game, 'F HOL') == 'GERMANY'
@@ -2193,12 +2194,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F HOL S F HEL - NTH', 'F HEL - NTH'])
         self.set_orders(game, 'RUSSIA', ['F SKA S F NWY - NTH', 'F NWY - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', 'bounce')
-        assert self.check_results(game, 'F YOR', 'void')
-        assert self.check_results(game, 'F HOL', '')
-        assert self.check_results(game, 'F HEL', 'bounce')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NWY', 'bounce')
+        assert self.check_results(game, 'F NTH', BOUNCE)
+        assert self.check_results(game, 'F YOR', VOID)
+        assert self.check_results(game, 'F HOL', OK)
+        assert self.check_results(game, 'F HEL', BOUNCE)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NWY', BOUNCE)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'F YOR') == 'ENGLAND'
         assert self.owner_name(game, 'F HOL') == 'GERMANY'
@@ -2226,12 +2227,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F HOL S F HEL - NTH', 'F HEL - NTH'])
         self.set_orders(game, 'RUSSIA', ['F SKA S F NWY - NTH', 'F NWY - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F YOR', '')
-        assert self.check_results(game, 'F HOL', '')
-        assert self.check_results(game, 'F HEL', 'bounce')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NWY', '')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F YOR', OK)
+        assert self.check_results(game, 'F HOL', OK)
+        assert self.check_results(game, 'F HEL', BOUNCE)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NWY', OK)
         assert self.owner_name(game, 'F NTH') == 'RUSSIA'
         assert self.owner_name(game, 'F YOR') == 'ENGLAND'
         assert self.owner_name(game, 'F HOL') == 'GERMANY'
@@ -2262,13 +2263,13 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F HOL S F HEL - NTH', 'F HEL - NTH', 'F DEN - HEL'])
         self.set_orders(game, 'RUSSIA', ['F SKA S F NWY - NTH', 'F NWY - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', 'bounce')
-        assert self.check_results(game, 'F YOR', 'void')
-        assert self.check_results(game, 'F HOL', '')
-        assert self.check_results(game, 'F HEL', 'bounce')
-        assert self.check_results(game, 'F DEN', 'bounce')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NWY', 'bounce')
+        assert self.check_results(game, 'F NTH', BOUNCE)
+        assert self.check_results(game, 'F YOR', VOID)
+        assert self.check_results(game, 'F HOL', OK)
+        assert self.check_results(game, 'F HEL', BOUNCE)
+        assert self.check_results(game, 'F DEN', BOUNCE)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NWY', BOUNCE)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'F YOR') == 'ENGLAND'
         assert self.owner_name(game, 'F HOL') == 'GERMANY'
@@ -2301,13 +2302,13 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A MAR S A GAS - SPA', 'A GAS - SPA'])
         self.set_orders(game, 'ITALY', ['F POR - SPA/NC', 'F WES S F POR - SPA/NC'])
         self.process(game)
-        assert self.check_results(game, 'A SPA', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'F LYO', '')
-        assert self.check_results(game, 'A MAR', '')
-        assert self.check_results(game, 'A GAS', 'bounce')
-        assert self.check_results(game, 'F POR', '')
-        assert self.check_results(game, 'F WES', '')
+        assert self.check_results(game, 'A SPA', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'F LYO', OK)
+        assert self.check_results(game, 'A MAR', OK)
+        assert self.check_results(game, 'A GAS', BOUNCE)
+        assert self.check_results(game, 'F POR', OK)
+        assert self.check_results(game, 'F WES', OK)
         assert self.owner_name(game, 'F SPA') == 'ITALY'
         assert self.owner_name(game, 'F SPA/NC') == 'ITALY'
         assert self.owner_name(game, 'F SPA/SC') is None
@@ -2339,11 +2340,11 @@ class TestDATC():
         self.set_orders(game, 'ITALY', 'A VIE - BUD')
         self.set_orders(game, 'RUSSIA', ['A GAL - BUD', 'A RUM S A GAL - BUD'])
         self.process(game)
-        assert self.check_results(game, 'A BUD', 'bounce')
-        assert self.check_results(game, 'A SER', '')
-        assert self.check_results(game, 'A VIE', 'bounce')
-        assert self.check_results(game, 'A GAL', 'bounce')
-        assert self.check_results(game, 'A RUM', '')
+        assert self.check_results(game, 'A BUD', BOUNCE)
+        assert self.check_results(game, 'A SER', OK)
+        assert self.check_results(game, 'A VIE', BOUNCE)
+        assert self.check_results(game, 'A GAL', BOUNCE)
+        assert self.check_results(game, 'A RUM', OK)
         assert self.owner_name(game, 'A BUD') == 'AUSTRIA'
         assert self.owner_name(game, 'A SER') == 'AUSTRIA'
         assert self.owner_name(game, 'A VIE') == 'ITALY'
@@ -2374,13 +2375,13 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', 'F NTH H')
         self.set_orders(game, 'RUSSIA', ['F NWG - NTH', 'F NWY S F NWG - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F EDI', '')
-        assert self.check_results(game, 'F YOR', 'bounce')
-        assert self.check_results(game, 'F BEL', 'bounce')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F NWG', 'bounce')
-        assert self.check_results(game, 'F NWY', '')
+        assert self.check_results(game, 'F EDI', OK)
+        assert self.check_results(game, 'F YOR', BOUNCE)
+        assert self.check_results(game, 'F BEL', BOUNCE)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F NWG', BOUNCE)
+        assert self.check_results(game, 'F NWY', OK)
         assert self.owner_name(game, 'F EDI') == 'ENGLAND'
         assert self.owner_name(game, 'F YOR') == 'ENGLAND'
         assert self.owner_name(game, 'F BEL') == 'FRANCE'
@@ -2405,8 +2406,8 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['A LVP - EDI'])
         self.set_orders(game, 'RUSSIA', ['F EDI - LVP'])
         self.process(game)
-        assert self.check_results(game, 'A LVP', 'bounce')
-        assert self.check_results(game, 'F EDI', 'void')
+        assert self.check_results(game, 'A LVP', BOUNCE)
+        assert self.check_results(game, 'F EDI', VOID)
         assert self.owner_name(game, 'A LVP') == 'ENGLAND'
         assert self.owner_name(game, 'F EDI') == 'RUSSIA'
 
@@ -2441,16 +2442,16 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER - KIE', 'F DEN S A BER - KIE', 'F HEL S A BER - KIE'])
         self.set_orders(game, 'RUSSIA', ['F BAL S A PRU - BER', 'A PRU - BER'])
         self.process(game)
-        assert self.check_results(game, 'F HOL', '')
-        assert self.check_results(game, 'A RUH', 'bounce')
-        assert self.check_results(game, 'A KIE', 'bounce')
-        assert self.check_results(game, 'A MUN', '')
-        assert self.check_results(game, 'A SIL', '')
-        assert self.check_results(game, 'A BER', 'bounce')
-        assert self.check_results(game, 'F DEN', '')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'A PRU', 'bounce')
+        assert self.check_results(game, 'F HOL', OK)
+        assert self.check_results(game, 'A RUH', BOUNCE)
+        assert self.check_results(game, 'A KIE', BOUNCE)
+        assert self.check_results(game, 'A MUN', OK)
+        assert self.check_results(game, 'A SIL', OK)
+        assert self.check_results(game, 'A BER', BOUNCE)
+        assert self.check_results(game, 'F DEN', OK)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'A PRU', BOUNCE)
         assert self.owner_name(game, 'F HOL')
         assert self.owner_name(game, 'A RUH')
         assert self.owner_name(game, 'A KIE')
@@ -2479,10 +2480,10 @@ class TestDATC():
                                          'F BLA C A GRE - SEV'])
         self.process(game)
         # Note F CON is void, the other moves then are impossible (i.e. A GRE can't move by convoy to SEV)
-        assert self.check_results(game, 'A GRE', 'void')
-        assert self.check_results(game, 'F AEG', 'void')
-        assert self.check_results(game, 'F CON', 'void')
-        assert self.check_results(game, 'F BLA', 'void')
+        assert self.check_results(game, 'A GRE', VOID)
+        assert self.check_results(game, 'F AEG', VOID)
+        assert self.check_results(game, 'F CON', VOID)
+        assert self.check_results(game, 'F BLA', VOID)
         assert self.owner_name(game, 'A GRE') == 'TURKEY'
         assert self.owner_name(game, 'F AEG') == 'TURKEY'
         assert self.owner_name(game, 'F CON') == 'TURKEY'
@@ -2504,9 +2505,9 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F ENG C A LON - BRE', 'A LON - BRE'])
         self.set_orders(game, 'FRANCE', 'A PAR - BRE')
         self.process(game)
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A LON', 'bounce')
-        assert self.check_results(game, 'A PAR', 'bounce')
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A LON', BOUNCE)
+        assert self.check_results(game, 'A PAR', BOUNCE)
         assert self.owner_name(game, 'F ENG') == 'ENGLAND'
         assert self.owner_name(game, 'A LON') == 'ENGLAND'
         assert self.owner_name(game, 'A PAR') == 'FRANCE'
@@ -2528,10 +2529,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F ENG C A LON - BRE', 'A LON - BRE', 'F MAO S A LON - BRE'])
         self.set_orders(game, 'FRANCE', 'A PAR - BRE')
         self.process(game)
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'A PAR', 'bounce')
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'A PAR', BOUNCE)
         assert self.owner_name(game, 'F ENG') == 'ENGLAND'
         assert self.owner_name(game, 'A BRE') == 'ENGLAND'
         assert self.owner_name(game, 'F MAO') == 'ENGLAND'
@@ -2553,9 +2554,9 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NTH C A LON - HOL', 'A LON - HOL'])
         self.set_orders(game, 'GERMANY', 'F SKA - NTH')
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F SKA', 'bounce')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F SKA', BOUNCE)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A LON') is None
         assert self.owner_name(game, 'F SKA') == 'GERMANY'
@@ -2581,12 +2582,12 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F ENG - NTH', 'F BEL S F ENG - NTH'])
         self.set_orders(game, 'GERMANY', ['F SKA - NTH', 'F DEN S F SKA - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F ENG', 'bounce')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'F SKA', 'bounce')
-        assert self.check_results(game, 'F DEN', '')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F ENG', BOUNCE)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'F SKA', BOUNCE)
+        assert self.check_results(game, 'F DEN', OK)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A LON') is None
         assert self.owner_name(game, 'F ENG') == 'FRANCE'
@@ -2618,14 +2619,14 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A HOL S A BEL', 'A BEL S A HOL', 'F HEL S F SKA - NTH', 'F SKA - NTH'])
         self.set_orders(game, 'FRANCE', ['A PIC - BEL', 'A BUR S A PIC - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', 'dislodged')
-        assert self.check_results(game, 'A LON', 'no convoy')
-        assert self.check_results(game, 'A HOL', '')
-        assert self.check_results(game, 'A BEL', 'cut')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'A PIC', 'bounce')
-        assert self.check_results(game, 'A BUR', '')
+        assert self.check_results(game, 'F NTH', DISLODGED)
+        assert self.check_results(game, 'A LON', NO_CONVOY)
+        assert self.check_results(game, 'A HOL', OK)
+        assert self.check_results(game, 'A BEL', CUT)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'A PIC', BOUNCE)
+        assert self.check_results(game, 'A BUR', OK)
         assert check_dislodged(game, 'F NTH', 'F SKA')
         assert self.owner_name(game, 'F NTH') == 'GERMANY'
         assert self.owner_name(game, 'A LON') == 'ENGLAND'
@@ -2655,10 +2656,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NTH C A LON - HOL', 'A LON - HOL'])
         self.set_orders(game, 'GERMANY', ['F HEL S F SKA - NTH', 'F SKA - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', 'dislodged')
-        assert self.check_results(game, 'A LON', 'no convoy')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F SKA', '')
+        assert self.check_results(game, 'F NTH', DISLODGED)
+        assert self.check_results(game, 'A LON', NO_CONVOY)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F SKA', OK)
         assert check_dislodged(game, 'F NTH', 'F SKA')      # ENGLAND
         assert self.owner_name(game, 'F NTH') == 'GERMANY'
         assert self.owner_name(game, 'A LON') == 'ENGLAND'
@@ -2670,7 +2671,7 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ENGLAND', 'F NTH R HOL')
             self.process(game)
-            assert self.check_results(game, 'F NTH', '', phase='R')
+            assert self.check_results(game, 'F NTH', OK, phase='R')
         assert self.owner_name(game, 'F NTH') == 'GERMANY'
         assert self.owner_name(game, 'A LON') == 'ENGLAND'
         assert self.owner_name(game, 'F HEL') == 'GERMANY'
@@ -2694,11 +2695,11 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NTH C A LON - HOL', 'A LON - HOL'])
         self.set_orders(game, 'GERMANY', ['F HEL S F SKA - NTH', 'F SKA - NTH', 'A BEL - HOL'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', 'dislodged')
-        assert self.check_results(game, 'A LON', 'no convoy')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'A BEL', '')
+        assert self.check_results(game, 'F NTH', DISLODGED)
+        assert self.check_results(game, 'A LON', NO_CONVOY)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'A BEL', OK)
         assert check_dislodged(game, 'F NTH', 'F SKA')
         assert self.owner_name(game, 'F NTH') == 'GERMANY'
         assert self.owner_name(game, 'A LON') == 'ENGLAND'
@@ -2727,11 +2728,11 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F ENG C A LON - BEL', 'F NTH C A LON - BEL', 'A LON - BEL'])
         self.set_orders(game, 'FRANCE', ['F BRE S F MAO - ENG', 'F MAO - ENG'])
         self.process(game)
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F BRE', '')
-        assert self.check_results(game, 'F MAO', '')
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F BRE', OK)
+        assert self.check_results(game, 'F MAO', OK)
         assert check_dislodged(game, 'F ENG', 'F MAO')
         assert self.owner_name(game, 'F ENG') == 'FRANCE'
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
@@ -2764,11 +2765,11 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F ENG C A LON - BEL'])
         self.set_orders(game, 'FRANCE', ['F BRE S F MAO - ENG', 'F MAO - ENG'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F BRE', '')
-        assert self.check_results(game, 'F MAO', '')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F BRE', OK)
+        assert self.check_results(game, 'F MAO', OK)
         assert check_dislodged(game, 'F ENG', 'F MAO')
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A LON') is None
@@ -2803,11 +2804,11 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', 'F NTH C A LON - BEL')
         self.set_orders(game, 'FRANCE', ['F BRE S F MAO - ENG', 'F MAO - ENG'])
         self.process(game)
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F BRE', '')
-        assert self.check_results(game, 'F MAO', '')
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F BRE', OK)
+        assert self.check_results(game, 'F MAO', OK)
         assert check_dislodged(game, 'F ENG', 'F MAO')
         assert self.owner_name(game, 'A LON') is None
         assert self.owner_name(game, 'F ENG') == 'FRANCE'
@@ -2836,11 +2837,11 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F ENG C A LON - BEL', 'A LON - BEL', 'F IRI C A LON - BEL'])
         self.set_orders(game, 'FRANCE', ['F NAO S F MAO - IRI', 'F MAO - IRI'])
         self.process(game)
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F IRI', 'dislodged')
-        assert self.check_results(game, 'F NAO', '')
-        assert self.check_results(game, 'F MAO', '')
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F IRI', DISLODGED)
+        assert self.check_results(game, 'F NAO', OK)
+        assert self.check_results(game, 'F MAO', OK)
         assert check_dislodged(game, 'F IRI', 'F MAO')
         assert self.owner_name(game, 'F ENG') == 'ENGLAND'
         assert self.owner_name(game, 'A LON') is None
@@ -2872,11 +2873,11 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', 'F ENG C A LON - BEL')
         self.set_orders(game, 'GERMANY', ['F HOL S F DEN - NTH', 'F DEN - NTH'])
         self.process(game)
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F NTH', 'dislodged')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'F HOL', '')
-        assert self.check_results(game, 'F DEN', '')
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F NTH', DISLODGED)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'F HOL', OK)
+        assert self.check_results(game, 'F DEN', OK)
         assert check_dislodged(game, 'F NTH', 'F DEN')
         assert self.owner_name(game, 'A LON') is None
         assert self.owner_name(game, 'F NTH') == 'GERMANY'
@@ -2905,10 +2906,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F LON S F WAL - ENG', 'F WAL - ENG'])
         self.set_orders(game, 'FRANCE', ['A BRE - LON', 'F ENG C A BRE - LON'])
         self.process(game)
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'F WAL', '')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'dislodged')
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'F WAL', OK)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISLODGED)
         assert check_dislodged(game, 'F ENG', 'F WAL')
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'F WAL') is None
@@ -2940,13 +2941,13 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['A BRE - LON', 'F ENG C A BRE - LON'])
         self.set_orders(game, 'ITALY', ['F IRI C A NAF - WAL', 'F MAO C A NAF - WAL', 'A NAF - WAL'])
         self.process(game)
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'F WAL', '')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F IRI', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'A NAF', '')
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'F WAL', OK)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F IRI', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'A NAF', OK)
         assert check_dislodged(game, 'F ENG', 'F WAL')
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'A WAL') == 'ITALY'
@@ -2978,12 +2979,12 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['A BRE - LON', 'F ENG C A BRE - LON'])
         self.set_orders(game, 'GERMANY', ['F NTH S F BEL - ENG', 'F BEL - ENG'])
         self.process(game)
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'F WAL', 'bounce')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'disrupted')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F BEL', 'bounce')
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'F WAL', BOUNCE)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISRUPTED)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F BEL', BOUNCE)
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'F WAL') == 'ENGLAND'
         assert self.owner_name(game, 'A BRE') == 'FRANCE'
@@ -3020,13 +3021,13 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['A BRE - LON', 'F ENG C A BRE - LON', 'F YOR S A BRE - LON'])
         self.set_orders(game, 'GERMANY', ['F NTH S F BEL - ENG', 'F BEL - ENG'])
         self.process(game)
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'F WAL', 'bounce')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'disrupted')
-        assert self.check_results(game, 'F YOR', 'no convoy')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F BEL', 'bounce')
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'F WAL', BOUNCE)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISRUPTED)
+        assert self.check_results(game, 'F YOR', NO_CONVOY)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F BEL', BOUNCE)
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
         assert self.owner_name(game, 'F WAL') == 'ENGLAND'
         assert self.owner_name(game, 'A BRE') == 'FRANCE'
@@ -3066,12 +3067,12 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F BEL S F NTH'])
         self.set_orders(game, 'GERMANY', ['F HEL S F SKA - NTH', 'F SKA - NTH'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', 'disrupted')
-        assert self.check_results(game, 'A LON', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'no convoy')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F SKA', 'bounce')
+        assert self.check_results(game, 'F NTH', DISRUPTED)
+        assert self.check_results(game, 'A LON', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', NO_CONVOY)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F SKA', BOUNCE)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A LON') == 'ENGLAND'
         assert self.owner_name(game, 'F ENG') == 'ENGLAND'
@@ -3109,11 +3110,11 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['A TUN - NAP', 'F TYS C A TUN - NAP', 'F ION C A TUN - NAP'])
         self.set_orders(game, 'ITALY', ['F NAP S F ROM - TYS', 'F ROM - TYS'])
         self.process(game)
-        assert self.check_results(game, 'A TUN', 'bounce')
-        assert self.check_results(game, 'F TYS', '')
-        assert self.check_results(game, 'F ION', '')
-        assert self.check_results(game, 'F NAP', 'cut')
-        assert self.check_results(game, 'F ROM', 'bounce')
+        assert self.check_results(game, 'A TUN', BOUNCE)
+        assert self.check_results(game, 'F TYS', OK)
+        assert self.check_results(game, 'F ION', OK)
+        assert self.check_results(game, 'F NAP', CUT)
+        assert self.check_results(game, 'F ROM', BOUNCE)
         assert self.owner_name(game, 'A TUN') == 'FRANCE'
         assert self.owner_name(game, 'F TYS') == 'FRANCE'
         assert self.owner_name(game, 'F ION') == 'FRANCE'
@@ -3157,12 +3158,12 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['F NAP S F ION', 'F ION C A TUN - NAP'])
         self.set_orders(game, 'TURKEY', ['F AEG S F EAS - ION', 'F EAS - ION'])
         self.process(game)
-        assert self.check_results(game, 'A TUN', 'bounce')
-        assert self.check_results(game, 'F TYS', '')
-        assert self.check_results(game, 'F NAP', 'cut')
-        assert self.check_results(game, 'F ION', 'dislodged')
-        assert self.check_results(game, 'F AEG', '')
-        assert self.check_results(game, 'F EAS', '')
+        assert self.check_results(game, 'A TUN', BOUNCE)
+        assert self.check_results(game, 'F TYS', OK)
+        assert self.check_results(game, 'F NAP', CUT)
+        assert self.check_results(game, 'F ION', DISLODGED)
+        assert self.check_results(game, 'F AEG', OK)
+        assert self.check_results(game, 'F EAS', OK)
         assert check_dislodged(game, 'F ION', 'F EAS')
         assert self.owner_name(game, 'A TUN') == 'FRANCE'
         assert self.owner_name(game, 'F TYS') == 'FRANCE'
@@ -3204,15 +3205,15 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F IRI S F MAO - NAO', 'F MAO - NAO'])
         self.set_orders(game, 'ENGLAND', ['A LVP - CLY VIA', 'F NAO C A LVP - CLY', 'F CLY S F NAO'])
         self.process(game)
-        assert self.check_results(game, 'A EDI', '')
-        assert self.check_results(game, 'F NWG', '')
-        assert self.check_results(game, 'A NWY', '')
-        assert self.check_results(game, 'F IRI', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'A LVP', 'no convoy')
-        assert self.check_results(game, 'F NAO', 'dislodged')
-        assert self.check_results(game, 'F CLY', 'cut')
-        assert self.check_results(game, 'F CLY', 'dislodged')
+        assert self.check_results(game, 'A EDI', OK)
+        assert self.check_results(game, 'F NWG', OK)
+        assert self.check_results(game, 'A NWY', OK)
+        assert self.check_results(game, 'F IRI', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'A LVP', NO_CONVOY)
+        assert self.check_results(game, 'F NAO', DISLODGED)
+        assert self.check_results(game, 'F CLY', CUT)
+        assert self.check_results(game, 'F CLY', DISLODGED)
         assert check_dislodged(game, 'F NAO', 'F MAO')
         assert check_dislodged(game, 'F CLY', 'A NWY')
         assert self.owner_name(game, 'A EDI') == 'RUSSIA'
@@ -3263,14 +3264,14 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F BEL S F PIC - ENG', 'F PIC - ENG'])
         self.set_orders(game, 'RUSSIA', ['A NWY - BEL', 'F NTH C A NWY - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F EDI', '')
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'F PIC', '')
-        assert self.check_results(game, 'A NWY', 'no convoy')
-        assert self.check_results(game, 'F NTH', 'dislodged')
+        assert self.check_results(game, 'F EDI', OK)
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'F PIC', OK)
+        assert self.check_results(game, 'A NWY', NO_CONVOY)
+        assert self.check_results(game, 'F NTH', DISLODGED)
         assert check_dislodged(game, 'F ENG', 'F PIC')
         assert check_dislodged(game, 'F NTH', 'F EDI')
         assert self.owner_name(game, 'F EDI') is None
@@ -3321,16 +3322,16 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['F MAO - ENG', 'F IRI S F MAO - ENG'])
         self.set_orders(game, 'RUSSIA', ['A NWY - BEL', 'F NTH C A NWY - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F EDI', 'bounce')
-        assert self.check_results(game, 'F YOR', '')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'disrupted')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'F MAO', 'bounce')
-        assert self.check_results(game, 'F IRI', '')
-        assert self.check_results(game, 'A NWY', 'no convoy')
-        assert self.check_results(game, 'F NTH', 'disrupted')
+        assert self.check_results(game, 'F EDI', BOUNCE)
+        assert self.check_results(game, 'F YOR', OK)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISRUPTED)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'F MAO', BOUNCE)
+        assert self.check_results(game, 'F IRI', OK)
+        assert self.check_results(game, 'A NWY', NO_CONVOY)
+        assert self.check_results(game, 'F NTH', DISRUPTED)
         assert self.owner_name(game, 'F EDI') == 'ENGLAND'
         assert self.owner_name(game, 'F YOR') == 'ENGLAND'
         assert self.owner_name(game, 'A BRE') == 'FRANCE'
@@ -3377,15 +3378,15 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['A BRE - LON', 'F ENG C A BRE - LON', 'F BEL S F ENG'])
         self.set_orders(game, 'RUSSIA', ['A NWY - BEL', 'F NTH C A NWY - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F EDI', '')
-        assert self.check_results(game, 'F LON', '')
-        assert self.check_results(game, 'F IRI', 'bounce')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'disrupted')
-        assert self.check_results(game, 'F BEL', '')
-        assert self.check_results(game, 'A NWY', 'no convoy')
-        assert self.check_results(game, 'F NTH', 'dislodged')
+        assert self.check_results(game, 'F EDI', OK)
+        assert self.check_results(game, 'F LON', OK)
+        assert self.check_results(game, 'F IRI', BOUNCE)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISRUPTED)
+        assert self.check_results(game, 'F BEL', OK)
+        assert self.check_results(game, 'A NWY', NO_CONVOY)
+        assert self.check_results(game, 'F NTH', DISLODGED)
         assert check_dislodged(game, 'F NTH', 'F EDI')
         assert self.owner_name(game, 'F EDI') is None
         assert self.owner_name(game, 'F LON') == 'ENGLAND'
@@ -3415,9 +3416,9 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['A NWY - SWE', 'F SKA C A NWY - SWE'])
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY'])
         self.process(game)
-        assert self.check_results(game, 'A NWY', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'A SWE', '')
+        assert self.check_results(game, 'A NWY', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'A SWE', OK)
         assert self.owner_name(game, 'A NWY') == 'RUSSIA'
         assert self.owner_name(game, 'F SKA') == 'ENGLAND'
         assert self.owner_name(game, 'A SWE') == 'ENGLAND'
@@ -3445,9 +3446,9 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', 'F SWE - NWY')
         self.set_orders(game, 'GERMANY', 'F SKA C A NWY - SWE')
         self.process(game)
-        assert self.check_results(game, 'A NWY', 'bounce')
-        assert self.check_results(game, 'F SWE', 'bounce')
-        assert self.check_results(game, 'F SKA', 'no convoy')
+        assert self.check_results(game, 'A NWY', BOUNCE)
+        assert self.check_results(game, 'F SWE', BOUNCE)
+        assert self.check_results(game, 'F SKA', NO_CONVOY)
         assert self.owner_name(game, 'A NWY') == 'ENGLAND'
         assert self.owner_name(game, 'F SWE') == 'RUSSIA'
         assert self.owner_name(game, 'F SKA') == 'GERMANY'
@@ -3479,12 +3480,12 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F BRE - ENG', 'A PIC - BEL', 'A BUR S A PIC - BEL', 'F MAO S F BRE - ENG'])
         self.set_orders(game, 'ENGLAND', ['F ENG C A PIC - BEL'])
         self.process(game)
-        assert self.check_results(game, 'F BRE', '')
-        assert self.check_results(game, 'A PIC', '')
-        assert self.check_results(game, 'A BUR', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F ENG', 'no convoy')
+        assert self.check_results(game, 'F BRE', OK)
+        assert self.check_results(game, 'A PIC', OK)
+        assert self.check_results(game, 'A BUR', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F ENG', NO_CONVOY)
         assert check_dislodged(game, 'F ENG', 'F BRE')
         assert self.owner_name(game, 'F BRE') is None
         assert self.owner_name(game, 'A PIC') is None
@@ -3524,13 +3525,13 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F BRE - ENG', 'A PIC - BEL', 'A BUR S A PIC - BEL', 'F MAO S F BRE - ENG'])
         self.set_orders(game, 'ENGLAND', ['F ENG C A PIC - BEL', 'A BEL - PIC'])
         self.process(game)
-        assert self.check_results(game, 'F BRE', '')
-        assert self.check_results(game, 'A PIC', '')
-        assert self.check_results(game, 'A BUR', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F ENG', 'no convoy')
-        assert self.check_results(game, 'A BEL', 'dislodged')
+        assert self.check_results(game, 'F BRE', OK)
+        assert self.check_results(game, 'A PIC', OK)
+        assert self.check_results(game, 'A BUR', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F ENG', NO_CONVOY)
+        assert self.check_results(game, 'A BEL', DISLODGED)
         assert check_dislodged(game, 'F ENG', 'F BRE')
         assert check_dislodged(game, 'A BEL', 'A PIC')
         assert self.owner_name(game, 'F BRE') is None
@@ -3560,10 +3561,10 @@ class TestDATC():
         self.set_orders(game, 'ITALY', ['A ROM - APU', 'F TYS C A APU - ROM'])
         self.set_orders(game, 'TURKEY', ['A APU - ROM', 'F ION C A APU - ROM'])
         self.process(game)
-        assert self.check_results(game, 'A ROM', '')
-        assert self.check_results(game, 'F TYS', '')
-        assert self.check_results(game, 'A APU', '')
-        assert self.check_results(game, 'F ION', '')
+        assert self.check_results(game, 'A ROM', OK)
+        assert self.check_results(game, 'F TYS', OK)
+        assert self.check_results(game, 'A APU', OK)
+        assert self.check_results(game, 'F ION', OK)
         assert self.owner_name(game, 'A ROM') == 'TURKEY'
         assert self.owner_name(game, 'F TYS') == 'ITALY'
         assert self.owner_name(game, 'A APU') == 'ITALY'
@@ -3602,13 +3603,13 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F IRI H', 'F NTH H'])
         self.set_orders(game, 'RUSSIA', ['F NWG C A LVP - EDI', 'F NAO C A LVP - EDI'])
         self.process(game)
-        assert self.check_results(game, 'A LVP', '')
-        assert self.check_results(game, 'F ENG', 'no convoy')
-        assert self.check_results(game, 'A EDI', '')
-        assert self.check_results(game, 'F IRI', '')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F NWG', '')
-        assert self.check_results(game, 'F NAO', '')
+        assert self.check_results(game, 'A LVP', OK)
+        assert self.check_results(game, 'F ENG', NO_CONVOY)
+        assert self.check_results(game, 'A EDI', OK)
+        assert self.check_results(game, 'F IRI', OK)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F NWG', OK)
+        assert self.check_results(game, 'F NAO', OK)
         assert self.owner_name(game, 'A LVP') == 'GERMANY'
         assert self.owner_name(game, 'F ENG') == 'ENGLAND'
         assert self.owner_name(game, 'A EDI') == 'ENGLAND'
@@ -3642,10 +3643,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F SKA C A SWE - NWY', 'F NWY - SWE'])
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY', 'F BOT C A SWE - NWY'])
         self.process(game)
-        assert self.check_results(game, 'F SKA', 'no convoy')
-        assert self.check_results(game, 'F NWY', 'bounce')
-        assert self.check_results(game, 'A SWE', 'bounce')
-        assert self.check_results(game, 'F BOT', 'void')
+        assert self.check_results(game, 'F SKA', NO_CONVOY)
+        assert self.check_results(game, 'F NWY', BOUNCE)
+        assert self.check_results(game, 'A SWE', BOUNCE)
+        assert self.check_results(game, 'F BOT', VOID)
         assert self.owner_name(game, 'F SKA') == 'ENGLAND'
         assert self.owner_name(game, 'F NWY') == 'ENGLAND'
         assert self.owner_name(game, 'A SWE') == 'RUSSIA'
@@ -3674,9 +3675,9 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['A BEL - HOL VIA'])
         self.set_orders(game, 'ENGLAND', ['F NTH - HEL', 'A HOL - KIE'])
         self.process(game)
-        assert self.check_results(game, 'A BEL', '')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A HOL', '')
+        assert self.check_results(game, 'A BEL', OK)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A HOL', OK)
         assert self.owner_name(game, 'A BEL') is None
         assert self.owner_name(game, 'F NTH') is None
         assert self.owner_name(game, 'A HOL') == 'FRANCE'
@@ -3709,10 +3710,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['A NWY - SWE', 'F SKA C A NWY - SWE', 'F FIN S A NWY - SWE'])
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY'])
         self.process(game)
-        assert self.check_results(game, 'A NWY', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F FIN', '')
-        assert self.check_results(game, 'A SWE', '')
+        assert self.check_results(game, 'A NWY', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F FIN', OK)
+        assert self.check_results(game, 'A SWE', OK)
         assert self.owner_name(game, 'A NWY') == 'RUSSIA'
         assert self.owner_name(game, 'F SKA') == 'ENGLAND'
         assert self.owner_name(game, 'F FIN') == 'ENGLAND'
@@ -3752,15 +3753,15 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY', 'F BAR S A SWE - NWY'])
         self.set_orders(game, 'FRANCE', ['F NWG - NWY', 'F NTH S F NWG - NWY'])
         self.process(game)
-        assert self.check_results(game, 'A NWY', '')
-        assert self.check_results(game, 'F DEN', '')
-        assert self.check_results(game, 'F FIN', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'A SWE', 'bounce')
-        assert self.check_results(game, 'A SWE', 'dislodged')
-        assert self.check_results(game, 'F BAR', '')
-        assert self.check_results(game, 'F NWG', 'bounce')
-        assert self.check_results(game, 'F NTH', '')
+        assert self.check_results(game, 'A NWY', OK)
+        assert self.check_results(game, 'F DEN', OK)
+        assert self.check_results(game, 'F FIN', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'A SWE', BOUNCE)
+        assert self.check_results(game, 'A SWE', DISLODGED)
+        assert self.check_results(game, 'F BAR', OK)
+        assert self.check_results(game, 'F NWG', BOUNCE)
+        assert self.check_results(game, 'F NTH', OK)
         assert check_dislodged(game, 'A SWE', 'A NWY')
         assert self.owner_name(game, 'A NWY') is None
         assert self.owner_name(game, 'F DEN') == 'ENGLAND'
@@ -3799,11 +3800,11 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NWY S F NTH - SKA', 'F NTH - SKA'])
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY', 'F SKA C A SWE - NWY', 'F BAR S A SWE - NWY'])
         self.process(game)
-        assert self.check_results(game, 'F NWY', '')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A SWE', 'no convoy')
-        assert self.check_results(game, 'F SKA', 'dislodged')
-        assert self.check_results(game, 'F BAR', 'no convoy')
+        assert self.check_results(game, 'F NWY', OK)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A SWE', NO_CONVOY)
+        assert self.check_results(game, 'F SKA', DISLODGED)
+        assert self.check_results(game, 'F BAR', NO_CONVOY)
         assert check_dislodged(game, 'F SKA', 'F NTH')
         assert self.owner_name(game, 'F NWY') == 'ENGLAND'
         assert self.owner_name(game, 'F NTH') is None
@@ -3831,13 +3832,13 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A EDI - LVP VIA', 'F NTH C A EDI - LVP', 'F ENG C A EDI - LVP',
                                           'F IRI C A EDI - LVP'])
         self.process(game)
-        assert self.check_results(game, 'A LVP', '')
-        assert self.check_results(game, 'F NAO', '')
-        assert self.check_results(game, 'F NWG', '')
-        assert self.check_results(game, 'A EDI', '')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'F IRI', '')
+        assert self.check_results(game, 'A LVP', OK)
+        assert self.check_results(game, 'F NAO', OK)
+        assert self.check_results(game, 'F NWG', OK)
+        assert self.check_results(game, 'A EDI', OK)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'F IRI', OK)
         assert self.owner_name(game, 'A LVP') == 'GERMANY'
         assert self.owner_name(game, 'F NAO') == 'ENGLAND'
         assert self.owner_name(game, 'F NWG') == 'ENGLAND'
@@ -3873,11 +3874,11 @@ class TestDATC():
         self.set_orders(game, 'AUSTRIA', ['F ADR C A TRI - VEN', 'A TRI - VEN VIA'])
         self.set_orders(game, 'ITALY', ['A VEN S F ALB - TRI', 'F ALB - TRI'])
         self.process(game)
-        assert self.check_results(game, 'F ADR', '')
-        assert self.check_results(game, 'A TRI', 'dislodged')
-        assert self.check_results(game, 'A TRI', 'bounce')
-        assert self.check_results(game, 'A VEN', '')
-        assert self.check_results(game, 'F ALB', '')
+        assert self.check_results(game, 'F ADR', OK)
+        assert self.check_results(game, 'A TRI', DISLODGED)
+        assert self.check_results(game, 'A TRI', BOUNCE)
+        assert self.check_results(game, 'A VEN', OK)
+        assert self.check_results(game, 'F ALB', OK)
         assert check_dislodged(game, 'A TRI', 'F ALB')
         assert self.owner_name(game, 'F ADR') == 'AUSTRIA'
         assert self.owner_name(game, 'F TRI') == 'ITALY'
@@ -3912,15 +3913,15 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['F SKA C A SWE - NWY'])
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY VIA', 'F BAR S A SWE - NWY'])
         self.process(game)
-        assert self.check_results(game, 'A NWY', '')
-        assert self.check_results(game, 'F DEN', '')
-        assert self.check_results(game, 'F FIN', '')
-        assert self.check_results(game, 'F NWG', 'bounce')
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'A SWE', 'dislodged')
-        assert self.check_results(game, 'A SWE', 'bounce')
-        assert self.check_results(game, 'F BAR', '')
+        assert self.check_results(game, 'A NWY', OK)
+        assert self.check_results(game, 'F DEN', OK)
+        assert self.check_results(game, 'F FIN', OK)
+        assert self.check_results(game, 'F NWG', BOUNCE)
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'A SWE', DISLODGED)
+        assert self.check_results(game, 'A SWE', BOUNCE)
+        assert self.check_results(game, 'F BAR', OK)
         assert check_dislodged(game, 'A SWE', 'A NWY')
         assert self.owner_name(game, 'A NWY') is None
         assert self.owner_name(game, 'F DEN') == 'ENGLAND'
@@ -3956,13 +3957,13 @@ class TestDATC():
                                           'A LON - BEL VIA'])
         self.set_orders(game, 'FRANCE', ['F ENG C A BEL - LON', 'A BEL - LON VIA'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A HOL', '')
-        assert self.check_results(game, 'A YOR', 'bounce')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A BEL', 'bounce')
-        assert self.check_results(game, 'A BEL', 'dislodged')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A HOL', OK)
+        assert self.check_results(game, 'A YOR', BOUNCE)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A BEL', BOUNCE)
+        assert self.check_results(game, 'A BEL', DISLODGED)
         assert check_dislodged(game, 'A BEL', 'A LON')
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A HOL') == 'ENGLAND'
@@ -3998,13 +3999,13 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['A NWY - SWE', 'A DEN S A NWY - SWE', 'F BAL S A NWY - SWE', 'F NTH - NWY'])
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY VIA', 'F SKA C A SWE - NWY', 'F NWG S A SWE - NWY'])
         self.process(game)
-        assert self.check_results(game, 'A NWY', '')
-        assert self.check_results(game, 'A DEN', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'F NTH', 'bounce')
-        assert self.check_results(game, 'A SWE', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NWG', '')
+        assert self.check_results(game, 'A NWY', OK)
+        assert self.check_results(game, 'A DEN', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'F NTH', BOUNCE)
+        assert self.check_results(game, 'A SWE', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NWG', OK)
         assert self.owner_name(game, 'A NWY') == 'RUSSIA'
         assert self.owner_name(game, 'A DEN') == 'ENGLAND'
         assert self.owner_name(game, 'F BAL') == 'ENGLAND'
@@ -4036,13 +4037,13 @@ class TestDATC():
                                           'F NTH - NWY'])
         self.set_orders(game, 'RUSSIA', ['A SWE - NWY', 'F NWG S A SWE - NWY'])
         self.process(game)
-        assert self.check_results(game, 'A NWY', '')
-        assert self.check_results(game, 'A DEN', '')
-        assert self.check_results(game, 'F BAL', '')
-        assert self.check_results(game, 'F SKA', '')
-        assert self.check_results(game, 'F NTH', 'bounce')
-        assert self.check_results(game, 'A SWE', '')
-        assert self.check_results(game, 'F NWG', '')
+        assert self.check_results(game, 'A NWY', OK)
+        assert self.check_results(game, 'A DEN', OK)
+        assert self.check_results(game, 'F BAL', OK)
+        assert self.check_results(game, 'F SKA', OK)
+        assert self.check_results(game, 'F NTH', BOUNCE)
+        assert self.check_results(game, 'A SWE', OK)
+        assert self.check_results(game, 'F NWG', OK)
         assert self.owner_name(game, 'A NWY') == 'RUSSIA'
         assert self.owner_name(game, 'A DEN') == 'ENGLAND'
         assert self.owner_name(game, 'F BAL') == 'ENGLAND'
@@ -4075,14 +4076,14 @@ class TestDATC():
                                           'A RUH S A LON - BEL'])
         self.set_orders(game, 'FRANCE', ['F ENG C A BEL - LON', 'A BEL - LON', 'A WAL S A BEL - LON'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A HOL', '')
-        assert self.check_results(game, 'A YOR', 'bounce')
-        assert self.check_results(game, 'A LON', '')
-        assert self.check_results(game, 'A RUH', '')
-        assert self.check_results(game, 'F ENG', '')
-        assert self.check_results(game, 'A BEL', '')
-        assert self.check_results(game, 'A WAL', '')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A HOL', OK)
+        assert self.check_results(game, 'A YOR', BOUNCE)
+        assert self.check_results(game, 'A LON', OK)
+        assert self.check_results(game, 'A RUH', OK)
+        assert self.check_results(game, 'F ENG', OK)
+        assert self.check_results(game, 'A BEL', OK)
+        assert self.check_results(game, 'A WAL', OK)
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A HOL') == 'ENGLAND'
         assert self.owner_name(game, 'A YOR') == 'ENGLAND'
@@ -4120,13 +4121,13 @@ class TestDATC():
         self.set_orders(game, 'TURKEY', ['F GRE H'])
         self.set_orders(game, 'ITALY', ['A VEN S A TYR - TRI', 'A TYR - TRI', 'F ION - GRE', 'F AEG S F ION - GRE'])
         self.process(game)
-        assert self.check_results(game, 'F TRI', 'dislodged')
-        assert self.check_results(game, 'A SER', '')
-        assert self.check_results(game, 'F GRE', 'dislodged')
-        assert self.check_results(game, 'A VEN', '')
-        assert self.check_results(game, 'A TYR', '')
-        assert self.check_results(game, 'F ION', '')
-        assert self.check_results(game, 'F AEG', '')
+        assert self.check_results(game, 'F TRI', DISLODGED)
+        assert self.check_results(game, 'A SER', OK)
+        assert self.check_results(game, 'F GRE', DISLODGED)
+        assert self.check_results(game, 'A VEN', OK)
+        assert self.check_results(game, 'A TYR', OK)
+        assert self.check_results(game, 'F ION', OK)
+        assert self.check_results(game, 'F AEG', OK)
         assert check_dislodged(game, 'F TRI', 'A TYR')      # AUSTRIA
         assert check_dislodged(game, 'F GRE', 'F ION')      # TURKEY
         assert self.owner_name(game, 'A TRI') == 'ITALY'
@@ -4142,11 +4143,11 @@ class TestDATC():
             self.set_orders(game, 'AUSTRIA', ['F TRI R ALB', 'A SER S F TRI - ALB'])
             self.set_orders(game, 'TURKEY', ['F GRE R ALB'])
             self.process(game)
-            assert self.check_results(game, 'F TRI', 'bounce', phase='R')
-            assert self.check_results(game, 'F TRI', 'disband', phase='R')
-            assert self.check_results(game, 'A SER', 'void', phase='R')
-            assert self.check_results(game, 'F GRE', 'bounce', phase='R')
-            assert self.check_results(game, 'F GRE', 'disband', phase='R')
+            assert self.check_results(game, 'F TRI', BOUNCE, phase='R')
+            assert self.check_results(game, 'F TRI', DISBAND, phase='R')
+            assert self.check_results(game, 'A SER', VOID, phase='R')
+            assert self.check_results(game, 'F GRE', BOUNCE, phase='R')
+            assert self.check_results(game, 'F GRE', DISBAND, phase='R')
         assert not check_dislodged(game, 'F TRI', '')     # AUSTRIA
         assert not check_dislodged(game, 'F GRE', '')     # TURKEY
         assert self.owner_name(game, 'A TRI') == 'ITALY'
@@ -4189,15 +4190,15 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A KIE S A RUH - HOL', 'A RUH - HOL'])
         self.set_orders(game, 'RUSSIA', ['F EDI H', 'A SWE S A FIN - NWY', 'A FIN - NWY', 'F HOL H'])
         self.process(game)
-        assert self.check_results(game, 'A LVP', '')
-        assert self.check_results(game, 'F YOR', '')
-        assert self.check_results(game, 'F NWY', 'dislodged')
-        assert self.check_results(game, 'A KIE', '')
-        assert self.check_results(game, 'A RUH', '')
-        assert self.check_results(game, 'F EDI', 'dislodged')
-        assert self.check_results(game, 'A SWE', '')
-        assert self.check_results(game, 'A FIN', '')
-        assert self.check_results(game, 'F HOL', 'dislodged')
+        assert self.check_results(game, 'A LVP', OK)
+        assert self.check_results(game, 'F YOR', OK)
+        assert self.check_results(game, 'F NWY', DISLODGED)
+        assert self.check_results(game, 'A KIE', OK)
+        assert self.check_results(game, 'A RUH', OK)
+        assert self.check_results(game, 'F EDI', DISLODGED)
+        assert self.check_results(game, 'A SWE', OK)
+        assert self.check_results(game, 'A FIN', OK)
+        assert self.check_results(game, 'F HOL', DISLODGED)
         assert check_dislodged(game, 'F NWY', 'A FIN')      # ENGLAND
         assert check_dislodged(game, 'F EDI', 'A LVP')      # RUSSIA
         assert check_dislodged(game, 'F HOL', 'A RUH')      # RUSSIA
@@ -4216,12 +4217,12 @@ class TestDATC():
             self.set_orders(game, 'ENGLAND', ['F NWY R NTH'])
             self.set_orders(game, 'RUSSIA', ['F EDI R NTH', 'F HOL S F EDI - NTH'])
             self.process(game)
-            assert self.check_results(game, 'F NWY', 'bounce', phase='R')
-            assert self.check_results(game, 'F NWY', 'disband', phase='R')
-            assert self.check_results(game, 'F EDI', 'bounce', phase='R')
-            assert self.check_results(game, 'F EDI', 'disband', phase='R')
-            assert self.check_results(game, 'F HOL', 'void', phase='R')
-            assert self.check_results(game, 'F EDI', 'disband', phase='R')
+            assert self.check_results(game, 'F NWY', BOUNCE, phase='R')
+            assert self.check_results(game, 'F NWY', DISBAND, phase='R')
+            assert self.check_results(game, 'F EDI', BOUNCE, phase='R')
+            assert self.check_results(game, 'F EDI', DISBAND, phase='R')
+            assert self.check_results(game, 'F HOL', VOID, phase='R')
+            assert self.check_results(game, 'F EDI', DISBAND, phase='R')
         assert not check_dislodged(game, 'F NWY', '')      # ENGLAND
         assert not check_dislodged(game, 'F EDI', '')      # RUSSIA
         assert not check_dislodged(game, 'F HOL', '')      # RUSSIA
@@ -4257,10 +4258,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NTH H', 'A HOL H'])
         self.set_orders(game, 'GERMANY', ['F KIE S A RUH - HOL', 'A RUH - HOL'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A HOL', 'dislodged')
-        assert self.check_results(game, 'F KIE', '')
-        assert self.check_results(game, 'A RUH', '')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A HOL', DISLODGED)
+        assert self.check_results(game, 'F KIE', OK)
+        assert self.check_results(game, 'A RUH', OK)
         assert check_dislodged(game, 'A HOL', 'A RUH')      # ENGLAND
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A HOL') == 'GERMANY'
@@ -4271,9 +4272,9 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ENGLAND', ['A HOL R YOR', 'F NTH C A HOL - YOR'])
             self.process(game)
-            assert self.check_results(game, 'F NTH', 'void', phase='R')
-            assert self.check_results(game, 'A HOL', 'void', phase='R')
-            assert self.check_results(game, 'A HOL', 'disband', phase='R')
+            assert self.check_results(game, 'F NTH', VOID, phase='R')
+            assert self.check_results(game, 'A HOL', VOID, phase='R')
+            assert self.check_results(game, 'A HOL', DISBAND, phase='R')
         assert not check_dislodged(game, 'A HOL', '')     # ENGLAND
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A HOL') == 'GERMANY'
@@ -4302,10 +4303,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F NTH H', 'A HOL H'])
         self.set_orders(game, 'GERMANY', ['F KIE S A RUH - HOL', 'A RUH - HOL'])
         self.process(game)
-        assert self.check_results(game, 'F NTH', '')
-        assert self.check_results(game, 'A HOL', 'dislodged')
-        assert self.check_results(game, 'F KIE', '')
-        assert self.check_results(game, 'A RUH', '')
+        assert self.check_results(game, 'F NTH', OK)
+        assert self.check_results(game, 'A HOL', DISLODGED)
+        assert self.check_results(game, 'F KIE', OK)
+        assert self.check_results(game, 'A RUH', OK)
         assert check_dislodged(game, 'A HOL', 'A RUH')      # ENGLAND
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A HOL') == 'GERMANY'
@@ -4316,8 +4317,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ENGLAND', ['A HOL R BEL', 'F NTH R NWG'])
             self.process(game)
-            assert self.check_results(game, 'F NTH', 'void', phase='R')
-            assert self.check_results(game, 'A HOL', '', phase='R')
+            assert self.check_results(game, 'F NTH', VOID, phase='R')
+            assert self.check_results(game, 'A HOL', OK, phase='R')
         assert not check_dislodged(game, 'A HOL', '')     # ENGLAND
         assert self.owner_name(game, 'F NTH') == 'ENGLAND'
         assert self.owner_name(game, 'A HOL') == 'GERMANY'
@@ -4342,9 +4343,9 @@ class TestDATC():
         self.set_orders(game, 'RUSSIA', ['F CON S F BLA - ANK', 'F BLA - ANK'])
         self.set_orders(game, 'TURKEY', 'F ANK H')
         self.process(game)
-        assert self.check_results(game, 'F CON', '')
-        assert self.check_results(game, 'F BLA', '')
-        assert self.check_results(game, 'F ANK', 'dislodged')
+        assert self.check_results(game, 'F CON', OK)
+        assert self.check_results(game, 'F BLA', OK)
+        assert self.check_results(game, 'F ANK', DISLODGED)
         assert check_dislodged(game, 'F ANK', 'F BLA')      # TURKEY
         assert self.owner_name(game, 'F CON') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') is None
@@ -4354,8 +4355,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'TURKEY', ['F ANK R BLA'])
             self.process(game)
-            assert self.check_results(game, 'F ANK', 'void', phase='R')
-            assert self.check_results(game, 'F ANK', 'disband', phase='R')
+            assert self.check_results(game, 'F ANK', VOID, phase='R')
+            assert self.check_results(game, 'F ANK', DISBAND, phase='R')
         assert not check_dislodged(game, 'F ANK', 'F BLA')  # TURKEY
         assert self.owner_name(game, 'F CON') == 'RUSSIA'
         assert self.owner_name(game, 'F BLA') is None
@@ -4382,11 +4383,11 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A MUN - BOH', 'A SIL - BOH'])
         self.set_orders(game, 'ITALY', ['A VIE H'])
         self.process(game)
-        assert self.check_results(game, 'A BUD', '')
-        assert self.check_results(game, 'A TRI', '')
-        assert self.check_results(game, 'A MUN', 'bounce')
-        assert self.check_results(game, 'A SIL', 'bounce')
-        assert self.check_results(game, 'A VIE', 'dislodged')
+        assert self.check_results(game, 'A BUD', OK)
+        assert self.check_results(game, 'A TRI', OK)
+        assert self.check_results(game, 'A MUN', BOUNCE)
+        assert self.check_results(game, 'A SIL', BOUNCE)
+        assert self.check_results(game, 'A VIE', DISLODGED)
         assert check_dislodged(game, 'A VIE', 'A TRI')      # ITALY
         assert self.owner_name(game, 'A BUD') == 'AUSTRIA'
         assert self.owner_name(game, 'A TRI') is None
@@ -4399,8 +4400,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ITALY', ['A VIE R BOH'])
             self.process(game)
-            assert self.check_results(game, 'A VIE', 'void', phase='R')
-            assert self.check_results(game, 'A VIE', 'disband', phase='R')
+            assert self.check_results(game, 'A VIE', VOID, phase='R')
+            assert self.check_results(game, 'A VIE', DISBAND, phase='R')
         assert not check_dislodged(game, 'A VIE', '')  # ITALY
         assert self.owner_name(game, 'A BUD') == 'AUSTRIA'
         assert self.owner_name(game, 'A TRI') is None
@@ -4434,12 +4435,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A MUN S A SIL - BOH', 'A SIL - BOH'])
         self.set_orders(game, 'ITALY', ['A VIE H', 'A BOH H'])
         self.process(game)
-        assert self.check_results(game, 'A BUD', '')
-        assert self.check_results(game, 'A TRI', '')
-        assert self.check_results(game, 'A MUN', '')
-        assert self.check_results(game, 'A SIL', '')
-        assert self.check_results(game, 'A VIE', 'dislodged')
-        assert self.check_results(game, 'A BOH', 'dislodged')
+        assert self.check_results(game, 'A BUD', OK)
+        assert self.check_results(game, 'A TRI', OK)
+        assert self.check_results(game, 'A MUN', OK)
+        assert self.check_results(game, 'A SIL', OK)
+        assert self.check_results(game, 'A VIE', DISLODGED)
+        assert self.check_results(game, 'A BOH', DISLODGED)
         assert check_dislodged(game, 'A VIE', 'A TRI')      # ITALY
         assert check_dislodged(game, 'A BOH', 'A SIL')      # ITALY
         assert self.owner_name(game, 'A BUD') == 'AUSTRIA'
@@ -4453,10 +4454,10 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ITALY', ['A VIE R TYR', 'A BOH R TYR'])
             self.process(game)
-            assert self.check_results(game, 'A VIE', 'bounce', phase='R')
-            assert self.check_results(game, 'A VIE', 'disband', phase='R')
-            assert self.check_results(game, 'A BOH', 'bounce', phase='R')
-            assert self.check_results(game, 'A BOH', 'disband', phase='R')
+            assert self.check_results(game, 'A VIE', BOUNCE, phase='R')
+            assert self.check_results(game, 'A VIE', DISBAND, phase='R')
+            assert self.check_results(game, 'A BOH', BOUNCE, phase='R')
+            assert self.check_results(game, 'A BOH', DISBAND, phase='R')
         assert not check_dislodged(game, 'A VIE', '')      # ITALY
         assert not check_dislodged(game, 'A BOH', '')      # ITALY
         assert self.owner_name(game, 'A BUD') == 'AUSTRIA'
@@ -4496,15 +4497,15 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A KIE S A RUH - HOL', 'A RUH - HOL'])
         self.set_orders(game, 'RUSSIA', ['F EDI H', 'A SWE S A FIN - NWY', 'A FIN - NWY', 'F HOL H'])
         self.process(game)
-        assert self.check_results(game, 'A LVP', '')
-        assert self.check_results(game, 'F YOR', '')
-        assert self.check_results(game, 'F NWY', 'dislodged')
-        assert self.check_results(game, 'A KIE', '')
-        assert self.check_results(game, 'A RUH', '')
-        assert self.check_results(game, 'F EDI', 'dislodged')
-        assert self.check_results(game, 'A SWE', '')
-        assert self.check_results(game, 'A FIN', '')
-        assert self.check_results(game, 'F HOL', 'dislodged')
+        assert self.check_results(game, 'A LVP', OK)
+        assert self.check_results(game, 'F YOR', OK)
+        assert self.check_results(game, 'F NWY', DISLODGED)
+        assert self.check_results(game, 'A KIE', OK)
+        assert self.check_results(game, 'A RUH', OK)
+        assert self.check_results(game, 'F EDI', DISLODGED)
+        assert self.check_results(game, 'A SWE', OK)
+        assert self.check_results(game, 'A FIN', OK)
+        assert self.check_results(game, 'F HOL', DISLODGED)
         assert check_dislodged(game, 'F NWY', 'A FIN')      # ENGLAND
         assert check_dislodged(game, 'F EDI', 'A LVP')      # RUSSIA
         assert check_dislodged(game, 'F HOL', 'A RUH')      # RUSSIA
@@ -4523,12 +4524,12 @@ class TestDATC():
             self.set_orders(game, 'ENGLAND', ['F NWY R NTH'])
             self.set_orders(game, 'RUSSIA', ['F EDI R NTH', 'F HOL R NTH'])
             self.process(game)
-            assert self.check_results(game, 'F NWY', 'bounce', phase='R')
-            assert self.check_results(game, 'F NWY', 'disband', phase='R')
-            assert self.check_results(game, 'F EDI', 'bounce', phase='R')
-            assert self.check_results(game, 'F EDI', 'disband', phase='R')
-            assert self.check_results(game, 'F HOL', 'bounce', phase='R')
-            assert self.check_results(game, 'F HOL', 'disband', phase='R')
+            assert self.check_results(game, 'F NWY', BOUNCE, phase='R')
+            assert self.check_results(game, 'F NWY', DISBAND, phase='R')
+            assert self.check_results(game, 'F EDI', BOUNCE, phase='R')
+            assert self.check_results(game, 'F EDI', DISBAND, phase='R')
+            assert self.check_results(game, 'F HOL', BOUNCE, phase='R')
+            assert self.check_results(game, 'F HOL', DISBAND, phase='R')
         assert not check_dislodged(game, 'F NWY', '')      # ENGLAND
         assert not check_dislodged(game, 'F EDI', '')      # RUSSIA
         assert not check_dislodged(game, 'F HOL', '')      # RUSSIA
@@ -4565,12 +4566,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER - PRU', 'F KIE H', 'A SIL S A BER - PRU'])
         self.set_orders(game, 'RUSSIA', ['A PRU - BER'])
         self.process(game)
-        assert self.check_results(game, 'F HEL', '')
-        assert self.check_results(game, 'F DEN', '')
-        assert self.check_results(game, 'A BER', '')
-        assert self.check_results(game, 'F KIE', 'dislodged')
-        assert self.check_results(game, 'A SIL', '')
-        assert self.check_results(game, 'A PRU', 'dislodged')
+        assert self.check_results(game, 'F HEL', OK)
+        assert self.check_results(game, 'F DEN', OK)
+        assert self.check_results(game, 'A BER', OK)
+        assert self.check_results(game, 'F KIE', DISLODGED)
+        assert self.check_results(game, 'A SIL', OK)
+        assert self.check_results(game, 'A PRU', DISLODGED)
         assert check_dislodged(game, 'F KIE', 'F HEL')      # GERMANY
         assert check_dislodged(game, 'A PRU', 'A BER')      # RUSSIA
         assert self.owner_name(game, 'F HEL') is None
@@ -4584,8 +4585,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'GERMANY', 'F KIE R BER')
             self.process(game)
-            assert self.check_results(game, 'F KIE', '', phase='R')
-            assert self.check_results(game, 'A PRU', 'disband', phase='R')
+            assert self.check_results(game, 'F KIE', OK, phase='R')
+            assert self.check_results(game, 'A PRU', DISBAND, phase='R')
         assert not check_dislodged(game, 'F KIE', '')      # GERMANY
         assert not check_dislodged(game, 'A PRU', '')      # RUSSIA
         assert self.owner_name(game, 'F HEL') is None
@@ -4623,12 +4624,12 @@ class TestDATC():
         self.set_orders(game, 'GERMANY', ['A BER - KIE', 'A MUN S A BER - KIE', 'A PRU H'])
         self.set_orders(game, 'RUSSIA', ['A WAR - PRU', 'A SIL S A WAR - PRU'])
         self.process(game)
-        assert self.check_results(game, 'A KIE', 'dislodged')
-        assert self.check_results(game, 'A BER', '')
-        assert self.check_results(game, 'A MUN', '')
-        assert self.check_results(game, 'A PRU', 'dislodged')
-        assert self.check_results(game, 'A WAR', '')
-        assert self.check_results(game, 'A SIL', '')
+        assert self.check_results(game, 'A KIE', DISLODGED)
+        assert self.check_results(game, 'A BER', OK)
+        assert self.check_results(game, 'A MUN', OK)
+        assert self.check_results(game, 'A PRU', DISLODGED)
+        assert self.check_results(game, 'A WAR', OK)
+        assert self.check_results(game, 'A SIL', OK)
         assert check_dislodged(game, 'A KIE', 'A BER')      # ENGLAND
         assert check_dislodged(game, 'A PRU', 'A WAR')      # GERMANY
         assert self.owner_name(game, 'A KIE') == 'GERMANY'
@@ -4643,8 +4644,8 @@ class TestDATC():
             self.set_orders(game, 'ENGLAND', ['A KIE R BER'])
             self.set_orders(game, 'GERMANY', ['A PRU R BER'])
             self.process(game)
-            assert self.check_results(game, 'A KIE', 'void', phase='R')
-            assert self.check_results(game, 'A PRU', '', phase='R')
+            assert self.check_results(game, 'A KIE', VOID, phase='R')
+            assert self.check_results(game, 'A PRU', OK, phase='R')
         assert not check_dislodged(game, 'A KIE', '')      # ENGLAND
         assert not check_dislodged(game, 'A PRU', '')      # GERMANY
         assert self.owner_name(game, 'A KIE') == 'GERMANY'
@@ -4684,12 +4685,12 @@ class TestDATC():
                                          'F WES C A GAS - MAR', 'F LYO C A GAS - MAR'])
         self.set_orders(game, 'ITALY', ['A MAR H'])
         self.process(game)
-        assert self.check_results(game, 'A GAS', '')
-        assert self.check_results(game, 'A BUR', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'F WES', '')
-        assert self.check_results(game, 'F LYO', '')
-        assert self.check_results(game, 'A MAR', 'dislodged')
+        assert self.check_results(game, 'A GAS', OK)
+        assert self.check_results(game, 'A BUR', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'F WES', OK)
+        assert self.check_results(game, 'F LYO', OK)
+        assert self.check_results(game, 'A MAR', DISLODGED)
         assert check_dislodged(game, 'A MAR', 'A GAS')      # ITALY
         assert self.owner_name(game, 'A GAS') is None
         assert self.owner_name(game, 'A BUR') == 'FRANCE'
@@ -4702,7 +4703,7 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ITALY', ['A MAR R GAS'])
             self.process(game)
-            assert self.check_results(game, 'A MAR', '', phase='R')
+            assert self.check_results(game, 'A MAR', OK, phase='R')
         assert not check_dislodged(game, 'A MAR', '')  # ITALY
         assert self.owner_name(game, 'A GAS') == 'ITALY'
         assert self.owner_name(game, 'A BUR') == 'FRANCE'
@@ -4750,16 +4751,16 @@ class TestDATC():
                                          'F NAO C A EDI - LVP',
                                          'A CLY S A EDI - LVP'])
         self.process(game)
-        assert self.check_results(game, 'A LVP', 'dislodged')
-        assert self.check_results(game, 'F IRI', 'no convoy')
-        assert self.check_results(game, 'F ENG', 'dislodged')
-        assert self.check_results(game, 'F NTH', 'no convoy')
-        assert self.check_results(game, 'F BRE', '')
-        assert self.check_results(game, 'F MAO', '')
-        assert self.check_results(game, 'A EDI', '')
-        assert self.check_results(game, 'F NWG', '')
-        assert self.check_results(game, 'F NAO', '')
-        assert self.check_results(game, 'A CLY', '')
+        assert self.check_results(game, 'A LVP', DISLODGED)
+        assert self.check_results(game, 'F IRI', NO_CONVOY)
+        assert self.check_results(game, 'F ENG', DISLODGED)
+        assert self.check_results(game, 'F NTH', NO_CONVOY)
+        assert self.check_results(game, 'F BRE', OK)
+        assert self.check_results(game, 'F MAO', OK)
+        assert self.check_results(game, 'A EDI', OK)
+        assert self.check_results(game, 'F NWG', OK)
+        assert self.check_results(game, 'F NAO', OK)
+        assert self.check_results(game, 'A CLY', OK)
         assert check_dislodged(game, 'F ENG', 'F BRE')  # ENGLAND
         assert check_dislodged(game, 'A LVP', 'A EDI')  # ENGLAND
         assert self.owner_name(game, 'A LVP') == 'RUSSIA'
@@ -4777,8 +4778,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ENGLAND', ['A LVP R EDI', 'F ENG D'])
             self.process(game)
-            assert self.check_results(game, 'A LVP', '', phase='R')
-            assert self.check_results(game, 'F ENG', 'disband', phase='R')
+            assert self.check_results(game, 'A LVP', OK, phase='R')
+            assert self.check_results(game, 'F ENG', DISBAND, phase='R')
         assert not check_dislodged(game, 'A LVP', '')      # ENGLAND
         assert not check_dislodged(game, 'F ENG', '')      # ENGLAND
         assert self.owner_name(game, 'A LVP') == 'RUSSIA'
@@ -4811,10 +4812,10 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['A PIC H', 'F ENG C A PIC - LON'])
         self.set_orders(game, 'FRANCE', ['A PAR - PIC', 'A BRE S A PAR - PIC'])
         self.process(game)
-        assert self.check_results(game, 'A PIC', 'dislodged')
-        assert self.check_results(game, 'F ENG', 'void')
-        assert self.check_results(game, 'A PAR', '')
-        assert self.check_results(game, 'A BRE', '')
+        assert self.check_results(game, 'A PIC', DISLODGED)
+        assert self.check_results(game, 'F ENG', VOID)
+        assert self.check_results(game, 'A PAR', OK)
+        assert self.check_results(game, 'A BRE', OK)
         assert check_dislodged(game, 'A PIC', 'A PAR')      # ENGLAND
         assert self.owner_name(game, 'A PIC') == 'FRANCE'
         assert self.owner_name(game, 'F ENG') == 'ENGLAND'
@@ -4826,8 +4827,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ENGLAND', 'A PIC R LON')
             self.process(game)
-            assert self.check_results(game, 'A PIC', 'void', phase='R')
-            assert self.check_results(game, 'A PIC', 'disband', phase='R')
+            assert self.check_results(game, 'A PIC', VOID, phase='R')
+            assert self.check_results(game, 'A PIC', DISBAND, phase='R')
         assert not check_dislodged(game, 'A PIC', '')  # ENGLAND
         assert self.owner_name(game, 'A PIC') == 'FRANCE'
         assert self.owner_name(game, 'F ENG') == 'ENGLAND'
@@ -4862,13 +4863,13 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['A PAR - PIC', 'A BRE S A PAR - PIC', 'A BUR H'])
         self.set_orders(game, 'GERMANY', ['A MUN S A MAR - BUR', 'A MAR - BUR'])
         self.process(game)
-        assert self.check_results(game, 'A PIC', 'dislodged')
-        assert self.check_results(game, 'F ENG', 'void')
-        assert self.check_results(game, 'A PAR', '')
-        assert self.check_results(game, 'A BRE', '')
-        assert self.check_results(game, 'A BUR', 'dislodged')
-        assert self.check_results(game, 'A MUN', '')
-        assert self.check_results(game, 'A MAR', '')
+        assert self.check_results(game, 'A PIC', DISLODGED)
+        assert self.check_results(game, 'F ENG', VOID)
+        assert self.check_results(game, 'A PAR', OK)
+        assert self.check_results(game, 'A BRE', OK)
+        assert self.check_results(game, 'A BUR', DISLODGED)
+        assert self.check_results(game, 'A MUN', OK)
+        assert self.check_results(game, 'A MAR', OK)
         assert check_dislodged(game, 'A PIC', 'A PAR')      # ENGLAND
         assert check_dislodged(game, 'A BUR', 'A MAR')      # FRANCE
         assert self.owner_name(game, 'A PIC') == 'FRANCE'
@@ -4884,10 +4885,10 @@ class TestDATC():
             self.set_orders(game, 'ENGLAND', ['A PIC R BEL'])
             self.set_orders(game, 'FRANCE', ['A BUR R BEL'])
             self.process(game)
-            assert self.check_results(game, 'A PIC', 'bounce', phase='R')
-            assert self.check_results(game, 'A PIC', 'disband', phase='R')
-            assert self.check_results(game, 'A BUR', 'bounce', phase='R')
-            assert self.check_results(game, 'A BUR', 'disband', phase='R')
+            assert self.check_results(game, 'A PIC', BOUNCE, phase='R')
+            assert self.check_results(game, 'A PIC', DISBAND, phase='R')
+            assert self.check_results(game, 'A BUR', BOUNCE, phase='R')
+            assert self.check_results(game, 'A BUR', DISBAND, phase='R')
         assert not check_dislodged(game, 'A PIC', '')      # ENGLAND
         assert not check_dislodged(game, 'A BUR', '')      # FRANCE
         assert self.owner_name(game, 'A PIC') == 'FRANCE'
@@ -4915,9 +4916,9 @@ class TestDATC():
         self.set_orders(game, 'ENGLAND', ['F POR H'])
         self.set_orders(game, 'FRANCE', ['F SPA/SC - POR', 'F MAO S F SPA/SC - POR'])
         self.process(game)
-        assert self.check_results(game, 'F POR', 'dislodged')
-        assert self.check_results(game, 'F SPA/SC', '')
-        assert self.check_results(game, 'F MAO', '')
+        assert self.check_results(game, 'F POR', DISLODGED)
+        assert self.check_results(game, 'F SPA/SC', OK)
+        assert self.check_results(game, 'F MAO', OK)
         assert check_dislodged(game, 'F POR', 'F SPA/SC')       # ENGLAND
         assert self.owner_name(game, 'F POR') == 'FRANCE'
         assert self.owner_name(game, 'F SPA') is None
@@ -4929,8 +4930,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'ENGLAND', 'F POR R SPA/NC')
             self.process(game)
-            assert self.check_results(game, 'F POR', 'void', phase='R')
-            assert self.check_results(game, 'F POR', 'disband', phase='R')
+            assert self.check_results(game, 'F POR', VOID, phase='R')
+            assert self.check_results(game, 'F POR', DISBAND, phase='R')
         assert not check_dislodged(game, 'F POR', '')  # ENGLAND
         assert self.owner_name(game, 'F POR') == 'FRANCE'
         assert self.owner_name(game, 'F SPA') is None
@@ -4957,11 +4958,11 @@ class TestDATC():
         self.set_orders(game, 'FRANCE', ['F MAO - SPA/NC', 'F GAS - SPA/NC', 'F WES H'])
         self.set_orders(game, 'ITALY', ['F TUN S F TYS - WES', 'F TYS - WES'])
         self.process(game)
-        assert self.check_results(game, 'F MAO', 'bounce')
-        assert self.check_results(game, 'F GAS', 'bounce')
-        assert self.check_results(game, 'F WES', 'dislodged')
-        assert self.check_results(game, 'F TUN', '')
-        assert self.check_results(game, 'F TYS', '')
+        assert self.check_results(game, 'F MAO', BOUNCE)
+        assert self.check_results(game, 'F GAS', BOUNCE)
+        assert self.check_results(game, 'F WES', DISLODGED)
+        assert self.check_results(game, 'F TUN', OK)
+        assert self.check_results(game, 'F TYS', OK)
         assert check_dislodged(game, 'F WES', 'F TYS')      # FRANCE
         assert self.owner_name(game, 'F MAO') == 'FRANCE'
         assert self.owner_name(game, 'F GAS') == 'FRANCE'
@@ -4976,8 +4977,8 @@ class TestDATC():
         if game.phase_type == 'R':
             self.set_orders(game, 'FRANCE', 'F WES R SPA/SC')
             self.process(game)
-            assert self.check_results(game, 'F WES', 'void', phase='R')
-            assert self.check_results(game, 'F WES', 'disband', phase='R')
+            assert self.check_results(game, 'F WES', VOID, phase='R')
+            assert self.check_results(game, 'F WES', DISBAND, phase='R')
         assert not check_dislodged(game, 'F WES', '')      # FRANCE
         assert self.owner_name(game, 'F MAO') == 'FRANCE'
         assert self.owner_name(game, 'F GAS') == 'FRANCE'
@@ -5009,9 +5010,9 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'GERMANY', ['A WAR B', 'A KIE B', 'A MUN B'])
             self.process(game)
-            assert self.check_results(game, 'A WAR', ['void'], phase='A')
-            assert self.check_results(game, 'A KIE', [''], phase='A')
-            assert self.check_results(game, 'A MUN', ['void'], phase='A')
+            assert self.check_results(game, 'A WAR', [VOID], phase='A')
+            assert self.check_results(game, 'A KIE', [OK], phase='A')
+            assert self.check_results(game, 'A MUN', [VOID], phase='A')
         assert self.owner_name(game, 'A WAR') is None
         assert self.owner_name(game, 'A KIE') == 'GERMANY'
         assert self.owner_name(game, 'A MUN') is None
@@ -5032,7 +5033,7 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'RUSSIA', ['F MOS B'])
             self.process(game)
-            assert self.check_results(game, 'F MOS', ['void'], phase='A')
+            assert self.check_results(game, 'F MOS', [VOID], phase='A')
         assert self.owner_name(game, 'F MOS') is None
 
     def test_6_i_3(self):
@@ -5051,7 +5052,7 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'GERMANY', ['A BER B'])
             self.process(game)
-            assert self.check_results(game, 'A BER', ['void'], phase='A')
+            assert self.check_results(game, 'A BER', [VOID], phase='A')
         assert self.owner_name(game, 'A BER') == 'GERMANY'
 
     def test_6_i_4(self):
@@ -5070,7 +5071,7 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'RUSSIA', ['F STP/NC B'])
             self.process(game)
-            assert self.check_results(game, 'F STP/NC', ['void'], phase='A')
+            assert self.check_results(game, 'F STP/NC', [VOID], phase='A')
         assert self.owner_name(game, 'F STP') == 'RUSSIA'
         assert self.owner_name(game, 'F STP/NC') is None
         assert self.owner_name(game, 'F STP/SC') == 'RUSSIA'
@@ -5092,7 +5093,7 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'GERMANY', ['A BER B'])
             self.process(game)
-            assert self.check_results(game, 'A BER', ['void'], phase='A')
+            assert self.check_results(game, 'A BER', [VOID], phase='A')
         assert self.owner_name(game, 'A BER') is None
 
     def test_6_i_6(self):
@@ -5113,7 +5114,7 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'GERMANY', ['A WAR B'])
             self.process(game)
-            assert self.check_results(game, 'A WAR', ['void'], phase='A')
+            assert self.check_results(game, 'A WAR', [VOID], phase='A')
         assert self.owner_name(game, 'A WAR') is None
 
     def test_6_i_7(self):
@@ -5132,7 +5133,7 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'RUSSIA', ['A MOS B', 'A MOS B'])
             self.process(game)
-            assert self.check_results(game, 'A MOS', ['void', ''], phase='A')
+            assert self.check_results(game, 'A MOS', [VOID, OK], phase='A')
         assert self.owner_name(game, 'A MOS') == 'RUSSIA'
 
     # 6.J. TEST CASES, CIVIL DISORDER AND DISBANDS
@@ -5157,9 +5158,9 @@ class TestDATC():
         if game.phase_type == 'A':
             self.set_orders(game, 'FRANCE', ['F LYO D', 'A PIC D', 'A PAR D'])
             self.process(game)
-            assert self.check_results(game, 'F LYO', ['void'], phase='A')
-            assert self.check_results(game, 'A PIC', [''], phase='A')
-            assert self.check_results(game, 'A PAR', ['void'], phase='A')
+            assert self.check_results(game, 'F LYO', [VOID], phase='A')
+            assert self.check_results(game, 'A PIC', [OK], phase='A')
+            assert self.check_results(game, 'A PAR', [VOID], phase='A')
         assert self.owner_name(game, 'F LYO') is None
         assert self.owner_name(game, 'A PIC') is None
         assert self.owner_name(game, 'A PAR') == 'FRANCE'
@@ -5180,7 +5181,7 @@ class TestDATC():
         self.move_to_phase(game, 'W1901A')
         self.set_orders(game, 'FRANCE', ['A PAR D', 'A PAR D'])
         self.process(game)
-        assert self.check_results(game, 'A PAR', ['void', ''], phase='A')
+        assert self.check_results(game, 'A PAR', [VOID, OK], phase='A')
         assert self.owner_name(game, 'A PAR') is None
         assert self.owner_name(game, 'A PIC') is None or self.owner_name(game, 'F NAO') is None
 
@@ -5443,12 +5444,12 @@ class TestDATC():
                                          'F WES S F MAO'])
         self.set_orders(game, 'ENGLAND', ['F NAO - MAO', 'F ENG S F NAO - MAO'])
         self.process(game)
-        assert self.check_results(game, 'F MAO', 'no convoy')
-        assert self.check_results(game, 'F IRI', 'no convoy')
-        assert self.check_results(game, 'A BRE', 'no convoy')
-        assert self.check_results(game, 'F WES', '')
-        assert self.check_results(game, 'F NAO', 'bounce')
-        assert self.check_results(game, 'F ENG', '')
+        assert self.check_results(game, 'F MAO', NO_CONVOY)
+        assert self.check_results(game, 'F IRI', NO_CONVOY)
+        assert self.check_results(game, 'A BRE', NO_CONVOY)
+        assert self.check_results(game, 'F WES', OK)
+        assert self.check_results(game, 'F NAO', BOUNCE)
+        assert self.check_results(game, 'F ENG', OK)
         assert self.owner_name(game, 'F MAO') == 'FRANCE'
         assert self.owner_name(game, 'F IRI') == 'FRANCE'
         assert self.owner_name(game, 'A BRE') == 'FRANCE'

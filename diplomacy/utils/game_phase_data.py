@@ -16,7 +16,7 @@
 # ==============================================================================
 """ Utility class to save all data related to one game phase (phase name, state, messages and orders). """
 from diplomacy.engine.message import Message
-from diplomacy.utils import strings, parsing
+from diplomacy.utils import common, strings, parsing
 from diplomacy.utils.jsonable import Jsonable
 from diplomacy.utils.sorted_dict import SortedDict
 
@@ -33,7 +33,7 @@ class GamePhaseData(Jsonable):
         strings.NAME: str,
         strings.STATE: dict,
         strings.ORDERS: parsing.DictType(str, parsing.OptionalValueType(parsing.SequenceType(str))),
-        strings.RESULTS: parsing.DictType(str, parsing.SequenceType(str)),
+        strings.RESULTS: parsing.DictType(str, parsing.SequenceType(parsing.StringableType(common.StringableCode))),
         strings.MESSAGES: MESSAGES_TYPE,
     }
 
