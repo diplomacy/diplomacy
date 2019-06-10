@@ -50,12 +50,15 @@ import atexit
 import base64
 import logging
 import os
+from random import randint
+import socket
 import signal
 
 import tornado
 import tornado.web
 from tornado import gen
 from tornado.ioloop import IOLoop
+from tornado.iostream import StreamClosedError
 from tornado.queues import Queue
 from tornado.websocket import WebSocketClosedError
 
@@ -63,6 +66,7 @@ import ujson as json
 
 import diplomacy.settings
 from diplomacy.communication import notifications
+from diplomacy.daide.server import Server as DaideServer
 from diplomacy.server.connection_handler import ConnectionHandler
 from diplomacy.server.notifier import Notifier
 from diplomacy.server.scheduler import Scheduler
@@ -72,6 +76,16 @@ from diplomacy.engine.map import Map
 from diplomacy.utils import common, exceptions, strings, constants
 
 LOGGER = logging.getLogger(__name__)
+
+def is_port_opened(port, hostname='127.0.0.1'):
+    """ Checks if the specified port is opened
+        :param port: The port to check
+        :param hostname: The hostname to check, defaults to '127.0.0.1'
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    if sock.connect_ex((hostname, port)) == 0:
+        return True
+    return False
 
 def get_absolute_path(directory=None):
     """ Return absolute path of given directory.
@@ -136,6 +150,7 @@ class InterruptionHandler():
             :param frame: frame received
         """
         if signum == signal.SIGINT:
+            self.server.stop_daide_server(None)
             self.server.backup_now(force=True)
             if self.previous_handler:
                 self.previous_handler(signum, frame)
@@ -162,7 +177,7 @@ class Server():
     """ Server class. """
     __slots__ = ['data_path', 'games_path', 'available_maps', 'maps_mtime', 'notifications',
                  'games_scheduler', 'allow_registrations', 'max_games', 'remove_canceled_games', 'users', 'games',
-                 'backup_server', 'backup_games', 'backup_delay_seconds', 'ping_seconds',
+                 'daide_servers', 'backup_server', 'backup_games', 'backup_delay_seconds', 'ping_seconds',
                  'interruption_handler', 'backend', 'games_with_dummy_powers', 'dispatched_dummy_powers']
 
     # Servers cache.
@@ -227,6 +242,9 @@ class Server():
         # a couple of associated bot token and time when bot token was associated to this game ID.
         # If there is no bot token associated, couple is (None, None).
         self.dispatched_dummy_powers = {} # type: dict{str, tuple}
+
+        # DAIDE TCP servers listening to a game's dedicated port.
+        self.daide_servers = {}             # {port: daide_server}
 
         # Load data on memory.
         self._load()
@@ -405,9 +423,11 @@ class Server():
         while True:
             connection_handler, notification = yield self.notifications.get()
             try:
-                yield connection_handler.write_message(notification.json())
+                yield connection_handler.write_message(notification)
             except WebSocketClosedError:
                 LOGGER.error('Websocket was closed while sending a notification.')
+            except StreamClosedError:
+                LOGGER.error('Stream was closed while sending a notification.')
             finally:
                 self.notifications.task_done()
 
@@ -452,7 +472,8 @@ class Server():
         self.backend.port = port
         self.set_tasks(io_loop)
         LOGGER.info('Running on port %d', self.backend.port)
-        io_loop.start()
+        if not io_loop.asyncio_loop.is_running():
+            io_loop.start()
 
     def get_game_indices(self):
         """ Iterate over all game indices in server database.
@@ -795,3 +816,44 @@ class Server():
     def get_map(self, map_name):
         """ Return map power names for given map name. """
         return self.available_maps.get(map_name, None)
+
+    def start_new_daide_server(self, game_id, port=None):
+        """ Start a new DAIDE TCP server to handle DAIDE clients connections
+            :param game_id: game id to pass to the DAIDE server
+            :param port: the port to use. If None, an available random prot will be used
+        """
+        if port in self.daide_servers:
+            raise RuntimeError('Port already in used by a DAIDE server')
+
+        for server in self.daide_servers.values():
+            if server.game_id == game_id:
+                return None
+
+        while port is None or is_port_opened(port):
+            port = randint(8000, 8999)
+
+        # Create DAIDE TCP server
+        daide_server = DaideServer(self, game_id)
+        daide_server.listen(port)
+        self.daide_servers[port] = daide_server
+        LOGGER.info('DAIDE server running on port %d', port)
+        return port
+
+    def stop_daide_server(self, game_id):
+        """ Stop one or all DAIDE TCP server
+            :param game_id: game id of the DAIDE server. If None, all servers will be stopped
+        """
+        for port in list(self.daide_servers.keys()):
+            server = self.daide_servers[port]
+            if game_id is None or server.game_id == game_id:
+                server.stop()
+                del self.daide_servers[port]
+
+    def get_daide_port(self, game_id):
+        """ Get the DAIDE port opened for a specific game_id
+            :param game_id: game id of the DAIDE server.
+        """
+        for port, server in self.daide_servers.items():
+            if server.game_id == game_id:
+                return port
+        return None
