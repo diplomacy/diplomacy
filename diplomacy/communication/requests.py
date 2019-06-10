@@ -114,6 +114,17 @@ class _AbstractGameRequest(_AbstractChannelRequest):
 # Connection requests.
 # ====================
 
+class GetDaidePort(_AbstractRequest):
+    """ Get game DAIDE port """
+    __slots__ = ['game_id']
+    params = {
+        strings.GAME_ID: str
+    }
+
+    def __init__(self, **kwargs):
+        self.game_id = None
+        super(GetDaidePort, self).__init__(**kwargs)
+
 class SignIn(_AbstractRequest):
     """ SignIn request.
         Expected response: responses.DataToken

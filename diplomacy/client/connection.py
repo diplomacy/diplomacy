@@ -437,6 +437,14 @@ class Connection():
                 self._on_socket_message(msg)
 
     # Public methods.
+    @gen.coroutine
+    def get_daide_port(self, game_id):
+        """ Send a GetDaidePort request.
+            :param game_id: game id
+            :return: int. the game DAIDE port
+        """
+        request = requests.GetDaidePort(game_id=game_id)
+        return (yield self.send(request))
 
     @gen.coroutine
     def authenticate(self, username, password, create_user=False):

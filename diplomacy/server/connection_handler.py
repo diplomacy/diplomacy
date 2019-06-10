@@ -26,6 +26,7 @@ import ujson as json
 from diplomacy.communication import responses, requests
 from diplomacy.server import request_managers
 from diplomacy.utils import exceptions, strings
+from diplomacy.utils.network_data import NetworkData
 
 
 LOGGER = logging.getLogger(__name__)
@@ -78,6 +79,21 @@ class ConnectionHandler(WebSocketHandler):
         """
         self.server.users.remove_connection(self, remove_tokens=False)
         LOGGER.info("Removed connection. Remaining %d connection(s).", self.server.users.count_connections())
+
+    def write_message(self, message, binary=False):
+        """ Sends the given message to the client of this Web Socket. """
+        if isinstance(message, NetworkData):
+            message = message.json()
+        return super(ConnectionHandler, self).write_message(message, binary)
+
+    @staticmethod
+    def translate_notification(notification):
+        """ Translate a notification to an array of notifications.
+            :param notification: a notification object to pass to handler function.
+                See diplomacy.communication.notifications for possible notifications.
+            :return: An array of notifications containing a single notification.
+        """
+        return [notification]
 
     @gen.coroutine
     def on_message(self, message):

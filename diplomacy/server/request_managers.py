@@ -149,6 +149,7 @@ def on_create_game(server, request, connection_handler):
 
     # Register game on server.
     server.add_new_game(server_game)
+    server.start_new_daide_server(game_id)
 
     # Start game immediately if possible (e.g. if it's a solitaire game).
     if server_game.game_can_start():
@@ -216,6 +217,7 @@ def on_delete_game(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     server.delete_game(level.game)
     server.unschedule_game(level.game)
+    server.stop_daide_server(level.game.game_id)
     Notifier(server, ignore_tokens=[request.token]).notify_game_deleted(level.game)
 
 def on_get_dummy_waiting_powers(server, request, connection_handler):
@@ -255,6 +257,21 @@ def on_get_available_maps(server, request, connection_handler):
     """
     verify_request(server, request, connection_handler)
     return responses.DataMaps(data=server.available_maps, request_id=request.request_id)
+
+def on_get_daide_port(server, request, connection_handler):
+    """ Manage request GetDaidePort.
+        :param server: server which receives the request.
+        :param request: request to manage.
+        :param connection_handler: connection handler from which the request was sent.
+        :return: None
+        :type server: diplomacy.Server
+        :type request: diplomacy.communication.requests.GetDaidePort
+    """
+    del connection_handler
+    daide_port = server.get_daide_port(request.game_id)
+    if daide_port is None:
+        raise exceptions.DaidePortException('Invalid game id or game\'s DAIDE server is not started for that game')
+    return responses.DataPort(data=daide_port, request_id=request.request_id)
 
 def on_get_playable_powers(server, request, connection_handler):
     """ Manage request GetPlayablePowers.
@@ -1133,6 +1150,7 @@ MAPPING = {
     requests.GetDummyWaitingPowers: on_get_dummy_waiting_powers,
     requests.GetAllPossibleOrders: on_get_all_possible_orders,
     requests.GetAvailableMaps: on_get_available_maps,
+    requests.GetDaidePort: on_get_daide_port,
     requests.GetPlayablePowers: on_get_playable_powers,
     requests.GetPhaseHistory: on_get_phase_history,
     requests.JoinGame: on_join_game,

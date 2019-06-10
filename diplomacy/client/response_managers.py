@@ -298,6 +298,7 @@ MAPPING = {
     requests.DeleteGame: on_delete_game,
     requests.GetAllPossibleOrders: default_manager,
     requests.GetAvailableMaps: default_manager,
+    requests.GetDaidePort: default_manager,
     requests.GetDummyWaitingPowers: default_manager,
     requests.GetPlayablePowers: default_manager,
     requests.GetPhaseHistory: on_get_phase_history,
