@@ -256,7 +256,6 @@ def handle_notification(connection, notification):
     if object_to_notify is None:
         LOGGER.error('Unknown notification: %s', notification.name)
     else:
-        LOGGER.info('Notification received: %s', notification.name)
         handler = MAPPING.get(type(notification), None)
         if not handler:
             raise exceptions.DiplomacyException(
