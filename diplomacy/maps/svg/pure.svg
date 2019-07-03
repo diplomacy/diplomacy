@@ -69,7 +69,7 @@
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="mos">
 			<jdipNS:UNIT x="152" y="299"/>
-			<jdipNS:DISLODGED_UNIT x="167" y="384"/>
+			<jdipNS:DISLODGED_UNIT x="167" y="284"/>
 			<jdipNS:SUPPLY_CENTER x="119" y="409"/>
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="con">
@@ -89,12 +89,12 @@
         .provtext  {text-anchor:middle; stroke-width:0.3; font-family:sans-serif; font-size:0.7em; stroke:black; fill:black;}
         .labeltext {stroke-width:0.1; stroke:black; fill:black;}
         .unordered {fill:red; stroke:black; stroke-width:1; fill-opacity:0.90;}
-        .labeltext24 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.4em;}
-        .labeltext18 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.1em;}
+        .labeltext24 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:18px;}
+        .labeltext18 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:18px;}
         .fulllabeltext {font-family:serif,sans-serif; font-style:italic; font-size:1.2em; fill:black; stroke:black;}
-        .currentnotetext {font-family:serif,sans-serif; font-size:1.5em; fill:black; stroke:black;}
+        .currentnotetext {font-family:serif,sans-serif; font-size:18px; fill:black; stroke:black;}
         .currentnoterect {fill:#c5dfea;}
-        .currentphasetext {font-family:serif,sans-serif; font-size:2.5em; fill:black; stroke:black;}
+        .currentphasetext {font-family:serif,sans-serif; font-size:30px; fill:black; stroke:black;}
 
         .labeltext24 text {cursor:default;}
 
@@ -439,8 +439,8 @@
     </g>
 
 	<!-- Current phase -->
-    <text x="15" y="25" class="currentnotetext" id="CurrentNote"> </text>
-    <text x="15" y="50" class="currentnotetext" id="CurrentNote2"> </text>
+    <text x="15" y="30" class="currentnotetext" id="CurrentNote"> </text>
+    <text x="15" y="55" class="currentnotetext" id="CurrentNote2"> </text>
     <text x="845" y="970" class="currentphasetext" id="CurrentPhase">S1901M</text>
 
     <!-- drawing layer: supply centers -->
