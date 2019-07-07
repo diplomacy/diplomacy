@@ -72,14 +72,14 @@ export class Game {
         this.messages = new SortedDict(gameData instanceof Game ? null : gameData.messages, parseInt);
 
         // {short phase name => state}
-        this.state_history = gameData instanceof Game ? gameData.state_history : new SortedDict(gameData.state_history, comparablePhase);
+        this.state_history = new SortedDict(gameData instanceof Game ? gameData.state_history.toDict() : gameData.state_history, comparablePhase);
         // {short phase name => {power name => [orders]}}
-        this.order_history = gameData instanceof Game ? gameData.order_history : new SortedDict(gameData.order_history, comparablePhase);
+        this.order_history = new SortedDict(gameData instanceof Game ? gameData.order_history.toDict() : gameData.order_history, comparablePhase);
         // {short phase name => {unit => [results]}}
-        this.result_history = gameData instanceof Game ? gameData.result_history : new SortedDict(gameData.result_history, comparablePhase);
+        this.result_history = new SortedDict(gameData instanceof Game ? gameData.result_history.toDict() : gameData.result_history, comparablePhase);
         // {short phase name => {message.time_sent => message}}
         if (gameData instanceof Game) {
-            this.message_history = gameData.message_history;
+            this.message_history = new SortedDict(gameData.message_history.toDict(), comparablePhase);
         } else {
             this.message_history = new SortedDict(null, comparablePhase);
             for (let entry of Object.entries(gameData.message_history)) {
@@ -115,7 +115,7 @@ export class Game {
                     this.powers[power_name].setState(powerState);
                 }
             }
-        } else if(this.state_history.size()) {
+        } else if (this.state_history.size()) {
             const lastState = this.state_history.lastValue();
             if (lastState.units) {
                 for (let powerName of Object.keys(lastState.units)) {
@@ -387,15 +387,21 @@ export class Game {
 
     cloneAt(pastPhase) {
         if (pastPhase !== null && this.state_history.contains(pastPhase)) {
-            const messages = this.message_history.get(pastPhase);
-            const orders = this.order_history.get(pastPhase);
-            const state = this.state_history.get(pastPhase);
             const game = new Game(this);
+            const pastPhaseIndex = this.state_history.indexOf(pastPhase);
+            const nbPastPhases = this.state_history.size();
+            for (let i = nbPastPhases - 1; i > pastPhaseIndex; --i) {
+                const keyToRemove = this.state_history.keyFromIndex(i);
+                game.message_history.remove(keyToRemove);
+                game.state_history.remove(keyToRemove);
+                game.order_history.remove(keyToRemove);
+                game.result_history.remove(keyToRemove);
+            }
             game.setPhaseData({
                 name: pastPhase,
-                state: state,
-                orders: orders,
-                messages: messages
+                state: this.state_history.get(pastPhase),
+                orders: this.order_history.get(pastPhase),
+                messages: this.message_history.get(pastPhase)
             });
             return game;
         }
@@ -409,32 +415,36 @@ export class Game {
     }
 
     getControllablePowers() {
-        if (!this.isObserverGame()) {
-            if (this.isOmniscientGame())
-                return Object.keys(this.powers);
-            return [this.role];
-        }
-        return [];
+        if (this.isObserverGame() || this.isOmniscientGame())
+            return Object.keys(this.powers);
+        return [this.role];
     }
 
-    getMessageChannels() {
+    getMessageChannels(role, all) {
         const messageChannels = {};
-        let messages = this.messages;
-        if (!messages.size() && this.message_history.contains(this.phase))
-            messages = this.message_history.get(this.phase);
-        if (this.isPlayerGame()) {
+        role = role || this.role;
+        let messagesToShow = null;
+        if (all) {
+            messagesToShow = this.message_history.values();
+            if (this.messages.size() && !this.message_history.contains(this.phase))
+                messagesToShow.push(this.messages);
+        } else {
+            if (this.messages.size())
+                messagesToShow = [this.messages];
+            else if (this.message_history.contains(this.phase))
+                messagesToShow = this.message_history.get(this.phase);
+        }
+        for (let messages of messagesToShow) {
             for (let message of messages.values()) {
                 let protagonist = null;
-                if (message.sender === this.role || message.recipient === 'GLOBAL')
+                if (message.sender === role || message.recipient === 'GLOBAL')
                     protagonist = message.recipient;
-                else if (message.recipient === this.role)
+                else if (message.recipient === role)
                     protagonist = message.sender;
                 if (!messageChannels.hasOwnProperty(protagonist))
                     messageChannels[protagonist] = [];
                 messageChannels[protagonist].push(message);
             }
-        } else {
-            messageChannels['messages'] = messages.values();
         }
         return messageChannels;
     }

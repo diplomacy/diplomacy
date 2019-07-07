@@ -15,8 +15,8 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Button} from "../../core/widgets";
 import PropTypes from 'prop-types';
+import {Button} from "../../core/button";
 
 export class PowerOrder extends React.Component {
     render() {

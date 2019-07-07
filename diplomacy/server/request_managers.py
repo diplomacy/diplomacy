@@ -626,6 +626,7 @@ def on_list_games(server, request, connection_handler):
             game_id=server_game.game_id,
             phase=server_game.current_short_phase,
             timestamp=server_game.get_latest_timestamp(),
+            timestamp_created=server_game.timestamp_created,
             map_name=server_game.map_name,
             observer_level=server_game.get_observer_level(username),
             controlled_powers=server_game.get_controlled_power_names(username),
@@ -657,6 +658,7 @@ def on_get_games_info(server, request, connection_handler):
                 game_id=server_game.game_id,
                 phase=server_game.current_short_phase,
                 timestamp=server_game.get_latest_timestamp(),
+                timestamp_created=server_game.timestamp_created,
                 map_name=server_game.map_name,
                 observer_level=server_game.get_observer_level(username),
                 controlled_powers=server_game.get_controlled_power_names(username),
@@ -1110,6 +1112,7 @@ def on_synchronize(server, request, connection_handler):
     return responses.DataGameInfo(game_id=level.game.game_id,
                                   phase=level.game.current_short_phase,
                                   timestamp=level.game.get_latest_timestamp(),
+                                  timestamp_created=level.game.timestamp_created,
                                   request_id=request.request_id)
 
 def on_vote(server, request, connection_handler):

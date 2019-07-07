@@ -15,9 +15,10 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Button} from "../../core/widgets";
 import {JoinForm} from "../forms/join_form";
 import {STRINGS} from "../../../diplomacy/utils/strings";
+import {ContentGame} from "../contents/content_game";
+import {Button} from "../../core/button";
 
 export class InlineGameView {
     constructor(page, gameData) {
@@ -46,7 +47,11 @@ export class InlineGameView {
             })
             .then(allPossibleOrders => {
                 this.game.setPossibleOrders(allPossibleOrders);
-                this.page.loadGame(this.game, {success: 'Game joined.'});
+                this.page.load(
+                    `game: ${this.game.game_id}`,
+                    <ContentGame data={this.game}/>,
+                    {success: 'Game joined.'}
+                );
             })
             .catch((error) => {
                 this.page.error('Error when joining game ' + this.game.game_id + ': ' + error);
@@ -54,7 +59,7 @@ export class InlineGameView {
     }
 
     showGame() {
-        this.page.loadGame(this.game);
+        this.page.load(`game: ${this.game.game_id}`, <ContentGame data={this.game}/>);
     }
 
     getJoinUI() {
@@ -70,6 +75,7 @@ export class InlineGameView {
         } else {
             // Game not yet joined.
             return <JoinForm key={this.game.game_id} game_id={this.game.game_id} powers={this.game.controlled_powers}
+                             password_required={this.game.registration_password}
                              onSubmit={this.joinGame}/>;
         }
     }
@@ -124,6 +130,14 @@ export class InlineGameView {
             return this.getJoinUI();
         if (name === 'my_games')
             return this.getMyGamesButton();
+        if (name === 'game_id') {
+            const date = new Date(this.game.timestamp_created / 1000);
+            const dateString = `${date.toLocaleDateString()} - ${date.toLocaleTimeString()}`;
+            return <div>
+                <div><strong>{this.game.game_id}</strong></div>
+                <div>({dateString})</div>
+            </div>;
+        }
         return this.game[name];
     }
 }

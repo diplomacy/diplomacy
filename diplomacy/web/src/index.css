@@ -1,7 +1,7 @@
 /** Bootstrap. **/
 /** Common. **/
 
-a.dropdown-item {
+span.dropdown-item {
     cursor: pointer;
 }
 
@@ -46,7 +46,7 @@ a.dropdown-item {
     color: green;
 }
 
-#past-map svg, #current-map svg {
+#past-map svg, #current-map svg, #messages-map svg {
     display: block;
     width: 100%;
     height: auto;
@@ -94,10 +94,25 @@ main {
     text-align: center;
 }
 
+span.power-name {
+    display: inline-block;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    width: 10rem;
+}
+
 #current-power {
     color: red;
     font-weight: bold;
     text-align: center;
+    display: inline-block;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    width: 10rem;
+}
+
+.form-current-power {
+    display: inline-block;
 }
 
 .page-messages {
@@ -173,9 +188,10 @@ main {
     display: inline-block;
 }
 
-.page > .title {
+.page > main > .title {
     border-bottom: 1px solid silver;
-    padding: 10px;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .left {
@@ -341,19 +357,18 @@ main {
 }
 
 .game-message {
-    padding: 10px;
-    width: 75%;
-    border-width: 4px;
+    width: 90%;
+    border-width: 2px;
     border-style: solid;
-    border-radius: 10px;
+    margin: 0;
 }
 
 .game-message .message-header {
     font-weight: bold;
+    border-right: inherit;
 }
 
 .game-message.message-recipient {
-    float: left;
     border-color: rgb(240, 200, 200);
     background-color: rgb(255, 220, 220);
     cursor: pointer;
@@ -366,18 +381,26 @@ main {
 }
 
 .game-message.message-sender {
-    float: right;
     border-color: rgb(200, 200, 240);
     background-color: rgb(220, 220, 255);
+    float: right;
 }
 
 .game-message-wrapper {
-    overflow: auto;
     clear: both;
+    overflow: auto;
+}
+
+.game-message-wrapper.other-phase {
+    color: rgb(140, 140, 140);
 }
 
 .game-message-wrapper + .game-message-wrapper {
-    margin-top: 10px;
+    padding-top: 5px;
+}
+
+.game-message-wrapper.other-phase + .game-message-wrapper.new-phase {
+    margin-top: 5px;
 }
 
 .button-server {
