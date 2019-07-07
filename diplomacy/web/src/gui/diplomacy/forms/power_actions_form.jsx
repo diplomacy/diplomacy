@@ -48,7 +48,6 @@ export class PowerActionsForm extends React.Component {
         const votes = [];
         if (this.props.orderTypes.length) {
             title = 'Create order:';
-            header.push(<strong key={'title'} className={titleClass}>{title}</strong>);
             header.push(...this.props.orderTypes.map((orderLetter, index) => (
                 <div key={index} className={'form-check-inline'}>
                     {Forms.createRadio('order_type', orderLetter, ORDER_BUILDER[orderLetter].name, this.props.orderType, onChange)}
@@ -58,10 +57,8 @@ export class PowerActionsForm extends React.Component {
         } else if (this.props.power.order_is_set) {
             title = 'Unorderable power (already locked on server).';
             titleClass += ' neutral';
-            header.push(<strong key={'title'} className={titleClass}>{title}</strong>);
         } else {
             title = 'No orders available for this power.';
-            header.push(<strong key={'title'} className={titleClass}>{title}</strong>);
         }
         if (!this.props.power.order_is_set) {
             header.push(Forms.createButton('pass', this.props.onNoOrders));
@@ -90,19 +87,23 @@ export class PowerActionsForm extends React.Component {
             }
         }
         return (
-            <form className={'form-inline power-actions-form'}>
-                {header}
-                {Forms.createButton(
-                    (this.props.power.wait ? 'no wait' : 'wait'),
-                    this.props.onSetWaitFlag,
-                    (this.props.power.wait ? 'success' : 'danger')
-                )}
-                {votes}
-                <HotKey keys={['escape']} onKeysCoincide={onReset}/>
-                {this.props.orderTypes.map((letter, index) => (
-                    <HotKey key={index} keys={[letter.toLowerCase()]} onKeysCoincide={() => onSetOrderType(letter)}/>
-                ))}
-            </form>
+            <div>
+                <div><strong key={'title'} className={titleClass}>{title}</strong></div>
+                <form className={'form-inline power-actions-form'}>
+                    {header}
+                    {Forms.createButton(
+                        (this.props.power.wait ? 'no wait' : 'wait'),
+                        this.props.onSetWaitFlag,
+                        (this.props.power.wait ? 'success' : 'danger')
+                    )}
+                    {votes}
+                    <HotKey keys={['escape']} onKeysCoincide={onReset}/>
+                    {this.props.orderTypes.map((letter, index) => (
+                        <HotKey key={index} keys={[letter.toLowerCase()]}
+                                onKeysCoincide={() => onSetOrderType(letter)}/>
+                    ))}
+                </form>
+            </div>
         );
     }
 }

@@ -16,7 +16,7 @@
 // ==============================================================================
 import React from "react";
 import PropTypes from "prop-types";
-import {Button} from "../../core/widgets";
+import {Button} from "../../core/button";
 
 export class SelectViaForm extends React.Component {
     render() {

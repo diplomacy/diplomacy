@@ -15,13 +15,18 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Content} from "../../core/content";
-import {Tab, Tabs} from "../../core/tabs";
+import {Tabs} from "../../core/tabs";
 import {Table} from "../../core/table";
 import {FindForm} from "../forms/find_form";
 import {CreateForm} from "../forms/create_form";
 import {InlineGameView} from "../utils/inline_game_view";
 import {STRINGS} from "../../../diplomacy/utils/strings";
+import {Helmet} from "react-helmet";
+import {Navigation} from "../widgets/navigation";
+import {PageContext} from "../widgets/page_context";
+import {ContentGame} from "./content_game";
+import PropTypes from 'prop-types';
+import {Tab} from "../../core/tab";
 
 const TABLE_LOCAL_GAMES = {
     game_id: ['Game ID', 0],
@@ -35,7 +40,7 @@ const TABLE_LOCAL_GAMES = {
     my_games: ['My Games', 8],
 };
 
-export class ContentGames extends Content {
+export class ContentGames extends React.Component {
 
     constructor(props) {
         super(props);
@@ -46,15 +51,8 @@ export class ContentGames extends Content {
         this.wrapGameData = this.wrapGameData.bind(this);
     }
 
-    static builder(page, data) {
-        return {
-            title: 'Games',
-            navigation: [
-                ['load a game from disk', page.loadGameFromDisk],
-                ['logout', page.logout]
-            ],
-            component: <ContentGames page={page} data={data}/>
-        };
+    getPage() {
+        return this.context;
     }
 
     onFind(form) {
@@ -65,6 +63,7 @@ export class ContentGames extends Content {
             .then((data) => {
                 this.getPage().success('Found ' + data.length + ' data.');
                 this.getPage().addGamesFound(data);
+                this.getPage().loadGames();
             })
             .catch((error) => {
                 this.getPage().error('Error when looking for distant games: ' + error);
@@ -98,7 +97,11 @@ export class ContentGames extends Content {
             })
             .then(allPossibleOrders => {
                 networkGame.local.setPossibleOrders(allPossibleOrders);
-                this.getPage().loadGame(networkGame.local, {success: 'Game created.'});
+                this.getPage().load(
+                    `game: ${networkGame.local.game_id}`,
+                    <ContentGame data={networkGame.local}/>,
+                    {success: 'Game created.'}
+                );
             })
             .catch((error) => {
                 this.getPage().error('Error when creating a game: ' + error);
@@ -114,27 +117,55 @@ export class ContentGames extends Content {
     }
 
     render() {
-        const myGames = this.getPage().getMyGames();
+        const title = 'Games';
+        const page = this.getPage();
+        const navigation = [
+            ['load a game from disk', page.loadGameFromDisk],
+            ['logout', page.logout]
+        ];
+        const myGames = this.props.myGames;
+        const gamesFound = this.props.gamesFound;
+        myGames.sort((a, b) => b.timestamp_created - a.timestamp_created);
+        gamesFound.sort((a, b) => b.timestamp_created - a.timestamp_created);
         const tab = this.state.tab ? this.state.tab : (myGames.length ? 'my-games' : 'find');
         return (
             <main>
+                <Helmet>
+                    <title>{title} | Diplomacy</title>
+                </Helmet>
+                <Navigation title={title} username={page.channel.username} navigation={navigation}/>
                 <Tabs menu={['create', 'find', 'my-games']} titles={['Create', 'Find', 'My Games']}
                       onChange={this.changeTab} active={tab}>
-                    <Tab id="tab-games-create" display={tab === 'create'}>
-                        <CreateForm onSubmit={this.onCreate}/>
-                    </Tab>
-                    <Tab id="tab-games-find" display={tab === 'find'}>
-                        <FindForm onSubmit={this.onFind}/>
-                        <Table className={"table table-striped"} caption={"Games"} columns={TABLE_LOCAL_GAMES}
-                               data={this.getPage().getGamesFound()} wrapper={this.wrapGameData}/>
-                    </Tab>
-                    <Tab id={'tab-my-games'} display={tab === 'my-games'}>
-                        <Table className={"table table-striped"} caption={"My games"} columns={TABLE_LOCAL_GAMES}
-                               data={myGames} wrapper={this.wrapGameData}/>
-                    </Tab>
+                    {tab === 'create' ? (
+                        <Tab id="tab-games-create" display={true}>
+                            <CreateForm onSubmit={this.onCreate}/>
+                        </Tab>
+                    ) : ''}
+                    {tab === 'find' ? (
+                        <Tab id="tab-games-find" display={true}>
+                            <FindForm onSubmit={this.onFind}/>
+                            <Table className={"table table-striped"} caption={"Games"} columns={TABLE_LOCAL_GAMES}
+                                   data={gamesFound} wrapper={this.wrapGameData}/>
+                        </Tab>
+                    ) : ''}
+                    {tab === 'my-games' ? (
+                        <Tab id={'tab-my-games'} display={true}>
+                            <Table className={"table table-striped"} caption={"My games"} columns={TABLE_LOCAL_GAMES}
+                                   data={myGames} wrapper={this.wrapGameData}/>
+                        </Tab>
+                    ) : ''}
                 </Tabs>
             </main>
         );
     }
 
+    componentDidMount() {
+        window.scrollTo(0, 0);
+    }
 }
+
+ContentGames.contextType = PageContext;
+ContentGames.propTypes = {
+    gamesFound: PropTypes.array.isRequired,
+    myGames: PropTypes.array.isRequired
+};

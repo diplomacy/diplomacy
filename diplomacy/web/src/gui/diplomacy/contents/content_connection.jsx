@@ -15,28 +15,22 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Content} from "../../core/content";
 import {Connection} from "../../../diplomacy/client/connection";
 import {ConnectionForm} from "../forms/connection_form";
 import {DipStorage} from "../utils/dipStorage";
+import {Helmet} from "react-helmet";
+import {Navigation} from "../widgets/navigation";
+import {PageContext} from "../widgets/page_context";
 
-export class ContentConnection extends Content {
+export class ContentConnection extends React.Component {
     constructor(props) {
         super(props);
         this.connection = null;
         this.onSubmit = this.onSubmit.bind(this);
     }
 
-    static builder(page, data) {
-        return {
-            title: 'Connection',
-            navigation: [],
-            component: <ContentConnection page={page} data={data}/>
-        };
-    }
-
     onSubmit(data) {
-        const page = this.getPage();
+        const page = this.context;
         for (let fieldName of ['hostname', 'port', 'username', 'password', 'showServerFields'])
             if (!data.hasOwnProperty(fieldName))
                 return page.error(`Missing ${fieldName}, got ${JSON.stringify(data)}`);
@@ -46,7 +40,7 @@ export class ContentConnection extends Content {
         }
         this.connection = new Connection(data.hostname, data.port, window.location.protocol.toLowerCase() === 'https:');
         // Page is passed as logger object (with methods info(), error(), success()) when connecting.
-        this.connection.connect(this.getPage())
+        this.connection.connect(page)
             .then(() => {
                 page.connection = this.connection;
                 this.connection = null;
@@ -71,10 +65,10 @@ export class ContentConnection extends Content {
                     })
                     .then((gamesInfo) => {
                         if (gamesInfo) {
-                            this.getPage().success('Found ' + gamesInfo.length + ' user games.');
-                            this.getPage().updateMyGames(gamesInfo);
+                            page.success('Found ' + gamesInfo.length + ' user games.');
+                            page.updateMyGames(gamesInfo);
                         }
-                        page.loadGames(null, {success: `Account ${data.username} connected.`});
+                        page.loadGames({success: `Account ${data.username} connected.`});
                     })
                     .catch((error) => {
                         page.error('Error while authenticating: ' + error + ' Please re-try.');
@@ -86,6 +80,21 @@ export class ContentConnection extends Content {
     }
 
     render() {
-        return <main><ConnectionForm onSubmit={this.onSubmit}/></main>;
+        const title = 'Connection';
+        return (
+            <main>
+                <Helmet>
+                    <title>{title} | Diplomacy</title>
+                </Helmet>
+                <Navigation title={title}/>
+                <ConnectionForm onSubmit={this.onSubmit}/>
+            </main>
+        );
+    }
+
+    componentDidMount() {
+        window.scrollTo(0, 0);
     }
 }
+
+ContentConnection.contextType = PageContext;

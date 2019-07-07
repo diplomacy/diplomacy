@@ -106,4 +106,13 @@ export class SortedDict {
     values() {
         return this.__values.slice();
     }
+
+    toDict() {
+        const len = this.__real_keys.length;
+        const dict = {};
+        for (let i = 0; i < len; ++i) {
+            dict[this.__real_keys[i]] = this.__values[i];
+        }
+        return dict;
+    }
 }

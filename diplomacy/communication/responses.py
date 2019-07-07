@@ -70,11 +70,13 @@ class DataGameSchedule(_AbstractResponse):
 class DataGameInfo(_AbstractResponse):
     """ Response containing information about a game, to be used when no entire game object is required. """
     __slots__ = ['game_id', 'phase', 'timestamp', 'map_name', 'rules', 'status', 'n_players', 'n_controls',
-                 'deadline', 'registration_password', 'observer_level', 'controlled_powers']
+                 'deadline', 'registration_password', 'observer_level', 'controlled_powers',
+                 'timestamp_created']
     params = {
         strings.GAME_ID: str,
         strings.PHASE: str,
         strings.TIMESTAMP: int,
+        strings.TIMESTAMP_CREATED: int,
         strings.MAP_NAME: parsing.OptionalValueType(str),
         strings.OBSERVER_LEVEL: parsing.OptionalValueType(
             parsing.EnumerationType((strings.MASTER_TYPE, strings.OMNISCIENT_TYPE, strings.OBSERVER_TYPE))),
@@ -91,6 +93,7 @@ class DataGameInfo(_AbstractResponse):
         self.game_id = None  # type: str
         self.phase = None  # type: str
         self.timestamp = None  # type: int
+        self.timestamp_created = None  # type: int
         self.map_name = None  # type: str
         self.observer_level = None  # type: str
         self.controlled_powers = None  # type: list

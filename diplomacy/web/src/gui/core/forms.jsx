@@ -15,8 +15,8 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Button} from "./widgets";
 import {UTILS} from "../../diplomacy/utils/utils";
+import {Button} from "./button";
 
 export class Forms {
     static createOnChangeCallback(component, callback) {

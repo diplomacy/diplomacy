@@ -15,7 +15,6 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {UTILS} from "../../../diplomacy/utils/utils";
 import PropTypes from 'prop-types';
 
 export class MessageView extends React.Component {
@@ -24,9 +23,13 @@ export class MessageView extends React.Component {
         const message = this.props.message;
         const owner = this.props.owner;
         const id = this.props.id ? {id: this.props.id} : {};
-        const messagesLines = message.message.replace('\r\n', '\n').replace('\r', '\n').split('\n');
+        const messagesLines = message.message.replace('\r\n', '\n')
+            .replace('\r', '\n')
+            .replace('<br>', '\n')
+            .replace('<br/>', '\n')
+            .split('\n');
         let onClick = null;
-        const classNames = ['game-message'];
+        const classNames = ['game-message', 'row'];
         if (owner === message.sender)
             classNames.push('message-sender');
         else {
@@ -36,12 +39,18 @@ export class MessageView extends React.Component {
             onClick = this.props.onClick ? {onClick: () => this.props.onClick(message)} : {};
         }
         return (
-            <div className={'game-message-wrapper'} {...id}>
+            <div className={'game-message-wrapper' + (
+                this.props.phase && this.props.phase !== message.phase ? ' other-phase' : ' new-phase')}
+                 {...id}>
                 <div className={classNames.join(' ')} {...onClick}>
-                    <div className={'message-header'}>
-                        {message.sender} {UTILS.html.UNICODE_SMALL_RIGHT_ARROW} {message.recipient}
+                    <div className="message-header col-md-auto text-md-right text-center">
+                        {message.phase}
                     </div>
-                    <div className={'message-content'}>{messagesLines.map((line, lineIndex) => <div key={lineIndex}>{line}</div>)}</div>
+                    <div className="message-content col-md">
+                        {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
+                            line.replace(/(<([^>]+)>)/ig,"")
+                        }</div>)}
+                    </div>
                 </div>
             </div>
         );
@@ -50,6 +59,7 @@ export class MessageView extends React.Component {
 
 MessageView.propTypes = {
     message: PropTypes.object,
+    phase: PropTypes.string,
     owner: PropTypes.string,
     onClick: PropTypes.func,
     id: PropTypes.string,

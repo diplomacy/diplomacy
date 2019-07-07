@@ -14,38 +14,39 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from 'react';
+import React from "react";
 import PropTypes from 'prop-types';
 
-export class Content extends React.Component {
-    // PROPERTIES:
-    // page: pointer to parent Page object
-    // data: data for current content
 
-    // Each derived class must implement this static method.
-    static builder(page, data) {
-        return {
-            // page title (string)
-            title: `${data ? 'with data' : 'without data'}`,
-            // page navigation links: array of couples
-            // (navigation title, navigation callback ( onClick=() => callback() ))
-            navigation: [],
-            // page content: React component (e.g. <MyComponent/>, or <div class="content">...</div>, etc).
-            component: null
-        };
-    }
+export class Action extends React.Component {
+    // title
+    // isActive
+    // onClick
+    // See Button parameters.
 
-    getPage() {
-        return this.props.page;
-    }
-
-    componentDidMount() {
-        window.scrollTo(0, 0);
+    render() {
+        return (
+            <div className="action nav-item" onClick={this.props.onClick}>
+                <div
+                    className={'nav-link' + (this.props.isActive ? ' active' : '') + (this.props.highlight !== null ? ' updated' : '')}>
+                    {this.props.title}
+                    {this.props.highlight !== null
+                    && this.props.highlight !== undefined
+                    && <span className={'update'}>{this.props.highlight}</span>}
+                </div>
+            </div>
+        );
     }
 }
 
+Action.propTypes = {
+    title: PropTypes.string.isRequired,
+    onClick: PropTypes.func.isRequired,
+    highlight: PropTypes.any,
+    isActive: PropTypes.bool
+};
 
-Content.propTypes = {
-    page: PropTypes.object.isRequired,
-    data: PropTypes.object
+Action.defaultProps = {
+    highlight: null,
+    isActive: false
 };
