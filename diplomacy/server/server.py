@@ -665,6 +665,7 @@ class Server():
         if os.path.isfile(game_filename):
             os.remove(game_filename)
         self.games.pop(server_game.game_id, None)
+        self.backup_games.pop(server_game.game_id, None)
         self.games_with_dummy_powers.pop(server_game.game_id, None)
         self.dispatched_dummy_powers.pop(server_game.game_id, None)
 
