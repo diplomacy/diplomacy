@@ -19,6 +19,7 @@ import {JoinForm} from "../forms/join_form";
 import {STRINGS} from "../../../diplomacy/utils/strings";
 import {ContentGame} from "../contents/content_game";
 import {Button} from "../../core/button";
+import {DeleteButton} from "../../core/delete_button";
 
 export class InlineGameView {
     constructor(page, gameData) {
@@ -80,19 +81,33 @@ export class InlineGameView {
         }
     }
 
-    getMyGamesButton() {
+    getActionButtons() {
+        const buttons = [];
+        // Button to add/remove game from "My games" list.
         if (this.page.hasMyGame(this.game.game_id)) {
             if (!this.game.client) {
                 // Game in My Games and not joined. We can remove it.
-                return <Button key={`my-game-remove`} title={'Remove from My Games'}
-                               onClick={() => this.page.removeFromMyGames(this.game.game_id)}/>;
+                buttons.push(<Button key={`my-game-remove`} title={'Remove from My Games'}
+                                     small={true} large={true}
+                                     onClick={() => this.page.removeFromMyGames(this.game.game_id)}/>);
             }
         } else {
             // Game not in My Games, we can add it.
-            return <Button key={`my-game-add`} title={'Add to My Games'}
-                           onClick={() => this.page.addToMyGames(this.game)}/>;
+            buttons.push(<Button key={`my-game-add`} title={'Add to My Games'}
+                                 small={true} large={true}
+                                 onClick={() => this.page.addToMyGames(this.game)}/>);
         }
-        return '';
+        // Button to delete game.
+        if ([STRINGS.MASTER_TYPE, STRINGS.OMNISCIENT_TYPE].includes(this.game.observer_level)) {
+            buttons.push(
+                <DeleteButton key={`game-delete-${this.game.game_id}`}
+                              title={'Delete this game'}
+                              confirmTitle={'Click again to confirm deletion'}
+                              waitingTitle={'Deleting ...'}
+                              onClick={() => this.page.removeGame(this.game.game_id)}/>
+            );
+        }
+        return buttons;
     }
 
     get(name) {
@@ -128,8 +143,8 @@ export class InlineGameView {
         }
         if (name === 'join')
             return this.getJoinUI();
-        if (name === 'my_games')
-            return this.getMyGamesButton();
+        if (name === 'actions')
+            return this.getActionButtons();
         if (name === 'game_id') {
             const date = new Date(this.game.timestamp_created / 1000);
             const dateString = `${date.toLocaleDateString()} - ${date.toLocaleTimeString()}`;

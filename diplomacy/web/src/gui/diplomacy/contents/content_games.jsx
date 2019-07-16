@@ -37,7 +37,7 @@ const TABLE_LOCAL_GAMES = {
     status: ['Status', 5],
     phase: ['Phase', 6],
     join: ['Join', 7],
-    my_games: ['My Games', 8],
+    actions: ['Actions', 8],
 };
 
 export class ContentGames extends React.Component {

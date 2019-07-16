@@ -48,7 +48,7 @@ export class MessageView extends React.Component {
                     </div>
                     <div className="message-content col-md">
                         {messagesLines.map((line, lineIndex) => <div key={lineIndex}>{
-                            line.replace(/(<([^>]+)>)/ig,"")
+                            line.replace(/(<([^>]+)>)/ig, "")
                         }</div>)}
                     </div>
                 </div>

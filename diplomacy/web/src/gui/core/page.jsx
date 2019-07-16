@@ -55,6 +55,10 @@ export class Page extends React.Component {
         this.logout = this.logout.bind(this);
         this.loadGameFromDisk = this.loadGameFromDisk.bind(this);
         this.unloadFancyBox = this.unloadFancyBox.bind(this);
+        this._post_remove = this._post_remove.bind(this);
+        this._add_to_my_games = this._add_to_my_games.bind(this);
+        this._remove_from_my_games = this._remove_from_my_games.bind(this);
+        this._remove_from_games = this._remove_from_games.bind(this);
     }
 
     static wrapMessage(message) {
@@ -194,6 +198,12 @@ export class Page extends React.Component {
         this.setState({myGames: myGames, games: gamesFound});
     }
 
+    getGame(gameID) {
+        if (this.state.myGames.hasOwnProperty(gameID))
+            return this.state.myGames[gameID];
+        return this.state.games[gameID];
+    }
+
     getMyGames() {
         return Page.__sort_games(Object.values(this.state.myGames));
     }
@@ -230,9 +240,40 @@ export class Page extends React.Component {
         }
     }
 
+    _post_remove(gameID) {
+        this.disconnectGame(gameID)
+            .then(() => {
+                const myGames = this._remove_from_my_games(gameID);
+                const games = this._remove_from_games(gameID);
+                this.setState(
+                    {games, myGames},
+                    () => this.loadGames({info: `Game ${gameID} deleted.`}));
+            });
+    }
+
+    removeGame(gameID) {
+        const game = this.getGame(gameID);
+        if (game) {
+            if (game.client) {
+                game.client.remove()
+                    .then(() => this._post_remove(gameID))
+                    .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));
+            } else {
+                this.channel.joinGame({game_id: gameID})
+                    .then(networkGame => {
+                        networkGame.remove()
+                            .then(() => this._post_remove(gameID))
+                            .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));
+                    })
+                    .catch(error => this.error(`Error when connecting to game to delete (${gameID}): ${error.toString()}`));
+            }
+        }
+    }
+
+
     disconnectGame(gameID) {
-        if (this.state.myGames.hasOwnProperty(gameID)) {
-            const game = this.state.myGames[gameID];
+        const game = this.getGame(gameID);
+        if (game) {
             if (game.client)
                 game.client.clearAllCallbacks();
             return this.channel.getGamesInfo({games: [gameID]})
@@ -244,24 +285,46 @@ export class Page extends React.Component {
         return null;
     }
 
-    addToMyGames(game) {
-        // Update state myGames with given game **and** update local storage.
+    _add_to_my_games(game) {
         const myGames = Object.assign({}, this.state.myGames);
         const gamesFound = this.state.games.hasOwnProperty(game.game_id) ? Object.assign({}, this.state.games) : this.state.games;
         myGames[game.game_id] = game;
         if (gamesFound.hasOwnProperty(game.game_id))
             gamesFound[game.game_id] = game;
-        DipStorage.addUserGame(this.channel.username, game.game_id);
-        this.setState({myGames: myGames, games: gamesFound}, () => this.loadGames());
+        return {myGames: myGames, games: gamesFound};
     }
 
-    removeFromMyGames(gameID) {
+    _remove_from_my_games(gameID) {
         if (this.state.myGames.hasOwnProperty(gameID)) {
             const games = Object.assign({}, this.state.myGames);
             delete games[gameID];
             DipStorage.removeUserGame(this.channel.username, gameID);
-            this.setState({myGames: games}, () => this.loadGames());
+            return games;
+        } else {
+            return this.state.myGames;
         }
+    }
+
+    _remove_from_games(gameID) {
+        if (this.state.games.hasOwnProperty(gameID)) {
+            const games = Object.assign({}, this.state.games);
+            delete games[gameID];
+            return games;
+        } else {
+            return this.state.games;
+        }
+    }
+
+    addToMyGames(game) {
+        // Update state myGames with given game **and** update local storage.
+        DipStorage.addUserGame(this.channel.username, game.game_id);
+        this.setState(this._add_to_my_games(game), () => this.loadGames());
+    }
+
+    removeFromMyGames(gameID) {
+        const myGames = this._remove_from_my_games(gameID);
+        if (myGames !== this.state.myGames)
+            this.setState({myGames}, () => this.loadGames());
     }
 
     hasMyGame(gameID) {
