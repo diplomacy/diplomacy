@@ -1278,6 +1278,7 @@ class Game(Jsonable):
             for power_name, power_orderable_locs in orderable_locations.items():
                 if not power_orderable_locs and not self.get_power(power_name).is_eliminated():
                     self.set_orders(power_name, [])
+                    self.set_wait(power_name, False)
 
         return GamePhaseData(name=str(previous_phase),
                              state=previous_state,
