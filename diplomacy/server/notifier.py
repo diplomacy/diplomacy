@@ -144,6 +144,9 @@ class Notifier():
                                          previous_phase_data, power.name, False),
                                      current_phase_data=server_game.filter_phase_data(
                                          current_phase_data, power.name, True))
+        # Also send wait flag for each power.
+        for power in server_game.powers.values():
+            yield self.notify_power_wait_flag(server_game, power, power.wait)
 
     @gen.coroutine
     def notify_account_deleted(self, username):

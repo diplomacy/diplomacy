@@ -1272,6 +1272,14 @@ class Game(Jsonable):
         self.message_history.put(previous_phase, previous_messages)
         self.state_history.put(previous_phase, previous_state)
 
+        # Set empty orders for unorderable powers.
+        if not self.is_game_done:
+            orderable_locations = self.get_orderable_locations()
+            for power_name, power_orderable_locs in orderable_locations.items():
+                if not power_orderable_locs and not self.get_power(power_name).is_eliminated():
+                    self.set_orders(power_name, [])
+                    self.set_wait(power_name, False)
+
         return GamePhaseData(name=str(previous_phase),
                              state=previous_state,
                              orders=previous_orders,

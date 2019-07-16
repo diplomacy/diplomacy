@@ -229,6 +229,12 @@ def send_current_orders(game):
     orders_to_send = expected_data.expected_phase.get_power_orders(expected_data.power_name)
     if orders_to_send is None:
         orders_to_send = []
+
+    if not orders_to_send and not game.get_orderable_locations(expected_data.power_name):
+        print('%s/no need to send empty orders for unorderable power at phase %s' % (
+            expected_data.power_name, expected_data.expected_phase.name))
+        return
+
     print('%s/sending %d orders for phase %s: %s' % (expected_data.power_name, len(orders_to_send),
                                                      expected_data.expected_phase.name, orders_to_send))
     yield game.set_orders(orders=orders_to_send)
