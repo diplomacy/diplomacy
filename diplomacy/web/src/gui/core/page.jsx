@@ -26,7 +26,6 @@ import {PageContext} from "../diplomacy/widgets/page_context";
 import {ContentGames} from "../diplomacy/contents/content_games";
 import {loadGameFromDisk} from "../diplomacy/utils/load_game_from_disk";
 import {ContentGame} from "../diplomacy/contents/content_game";
-import {STRINGS} from "../../diplomacy/utils/strings";
 
 export class Page extends React.Component {
 
@@ -258,13 +257,13 @@ export class Page extends React.Component {
             if (game.client) {
                 game.client.remove()
                     .then(() => this._post_remove(gameID))
-                    .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));;
+                    .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));
             } else {
                 this.channel.joinGame({game_id: gameID})
                     .then(networkGame => {
                         networkGame.remove()
                             .then(() => this._post_remove(gameID))
-                            .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));;
+                            .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));
                     })
                     .catch(error => this.error(`Error when connecting to game to delete (${gameID}): ${error.toString()}`));
             }
