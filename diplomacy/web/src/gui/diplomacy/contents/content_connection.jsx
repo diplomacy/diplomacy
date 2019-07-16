@@ -39,6 +39,7 @@ export class ContentConnection extends React.Component {
             this.connection.currentConnectionProcessing.stop();
         }
         this.connection = new Connection(data.hostname, data.port, window.location.protocol.toLowerCase() === 'https:');
+        this.connection.onReconnectionError = page.onReconnectionError;
         // Page is passed as logger object (with methods info(), error(), success()) when connecting.
         this.connection.connect(page)
             .then(() => {

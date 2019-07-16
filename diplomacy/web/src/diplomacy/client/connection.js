@@ -156,7 +156,7 @@ class ConnectionProcessing {
             this.connection.socket.close();
             if (this.attemptIndex === UTILS.NB_CONNECTION_ATTEMPTS) {
                 this.connection.isConnecting.set(
-                    new Error('Connection failed after ' + UTILS.NB_CONNECTION_ATTEMPTS + ' attempts.'));
+                    new Error(`${this.connection.isReconnecting.isWaiting() ? 'Reconnection' : 'Connection'} failed after ${UTILS.NB_CONNECTION_ATTEMPTS} attempts.`));
                 return;
             }
             this.logger.warn('Connection failing (attempt ' + this.attemptIndex + '/' +
@@ -223,6 +223,10 @@ export class Connection {
         this.onSocketClose = this.onSocketClose.bind(this);
 
         this.isReconnecting.set();
+
+        /** Public events. **/
+        this.onReconnection = null;  // onReconnection()
+        this.onReconnectionError = null; // onReconnectionError(error)
     }
 
     getUrl() {
@@ -273,7 +277,18 @@ export class Connection {
         else {
             Diplog.error('Disconnected, trying to reconnect.');
             this.isReconnecting.clear();
-            this.__connect().then(() => new Reconnection(this).reconnect());
+            this.__connect()
+                .then(() => {
+                    new Reconnection(this).reconnect();
+                    if (this.onReconnection)
+                        this.onReconnection();
+                })
+                .catch(error => {
+                    if (this.onReconnectionError)
+                        this.onReconnectionError(error);
+                    else
+                        throw error;
+                });
         }
     }
 

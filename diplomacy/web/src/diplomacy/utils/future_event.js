@@ -38,4 +38,8 @@ export class FutureEvent {
     wait() {
         return this.__future.promise();
     }
+
+    isWaiting() {
+        return !this.__future.done();
+    }
 }

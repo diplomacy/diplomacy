@@ -59,6 +59,7 @@ export class Page extends React.Component {
         this._add_to_my_games = this._add_to_my_games.bind(this);
         this._remove_from_my_games = this._remove_from_my_games.bind(this);
         this._remove_from_games = this._remove_from_games.bind(this);
+        this.onReconnectionError = this.onReconnectionError.bind(this);
     }
 
     static wrapMessage(message) {
@@ -73,6 +74,10 @@ export class Page extends React.Component {
 
     static defaultPage() {
         return <ContentConnection/>;
+    }
+
+    onReconnectionError(error) {
+        this.__disconnect(error);
     }
 
     //// Methods to load a global fancybox.
@@ -124,18 +129,18 @@ export class Page extends React.Component {
 
     //// Methods to sign out channel and go back to connection page.
 
-    __disconnect() {
+    __disconnect(error) {
         // Clear local data and go back to connection page.
         this.connection.close();
         this.connection = null;
         this.channel = null;
         this.availableMaps = null;
-        const message = Page.wrapMessage(`Disconnected from channel and server.`);
+        const message = Page.wrapMessage(error ? `${error.toString()}` : `Disconnected from channel and server.`);
         Diplog.success(message);
         this.setState({
-            error: null,
+            error: error ? message : null,
             info: null,
-            success: message,
+            success: error ? null : message,
             name: null,
             body: null,
             // When disconnected, remove all games previously loaded.
