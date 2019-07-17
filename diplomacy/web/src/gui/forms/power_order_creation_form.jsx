@@ -23,7 +23,7 @@ import {Power} from "../../diplomacy/engine/power";
 
 const HotKey = require('react-shortcut');
 
-export class PowerActionsForm extends React.Component {
+export class PowerOrderCreationForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.initState();
@@ -108,7 +108,7 @@ export class PowerActionsForm extends React.Component {
     }
 }
 
-PowerActionsForm.propTypes = {
+PowerOrderCreationForm.propTypes = {
     orderType: PropTypes.oneOf(Object.keys(ORDER_BUILDER)),
     orderTypes: PropTypes.arrayOf(PropTypes.oneOf(Object.keys(ORDER_BUILDER))),
     power: PropTypes.instanceOf(Power),

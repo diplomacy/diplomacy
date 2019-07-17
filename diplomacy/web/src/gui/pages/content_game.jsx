@@ -19,15 +19,15 @@ import Scrollchor from 'react-scrollchor';
 import {SelectLocationForm} from "../forms/select_location_form";
 import {SelectViaForm} from "../forms/select_via_form";
 import {Order} from "../utils/order";
-import {Bar, Row} from "../components/layouts";
+import {Row} from "../components/layouts";
 import {Tabs} from "../components/tabs";
 import {Map} from "../map/map";
 import {extendOrderBuilding, ORDER_BUILDER, POSSIBLE_ORDERS} from "../utils/order_building";
-import {PowerActionsForm} from "../forms/power_actions_form";
+import {PowerOrderCreationForm} from "../forms/power_order_creation_form";
 import {MessageForm} from "../forms/message_form";
 import {UTILS} from "../../diplomacy/utils/utils";
 import {Message} from "../../diplomacy/engine/message";
-import {PowerOrder} from "../components/power_order";
+import {PowerOrders} from "../components/power_orders";
 import {MessageView} from "../components/message_view";
 import {STRINGS} from "../../diplomacy/utils/strings";
 import {Diplog} from "../../diplomacy/utils/diplog";
@@ -44,6 +44,7 @@ import {Tab} from "../components/tab";
 import {Button} from "../components/button";
 import {saveGameToDisk} from "../utils/saveGameToDisk";
 import {Game} from '../../diplomacy/engine/game';
+import {PowerOrdersActionBar} from "../components/power_orders_actions_bar";
 
 const HotKey = require('react-shortcut');
 
@@ -587,24 +588,20 @@ export class ContentGame extends React.Component {
 
             if (serverPowerOrders === null) {
                 // No orders set on server.
-                if (localPowerOrders === null)
-                    same = true;
+                same = localPowerOrders === null;
                 // Otherwise, we have local orders set (even empty local orders).
             } else if (serverPowerOrders.length === 0) {
                 // Empty orders set on server.
-                // If local orders are null or empty, then we assume
-                // it's the same thing as empty order set on server.
-                if (localPowerOrders === null || !localPowerOrders.length)
-                    same = true;
-                // Otherwise, we have local non-empty orders set.
+                // If we have empty orders set locally, then it's same thing.
+                same = localPowerOrders && localPowerOrders.length === 0;
+                // Otherwise, we have either local non-empty orders set or local null order.
             } else {
                 // Orders set on server. Identical to local orders only if we have exactly same orders on server and locally.
                 if (localPowerOrders && localPowerOrders.length === serverPowerOrders.length) {
                     localPowerOrders.sort();
                     serverPowerOrders.sort();
-                    const length = localPowerOrders.length;
                     same = true;
-                    for (let i = 0; i < length; ++i) {
+                    for (let i = 0; i < localPowerOrders.length; ++i) {
                         if (localPowerOrders[i] !== serverPowerOrders[i]) {
                             same = false;
                             break;
@@ -617,8 +614,15 @@ export class ContentGame extends React.Component {
                 Diplog.warn(`Orders not changed for ${powerName}.`);
                 continue;
             }
-            Diplog.info('Sending orders for ' + powerName + ': ' + JSON.stringify(localPowerOrders));
-            this.props.data.client.setOrders({power_name: powerName, orders: localPowerOrders || []})
+
+            Diplog.info(`Sending orders for ${powerName}: ${localPowerOrders ? JSON.stringify(localPowerOrders) : null}`);
+            let requestCall = null;
+            if (localPowerOrders) {
+                requestCall = this.props.data.client.setOrders({power_name: powerName, orders: localPowerOrders});
+            } else {
+                requestCall = this.props.data.client.clearOrders({power_name: powerName});
+            }
+            requestCall
                 .then(() => {
                     this.getPage().success('Orders sent.');
                 })
@@ -787,10 +791,10 @@ export class ContentGame extends React.Component {
         const wait = this.__get_wait(engine);
 
         const render = [];
-        render.push(<PowerOrder key={currentPowerName} name={currentPowerName} wait={wait[currentPowerName]}
-                                orders={orders[currentPowerName]}
-                                serverCount={serverOrders[currentPowerName] ? UTILS.javascript.count(serverOrders[currentPowerName]) : -1}
-                                onRemove={this.onRemoveOrder}/>);
+        render.push(<PowerOrders key={currentPowerName} name={currentPowerName} wait={wait[currentPowerName]}
+                                 orders={orders[currentPowerName]}
+                                 serverCount={serverOrders[currentPowerName] ? UTILS.javascript.count(serverOrders[currentPowerName]) : -1}
+                                 onRemove={this.onRemoveOrder}/>);
         return render;
     }
 
@@ -1090,15 +1094,13 @@ export class ContentGame extends React.Component {
                         {/* Orders. */}
                         <div className={'panel-orders mb-4'}>
                             {currentTabOrderCreation ? <div className="mb-4">{currentTabOrderCreation}</div> : ''}
-                            <Bar className={'p-2'}>
-                                <strong className={'mr-4'}>Orders:</strong>
-                                <Button title={'reset'} onClick={this.reloadServerOrders}/>
-                                <Button title={'delete all'} onClick={this.onRemoveAllCurrentPowerOrders}/>
-                                <Button color={'primary'} title={'update'} onClick={this.setOrders}/>
-                                {(!this.props.data.isPlayerGame() && this.props.data.observer_level === STRINGS.MASTER_TYPE &&
-                                    <Button color={'danger'} title={'process game'}
-                                            onClick={this.onProcessGame}/>) || ''}
-                            </Bar>
+                            <PowerOrdersActionBar
+                                onReset={this.reloadServerOrders}
+                                onDeleteAll={this.onRemoveAllCurrentPowerOrders}
+                                onUpdate={this.setOrders}
+                                onProcess={(!this.props.data.isPlayerGame()
+                                    && this.props.data.observer_level === STRINGS.MASTER_TYPE) ?
+                                    this.onProcessGame : null}/>
                             <div className={'orders'}>{this.renderOrders(this.props.data, powerName)}</div>
                             <div className={'table-responsive'}>
                                 <Table className={'table table-striped table-sm'}
@@ -1201,14 +1203,14 @@ export class ContentGame extends React.Component {
 
         const currentTabOrderCreation = hasTabCurrentPhase && (
             <div>
-                <PowerActionsForm orderType={orderBuildingType}
-                                  orderTypes={allowedPowerOrderTypes}
-                                  onChange={this.onChangeOrderType}
-                                  onPass={() => this.onSetEmptyOrdersSet(currentPowerName)}
-                                  onSetWaitFlag={() => this.setWaitFlag(!currentPower.wait)}
-                                  onVote={this.vote}
-                                  role={engine.role}
-                                  power={currentPower}/>
+                <PowerOrderCreationForm orderType={orderBuildingType}
+                                        orderTypes={allowedPowerOrderTypes}
+                                        onChange={this.onChangeOrderType}
+                                        onPass={() => this.onSetEmptyOrdersSet(currentPowerName)}
+                                        onSetWaitFlag={() => this.setWaitFlag(!currentPower.wait)}
+                                        onVote={this.vote}
+                                        role={engine.role}
+                                        power={currentPower}/>
                 {(allowedPowerOrderTypes.length && (
                     <span>
                                 <strong>Orderable locations</strong>: {orderTypeToLocs[orderBuildingType].join(', ')}

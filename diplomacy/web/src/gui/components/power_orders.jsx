@@ -18,7 +18,7 @@ import React from "react";
 import PropTypes from 'prop-types';
 import {Button} from "./button";
 
-export class PowerOrder extends React.Component {
+export class PowerOrders extends React.Component {
     render() {
         const orderEntries = this.props.orders ? Object.entries(this.props.orders) : null;
         let display = null;
@@ -51,9 +51,10 @@ export class PowerOrder extends React.Component {
             if (this.props.serverCount < 0) {
                 display = <div className={'no-orders'}>No orders!</div>;
             } else if (this.props.serverCount === 0) {
-                display = <div className={'empty-orders'}>Empty orders set</div>;
+                display = <div className={'empty-orders'}>Local: no orders. Server: empty orders set</div>;
             } else {
-                display = (<div className={'empty-orders'}>Local empty orders set</div>);
+                display = (<div className={'empty-orders'}>Local: no orders.
+                    Server: {this.props.serverCount} order{this.props.serverCount === 1 ? '' : 's'}</div>);
             }
         }
         return (
@@ -70,7 +71,7 @@ export class PowerOrder extends React.Component {
     }
 }
 
-PowerOrder.propTypes = {
+PowerOrders.propTypes = {
     wait: PropTypes.bool,
     name: PropTypes.string,
     orders: PropTypes.object,
