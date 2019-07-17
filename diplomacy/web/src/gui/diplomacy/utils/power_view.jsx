@@ -19,21 +19,27 @@ import React from "react";
 
 function getName(power) {
     if (power.isEliminated())
-        return <em><s>{power.name.toLowerCase()}</s> (eliminated)</em>;
+        return <span className="dummy"><em><s>{power.name.toLowerCase()}</s> (eliminated)</em></span>;
     return power.name;
 }
 
 function getController(power) {
+    if (power.isEliminated())
+        return <span className="dummy"><em>N/A</em></span>;
     const controller = power.getController();
     return <span className={controller === STRINGS.DUMMY ? 'dummy' : 'controller'}>{controller}</span>;
 }
 
 function getOrderFlag(power) {
+    if (power.isEliminated())
+        return <span className="dummy"><em>N/A</em></span>;
     const value = ['no', 'empty', 'yes'][power.order_is_set];
     return <span className={value}>{value}</span>;
 }
 
 function getWaitFlag(power) {
+    if (power.isEliminated())
+        return <span className="dummy"><em>N/A</em></span>;
     return <span className={power.wait ? 'wait' : 'no-wait'}>{power.wait ? 'yes' : 'no'}</span>;
 }
 
