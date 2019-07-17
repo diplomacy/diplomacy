@@ -662,8 +662,11 @@ class Server():
         if not (server_game.is_game_canceled or server_game.is_game_completed):
             server_game.set_status(strings.CANCELED)
         game_filename = os.path.join(self.games_path, '%s.json' % server_game.game_id)
+        backup_game_filename = get_backup_filename(game_filename)
         if os.path.isfile(game_filename):
             os.remove(game_filename)
+        if os.path.isfile(backup_game_filename):
+            os.remove(backup_game_filename)
         self.games.pop(server_game.game_id, None)
         self.backup_games.pop(server_game.game_id, None)
         self.games_with_dummy_powers.pop(server_game.game_id, None)
