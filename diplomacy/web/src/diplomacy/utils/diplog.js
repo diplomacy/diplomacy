@@ -25,7 +25,7 @@ export class Diplog {
     }
 
     static info(msg) {
-        console.info(msg);
+        console.log(msg);
     }
 
     static success(msg) {

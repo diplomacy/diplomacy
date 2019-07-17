@@ -14,10 +14,10 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {UTILS} from "../../../diplomacy/utils/utils";
+import {UTILS} from "../../diplomacy/utils/utils";
 import $ from "jquery";
 import {extendOrderBuilding} from "../utils/order_building";
-import {Diplog} from "../../../diplomacy/utils/diplog";
+import {Diplog} from "../../diplomacy/utils/diplog";
 
 function parseLocation(txt) {
     if (txt.length > 2 && txt[1] === ' ' && ['A', 'F'].includes(txt[0]))

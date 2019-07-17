@@ -15,15 +15,15 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Forms} from "../../core/forms";
+import {Forms} from "../components/forms";
 import {ORDER_BUILDER} from "../utils/order_building";
-import {STRINGS} from "../../../diplomacy/utils/strings";
+import {STRINGS} from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
-import {Power} from "../../../diplomacy/engine/power";
+import {Power} from "../../diplomacy/engine/power";
 
 const HotKey = require('react-shortcut');
 
-export class PowerActionsForm extends React.Component {
+export class PowerOrderCreationForm extends React.Component {
     constructor(props) {
         super(props);
         this.state = this.initState();
@@ -61,7 +61,7 @@ export class PowerActionsForm extends React.Component {
             title = 'No orders available for this power.';
         }
         if (!this.props.power.order_is_set) {
-            header.push(Forms.createButton('pass', this.props.onNoOrders));
+            header.push(Forms.createButton('pass', this.props.onPass));
         }
 
         if (this.props.role !== STRINGS.OMNISCIENT_TYPE) {
@@ -108,14 +108,14 @@ export class PowerActionsForm extends React.Component {
     }
 }
 
-PowerActionsForm.propTypes = {
+PowerOrderCreationForm.propTypes = {
     orderType: PropTypes.oneOf(Object.keys(ORDER_BUILDER)),
     orderTypes: PropTypes.arrayOf(PropTypes.oneOf(Object.keys(ORDER_BUILDER))),
     power: PropTypes.instanceOf(Power),
     role: PropTypes.string,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
-    onNoOrders: PropTypes.func, // onNoOrders()
+    onPass: PropTypes.func, // onPass(), to submit empty orders set (powers want to do nothing at this phase)
     onVote: PropTypes.func, // onVote(voteString)
     onSetWaitFlag: PropTypes.func, // onSetWaitFlag(),
 };

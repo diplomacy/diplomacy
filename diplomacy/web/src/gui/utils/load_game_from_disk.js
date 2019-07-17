@@ -1,6 +1,6 @@
 import $ from "jquery";
-import {STRINGS} from "../../../diplomacy/utils/strings";
-import {Game} from "../../../diplomacy/engine/game";
+import {STRINGS} from "../../diplomacy/utils/strings";
+import {Game} from "../../diplomacy/engine/game";
 
 export function loadGameFromDisk(onLoad, onError) {
     const input = $(document.createElement('input'));

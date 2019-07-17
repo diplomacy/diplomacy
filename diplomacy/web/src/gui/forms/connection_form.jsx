@@ -15,8 +15,8 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Forms} from "../../core/forms";
-import {UTILS} from "../../../diplomacy/utils/utils";
+import {Forms} from "../components/forms";
+import {UTILS} from "../../diplomacy/utils/utils";
 import PropTypes from "prop-types";
 import {DipStorage} from "../utils/dipStorage";
 

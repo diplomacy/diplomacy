@@ -17,15 +17,15 @@
 /** Main class to use to create app GUI. **/
 
 import React from "react";
-import {ContentConnection} from "../diplomacy/contents/content_connection";
+import {ContentConnection} from "./content_connection";
 import {UTILS} from "../../diplomacy/utils/utils";
 import {Diplog} from "../../diplomacy/utils/diplog";
-import {FancyBox} from "./fancybox";
-import {DipStorage} from "../diplomacy/utils/dipStorage";
-import {PageContext} from "../diplomacy/widgets/page_context";
-import {ContentGames} from "../diplomacy/contents/content_games";
-import {loadGameFromDisk} from "../diplomacy/utils/load_game_from_disk";
-import {ContentGame} from "../diplomacy/contents/content_game";
+import {FancyBox} from "../components/fancybox";
+import {DipStorage} from "../utils/dipStorage";
+import {PageContext} from "../components/page_context";
+import {ContentGames} from "./content_games";
+import {loadGameFromDisk} from "../utils/load_game_from_disk";
+import {ContentGame} from "./content_game";
 
 export class Page extends React.Component {
 

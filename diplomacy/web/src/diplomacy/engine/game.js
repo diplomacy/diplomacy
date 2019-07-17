@@ -19,6 +19,7 @@ import {STRINGS} from "../utils/strings";
 import {SortedDict} from "../utils/sorted_dict";
 import {Power} from "./power";
 import {Message} from "./message";
+import {Order} from "../../gui/utils/order";
 
 export function comparablePhase(shortPhaseName) {
     /** Return a unique integer corresponding to given short phase name, so that
@@ -418,6 +419,29 @@ export class Game {
         if (this.isObserverGame() || this.isOmniscientGame())
             return Object.keys(this.powers);
         return [this.role];
+    }
+
+    getServerOrders() {
+        /** Return a dictionary of server orders.
+         * Returned dictionary maps each power name to either:
+         * - a dictionary of orders, mapping a loc to an Order object with boolean flag `local` set to false.
+         * - an empty dictionary, to represent an empty orders set.
+         * - null value, if power.order_is_set is false.
+         * **/
+        const orders = {};
+        const controllablePowers = this.getControllablePowers();
+        for (let powerName of controllablePowers) {
+            const powerOrders = {};
+            let countOrders = 0;
+            const power = this.powers[powerName];
+            for (let orderString of power.orders) {
+                const serverOrder = new Order(orderString, false);
+                powerOrders[serverOrder.loc] = serverOrder;
+                ++countOrders;
+            }
+            orders[powerName] = (countOrders || power.order_is_set) ? powerOrders : null;
+        }
+        return orders;
     }
 
     getMessageChannels(role, all) {

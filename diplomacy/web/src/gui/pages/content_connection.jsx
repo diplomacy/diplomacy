@@ -15,12 +15,12 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Connection} from "../../../diplomacy/client/connection";
+import {Connection} from "../../diplomacy/client/connection";
 import {ConnectionForm} from "../forms/connection_form";
 import {DipStorage} from "../utils/dipStorage";
 import {Helmet} from "react-helmet";
-import {Navigation} from "../widgets/navigation";
-import {PageContext} from "../widgets/page_context";
+import {Navigation} from "../components/navigation";
+import {PageContext} from "../components/page_context";
 
 export class ContentConnection extends React.Component {
     constructor(props) {
