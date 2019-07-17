@@ -61,7 +61,7 @@ export class PowerActionsForm extends React.Component {
             title = 'No orders available for this power.';
         }
         if (!this.props.power.order_is_set) {
-            header.push(Forms.createButton('pass', this.props.onNoOrders));
+            header.push(Forms.createButton('pass', this.props.onPass));
         }
 
         if (this.props.role !== STRINGS.OMNISCIENT_TYPE) {
@@ -115,7 +115,7 @@ PowerActionsForm.propTypes = {
     role: PropTypes.string,
     onChange: PropTypes.func,
     onSubmit: PropTypes.func,
-    onNoOrders: PropTypes.func, // onNoOrders()
+    onPass: PropTypes.func, // onPass(), to submit empty orders set (powers want to do nothing at this phase)
     onVote: PropTypes.func, // onVote(voteString)
     onSetWaitFlag: PropTypes.func, // onSetWaitFlag(),
 };

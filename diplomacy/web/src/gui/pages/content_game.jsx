@@ -43,6 +43,7 @@ import {Help} from "../components/help";
 import {Tab} from "../components/tab";
 import {Button} from "../components/button";
 import {saveGameToDisk} from "../utils/saveGameToDisk";
+import {Game} from '../../diplomacy/engine/game';
 
 const HotKey = require('react-shortcut');
 
@@ -144,7 +145,7 @@ export class ContentGame extends React.Component {
         this.onRemoveOrder = this.onRemoveOrder.bind(this);
         this.onSelectLocation = this.onSelectLocation.bind(this);
         this.onSelectVia = this.onSelectVia.bind(this);
-        this.onSetNoOrders = this.onSetNoOrders.bind(this);
+        this.onSetEmptyOrdersSet = this.onSetEmptyOrdersSet.bind(this);
         this.reloadServerOrders = this.reloadServerOrders.bind(this);
         this.renderOrders = this.renderOrders.bind(this);
         this.sendMessage = this.sendMessage.bind(this);
@@ -174,23 +175,6 @@ export class ContentGame extends React.Component {
         return wait;
     }
 
-    static getServerOrders(engine) {
-        const orders = {};
-        const controllablePowers = engine.getControllablePowers();
-        for (let powerName of controllablePowers) {
-            const powerOrders = {};
-            let countOrders = 0;
-            const power = engine.powers[powerName];
-            for (let orderString of power.orders) {
-                const serverOrder = new Order(orderString, false);
-                powerOrders[serverOrder.loc] = serverOrder;
-                ++countOrders;
-            }
-            orders[powerName] = (countOrders || power.order_is_set) ? powerOrders : null;
-        }
-        return orders;
-    }
-
     static getOrderBuilding(powerName, orderType, orderPath) {
         return {
             type: orderType,
@@ -198,6 +182,10 @@ export class ContentGame extends React.Component {
             power: powerName,
             builder: orderType && ORDER_BUILDER[orderType]
         };
+    }
+
+    getPage() {
+        return this.context;
     }
 
     closeFancyBox() {
@@ -208,6 +196,8 @@ export class ContentGame extends React.Component {
             orderBuildingPath: []
         });
     }
+
+    // [ Methods used to handle current map.
 
     setSelectedLocation(location, powerName, orderType, orderPath) {
         if (!location)
@@ -259,30 +249,7 @@ export class ContentGame extends React.Component {
         });
     }
 
-    __get_orders(engine) {
-        const orders = ContentGame.getServerOrders(engine);
-        if (this.state.orders) {
-            for (let powerName of Object.keys(orders)) {
-                const serverPowerOrders = orders[powerName];
-                const localPowerOrders = this.state.orders[powerName];
-                if (localPowerOrders) {
-                    for (let localOrder of Object.values(localPowerOrders)) {
-                        localOrder.local = (
-                            !serverPowerOrders
-                            || !serverPowerOrders.hasOwnProperty(localOrder.loc)
-                            || serverPowerOrders[localOrder.loc].order !== localOrder.order
-                        );
-                    }
-                }
-                orders[powerName] = localPowerOrders;
-            }
-        }
-        return orders;
-    }
-
-    __get_wait(engine) {
-        return this.state.wait ? this.state.wait : ContentGame.getServerWaitFlags(engine);
-    }
+    // ]
 
     getMapInfo() {
         return this.getPage().availableMaps[this.props.data.map_name];
@@ -324,6 +291,13 @@ export class ContentGame extends React.Component {
             });
     }
 
+    // [ Network game notifications.
+
+    /**
+     * Return True if given network game is the game currently displayed on the interface.
+     * @param {NetworkGame} networkGame - network game to check
+     * @returns {boolean}
+     */
     networkGameIsDisplayed(networkGame) {
         return this.getPage().getName() === `game: ${networkGame.local.game_id}`;
     }
@@ -426,6 +400,8 @@ export class ContentGame extends React.Component {
         }
     }
 
+    // ]
+
     onChangeCurrentPower(event) {
         this.setState({power: event.target.value, tabPastMessages: null, tabCurrentMessages: null});
     }
@@ -462,33 +438,145 @@ export class ContentGame extends React.Component {
             .catch(error => page.error(error.toString()));
     }
 
+    onProcessGame() {
+        const page = this.getPage();
+        this.props.data.client.process()
+            .then(() => page.success('Game processed.'))
+            .catch(err => {
+                page.error(err.toString());
+            });
+    }
+
+    /**
+     * Get name of current power selected on the game page.
+     * @returns {null|string}
+     */
+    getCurrentPowerName() {
+        const engine = this.props.data;
+        const controllablePowers = engine.getControllablePowers();
+        return this.state.power || (controllablePowers.length && controllablePowers[0]);
+    }
+
+    __get_wait(engine) {
+        return this.state.wait ? this.state.wait : ContentGame.getServerWaitFlags(engine);
+    }
+
+    // [ Methods involved in orders management.
+
+    /**
+     * Return a dictionary of local orders for given game engine.
+     * Returned dictionary maps each power name to either:
+     * - a dictionary of orders, mapping a location to an Order object with boolean flag `local` correctly set
+     *   to determine if that order is a new local order or is a copy of an existing server order for this power.
+     * - null or empty dictionary, if there are no local orders defined for this power.
+     * @param {Game} engine - game engine from which we must get local orders
+     * @returns {{}}
+     * @private
+     */
+    __get_orders(engine) {
+        const orders = engine.getServerOrders();
+        if (this.state.orders) {
+            for (let powerName of Object.keys(orders)) {
+                const serverPowerOrders = orders[powerName];
+                const localPowerOrders = this.state.orders[powerName];
+                if (localPowerOrders) {
+                    for (let localOrder of Object.values(localPowerOrders)) {
+                        localOrder.local = (
+                            !serverPowerOrders
+                            || !serverPowerOrders.hasOwnProperty(localOrder.loc)
+                            || serverPowerOrders[localOrder.loc].order !== localOrder.order
+                        );
+                    }
+                }
+                orders[powerName] = localPowerOrders;
+            }
+        }
+        return orders;
+    }
+
+    /**
+     * Save given orders into local storage.
+     * @param orders - orders to save
+     * @private
+     */
     __store_orders(orders) {
-        // Save local orders into local storage.
         const username = this.props.data.client.channel.username;
         const gameID = this.props.data.game_id;
         const gamePhase = this.props.data.phase;
-        if (!orders) {
+        if (!orders)
             return DipStorage.clearUserGameOrders(username, gameID);
-        }
         for (let entry of Object.entries(orders)) {
             const powerName = entry[0];
             let powerOrdersList = null;
-            if (entry[1]) {
+            if (entry[1])
                 powerOrdersList = Object.values(entry[1]).map(order => order.order);
-            }
             DipStorage.clearUserGameOrders(username, gameID, powerName);
             DipStorage.addUserGameOrders(username, gameID, gamePhase, powerName, powerOrdersList);
         }
     }
 
+    /**
+     * Reset local orders and replace them with current server orders.
+     */
     reloadServerOrders() {
-        const serverOrders = ContentGame.getServerOrders(this.props.data);
+        // TODO: This method should reset orders to server version only for current powers, not for all powers as she currently does.
+        const serverOrders = this.props.data.getServerOrders();
         this.__store_orders(serverOrders);
         this.setState({orders: serverOrders});
     }
 
+    /**
+     * Remove given order from local orders of given power name.
+     * @param {string} powerName - power name
+     * @param {Order} order - order to remove
+     */
+    onRemoveOrder(powerName, order) {
+        const orders = this.__get_orders(this.props.data);
+        if (orders.hasOwnProperty(powerName)
+            && orders[powerName].hasOwnProperty(order.loc)
+            && orders[powerName][order.loc].order === order.order) {
+            delete orders[powerName][order.loc];
+            if (!UTILS.javascript.count(orders[powerName]))
+                orders[powerName] = null;
+            this.__store_orders(orders);
+            this.setState({orders: orders});
+        }
+    }
+
+    /**
+     * Remove all local orders for current selected power
+     */
+    onRemoveAllCurrentPowerOrders() {
+        const currentPowerName = this.getCurrentPowerName();
+        if (currentPowerName) {
+            const engine = this.props.data;
+            const allOrders = this.__get_orders(engine);
+            if (!allOrders.hasOwnProperty(currentPowerName)) {
+                this.getPage().error(`Unknown power ${currentPowerName}.`);
+                return;
+            }
+            allOrders[currentPowerName] = null;
+            this.__store_orders(allOrders);
+            this.setState({orders: allOrders});
+        }
+    }
+
+    /**
+     * Set an empty local orders set for given power name.
+     * @param {string} powerName - power name
+     */
+    onSetEmptyOrdersSet(powerName) {
+        const orders = this.__get_orders(this.props.data);
+        orders[powerName] = {};
+        this.__store_orders(orders);
+        this.setState({orders: orders});
+    }
+
+    /**
+     * Send local orders to server.
+     */
     setOrders() {
-        const serverOrders = ContentGame.getServerOrders(this.props.data);
+        const serverOrders = this.props.data.getServerOrders();
         const orders = this.__get_orders(this.props.data);
 
         for (let entry of Object.entries(orders)) {
@@ -543,47 +631,7 @@ export class ContentGame extends React.Component {
         }
     }
 
-    onProcessGame() {
-        const page = this.getPage();
-        this.props.data.client.process()
-            .then(() => page.success('Game processed.'))
-            .catch(err => {
-                page.error(err.toString());
-            });
-    }
-
-    onRemoveOrder(powerName, order) {
-        const orders = this.__get_orders(this.props.data);
-        if (orders.hasOwnProperty(powerName)
-            && orders[powerName].hasOwnProperty(order.loc)
-            && orders[powerName][order.loc].order === order.order) {
-            delete orders[powerName][order.loc];
-            if (!UTILS.javascript.count(orders[powerName]))
-                orders[powerName] = null;
-            this.__store_orders(orders);
-            this.setState({orders: orders});
-        }
-    }
-
-    getCurrentPowerName() {
-        const engine = this.props.data;
-        const controllablePowers = engine.getControllablePowers();
-        return this.state.power || (controllablePowers.length && controllablePowers[0]);
-    }
-
-    onRemoveAllCurrentPowerOrders() {
-        const currentPowerName = this.getCurrentPowerName();
-        if (currentPowerName) {
-            const engine = this.props.data;
-            const allOrders = this.__get_orders(engine);
-            if (!allOrders.hasOwnProperty(currentPowerName)) {
-                return this.getPage().error(`Unknown power ${currentPowerName}.`);
-            }
-            allOrders[currentPowerName] = null;
-            this.__store_orders(allOrders);
-            this.setState({orders: allOrders});
-        }
-    }
+    // ]
 
     onOrderBuilding(powerName, path) {
         const pathToSave = path.slice(1);
@@ -618,13 +666,6 @@ export class ContentGame extends React.Component {
         this.getPage().success(`Built order: ${orderString}`);
         this.__store_orders(allOrders);
         this.setState(state);
-    }
-
-    onSetNoOrders(powerName) {
-        const orders = this.__get_orders(this.props.data);
-        orders[powerName] = {};
-        this.__store_orders(orders);
-        this.setState({orders: orders});
     }
 
     onChangeOrderType(form) {
@@ -716,19 +757,6 @@ export class ContentGame extends React.Component {
         this.setState({historyShowOrders: event.target.checked});
     }
 
-    renderOrders(engine, currentPowerName) {
-        const serverOrders = ContentGame.getServerOrders(this.props.data);
-        const orders = this.__get_orders(engine);
-        const wait = this.__get_wait(engine);
-
-        const render = [];
-        render.push(<PowerOrder key={currentPowerName} name={currentPowerName} wait={wait[currentPowerName]}
-                                orders={orders[currentPowerName]}
-                                serverCount={serverOrders[currentPowerName] ? UTILS.javascript.count(serverOrders[currentPowerName]) : -1}
-                                onRemove={this.onRemoveOrder}/>);
-        return render;
-    }
-
     onClickMessage(message) {
         if (!message.read) {
             message.read = true;
@@ -749,6 +777,21 @@ export class ContentGame extends React.Component {
             historyCurrentLoc: loc || null,
             historyCurrentOrders: orders && orders.length ? orders : null
         });
+    }
+
+    // [ Rendering methods.
+
+    renderOrders(engine, currentPowerName) {
+        const serverOrders = this.props.data.getServerOrders();
+        const orders = this.__get_orders(engine);
+        const wait = this.__get_wait(engine);
+
+        const render = [];
+        render.push(<PowerOrder key={currentPowerName} name={currentPowerName} wait={wait[currentPowerName]}
+                                orders={orders[currentPowerName]}
+                                serverCount={serverOrders[currentPowerName] ? UTILS.javascript.count(serverOrders[currentPowerName]) : -1}
+                                onRemove={this.onRemoveOrder}/>);
+        return render;
     }
 
     renderPastMessages(engine, role) {
@@ -1071,9 +1114,9 @@ export class ContentGame extends React.Component {
         );
     }
 
-    getPage() {
-        return this.context;
-    }
+    // ]
+
+    // [ React.Component overridden methods.
 
     render() {
         this.props.data.displayed = true;
@@ -1161,7 +1204,7 @@ export class ContentGame extends React.Component {
                 <PowerActionsForm orderType={orderBuildingType}
                                   orderTypes={allowedPowerOrderTypes}
                                   onChange={this.onChangeOrderType}
-                                  onNoOrders={() => this.onSetNoOrders(currentPowerName)}
+                                  onPass={() => this.onSetEmptyOrdersSet(currentPowerName)}
                                   onSetWaitFlag={() => this.setWaitFlag(!currentPower.wait)}
                                   onVote={this.vote}
                                   role={engine.role}
@@ -1248,9 +1291,11 @@ export class ContentGame extends React.Component {
         document.onkeydown = null;
     }
 
+    // ]
+
 }
 
 ContentGame.contextType = PageContext;
 ContentGame.propTypes = {
-    data: PropTypes.object.isRequired
+    data: PropTypes.instanceOf(Game).isRequired
 };
