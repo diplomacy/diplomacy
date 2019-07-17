@@ -15,8 +15,8 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Forms} from "../../core/forms";
-import {STRINGS} from "../../../diplomacy/utils/strings";
+import {Forms} from "../components/forms";
+import {STRINGS} from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
 
 export class JoinForm extends React.Component {

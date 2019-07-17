@@ -15,18 +15,18 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Tabs} from "../../core/tabs";
-import {Table} from "../../core/table";
+import {Tabs} from "../components/tabs";
+import {Table} from "../components/table";
 import {FindForm} from "../forms/find_form";
 import {CreateForm} from "../forms/create_form";
 import {InlineGameView} from "../utils/inline_game_view";
-import {STRINGS} from "../../../diplomacy/utils/strings";
+import {STRINGS} from "../../diplomacy/utils/strings";
 import {Helmet} from "react-helmet";
-import {Navigation} from "../widgets/navigation";
-import {PageContext} from "../widgets/page_context";
+import {Navigation} from "../components/navigation";
+import {PageContext} from "../components/page_context";
 import {ContentGame} from "./content_game";
 import PropTypes from 'prop-types';
-import {Tab} from "../../core/tab";
+import {Tab} from "../components/tab";
 
 const TABLE_LOCAL_GAMES = {
     game_id: ['Game ID', 0],

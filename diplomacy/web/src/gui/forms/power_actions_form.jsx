@@ -15,11 +15,11 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from 'react';
-import {Forms} from "../../core/forms";
+import {Forms} from "../components/forms";
 import {ORDER_BUILDER} from "../utils/order_building";
-import {STRINGS} from "../../../diplomacy/utils/strings";
+import {STRINGS} from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
-import {Power} from "../../../diplomacy/engine/power";
+import {Power} from "../../diplomacy/engine/power";
 
 const HotKey = require('react-shortcut');
 

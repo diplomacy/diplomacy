@@ -16,7 +16,7 @@
 // ==============================================================================
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {Page} from "./gui/core/page";
+import {Page} from "./gui/pages/page";
 import 'popper.js';
 import 'bootstrap/dist/js/bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';

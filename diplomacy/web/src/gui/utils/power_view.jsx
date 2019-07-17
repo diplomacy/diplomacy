@@ -14,7 +14,7 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {STRINGS} from "../../../diplomacy/utils/strings";
+import {STRINGS} from "../../diplomacy/utils/strings";
 import React from "react";
 
 function getName(power) {

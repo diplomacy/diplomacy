@@ -16,10 +16,10 @@
 // ==============================================================================
 import React from "react";
 import {JoinForm} from "../forms/join_form";
-import {STRINGS} from "../../../diplomacy/utils/strings";
-import {ContentGame} from "../contents/content_game";
-import {Button} from "../../core/button";
-import {DeleteButton} from "../../core/delete_button";
+import {STRINGS} from "../../diplomacy/utils/strings";
+import {ContentGame} from "../pages/content_game";
+import {Button} from "../components/button";
+import {DeleteButton} from "../components/delete_button";
 
 export class InlineGameView {
     constructor(page, gameData) {

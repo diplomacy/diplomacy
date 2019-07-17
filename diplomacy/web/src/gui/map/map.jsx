@@ -16,7 +16,7 @@
 // ==============================================================================
 import React from "react";
 import SVG from 'react-inlinesvg';
-import mapSVG from '../../../standard.svg';
+import mapSVG from '../../standard.svg';
 import {Renderer} from "./renderer";
 import {MapData} from "../utils/map_data";
 import {DOMOrderBuilder} from "./dom_order_builder";
