@@ -42,6 +42,7 @@ import PropTypes from 'prop-types';
 import {Help} from "../components/help";
 import {Tab} from "../components/tab";
 import {Button} from "../components/button";
+import {saveGameToDisk} from "../utils/saveGameToDisk";
 
 const HotKey = require('react-shortcut');
 
@@ -162,25 +163,6 @@ export class ContentGame extends React.Component {
         else if (remainingTime)
             title += ` (remaining ${remainingTime} sec)`;
         return title;
-    }
-
-    static saveGameToDisk(game, page) {
-        if (game.client) {
-            game.client.save()
-                .then((savedData) => {
-                    const domLink = document.createElement('a');
-                    domLink.setAttribute(
-                        'href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(JSON.stringify(savedData)));
-                    domLink.setAttribute('download', `${game.game_id}.json`);
-                    domLink.style.display = 'none';
-                    document.body.appendChild(domLink);
-                    domLink.click();
-                    document.body.removeChild(domLink);
-                })
-                .catch(exc => page.error(`Error while saving game: ${exc.toString()}`));
-        } else {
-            page.error(`Cannot save this game.`);
-        }
     }
 
     static getServerWaitFlags(engine) {
@@ -1101,7 +1083,7 @@ export class ContentGame extends React.Component {
         const navigation = [
             ['Help', () => page.loadFancyBox('Help', () => <Help/>)],
             ['Load a game from disk', page.loadGameFromDisk],
-            ['Save game to disk', () => ContentGame.saveGameToDisk(engine)],
+            ['Save game to disk', () => saveGameToDisk(engine, page.error)],
             [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Games`, () => page.loadGames()],
             [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Leave game`, () => page.leaveGame(engine.game_id)],
             [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Logout`, page.logout]
