@@ -145,7 +145,7 @@ export class ContentGame extends React.Component {
         this.onOrderBuilding = this.onOrderBuilding.bind(this);
         this.onOrderBuilt = this.onOrderBuilt.bind(this);
         this.onProcessGame = this.onProcessGame.bind(this);
-        this.onRemoveAllOrders = this.onRemoveAllOrders.bind(this);
+        this.onRemoveAllCurrentPowerOrders = this.onRemoveAllCurrentPowerOrders.bind(this);
         this.onRemoveOrder = this.onRemoveOrder.bind(this);
         this.onSelectLocation = this.onSelectLocation.bind(this);
         this.onSelectVia = this.onSelectVia.bind(this);
@@ -589,14 +589,24 @@ export class ContentGame extends React.Component {
         }
     }
 
-    onRemoveAllOrders() {
-        const orders = {};
-        const controllablePowers = this.props.data.getControllablePowers();
-        for (let powerName of controllablePowers) {
-            orders[powerName] = null;
+    getCurrentPowerName() {
+        const engine = this.props.data;
+        const controllablePowers = engine.getControllablePowers();
+        return this.state.power || (controllablePowers.length && controllablePowers[0]);
+    }
+
+    onRemoveAllCurrentPowerOrders() {
+        const currentPowerName = this.getCurrentPowerName();
+        if (currentPowerName) {
+            const engine = this.props.data;
+            const allOrders = this.__get_orders(engine);
+            if (!allOrders.hasOwnProperty(currentPowerName)) {
+                return this.getPage().error(`Unknown power ${currentPowerName}.`);
+            }
+            allOrders[currentPowerName] = null;
+            this.__store_orders(allOrders);
+            this.setState({orders: allOrders});
         }
-        this.__store_orders(orders);
-        this.setState({orders: orders});
     }
 
     onOrderBuilding(powerName, path) {
@@ -1064,7 +1074,7 @@ export class ContentGame extends React.Component {
                             <Bar className={'p-2'}>
                                 <strong className={'mr-4'}>Orders:</strong>
                                 <Button title={'reset'} onClick={this.reloadServerOrders}/>
-                                <Button title={'delete all'} onClick={this.onRemoveAllOrders}/>
+                                <Button title={'delete all'} onClick={this.onRemoveAllCurrentPowerOrders}/>
                                 <Button color={'primary'} title={'update'} onClick={this.setOrders}/>
                                 {(!this.props.data.isPlayerGame() && this.props.data.observer_level === STRINGS.MASTER_TYPE &&
                                     <Button color={'danger'} title={'process game'}
