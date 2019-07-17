@@ -50,11 +50,8 @@ export class PowerOrders extends React.Component {
         } else {
             if (this.props.serverCount < 0) {
                 display = <div className={'no-orders'}>No orders!</div>;
-            } else if (this.props.serverCount === 0) {
-                display = <div className={'empty-orders'}>Local: no orders. Server: empty orders set</div>;
             } else {
-                display = (<div className={'empty-orders'}>Local: no orders.
-                    Server: {this.props.serverCount} order{this.props.serverCount === 1 ? '' : 's'}</div>);
+                display = <div className={'empty-orders'}>Asking to unset orders</div>;
             }
         }
         return (
