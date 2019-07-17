@@ -68,12 +68,6 @@ const TABLE_POWER_VIEW = {
     wait: ['Waiting', 3]
 };
 
-function gameReloaded(game, updates) {
-    if (updates)
-        return Object.assign({}, updates, game);
-    return Object.assign({}, game);
-}
-
 export class ContentGame extends React.Component {
 
     constructor(props) {
@@ -326,7 +320,7 @@ export class ContentGame extends React.Component {
             engine.deadline_timer = 0;
             this.clearScheduleTimeout();
         }
-        this.getPage().load(`game: ${engine.game_id}`, <ContentGame data={gameReloaded(engine)}/>);
+        this.getPage().load(`game: ${engine.game_id}`, <ContentGame data={engine}/>);
     }
 
     reloadDeadlineTimer(networkGame) {
