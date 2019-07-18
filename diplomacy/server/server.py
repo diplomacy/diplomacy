@@ -405,6 +405,12 @@ class Server():
         # Game was processed normally.
         # Send game updates to powers, observers and omniscient observers.
         yield notifier.notify_game_processed(server_game, previous_phase_data, current_phase_data)
+
+        # If game is completed, we must close associated DAIDE port.
+        if server_game.is_game_done:
+            self.stop_daide_server(server_game.game_id)
+
+        # Game must be stopped if not active.
         return not server_game.is_game_active
 
     @gen.coroutine
