@@ -340,8 +340,10 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         server.start(port=port)
 
         nb_regular_players = min(1, 7 - nb_daide_clients)
-        server_game = ServerGame(map_name='standard', n_controls=nb_daide_clients + nb_regular_players, rules=rules)
-        server_game.server = server
+        server_game = ServerGame(map_name='standard',
+                                 n_controls=nb_daide_clients + nb_regular_players,
+                                 rules=rules,
+                                 server=server)
 
         # Register game on server.
         server.add_new_game(server_game)

@@ -23,6 +23,7 @@ from diplomacy.utils.game_phase_data import GamePhaseData
 
 class ServerGame(Game):
     """ ServerGame class. Properties:
+        - server: (optional) server (Server object) that handles this game.
         - omniscient_usernames (only for server games):
           set of usernames allowed to be omniscient observers for this game.
         - moderator_usernames (only for server games):
@@ -40,9 +41,9 @@ class ServerGame(Game):
         strings.OMNISCIENT_USERNAMES: parsing.DefaultValueType(parsing.SequenceType(str, sequence_builder=set), ()),
     })
 
-    def __init__(self, **kwargs):
+    def __init__(self, server=None, **kwargs):
         # Reference to a Server instance.
-        self.server = None  # type: diplomacy.Server
+        self.server = server  # type: diplomacy.Server
         self.omniscient_usernames = None  # type: set
         self.moderator_usernames = None  # type: set
         self.observer = None  # type: Power
@@ -154,11 +155,9 @@ class ServerGame(Game):
         """ Return a player game data object copy of this game for given power name. """
         for_username = self.get_power(power_name).get_controller()
         game = Game.from_dict(self.to_dict())
-        game.controlled_powers = self.get_controlled_power_names(for_username)
         game.error = []
         game.message_history = self.get_message_history(power_name)
         game.messages = self.get_messages(power_name)
-        game.observer_level = self.get_observer_level(for_username)
         game.phase_abbr = game.current_short_phase
         related_power_names = self.get_related_power_names(power_name)
         for power in game.powers.values():  # type: Power
@@ -168,36 +167,41 @@ class ServerGame(Game):
                 power.vote = strings.NEUTRAL
                 power.orders.clear()
         game.role = power_name
+        game.controlled_powers = self.get_controlled_power_names(for_username)
+        game.observer_level = self.get_observer_level(for_username)
+        game.daide_port = self.server.get_daide_port(self.game_id) if self.server else None
         return game
 
     def as_omniscient_game(self, for_username):
         """ Return an omniscient game data object copy of this game. """
         game = Game.from_dict(self.to_dict())
-        game.controlled_powers = self.get_controlled_power_names(for_username)
         game.message_history = self.get_message_history(strings.OMNISCIENT_TYPE)
         game.messages = self.get_messages(strings.OMNISCIENT_TYPE)
-        game.observer_level = self.get_observer_level(for_username)
         game.phase_abbr = game.current_short_phase
         for power in game.powers.values():  # type: Power
             power.role = strings.OMNISCIENT_TYPE
             power.tokens.clear()
         game.role = strings.OMNISCIENT_TYPE
+        game.controlled_powers = self.get_controlled_power_names(for_username)
+        game.observer_level = self.get_observer_level(for_username)
+        game.daide_port = self.server.get_daide_port(self.game_id) if self.server else None
         return game
 
     def as_observer_game(self, for_username):
         """ Return an observer game data object copy of this game. """
         game = Game.from_dict(self.to_dict())
-        game.controlled_powers = self.get_controlled_power_names(for_username)
         game.error = []
         game.message_history = self.get_message_history(strings.OBSERVER_TYPE)
         game.messages = self.get_messages(strings.OBSERVER_TYPE)
-        game.observer_level = self.get_observer_level(for_username)
         game.phase_abbr = game.current_short_phase
         for power in game.powers.values():  # type: Power
             power.role = strings.OBSERVER_TYPE
             power.tokens.clear()
             power.vote = strings.NEUTRAL
         game.role = strings.OBSERVER_TYPE
+        game.controlled_powers = self.get_controlled_power_names(for_username)
+        game.observer_level = self.get_observer_level(for_username)
+        game.daide_port = self.server.get_daide_port(self.game_id) if self.server else None
         return game
 
     def cast(self, role, for_username):

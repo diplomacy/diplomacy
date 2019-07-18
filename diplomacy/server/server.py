@@ -53,6 +53,7 @@ import os
 from random import randint
 import socket
 import signal
+from typing import Dict, Set
 
 import tornado
 import tornado.web
@@ -227,13 +228,13 @@ class Server():
         self.backup_delay_seconds = constants.DEFAULT_BACKUP_DELAY_SECONDS
         self.ping_seconds = constants.DEFAULT_PING_SECONDS
         self.users = None  # type: Users  # Users and administrators usernames.
-        self.available_maps = {}  # type: dict{str, set()} # {"map_name" => set("map_power")}
+        self.available_maps = {}  # type: Dict[str, Set[str]] # {"map_name" => set("map_power")}
         self.maps_mtime = 0  # Latest maps modification date (used to manage maps cache in server object).
 
         # Server games loaded on memory (stored on disk).
         # Saved separately (each game in one JSON file).
         # Each game also stores tokens connected (player tokens, observer tokens, omniscient tokens).
-        self.games = {}  # type: dict{str, ServerGame}
+        self.games = {}  # type: Dict[str, ServerGame]
 
         # Dictionary mapping game IDs to dummy power names.
         self.games_with_dummy_powers = {}  # type: dict{str, set}
@@ -404,6 +405,12 @@ class Server():
         # Game was processed normally.
         # Send game updates to powers, observers and omniscient observers.
         yield notifier.notify_game_processed(server_game, previous_phase_data, current_phase_data)
+
+        # If game is completed, we must close associated DAIDE port.
+        if server_game.is_game_done:
+            self.stop_daide_server(server_game.game_id)
+
+        # Game must be stopped if not active.
         return not server_game.is_game_active
 
     @gen.coroutine
@@ -596,7 +603,7 @@ class Server():
             If such game is already stored in server object, return it.
             Else, load it from disk but ** does not store it in server object **.
             To load and immediately store a game object in server object, please use method get_game().
-            Method load_game() is convenient where you want to iterate over all games in server database
+            Method load_game() is convenient when you want to iterate over all games in server database
             without taking memory space.
             :param game_id: ID of game to load.
             :return: a ServerGame object
@@ -621,15 +628,22 @@ class Server():
                 # This should be an internal server error.
                 raise exc
 
+    #
     def add_new_game(self, server_game):
-        """ Add a new game data on server in memory. This does not save the game on disk.
+        """ Add a new game data on server in memory and perform any addition processing.
+            This does not save the game on disk.
             :type server_game: ServerGame
         """
+        # Register game on memory.
         self.games[server_game.game_id] = server_game
+        # Start DAIDE server for this game.
+        self.start_new_daide_server(server_game.game_id)
 
+    #
     def get_game(self, game_id):
         """ Return game saved on server matching given game ID. Raise an exception if game ID not found.
-            Return game if already loaded on memory, else load it from disk, store it and return it.
+            Return game if already loaded on memory, else load it from disk, store it,
+            perform any loading/addition processing and return it.
             :param game_id: ID of game to load.
             :return: a ServerGame object.
             :rtype: ServerGame
@@ -639,35 +653,43 @@ class Server():
             LOGGER.debug('Game loaded: %s', game_id)
             # Check dummy powers for this game as soon as it's loaded from disk.
             self.register_dummy_power_names(server_game)
+            # Register game on memory.
             self.games[server_game.game_id] = server_game
+            # Start DAIDE server for this game.
+            self.start_new_daide_server(server_game.game_id)
             # We have just loaded game from disk. Start it if necessary.
             if not server_game.start_master and server_game.has_expected_controls_count():
                 # We may have to start game.
-                stop = False
                 if server_game.does_not_wait():
                     # We must process game.
-                    process_result = server_game.process()
-                    stop = process_result is None or process_result[-1]
+                    server_game.process()
                     self.save_game(server_game)
-                if not stop:
+                # Game must be scheduled only if active.
+                if server_game.is_game_active:
                     LOGGER.debug('Game loaded and scheduled: %s', server_game.game_id)
                     self.schedule_game(server_game)
         return server_game
 
+    #
     def delete_game(self, server_game):
-        """ Delete given game from server (both from memory and disk).
+        """ Delete given game from server (both from memory and disk) and perform any post-deletion processing.
             :param server_game: game to delete
             :type server_game: ServerGame
         """
         if not (server_game.is_game_canceled or server_game.is_game_completed):
             server_game.set_status(strings.CANCELED)
         game_filename = os.path.join(self.games_path, '%s.json' % server_game.game_id)
+        backup_game_filename = get_backup_filename(game_filename)
         if os.path.isfile(game_filename):
             os.remove(game_filename)
+        if os.path.isfile(backup_game_filename):
+            os.remove(backup_game_filename)
         self.games.pop(server_game.game_id, None)
         self.backup_games.pop(server_game.game_id, None)
         self.games_with_dummy_powers.pop(server_game.game_id, None)
         self.dispatched_dummy_powers.pop(server_game.game_id, None)
+        # Stop DAIDE server associated to this game.
+        self.stop_daide_server(server_game.game_id)
 
     @gen.coroutine
     def schedule_game(self, server_game):
@@ -821,7 +843,7 @@ class Server():
     def start_new_daide_server(self, game_id, port=None):
         """ Start a new DAIDE TCP server to handle DAIDE clients connections
             :param game_id: game id to pass to the DAIDE server
-            :param port: the port to use. If None, an available random prot will be used
+            :param port: the port to use. If None, an available random port will be used
         """
         if port in self.daide_servers:
             raise RuntimeError('Port already in used by a DAIDE server')
@@ -837,12 +859,13 @@ class Server():
         daide_server = DaideServer(self, game_id)
         daide_server.listen(port)
         self.daide_servers[port] = daide_server
-        LOGGER.info('DAIDE server running on port %d', port)
+        LOGGER.info('DAIDE server running for game %s on port %d', game_id, port)
         return port
 
     def stop_daide_server(self, game_id):
         """ Stop one or all DAIDE TCP server
             :param game_id: game id of the DAIDE server. If None, all servers will be stopped
+            :type game_id: str
         """
         for port in list(self.daide_servers.keys()):
             server = self.daide_servers[port]

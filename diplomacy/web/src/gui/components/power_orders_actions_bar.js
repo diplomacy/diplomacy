@@ -11,7 +11,7 @@ export class PowerOrdersActionBar extends React.Component {
                 <Button title={'reset'} onClick={this.props.onReset}/>
                 <Button title={'delete all'} onClick={this.props.onDeleteAll}/>
                 <Button color={'primary'} title={'update'} onClick={this.props.onUpdate}/>
-                {(!this.props.onProcess &&
+                {(this.props.onProcess &&
                     <Button color={'danger'} title={'process game'} onClick={this.props.onProcess}/>) || ''}
             </Bar>
         );

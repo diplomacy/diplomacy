@@ -132,12 +132,15 @@ def on_create_game(server, request, connection_handler):
                              initial_state=state,
                              n_controls=request.n_controls,
                              deadline=request.deadline,
-                             registration_password=request.registration_password)
-    server_game.server = server
+                             registration_password=request.registration_password,
+                             server=server)
 
     # Make sure game creator will be a game master (set him as moderator if he's not an admin).
     if not server.users.has_admin(username):
         server_game.promote_moderator(username)
+
+    # Register game on server.
+    server.add_new_game(server_game)
 
     # Register game creator, as either power player or omniscient observer.
     if power_name:
@@ -146,10 +149,6 @@ def on_create_game(server, request, connection_handler):
     else:
         server_game.add_omniscient_token(token)
         client_game = server_game.as_omniscient_game(username)
-
-    # Register game on server.
-    server.add_new_game(server_game)
-    server.start_new_daide_server(game_id)
 
     # Start game immediately if possible (e.g. if it's a solitaire game).
     if server_game.game_can_start():
@@ -217,7 +216,6 @@ def on_delete_game(server, request, connection_handler):
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     server.delete_game(level.game)
     server.unschedule_game(level.game)
-    server.stop_daide_server(level.game.game_id)
     Notifier(server, ignore_tokens=[request.token]).notify_game_deleted(level.game)
 
 def on_get_dummy_waiting_powers(server, request, connection_handler):
@@ -270,7 +268,8 @@ def on_get_daide_port(server, request, connection_handler):
     del connection_handler
     daide_port = server.get_daide_port(request.game_id)
     if daide_port is None:
-        raise exceptions.DaidePortException('Invalid game id or game\'s DAIDE server is not started for that game')
+        raise exceptions.DaidePortException(
+            "Invalid game id %s or game's DAIDE server is not started for that game" % request.game_id)
     return responses.DataPort(data=daide_port, request_id=request.request_id)
 
 def on_get_playable_powers(server, request, connection_handler):
