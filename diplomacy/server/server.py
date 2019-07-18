@@ -534,12 +534,7 @@ class Server():
         """
         updated = False
         if server_game.is_game_active or server_game.is_game_paused:
-            dummy_power_names = []
-            for power_name in server_game.get_dummy_power_names():
-                power = server_game.get_power(power_name)
-                if power.is_dummy() and not power.is_eliminated() and not power.does_not_wait():
-                    # This dummy power needs either orders, or wait flag to be set to False.
-                    dummy_power_names.append(power_name)
+            dummy_power_names = server_game.get_dummy_unordered_power_names()
             if dummy_power_names:
                 # Update registry of dummy powers.
                 self.games_with_dummy_powers[server_game.game_id] = dummy_power_names

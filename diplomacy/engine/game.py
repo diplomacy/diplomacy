@@ -475,8 +475,22 @@ class Game(Jsonable):
         return self.powers.keys()
 
     def get_dummy_power_names(self):
-        """ Return sequence of dummy power objects. """
+        """ Return sequence of dummy power names. """
         return set(power_name for power_name in self.get_map_power_names() if self.is_dummy(power_name))
+
+    def get_dummy_unordered_power_names(self):
+        """ Return a sequence of playable dummy power names
+            without orders but still orderable and with orderable locations.
+        """
+        return [power_name for power_name in self.get_map_power_names() if
+                # power must not be controlled by a user
+                self.is_dummy(power_name)
+                # power must be still playable
+                and not self.get_power(power_name).is_eliminated()
+                # power must not have yet orders
+                and not self.get_orders(power_name)
+                # power must have orderable locations
+                and self.get_orderable_locations(power_name)]
 
     def get_controllers(self):
         """ Return a dictionary mapping each power name to its current controller name."""
