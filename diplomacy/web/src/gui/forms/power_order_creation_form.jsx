@@ -55,7 +55,7 @@ export class PowerOrderCreationForm extends React.Component {
             )));
             header.push(Forms.createReset('reset', false, onReset));
         } else if (this.props.power.order_is_set) {
-            title = 'Unorderable power (already locked on server).';
+            title = 'Unorderable power.';
             titleClass += ' neutral';
         } else {
             title = 'No orders available for this power.';

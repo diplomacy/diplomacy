@@ -417,8 +417,14 @@ export class Game {
     }
 
     getControllablePowers() {
-        if (this.isObserverGame() || this.isOmniscientGame())
-            return Object.keys(this.powers);
+        if (this.isObserverGame() || this.isOmniscientGame()) {
+            const controllables = [];
+            for (let power of Object.values(this.powers)) {
+                if (!power.isEliminated())
+                    controllables.push(power.name);
+            }
+            return controllables;
+        }
         return [this.role];
     }
 
