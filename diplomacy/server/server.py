@@ -853,7 +853,7 @@ class Server():
         daide_server = DaideServer(self, game_id)
         daide_server.listen(port)
         self.daide_servers[port] = daide_server
-        LOGGER.info('DAIDE server running on port %d', port)
+        LOGGER.info('DAIDE server running for game %s on port %d', game_id, port)
         return port
 
     def stop_daide_server(self, game_id):
