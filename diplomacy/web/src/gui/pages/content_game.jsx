@@ -363,7 +363,7 @@ export class ContentGame extends React.Component {
             .catch(error => this.getPage().error('Error when updating possible orders: ' + error.toString()));
     }
 
-    notifiedLocalStateChange(networkGame) {
+    notifiedLocalStateChange(networkGame, notification) {
         networkGame.getAllPossibleOrders()
             .then(allPossibleOrders => {
                 networkGame.local.setPossibleOrders(allPossibleOrders);
@@ -373,6 +373,9 @@ export class ContentGame extends React.Component {
                         <ContentGame data={networkGame.local}/>,
                         {info: `Possible orders re-loaded.`}
                     );
+                    if (notification.power_name) {
+                        this.reloadPowerServerOrders(notification.power_name);
+                    }
                     this.reloadDeadlineTimer(networkGame);
                 }
             })
@@ -403,8 +406,8 @@ export class ContentGame extends React.Component {
             networkGame.addOnGamePhaseUpdate(this.notifiedGamePhaseUpdated);
             networkGame.addOnGameStatusUpdate(this.notifiedNetworkGame);
             networkGame.addOnOmniscientUpdated(this.notifiedNetworkGame);
-            networkGame.addOnPowerOrdersUpdate(this.notifiedNetworkGame);
-            networkGame.addOnPowerOrdersFlag(this.notifiedNetworkGame);
+            networkGame.addOnPowerOrdersUpdate(this.notifiedLocalStateChange);
+            networkGame.addOnPowerOrdersFlag(this.notifiedLocalStateChange);
             networkGame.addOnPowerVoteUpdated(this.notifiedNetworkGame);
             networkGame.addOnPowerWaitFlag(this.notifiedNetworkGame);
             networkGame.addOnVoteCountUpdated(this.notifiedNetworkGame);
@@ -530,13 +533,30 @@ export class ContentGame extends React.Component {
     }
 
     /**
-     * Reset local orders and replace them with current server orders.
+     * Reset local orders and replace them with current server orders for given power.
+     * @param {string} powerName - name of power to update
+     */
+    reloadPowerServerOrders(powerName) {
+        const serverOrders = this.props.data.getServerOrders();
+        const engine = this.props.data;
+        const allOrders = this.__get_orders(engine);
+        if (!allOrders.hasOwnProperty(powerName)) {
+            this.getPage().error(`Unknown power ${powerName}.`);
+            return;
+        }
+        allOrders[powerName] = serverOrders[powerName];
+        this.__store_orders(allOrders);
+        this.setState({orders: allOrders});
+    }
+
+    /**
+     * Reset local orders and replace them with current server orders for current selected power.
      */
     reloadServerOrders() {
-        // TODO: This method should reset orders to server version only for current powers, not for all powers as she currently does.
-        const serverOrders = this.props.data.getServerOrders();
-        this.__store_orders(serverOrders);
-        this.setState({orders: serverOrders});
+        const currentPowerName = this.getCurrentPowerName();
+        if (currentPowerName) {
+            this.reloadPowerServerOrders(currentPowerName);
+        }
     }
 
     /**
@@ -558,7 +578,8 @@ export class ContentGame extends React.Component {
     }
 
     /**
-     * Remove all local orders for current selected power
+     * Remove all local orders for current selected power, including empty orders set.
+     * Equivalent request is clearOrders().
      */
     onRemoveAllCurrentPowerOrders() {
         const currentPowerName = this.getCurrentPowerName();
