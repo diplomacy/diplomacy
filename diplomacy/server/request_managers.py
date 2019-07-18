@@ -393,6 +393,10 @@ def on_join_game(server, request, connection_handler):
         if not server_game.has_power(power_name):
             raise exceptions.MapPowerException(power_name)
 
+        # Forbid to play a power that is already eliminated.
+        if server_game.get_power(power_name).is_eliminated():
+            raise exceptions.ResponseException('%s is eliminated.' % power_name)
+
         if username == constants.PRIVATE_BOT_USERNAME:
             # Private bot is allowed to control any dummy power after game started
             # (ie. after reached expected number of real players).
