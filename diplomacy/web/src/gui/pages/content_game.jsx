@@ -1294,7 +1294,6 @@ export class ContentGame extends React.Component {
                     event.preventDefault();
             }
         };
-        console.log(`DAIDE PORT: ${this.props.data.daide_port}`);
     }
 
     componentDidUpdate() {

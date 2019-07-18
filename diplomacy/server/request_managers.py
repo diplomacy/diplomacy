@@ -268,7 +268,8 @@ def on_get_daide_port(server, request, connection_handler):
     del connection_handler
     daide_port = server.get_daide_port(request.game_id)
     if daide_port is None:
-        raise exceptions.DaidePortException("Invalid game id %s or game's DAIDE server is not started for that game" % request.game_id)
+        raise exceptions.DaidePortException(
+            "Invalid game id %s or game's DAIDE server is not started for that game" % request.game_id)
     return responses.DataPort(data=daide_port, request_id=request.request_id)
 
 def on_get_playable_powers(server, request, connection_handler):
