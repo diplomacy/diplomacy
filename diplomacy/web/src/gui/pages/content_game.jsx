@@ -334,12 +334,14 @@ export class ContentGame extends React.Component {
             || !networkGame.channel.game_id_to_instances[networkGame.local.game_id].has(networkGame.local.role)
         )) {
             // This power game is now invalid.
-            this.getPage().disconnectGame(networkGame.local.game_id);
-            if (this.networkGameIsDisplayed(networkGame)) {
-                const page = this.getPage();
-                page.loadGames(
-                    {error: `${networkGame.local.game_id}/${networkGame.local.role} was kicked. Deadline over?`});
-            }
+            this.getPage().disconnectGame(networkGame.local.game_id)
+                .then(() => {
+                    if (this.networkGameIsDisplayed(networkGame)) {
+                        const page = this.getPage();
+                        page.loadGames(
+                            {error: `${networkGame.local.game_id}/${networkGame.local.role} was kicked. Deadline over?`});
+                    }
+                });
         } else {
             this.notifiedNetworkGame(networkGame, notification);
         }
