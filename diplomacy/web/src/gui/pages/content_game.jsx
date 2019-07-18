@@ -71,6 +71,11 @@ const TABLE_POWER_VIEW = {
     wait: ['Waiting', 3]
 };
 
+const PRETTY_ROLES = {
+    [STRINGS.OMNISCIENT_TYPE]: 'Omnicient',
+    [STRINGS.OBSERVER_TYPE]: 'Observer'
+};
+
 export class ContentGame extends React.Component {
 
     constructor(props) {
@@ -157,8 +162,16 @@ export class ContentGame extends React.Component {
         this.vote = this.vote.bind(this);
     }
 
+    static prettyRole(role) {
+        if (PRETTY_ROLES.hasOwnProperty(role))
+            return PRETTY_ROLES[role];
+        return role;
+    }
+
     static gameTitle(game) {
-        let title = `${game.game_id} | ${game.phase} | ${game.status} | ${game.role} | ${game.map_name}`;
+        let title = `${game.game_id} | ${game.phase} | ${game.status} | ${ContentGame.prettyRole(game.role)} | ${game.map_name}`;
+        if (game.daide_port)
+            title += ` | DAIDE ${game.daide_port}`;
         const remainingTime = game.deadline_timer;
         if (remainingTime === undefined)
             title += ` (deadline: ${game.deadline} sec)`;
@@ -1281,6 +1294,7 @@ export class ContentGame extends React.Component {
                     event.preventDefault();
             }
         };
+        console.log(`DAIDE PORT: ${this.props.data.daide_port}`);
     }
 
     componentDidUpdate() {
