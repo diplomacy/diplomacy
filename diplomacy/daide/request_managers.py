@@ -278,6 +278,7 @@ def on_submit_orders_request(server, request, connection_handler, game):
         return [responses.REJ(bytes(request))]
 
     request.token = token
+    request.phase = game.get_current_phase()
 
     power = game.get_power(power_name)
     initial_power_adjusts = power.adjust[:]

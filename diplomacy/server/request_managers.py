@@ -71,6 +71,9 @@ def on_clear_orders(server, request, connection_handler):
     """
     level = verify_request(server, request, connection_handler, observer_role=False)
     assert_game_not_finished(level.game)
+    if not request.phase or request.phase != level.game.current_short_phase:
+        raise exceptions.ResponseException(
+            'Invalid order phase, received %s, server phase is %s' % (request.phase, level.game.current_short_phase))
     level.game.clear_orders(level.power_name)
     Notifier(server, ignore_addresses=[request.address_in_game]).notify_cleared_orders(level.game, level.power_name)
 
@@ -988,6 +991,9 @@ def on_set_orders(server, request, connection_handler):
     """
     level = verify_request(server, request, connection_handler, observer_role=False, require_power=True)
     assert_game_not_finished(level.game)
+    if not request.phase or request.phase != level.game.current_short_phase:
+        raise exceptions.ResponseException(
+            'Invalid order phase, received %s, server phase is %s' % (request.phase, level.game.current_short_phase))
     power = level.game.get_power(level.power_name)
     previous_wait = power.wait
     power.clear_orders()

@@ -53,7 +53,7 @@ import os
 from random import randint
 import socket
 import signal
-from typing import Dict, Set
+from typing import Dict, Set, List
 
 import tornado
 import tornado.web
@@ -236,8 +236,8 @@ class Server():
         # Each game also stores tokens connected (player tokens, observer tokens, omniscient tokens).
         self.games = {}  # type: Dict[str, ServerGame]
 
-        # Dictionary mapping game IDs to dummy power names.
-        self.games_with_dummy_powers = {}  # type: dict{str, set}
+        # Dictionary mapping game ID to list of power names.
+        self.games_with_dummy_powers = {}  # type: Dict[str, List[str]]
 
         # Dictionary mapping a game ID present in games_with_dummy_powers, to
         # a couple of associated bot token and time when bot token was associated to this game ID.
@@ -532,7 +532,7 @@ class Server():
             :param server_game: server game to check
             :type server_game: ServerGame
         """
-        updated = False
+        dummy_power_names = []
         if server_game.is_game_active or server_game.is_game_paused:
             dummy_power_names = server_game.get_dummy_unordered_power_names()
             if dummy_power_names:
@@ -542,22 +542,17 @@ class Server():
                 # then we also update bot time in registry of dummy powers associated to bot tokens.
                 bot_token, _ = self.dispatched_dummy_powers.get(server_game.game_id, (None, None))
                 self.dispatched_dummy_powers[server_game.game_id] = (bot_token, common.timestamp_microseconds())
-                updated = True
-        if not updated:
-            # Registry not updated for this game, meaning that there is no
-            # dummy powers waiting for orders or 'no wait' for this game.
+        if not dummy_power_names:
+            # No waiting dummy powers for this game, or game is not playable (canceled, completed, or forming).
             self.games_with_dummy_powers.pop(server_game.game_id, None)
-            # We remove game from registry of dummy powers associated to bot tokens only if game is terminated.
-            # Otherwise, game will remain associated to a previous bot token, until bot failed to order powers.
-            if server_game.is_game_completed or server_game.is_game_canceled:
-                self.dispatched_dummy_powers.pop(server_game.game_id, None)
+            self.dispatched_dummy_powers.pop(server_game.game_id, None)
 
     def get_dummy_waiting_power_names(self, buffer_size, bot_token):
         """ Return names of dummy powers waiting for orders for current loaded games.
             This query is allowed only for bot tokens.
             :param buffer_size: maximum number of powers queried.
             :param bot_token: bot token
-            :return: a dictionary mapping game IDs to lists of power names.
+            :return: a dictionary mapping each game ID to a list of power names.
         """
         if self.users.get_name(bot_token) != constants.PRIVATE_BOT_USERNAME:
             raise exceptions.ResponseException('Invalid bot token %s' % bot_token)
@@ -568,7 +563,8 @@ class Server():
             if registered_token is not None:
                 time_elapsed_seconds = (common.timestamp_microseconds() - registered_time) / 1000000
                 if time_elapsed_seconds > constants.PRIVATE_BOT_TIMEOUT_SECONDS or registered_token == bot_token:
-                    # This game still has dummy powers but time allocated to previous bot token is over.
+                    # This game still has dummy powers but, either time allocated to previous bot token is over,
+                    # or bot dedicated to this game is asking for current dummy powers of this game.
                     # Forget previous bot token.
                     registered_token = None
             if registered_token is None:
