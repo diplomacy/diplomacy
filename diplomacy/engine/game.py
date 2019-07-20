@@ -21,6 +21,7 @@
 # pylint: disable=too-many-lines
 import base64
 import os
+import logging
 import sys
 import time
 import random
@@ -41,6 +42,7 @@ from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE
 
 # Constants
 UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = 0, 1, 2, 3, 4, 5, 6, 7
+LOGGER = logging.getLogger(__name__)
 
 class Game(Jsonable):
     """
@@ -67,6 +69,10 @@ class Game(Jsonable):
                 e.g. { 'A PAR': 'MAR' }
         - error - Contains a list of errors that the game generated
                 e.g. ['NO MASTER SPECIFIED']
+        - fixed_state - used when game is a context of a with-block.
+            Store values that define the game state when entered in with-statement.
+            Compared to actual fixed state to detect any changes in methods where changes are not allowed.
+            Reset to None when exited from with-statement.
         - game_id: String that contains the current game's ID
                 e.g. '123456'
         - lost - Contains a dictionary of centers that have been lost during the term
@@ -167,7 +173,7 @@ class Game(Jsonable):
                  'convoy_paths_dest', 'zobrist_hash', 'renderer', 'game_id', 'map_name', 'role', 'rules',
                  'message_history', 'state_history', 'result_history', 'status', 'timestamp_created', 'n_controls',
                  'deadline', 'registration_password', 'observer_level', 'controlled_powers', '_phase_wrapper_type',
-                 'phase_abbr', '_unit_owner_cache', 'daide_port']
+                 'phase_abbr', '_unit_owner_cache', 'daide_port', 'fixed_state']
     zobrist_tables = {}
     rule_cache = ()
     model = {
@@ -235,6 +241,7 @@ class Game(Jsonable):
         self.observer_level = None
         self.controlled_powers = None
         self.daide_port = None
+        self.fixed_state = None
 
         # Caches
         self._unit_owner_cache = None               # {(unit, coast_required): owner}
@@ -399,6 +406,43 @@ class Game(Jsonable):
     # Application/network methods (mainly used for connected games).
     # ==============================================================
 
+    def current_state(self):
+        """ Returns the game object. To be used with the following syntax:
+            ```
+                with game.current_state():
+                    orders = players.get_orders(game, power_name)
+                    game.set_orders(power_name, orders)
+            ```
+        """
+        return self
+
+    def __enter__(self):
+        """ Enter into game context. Initialize fixed state.
+            Raise an exception if fixed state is already initialized to a different state, to prevent using the game
+            into multiple contexts at same time.
+        """
+        current_state = (self.get_current_phase(), self.get_hash())
+        if self.fixed_state and self.fixed_state != current_state:
+            raise RuntimeError('Game already used in a different context.')
+        self.fixed_state = current_state
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """ Exit from game context. Reset fixed state to None. """
+        self.fixed_state = None
+
+    def is_fixed_state_unchanged(self, log_error=True):
+        """ Check if actual state matches saved fixed state, if game is used as context of a with-block.
+            :param log_error: Boolean that indicates to log an error if state has changed
+            :return: boolean that indicates if the state has changed.
+        """
+        current_state = (self.get_current_phase(), self.get_hash())
+        if self.fixed_state and current_state != self.fixed_state:
+            if log_error:
+                LOGGER.error('State has changed from: %s to %s', self.fixed_state, current_state)
+            return False
+        return True
+
     def is_player_game(self):
         """ Return True if this game is a player game. """
         return self.has_power(self.role)
@@ -490,7 +534,9 @@ class Game(Jsonable):
                 # power must not have yet orders
                 and not self.get_orders(power_name)
                 # power must have orderable locations
-                and self.get_orderable_locations(power_name)]
+                and self.get_orderable_locations(power_name)
+                # power must be waiting
+                and self.get_power(power_name).wait]
 
     def get_controllers(self):
         """ Return a dictionary mapping each power name to its current controller name."""
@@ -1080,6 +1126,8 @@ class Game(Jsonable):
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
+        if not self.is_fixed_state_unchanged(log_error=bool(orders)):
+            return
         power_name = power_name.upper()
 
         if not self.has_power(power_name):
@@ -1112,6 +1160,8 @@ class Game(Jsonable):
             :param power_name: name of power to set wait flag.
             :param wait: wait flag (boolean).
         """
+        if not self.is_fixed_state_unchanged(log_error=False):
+            return
         power_name = power_name.upper()
 
         if not self.has_power(power_name):
@@ -1148,6 +1198,8 @@ class Game(Jsonable):
                                 all powers if None.
             :return: Nothing
         """
+        if not self.is_fixed_state_unchanged():
+            return
         if power_name is not None:
             power = self.get_power(power_name.upper())
             power.clear_orders()
