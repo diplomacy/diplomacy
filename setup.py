@@ -18,12 +18,12 @@
 import sys
 from setuptools import setup, find_packages
 
-# Requiring python 3.4+.
-# To simplify code for Tornado coroutines return statements, we don't support Python 3.3
+# Requiring python 3.5+.
+# To simplify code for Tornado coroutines return statements, we don't support Python 3.4
 # ( more info here: http://www.tornadoweb.org/en/stable/guide/coroutines.html#coroutines ).
-if (sys.version_info.major, sys.version_info.minor) <= (3, 3):
-    print("This Python is only compatible with Python 3.4+, but you are running "
-          "Python {}.{}. The installation will likely fail.".format(sys.version_info.major, sys.version_info.minor))
+if (sys.version_info.major, sys.version_info.minor) <= (3, 4):
+    print("This package is only compatible with Python 3.5+, but you are running Python {}.{}."
+          .format(sys.version_info.major, sys.version_info.minor))
 
 # ------------------------------------
 # Configuration
@@ -48,7 +48,6 @@ setup(name=PACKAGE_NAME,
       tests_require=['pytest'],
       classifiers=['License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
                    'Programming Language:: Python:: 3',
-                   'Programming Language:: Python:: 3.4',
                    'Programming Language:: Python:: 3.5',
                    'Programming Language:: Python:: 3.6',
                    'Programming Language:: Python:: 3.7',
