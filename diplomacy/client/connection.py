@@ -411,7 +411,8 @@ class Connection():
                 managed_data = handle_response(request_context, response)
                 request_context.future.set_result(managed_data)
             except exceptions.ResponseException as ex:
-                LOGGER.error('Error received for request %s', request_context.request.name)
+                LOGGER.error('Error received for request %s: %s', request_context.request.name, ex)
+                LOGGER.debug('Full request was: %s', request_context.request.to_dict())
                 request_context.future.set_exception(ex)
 
         elif notification_id:
