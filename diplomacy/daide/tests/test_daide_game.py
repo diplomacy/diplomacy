@@ -34,13 +34,13 @@ from diplomacy.daide.utils import str_to_bytes, bytes_to_str
 from diplomacy.server.server import is_port_opened
 from diplomacy.server.server_game import ServerGame
 from diplomacy.client.connection import connect
-from diplomacy.utils import common, strings
-from diplomacy.utils.splitter import PhaseSplitter
+from diplomacy.utils import common, constants, strings
 
 # Constants
 LOGGER = logging.getLogger('diplomacy.daide.tests.test_daide_game')
 HOSTNAME = 'localhost'
 FILE_FOLDER_NAME = os.path.abspath(os.path.dirname(__file__))
+BOT_KEYWORD = '__bot__'
 
 # Named Tuples
 DaideComm = namedtuple('DaideComm', ['client_id', 'request', 'resp_notifs'])
@@ -209,14 +209,35 @@ class ClientCommsSimulator():
             expected_resp_notifs.remove(resp_notif)
 
     @gen.coroutine
-    def execute_phase(self):
+    def execute_phase(self, game_id, channels):
         """ Execute a single communications phase
+            :param game_id: The game id of the current game
+            :param channels: A dictionary of power name to its channel (BOT_KEYWORD for dummies)
             :return: True if there are communications left to execute in the game
         """
+        # pylint: disable=too-many-nested-blocks
         try:
             while self._comms:
                 request, self._comms = self.pop_next_request(self._comms)
 
+                # If request is GOF - Sending empty orders for all human and dummy powers
+                if request and request.split()[0] == 'GOF':
+
+                    # Joining all games first
+                    games = {}
+                    for power_name, channel in channels.items():
+                        if power_name == BOT_KEYWORD:
+                            all_dummy_power_names = yield channel.get_dummy_waiting_powers(buffer_size=100)
+                            for dummy_name in all_dummy_power_names.get(game_id, []):
+                                games[dummy_name] = yield channel.join_game(game_id=game_id, power_name=dummy_name)
+                        else:
+                            games[power_name] = yield channel.join_game(game_id=game_id, power_name=power_name)
+
+                    # Submitting orders
+                    for power_name, game in games.items():
+                        yield game.set_orders(power_name=power_name, orders=[], wait=False)
+
+                # Sending request
                 if request is not None:
                     yield self.send_request(request)
 
@@ -248,10 +269,12 @@ class ClientCommsSimulator():
 
 class ClientsCommsSimulator():
     """ Represents multi clients's communications """
-    def __init__(self, nb_clients, csv_file):
+    def __init__(self, nb_clients, csv_file, game_id, channels):
         """ Constructor
             :param nb_clients: the number of clients
             :param csv_file: the csv containing the communications in chronological order
+            :param game_id: The game id on the server
+            :param channels: A dictionary of power name to its channel (BOT_KEYWORD for dummies)
         """
         with open(csv_file, 'r') as file:
             content = file.read()
@@ -262,16 +285,18 @@ class ClientsCommsSimulator():
         self._nb_clients = nb_clients
         self._comms = [DaideComm(int(line[0]), line[1], line[2:]) for line in content if line[0]]
         self._clients = {}
+        self._game_id = game_id
+        self._channels = channels
 
     @gen.coroutine
-    def retrieve_game_port(self, host, port, game_id):
+    def retrieve_game_port(self, host, port):
         """ Retreive and store the game's port
             :param host: the host
             :param port: the port
             :param game_id: the game id
         """
         connection = yield connect(host, port)
-        self._game_port = yield connection.get_daide_port(game_id)
+        self._game_port = yield connection.get_daide_port(self._game_id)
         yield connection.connection.close()
 
     @gen.coroutine
@@ -310,12 +335,13 @@ class ClientsCommsSimulator():
 
         for client in self._clients.values():
             client.set_comms(self._comms)
-            execution_running.append(client.execute_phase())
+            execution_running.append(client.execute_phase(self._game_id, self._channels))
 
         execution_running = yield execution_running
 
         while any(execution_running):
-            execution_running = yield [client.execute_phase() for client in self._clients.values()]
+            execution_running = yield [client.execute_phase(self._game_id, self._channels)
+                                       for client in self._clients.values()]
 
         assert all(not client.comms for client in self._clients.values())
 
@@ -337,30 +363,42 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         while is_port_opened(port, HOSTNAME):
             port = random.randint(9000, 9999)
 
-        server.start(port=port)
+        nb_human_players = 1 if nb_daide_clients < 7 else 0
 
-        nb_regular_players = min(1, 7 - nb_daide_clients)
+        server.start(port=port)
         server_game = ServerGame(map_name='standard',
-                                 n_controls=nb_daide_clients + nb_regular_players,
+                                 n_controls=nb_daide_clients + nb_human_players,
                                  rules=rules,
                                  server=server)
 
         # Register game on server.
+        game_id = server_game.game_id
         server.add_new_game(server_game)
+        server.start_new_daide_server(game_id)
 
-        server.start_new_daide_server(server_game.game_id)
+        # Creating human player
+        human_username = 'username'
+        human_password = 'password'
+        human_create_user = not server.users.has_user(human_username, human_password)
 
-        user_game = None
-        if nb_regular_players:
-            username = 'user'
-            password = 'password'
-            connection = yield connect(HOSTNAME, port)
-            user_channel = yield connection.authenticate(username, password,
-                                                         create_user=not server.users.has_user(username, password))
-            user_game = yield user_channel.join_game(game_id=server_game.game_id, power_name='AUSTRIA')
+        # Creating bot player to play for dummy powers
+        bot_username = constants.PRIVATE_BOT_USERNAME
+        bot_password = constants.PRIVATE_BOT_PASSWORD
+        bot_create_user = not server.users.has_user(bot_username, bot_password)
 
-        comms_simulator = ClientsCommsSimulator(nb_daide_clients, csv_file)
-        yield comms_simulator.retrieve_game_port(HOSTNAME, port, server_game.game_id)
+        # Connecting
+        connection = yield connect(HOSTNAME, port)
+        human_channel = yield connection.authenticate(human_username, human_password, human_create_user)
+        bot_channel = yield connection.authenticate(bot_username, bot_password, bot_create_user)
+
+        # Joining human to game
+        channels = {BOT_KEYWORD: bot_channel}
+        if nb_human_players:
+            yield human_channel.join_game(game_id=game_id, power_name='AUSTRIA')
+            channels['AUSTRIA'] = human_channel
+
+        comms_simulator = ClientsCommsSimulator(nb_daide_clients, csv_file, game_id, channels)
+        yield comms_simulator.retrieve_game_port(HOSTNAME, port)
 
         # done_future is only used to prevent pylint E1101 errors on daide_future
         done_future = Future()
@@ -368,27 +406,15 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         chain_future(daide_future, done_future)
 
         for _ in range(3 + nb_daide_clients):
-            if done_future.done() or server_game.count_controlled_powers() == nb_daide_clients + nb_regular_players:
+            if done_future.done() or server_game.count_controlled_powers() >= (nb_daide_clients + nb_human_players):
                 break
             yield gen.sleep(2.5)
         else:
             raise TimeoutError()
 
-        if user_game:
-            phase = PhaseSplitter(server_game.get_current_phase())
-
-            while not done_future.done() and server_game.status == strings.ACTIVE:
-                yield user_game.wait()
-                yield user_game.set_orders(orders=[])
-                yield user_game.no_wait()
-
-                while not done_future.done() and phase.input_str == server_game.get_current_phase():
-                    yield gen.sleep(2.5)
-
-                if server_game.status != strings.ACTIVE:
-                    break
-
-                phase = PhaseSplitter(server_game.get_current_phase())
+        # Waiting for process to finish
+        while not done_future.done() and server_game.status == strings.ACTIVE:
+            yield gen.sleep(2.5)
 
         yield daide_future
 
