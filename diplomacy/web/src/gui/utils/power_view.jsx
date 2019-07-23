@@ -31,7 +31,7 @@ function getController(power) {
 }
 
 function getOrderFlag(power) {
-    if (power.isEliminated())
+    if (power.isEliminated() || power.game.orderableLocations[power.name].length === 0)
         return <span className="dummy"><em>N/A</em></span>;
     const value = ['no', 'empty', 'yes'][power.order_is_set];
     return <span className={value}>{value}</span>;
