@@ -18,6 +18,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import {Button} from "../components/button";
 import {FancyBox} from "../components/fancyBox";
+const HotKey = require('react-shortcut');
 
 export class SelectViaForm extends React.Component {
     render() {
@@ -27,6 +28,8 @@ export class SelectViaForm extends React.Component {
                 <div>
                     <Button title={'regular move (M)'} large={true} onClick={() => this.props.onSelect('M')}/>
                     <Button title={'move via (V)'} large={true} onClick={() => this.props.onSelect('V')}/>
+                    <HotKey keys={['m']} onKeysCoincide={() => this.props.onSelect('M')}/>
+                    <HotKey keys={['v']} onKeysCoincide={() => this.props.onSelect('V')}/>
                 </div>
             </FancyBox>
         );

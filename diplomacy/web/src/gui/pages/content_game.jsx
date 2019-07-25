@@ -243,8 +243,10 @@ export class ContentGame extends React.Component {
         this.getPage().dialog(onClose => (
             <SelectViaForm path={orderPath}
                            onSelect={(moveType) => {
-                               this.setSelectedVia(moveType, powerName, orderPath, location);
-                               onClose();
+                               setTimeout(() => {
+                                   this.setSelectedVia(moveType, powerName, orderPath, location);
+                                   onClose();
+                               }, 0);
                            }}
                            onClose={() => {
                                this.clearOrderBuildingPath();
