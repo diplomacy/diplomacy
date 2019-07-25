@@ -20,12 +20,13 @@ import React from "react";
 import {ContentConnection} from "./content_connection";
 import {UTILS} from "../../diplomacy/utils/utils";
 import {Diplog} from "../../diplomacy/utils/diplog";
-import {FancyBox} from "../components/fancybox";
 import {DipStorage} from "../utils/dipStorage";
 import {PageContext} from "../components/page_context";
 import {ContentGames} from "./content_games";
 import {loadGameFromDisk} from "../utils/load_game_from_disk";
 import {ContentGame} from "./content_game";
+import {confirmAlert} from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 export class Page extends React.Component {
 
@@ -35,9 +36,6 @@ export class Page extends React.Component {
         this.channel = null;
         this.availableMaps = null;
         this.state = {
-            // fancybox,
-            fancyTitle: null,
-            onFancyBox: null,
             // Page messages
             error: null,
             info: null,
@@ -54,7 +52,6 @@ export class Page extends React.Component {
         this.success = this.success.bind(this);
         this.logout = this.logout.bind(this);
         this.loadGameFromDisk = this.loadGameFromDisk.bind(this);
-        this.unloadFancyBox = this.unloadFancyBox.bind(this);
         this._post_remove = this._post_remove.bind(this);
         this._add_to_my_games = this._add_to_my_games.bind(this);
         this._remove_from_my_games = this._remove_from_my_games.bind(this);
@@ -80,14 +77,22 @@ export class Page extends React.Component {
         this.__disconnect(error);
     }
 
-    //// Methods to load a global fancybox.
+    /**
+     * @callback OnClose
+     */
 
-    loadFancyBox(title, callback) {
-        this.setState({fancyTitle: title, onFancyBox: callback});
-    }
+    /**
+     * @callback DialogBuilder
+     * @param {OnClose} onClose
+     */
 
-    unloadFancyBox() {
-        this.setState({fancyTitle: null, onFancyBox: null});
+    /**
+     * open a dialog box
+     * @param {DialogBuilder} builder - a callback to generate dialog GUI. Will be executed with a `onClose` callback
+     * parameter to call when dialog must be closed: `builder(onClose)`.
+     */
+    dialog(builder) {
+        confirmAlert({customUI: ({onClose}) => builder(onClose)});
     }
 
     //// Methods to load a page.
@@ -275,7 +280,6 @@ export class Page extends React.Component {
         }
     }
 
-
     disconnectGame(gameID) {
         const game = this.getGame(gameID);
         if (game) {
@@ -363,11 +367,6 @@ export class Page extends React.Component {
                         </div>
                     </div>
                     {this.state.body || Page.defaultPage()}
-                    {this.state.onFancyBox && (
-                        <FancyBox title={this.state.fancyTitle} onClose={this.unloadFancyBox}>
-                            {this.state.onFancyBox()}
-                        </FancyBox>
-                    )}
                 </div>
             </PageContext.Provider>
         );

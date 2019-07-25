@@ -21,30 +21,18 @@ import {Button} from "./button";
 const TIMES = '\u00D7';
 
 export class FancyBox extends React.Component {
-    // open-tag (<FancyBox></FancyBox>)
-    // PROPERTIES
-    // title
-    // onClose
     render() {
         return (
-            <div className={'fancy-wrapper'} onClick={this.props.onClose}>
-                <div className={'fancy-box container'} onClick={(event) => {
-                    if (!event)
-                        event = window.event;
-                    if (event.hasOwnProperty('cancelBubble'))
-                        event.cancelBubble = true;
-                    if (event.stopPropagation)
-                        event.stopPropagation();
-                }}>
-                    <div className={'row fancy-bar'}>
-                        <div className={'col-11 align-self-center fancy-title'}>{this.props.title}</div>
-                        <div className={'col-1 fancy-button'}>
-                            <Button title={TIMES} color={'danger'} onClick={this.props.onClose}/>
-                        </div>
+            <div className="fancy-box">
+                <div className="fancy-bar p-1 d-flex flex-row">
+                    <div
+                        className="flex-grow-1 fancy-title d-flex flex-column justify-content-center pr-0 pr-sm-1">{this.props.title}</div>
+                    <div className="fancy-button">
+                        <Button title={TIMES} color={'danger'} onClick={this.props.onClose}/>
                     </div>
-                    <div className={'row'}>
-                        <div className={'col fancy-content'}>{this.props.children}</div>
-                    </div>
+                </div>
+                <div>
+                    <div className="col fancy-content">{this.props.children}</div>
                 </div>
             </div>
         );
@@ -55,5 +43,5 @@ export class FancyBox extends React.Component {
 FancyBox.propTypes = {
     title: PropTypes.string.isRequired,
     onClose: PropTypes.func.isRequired,
-    children: PropTypes.oneOfType([PropTypes.array, PropTypes.object])
+    children: PropTypes.any.isRequired
 };

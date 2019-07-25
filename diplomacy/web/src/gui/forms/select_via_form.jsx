@@ -17,19 +17,25 @@
 import React from "react";
 import PropTypes from "prop-types";
 import {Button} from "../components/button";
+import {FancyBox} from "../components/fancyBox";
 
 export class SelectViaForm extends React.Component {
     render() {
         return (
-            <div>
-                <Button title={'regular move (M)'} large={true} onClick={() => this.props.onSelect('M')}/>
-                <Button title={'move via (V)'} large={true} onClick={() => this.props.onSelect('V')}/>
-            </div>
+            <FancyBox title={`Select move type for move order: ${this.props.path.join(' ')}`}
+                      onClose={this.props.onClose}>
+                <div>
+                    <Button title={'regular move (M)'} large={true} onClick={() => this.props.onSelect('M')}/>
+                    <Button title={'move via (V)'} large={true} onClick={() => this.props.onSelect('V')}/>
+                </div>
+            </FancyBox>
         );
     }
 }
 
 SelectViaForm.propTypes = {
-    onSelect: PropTypes.func.isRequired
+    path: PropTypes.array.isRequired,
+    onSelect: PropTypes.func.isRequired,
+    onClose: PropTypes.func.isRequired
 };
 

@@ -37,6 +37,10 @@ export const UTILS = {
         return id;
     },
 
+    createGameID: function (username) {
+        return `${username}_${new Date().getTime().toString(10)}`;
+    },
+
     date: function () {
         const d = new Date();
         return d.toLocaleString() + '.' + d.getMilliseconds();
