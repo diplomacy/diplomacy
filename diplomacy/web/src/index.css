@@ -261,12 +261,9 @@ span.power-name {
 .fancy-box .fancy-bar {
     background-color: rgb(240, 240, 240);
     border-bottom: 1px solid silver;
-    padding-top: 10px;
-    padding-bottom: 10px;
 }
 
 .fancy-box .fancy-button {
-    text-align: right;
 }
 
 .fancy-box .fancy-content {
@@ -418,6 +415,37 @@ span.power-name {
 .button-server:active {
     background-color: rgb(230, 230, 230);
 }
+
+button .unroll {
+    display: none;
+}
+
+button .roll {
+    display: inline;
+}
+
+button.collapsed .unroll {
+    display: inline;
+}
+
+button.collapsed .roll {
+    display: none;
+}
+
+.panel-choose-map .map-list {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    overflow: auto;
+    border: 1px solid gray;
+}
+
+.inline {
+    white-space: nowrap;
+}
+
 
 /** Page login. **/
 /** Page games. **/

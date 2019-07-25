@@ -18,15 +18,15 @@ import React from "react";
 import {Tabs} from "../components/tabs";
 import {Table} from "../components/table";
 import {FindForm} from "../forms/find_form";
-import {CreateForm} from "../forms/create_form";
 import {InlineGameView} from "../utils/inline_game_view";
-import {STRINGS} from "../../diplomacy/utils/strings";
 import {Helmet} from "react-helmet";
 import {Navigation} from "../components/navigation";
 import {PageContext} from "../components/page_context";
 import {ContentGame} from "./content_game";
 import PropTypes from 'prop-types';
 import {Tab} from "../components/tab";
+import {GameCreationWizard} from "../wizards/gameCreation/gameCreationWizard";
+import {Diplog} from "../../diplomacy/utils/diplog";
 
 const TABLE_LOCAL_GAMES = {
     game_id: ['Game ID', 0],
@@ -71,23 +71,6 @@ export class ContentGames extends React.Component {
     }
 
     onCreate(form) {
-        for (let key of Object.keys(form)) {
-            if (form[key] === '')
-                form[key] = null;
-        }
-        if (form.n_controls !== null)
-            form.n_controls = parseInt(form.n_controls, 10);
-        if (form.deadline !== null)
-            form.deadline = parseInt(form.deadline, 10);
-        form.rules = ['POWER_CHOICE'];
-        for (let rule of STRINGS.PUBLIC_RULES) {
-            const rule_id = `rule_${rule.toLowerCase()}`;
-            if (form.hasOwnProperty(rule_id)) {
-                if (form[rule_id])
-                    form.rules.push(rule);
-                delete form[rule_id];
-            }
-        }
         let networkGame = null;
         this.getPage().channel.createGame(form)
             .then((game) => {
@@ -116,6 +99,28 @@ export class ContentGames extends React.Component {
         return new InlineGameView(this.getPage(), gameData);
     }
 
+    gameCreationButton() {
+        return (
+            <button type="button"
+                    className="btn btn-danger btn-sm mx-0 mx-sm-4"
+                    onClick={() => this.getPage().dialog(onClose => (
+                        <GameCreationWizard availableMaps={this.getPage().availableMaps}
+                                            onCancel={onClose}
+                                            username={this.getPage().channel.username}
+                                            onSubmit={(form) => {
+                                                onClose();
+                                                Diplog.info(`Creating game:`);
+                                                for (let entry of Object.entries(form)) {
+                                                    Diplog.info(`${entry[0]}: ${entry[1] ? entry[1].toString() : entry[1]}`);
+                                                }
+                                                this.onCreate(form);
+                                            }}/>
+                    ))}>
+                <strong>create a game</strong>
+            </button>
+        );
+    }
+
     render() {
         const title = 'Games';
         const page = this.getPage();
@@ -133,14 +138,10 @@ export class ContentGames extends React.Component {
                 <Helmet>
                     <title>{title} | Diplomacy</title>
                 </Helmet>
-                <Navigation title={title} username={page.channel.username} navigation={navigation}/>
-                <Tabs menu={['create', 'find', 'my-games']} titles={['Create', 'Find', 'My Games']}
+                <Navigation title={title} afterTitle={this.gameCreationButton()}
+                            username={page.channel.username} navigation={navigation}/>
+                <Tabs menu={['find', 'my-games']} titles={['Find', 'My Games']}
                       onChange={this.changeTab} active={tab}>
-                    {tab === 'create' ? (
-                        <Tab id="tab-games-create" display={true}>
-                            <CreateForm onSubmit={this.onCreate}/>
-                        </Tab>
-                    ) : ''}
                     {tab === 'find' ? (
                         <Tab id="tab-games-find" display={true}>
                             <FindForm onSubmit={this.onFind}/>

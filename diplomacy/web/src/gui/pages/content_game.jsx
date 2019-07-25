@@ -33,7 +33,6 @@ import {STRINGS} from "../../diplomacy/utils/strings";
 import {Diplog} from "../../diplomacy/utils/diplog";
 import {Table} from "../components/table";
 import {PowerView} from "../utils/power_view";
-import {FancyBox} from "../components/fancybox";
 import {DipStorage} from "../utils/dipStorage";
 import Helmet from 'react-helmet';
 import {Navigation} from "../components/navigation";
@@ -116,14 +115,11 @@ export class ContentGame extends React.Component {
             orders: orders, // {power name => {loc => {local: bool, order: str}}}
             power: null,
             orderBuildingType: null,
-            orderBuildingPath: [],
-            fancy_title: null,
-            fancy_function: null,
-            on_fancy_close: null,
+            orderBuildingPath: []
         };
 
         // Bind some class methods to this instance.
-        this.closeFancyBox = this.closeFancyBox.bind(this);
+        this.clearOrderBuildingPath = this.clearOrderBuildingPath.bind(this);
         this.displayFirstPastPhase = this.displayFirstPastPhase.bind(this);
         this.displayLastPastPhase = this.displayLastPastPhase.bind(this);
         this.displayLocationOrders = this.displayLocationOrders.bind(this);
@@ -202,11 +198,8 @@ export class ContentGame extends React.Component {
         return this.context;
     }
 
-    closeFancyBox() {
+    clearOrderBuildingPath() {
         this.setState({
-            fancy_title: null,
-            fancy_function: null,
-            on_fancy_close: null,
             orderBuildingPath: []
         });
     }
@@ -220,11 +213,6 @@ export class ContentGame extends React.Component {
             powerName, orderType, orderPath, location,
             this.onOrderBuilding, this.onOrderBuilt, this.getPage().error
         );
-        this.setState({
-            fancy_title: null,
-            fancy_function: null,
-            on_fancy_close: null
-        });
     }
 
     setSelectedVia(moveType, powerName, orderPath, location) {
@@ -234,33 +222,35 @@ export class ContentGame extends React.Component {
             powerName, moveType, orderPath, location,
             this.onOrderBuilding, this.onOrderBuilt, this.getPage().error
         );
-        this.setState({
-            fancy_title: null,
-            fancy_function: null,
-            on_fancy_close: null
-        });
     }
 
     onSelectLocation(possibleLocations, powerName, orderType, orderPath) {
-        const title = `Select location to continue building order: ${orderPath.join(' ')} ... (press ESC or close button to cancel building)`;
-        const func = () => (<SelectLocationForm locations={possibleLocations}
-                                                onSelect={(location) => this.setSelectedLocation(location, powerName, orderType, orderPath)}/>);
-        this.setState({
-            fancy_title: title,
-            fancy_function: func,
-            on_fancy_close: this.closeFancyBox
-        });
+        this.getPage().dialog(onClose => (
+            <SelectLocationForm path={orderPath}
+                                locations={possibleLocations}
+                                onSelect={(location) => {
+                                    this.setSelectedLocation(location, powerName, orderType, orderPath);
+                                    onClose();
+                                }}
+                                onClose={() => {
+                                    this.clearOrderBuildingPath();
+                                    onClose();
+                                }}/>
+        ));
     }
 
     onSelectVia(location, powerName, orderPath) {
-        const title = `Select move type for move order: ${orderPath.join(' ')}`;
-        const func = () => (
-            <SelectViaForm onSelect={(moveType) => this.setSelectedVia(moveType, powerName, orderPath, location)}/>);
-        this.setState({
-            fancy_title: title,
-            fancy_function: func,
-            on_fancy_close: this.closeFancyBox
-        });
+        this.getPage().dialog(onClose => (
+            <SelectViaForm path={orderPath}
+                           onSelect={(moveType) => {
+                               this.setSelectedVia(moveType, powerName, orderPath, location);
+                               onClose();
+                           }}
+                           onClose={() => {
+                               this.clearOrderBuildingPath();
+                               onClose();
+                           }}/>
+        ));
     }
 
     // ]
@@ -682,9 +672,6 @@ export class ContentGame extends React.Component {
     onOrderBuilt(powerName, orderString) {
         const state = Object.assign({}, this.state);
         state.orderBuildingPath = [];
-        state.fancy_title = null;
-        state.fancy_function = null;
-        state.on_fancy_close = null;
         if (!orderString) {
             Diplog.warn('No order built.');
             this.setState(state);
@@ -712,9 +699,6 @@ export class ContentGame extends React.Component {
         this.setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
-            fancy_title: null,
-            fancy_function: null,
-            on_fancy_close: null
         });
     }
 
@@ -1162,7 +1146,7 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const title = ContentGame.gameTitle(engine);
         const navigation = [
-            ['Help', () => page.loadFancyBox('Help', () => <Help/>)],
+            ['Help', () => page.dialog(onClose => <Help onClose={onClose}/>)],
             ['Load a game from disk', page.loadGameFromDisk],
             ['Save game to disk', () => saveGameToDisk(engine, page.error)],
             [`${UTILS.html.UNICODE_SMALL_LEFT_ARROW} Games`, () => page.loadGames()],
@@ -1292,10 +1276,6 @@ export class ContentGame extends React.Component {
                         currentTabOrderCreation
                     )) || ''}
                 </Tabs>
-                {this.state.fancy_title && (
-                    <FancyBox title={this.state.fancy_title} onClose={this.state.on_fancy_close}>
-                        {this.state.fancy_function()}
-                    </FancyBox>)}
             </main>
         );
     }

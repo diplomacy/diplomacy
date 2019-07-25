@@ -1,5 +1,5 @@
 import React from "react";
-import Octicon, {Person} from "@githubprimer/octicons-react";
+import Octicon, {Person} from "@primer/octicons-react";
 import PropTypes from "prop-types";
 
 export class Navigation extends React.Component {
