@@ -1,6 +1,10 @@
 /** Bootstrap. **/
 /** Common. **/
 
+body {
+    overflow-y: scroll;
+}
+
 span.dropdown-item {
     cursor: pointer;
 }
