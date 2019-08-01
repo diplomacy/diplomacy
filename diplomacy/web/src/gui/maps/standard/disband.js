@@ -15,25 +15,37 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import PropTypes from 'prop-types';
-import {FancyBox} from "./fancyBox";
+import {Coordinates, offset, SymbolSizes} from "./common";
+import PropTypes from "prop-types";
 
-export class Help extends React.Component {
+export class Disband extends React.Component {
     render() {
+        const loc = this.props.loc;
+        const phaseType = this.props.phaseType;
+        let loc_x = 0;
+        let loc_y = 0;
+        if (phaseType === 'R') {
+            loc_x = offset(Coordinates[loc].unit[0], -29.);
+            loc_y = offset(Coordinates[loc].unit[1], -27.5);
+        } else {
+            loc_x = offset(Coordinates[loc].unit[0], -16.5);
+            loc_y = offset(Coordinates[loc].unit[1], -15.);
+        }
+        const symbol = 'RemoveUnit';
         return (
-            <FancyBox title={'Help'} onClose={this.props.onClose}>
-                <div>
-                    <p>When building an order, press <strong>ESC</strong> to reset build.</p>
-                    <p>Press letter associated to an order type to start building an order of this type.
-                        <br/> Order type letter is indicated in order type name after order type radio button.
-                    </p>
-                    <p>In Phase History tab, use keyboard left and right arrows to navigate in past phases.</p>
-                </div>
-            </FancyBox>
+            <g>
+                <use x={loc_x}
+                     y={loc_y}
+                     height={SymbolSizes[symbol].height}
+                     width={SymbolSizes[symbol].width}
+                     href={`#${symbol}`}
+                />
+            </g>
         );
     }
 }
 
-Help.propTypes = {
-    onClose: PropTypes.func.isRequired
+Disband.propTypes = {
+    loc: PropTypes.string.isRequired,
+    phaseType: PropTypes.string.isRequired
 };

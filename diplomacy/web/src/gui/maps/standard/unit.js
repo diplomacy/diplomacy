@@ -15,31 +15,31 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
+import {ARMY, Coordinates, FLEET, offset, SymbolSizes} from "./common";
 import PropTypes from "prop-types";
-import {Button} from "../components/button";
-import {FancyBox} from "../components/fancyBox";
 
-const HotKey = require('react-shortcut');
-
-export class SelectViaForm extends React.Component {
+export class Unit extends React.Component {
     render() {
+        const split_unit = this.props.unit.split(/ +/);
+        const unit_type = split_unit[0];
+        const loc = split_unit[1];
+        const dislogged_type = this.props.isDislodged ? 'disl' : 'unit';
+        const symbol = unit_type === 'F' ? FLEET : ARMY;
+        const loc_x = offset(Coordinates[loc][dislogged_type][0], -11.5);
+        const loc_y = offset(Coordinates[loc][dislogged_type][1], -10.0);
         return (
-            <FancyBox title={`Select move type for move order: ${this.props.path.join(' ')}`}
-                      onClose={this.props.onClose}>
-                <div>
-                    <Button title={'regular move (M)'} large={true} onClick={() => this.props.onSelect('M')}/>
-                    <Button title={'move via (V)'} large={true} onClick={() => this.props.onSelect('V')}/>
-                    <HotKey keys={['m']} onKeysCoincide={() => this.props.onSelect('M')}/>
-                    <HotKey keys={['v']} onKeysCoincide={() => this.props.onSelect('V')}/>
-                </div>
-            </FancyBox>
+            <use href={`#${this.props.isDislodged ? 'Dislodged' : ''}${symbol}`}
+                 x={loc_x}
+                 y={loc_y}
+                 width={SymbolSizes[symbol].width}
+                 height={SymbolSizes[symbol].height}
+                 className={`unit${this.props.powerName.toLowerCase()}`}/>
         );
     }
 }
 
-SelectViaForm.propTypes = {
-    path: PropTypes.array.isRequired,
-    onSelect: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired
+Unit.propTypes = {
+    unit: PropTypes.string.isRequired,
+    powerName: PropTypes.string.isRequired,
+    isDislodged: PropTypes.bool.isRequired,
 };
-

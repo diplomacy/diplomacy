@@ -114,4 +114,22 @@ export class Province {
     isWater() {
         return this.type === ProvinceType.WATER;
     }
+
+    _id(id) {
+        return `_${id.toLowerCase()}`;
+    }
+
+    getID(identifiers) {
+        let id = this._id(this.name);
+        if (!identifiers[id]) {
+            for (let alias of this.aliases) {
+                id = this._id(alias);
+                if (identifiers[id])
+                    break;
+            }
+        }
+        if (!identifiers[id] && this.isCoast())
+            id = this.parent.getID(identifiers);
+        return id;
+    }
 }

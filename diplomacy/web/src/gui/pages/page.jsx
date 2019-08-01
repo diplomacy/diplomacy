@@ -73,6 +73,10 @@ export class Page extends React.Component {
         return <ContentConnection/>;
     }
 
+    setState(state) {
+        return new Promise(resolve => super.setState(state, resolve));
+    }
+
     onReconnectionError(error) {
         this.__disconnect(error);
     }
@@ -106,11 +110,11 @@ export class Page extends React.Component {
         Diplog.printMessages(newState);
         newState.name = name;
         newState.body = body;
-        this.setState(newState);
+        return this.setState(newState);
     }
 
     loadGames(messages) {
-        this.load(
+        return this.load(
             'games',
             <ContentGames myGames={this.getMyGames()} gamesFound={this.getGamesFound()}/>,
             messages
@@ -118,14 +122,13 @@ export class Page extends React.Component {
     }
 
     loadGameFromDisk() {
-        loadGameFromDisk(
-            (game) => this.load(
+        return loadGameFromDisk()
+            .then((game) => this.load(
                 `game: ${game.game_id}`,
                 <ContentGame data={game}/>,
                 {success: `Game loaded from disk: ${game.game_id}`}
-            ),
-            this.error
-        );
+            ))
+            .catch(this.error);
     }
 
     getName() {
@@ -142,7 +145,7 @@ export class Page extends React.Component {
         this.availableMaps = null;
         const message = Page.wrapMessage(error ? `${error.toString()}` : `Disconnected from channel and server.`);
         Diplog.success(message);
-        this.setState({
+        return this.setState({
             error: error ? message : null,
             info: null,
             success: error ? null : message,
@@ -157,11 +160,11 @@ export class Page extends React.Component {
     logout() {
         // Disconnect channel and go back to connection page.
         if (this.channel) {
-            this.channel.logout()
+            return this.channel.logout()
                 .then(() => this.__disconnect())
                 .catch(error => this.error(`Error while disconnecting: ${error.toString()}.`));
         } else {
-            this.__disconnect();
+            return this.__disconnect();
         }
     }
 
@@ -170,23 +173,23 @@ export class Page extends React.Component {
     error(message) {
         message = Page.wrapMessage(message);
         Diplog.error(message);
-        this.setState({error: message});
+        return this.setState({error: message});
     }
 
     info(message) {
         message = Page.wrapMessage(message);
         Diplog.info(message);
-        this.setState({info: message});
+        return this.setState({info: message});
     }
 
     success(message) {
         message = Page.wrapMessage(message);
         Diplog.success(message);
-        this.setState({success: message});
+        return this.setState({success: message});
     }
 
     warn(message) {
-        this.info(message);
+        return this.info(message);
     }
 
     //// Methods to manage games.
@@ -205,7 +208,7 @@ export class Page extends React.Component {
         }
         if (!gamesFound)
             gamesFound = this.state.games;
-        this.setState({myGames: myGames, games: gamesFound});
+        return this.setState({myGames: myGames, games: gamesFound});
     }
 
     getGame(gameID) {
@@ -230,52 +233,46 @@ export class Page extends React.Component {
                     this.state.myGames[game.game_id] : game
             );
         }
-        this.setState({games: gamesFound});
+        return this.setState({games: gamesFound});
     }
 
     leaveGame(gameID) {
         if (this.state.myGames.hasOwnProperty(gameID)) {
             const game = this.state.myGames[gameID];
             if (game.client) {
-                game.client.leave()
-                    .then(() => {
-                        this.disconnectGame(gameID).then(() => {
-                            this.loadGames({info: `Game ${gameID} left.`});
-                        });
-                    })
+                return game.client.leave()
+                    .then(() => this.disconnectGame(gameID))
+                    .then(() => this.loadGames({info: `Game ${gameID} left.`}))
                     .catch(error => this.error(`Error when leaving game ${gameID}: ${error.toString()}`));
             }
         } else {
-            this.loadGames({info: `No game to left.`});
+            return this.loadGames({info: `No game to left.`});
         }
+        return null;
     }
 
     _post_remove(gameID) {
-        this.disconnectGame(gameID)
+        return this.disconnectGame(gameID)
             .then(() => {
                 const myGames = this._remove_from_my_games(gameID);
                 const games = this._remove_from_games(gameID);
-                this.setState(
-                    {games, myGames},
-                    () => this.loadGames({info: `Game ${gameID} deleted.`}));
-            });
+                return this.setState({games, myGames});
+            })
+            .then(() => this.loadGames({info: `Game ${gameID} deleted.`}));
     }
 
     removeGame(gameID) {
         const game = this.getGame(gameID);
         if (game) {
             if (game.client) {
-                game.client.remove()
+                return game.client.remove()
                     .then(() => this._post_remove(gameID))
                     .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));
             } else {
-                this.channel.joinGame({game_id: gameID})
-                    .then(networkGame => {
-                        networkGame.remove()
-                            .then(() => this._post_remove(gameID))
-                            .catch(error => this.error(`Error when deleting game ${gameID}: ${error.toString()}`));
-                    })
-                    .catch(error => this.error(`Error when connecting to game to delete (${gameID}): ${error.toString()}`));
+                return this.channel.joinGame({game_id: gameID})
+                    .then(networkGame => networkGame.remove())
+                    .then(() => this._post_remove(gameID))
+                    .catch(error => this.error(`Error when deleting game after joining it (${gameID}): ${error.toString()}`));
             }
         }
     }
@@ -283,12 +280,14 @@ export class Page extends React.Component {
     disconnectGame(gameID) {
         const game = this.getGame(gameID);
         if (game) {
-            if (game.client)
+            if (game.client) {
                 game.client.clearAllCallbacks();
+                game.client.callbacksBound = false;
+                if (game.client.queue)
+                    game.client.queue.append(null);
+            }
             return this.channel.getGamesInfo({games: [gameID]})
-                .then(gamesInfo => {
-                    this.updateMyGames(gamesInfo);
-                })
+                .then(gamesInfo => this.updateMyGames(gamesInfo))
                 .catch(error => this.error(`Error while leaving game ${gameID}: ${error.toString()}`));
         }
         return null;
@@ -327,13 +326,12 @@ export class Page extends React.Component {
     addToMyGames(game) {
         // Update state myGames with given game **and** update local storage.
         DipStorage.addUserGame(this.channel.username, game.game_id);
-        this.setState(this._add_to_my_games(game), () => this.loadGames());
+        return this.setState(this._add_to_my_games(game)).then(() => this.loadGames());
     }
 
     removeFromMyGames(gameID) {
         const myGames = this._remove_from_my_games(gameID);
-        if (myGames !== this.state.myGames)
-            this.setState({myGames}, () => this.loadGames());
+        return this.setState({myGames}).then(() => this.loadGames());
     }
 
     hasMyGame(gameID) {

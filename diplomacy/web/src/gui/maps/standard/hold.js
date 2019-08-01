@@ -15,31 +15,31 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
+import {Colors, Coordinates, offset} from "./common";
 import PropTypes from "prop-types";
-import {Button} from "../components/button";
-import {FancyBox} from "../components/fancyBox";
 
-const HotKey = require('react-shortcut');
-
-export class SelectViaForm extends React.Component {
+export class Hold extends React.Component {
     render() {
+        const polygon_coord = [];
+        const loc_x = offset(Coordinates[this.props.loc].unit[0], 8.5);
+        const loc_y = offset(Coordinates[this.props.loc].unit[1], 9.5);
+        for (let ofs of [
+            [13.8, -33.3], [33.3, -13.8], [33.3, 13.8], [13.8, 33.3], [-13.8, 33.3],
+            [-33.3, 13.8], [-33.3, -13.8], [-13.8, -33.3]]
+            ) {
+            polygon_coord.push(offset(loc_x, ofs[0]) + ',' + offset(loc_y, ofs[1]));
+        }
         return (
-            <FancyBox title={`Select move type for move order: ${this.props.path.join(' ')}`}
-                      onClose={this.props.onClose}>
-                <div>
-                    <Button title={'regular move (M)'} large={true} onClick={() => this.props.onSelect('M')}/>
-                    <Button title={'move via (V)'} large={true} onClick={() => this.props.onSelect('V')}/>
-                    <HotKey keys={['m']} onKeysCoincide={() => this.props.onSelect('M')}/>
-                    <HotKey keys={['v']} onKeysCoincide={() => this.props.onSelect('V')}/>
-                </div>
-            </FancyBox>
+            <g>
+                <polygon strokeWidth={10} className={'varwidthshadow'} points={polygon_coord.join(' ')}/>
+                <polygon strokeWidth={6} className={'varwidthorder'} points={polygon_coord.join(' ')}
+                         stroke={Colors[this.props.powerName]}/>
+            </g>
         );
     }
 }
 
-SelectViaForm.propTypes = {
-    path: PropTypes.array.isRequired,
-    onSelect: PropTypes.func.isRequired,
-    onClose: PropTypes.func.isRequired
+Hold.propTypes = {
+    loc: PropTypes.string.isRequired,
+    powerName: PropTypes.string.isRequired
 };
-
