@@ -383,8 +383,6 @@ class Server():
             return True
 
         notifier = Notifier(self)
-        # In any case, we notify game tokens about changes in power controllers.
-        yield notifier.notify_game_powers_controllers(server_game)
 
         if kicked_powers:
             # Game was not processed because of kicked powers.
