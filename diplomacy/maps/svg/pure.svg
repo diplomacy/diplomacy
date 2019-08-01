@@ -118,7 +118,7 @@
 
         /* invisible click rects fill:none does not work */
 
-        .invisible {stroke:#000000; fill:#000000; fill-opacity:0.0; opacity:0.0}
+        .invisibleContent {stroke:#000000; fill:#000000; fill-opacity:0.0; opacity:0.0}
 
         /* default region coloring, by power */
 
@@ -468,7 +468,7 @@
     <g id="FullLabelLayer" class="labeltext" visibility="hidden"/>
 
     <!-- Invisible shapes for click detection -->
-    <g id="MouseLayer" class="invisible">
+    <g id="MouseLayer" class="invisibleContent">
         <path id="vie" d="M497.619 142.283 L650.619 176.571 L774.287 275.519 L866.51 207.835 L497.619 30.1868 z"/>
         <path id="lon" d="M774.287 275.519 L842.619 416.571 L842.619 574.899 L957.619 607.008 L866.51 207.835 z"/>
         <path id="par" d="M842.619 574.899 L773.619 715.571 L651.158 814.983 L702.338 927.12 L957.619 607.008 z"/>
