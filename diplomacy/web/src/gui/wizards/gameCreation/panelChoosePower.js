@@ -5,6 +5,7 @@ import Octicon, {ArrowLeft} from "@primer/octicons-react";
 
 export class PanelChoosePower extends React.Component {
     render() {
+        this.props.powers.sort();
         return (
             <FancyBox title={'Choose your power'} onClose={this.props.cancel}>
                 <div className="row">
