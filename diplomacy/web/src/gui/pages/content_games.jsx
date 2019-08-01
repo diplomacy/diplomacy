@@ -26,7 +26,6 @@ import {ContentGame} from "./content_game";
 import PropTypes from 'prop-types';
 import {Tab} from "../components/tab";
 import {GameCreationWizard} from "../wizards/gameCreation/gameCreationWizard";
-import {Diplog} from "../../diplomacy/utils/diplog";
 
 const TABLE_LOCAL_GAMES = {
     game_id: ['Game ID', 0],
@@ -109,10 +108,6 @@ export class ContentGames extends React.Component {
                                             username={this.getPage().channel.username}
                                             onSubmit={(form) => {
                                                 onClose();
-                                                Diplog.info(`Creating game:`);
-                                                for (let entry of Object.entries(form)) {
-                                                    Diplog.info(`${entry[0]}: ${entry[1] ? entry[1].toString() : entry[1]}`);
-                                                }
                                                 this.onCreate(form);
                                             }}/>
                     ))}>

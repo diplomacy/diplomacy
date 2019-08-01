@@ -14,29 +14,27 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import React from 'react';
-import {Button} from "./button";
-import {Bar} from "./layouts";
-import PropTypes from 'prop-types';
+import React from "react";
+import {Coordinates, offset, SymbolSizes} from "./common";
+import PropTypes from "prop-types";
 
-export class PowerOrdersActionBar extends React.Component {
+export class SupplyCenter extends React.Component {
     render() {
+        const symbol = 'SupplyCenter';
+        const loc_x = offset(Coordinates[this.props.loc].sc[0], -8.5);
+        const loc_y = offset(Coordinates[this.props.loc].sc[1], -11.0);
         return (
-            <Bar className={'p-2'}>
-                <strong className={'mr-4'}>Orders:</strong>
-                <Button title={'reset'} onClick={this.props.onReset}/>
-                <Button title={'delete all'} onClick={this.props.onDeleteAll}/>
-                <Button color={'primary'} title={'update'} onClick={this.props.onUpdate}/>
-                {(this.props.onProcess &&
-                    <Button color={'danger'} title={'process game'} onClick={this.props.onProcess}/>) || ''}
-            </Bar>
+            <use href={`#${symbol}`}
+                 x={loc_x}
+                 y={loc_y}
+                 width={SymbolSizes[symbol].width}
+                 height={SymbolSizes[symbol].height}
+                 className={`${this.props.powerName ? `sc${this.props.powerName.toLowerCase()}` : 'scnopower'}`}/>
         );
     }
 }
 
-PowerOrdersActionBar.propTypes = {
-    onReset: PropTypes.func.isRequired,
-    onDeleteAll: PropTypes.func.isRequired,
-    onUpdate: PropTypes.func.isRequired,
-    onProcess: PropTypes.func
+SupplyCenter.propTypes = {
+    loc: PropTypes.string.isRequired,
+    powerName: PropTypes.string
 };

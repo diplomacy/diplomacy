@@ -21,7 +21,6 @@ import {SelectViaForm} from "../forms/select_via_form";
 import {Order} from "../utils/order";
 import {Row} from "../components/layouts";
 import {Tabs} from "../components/tabs";
-import {Map} from "../map/map";
 import {extendOrderBuilding, ORDER_BUILDER, POSSIBLE_ORDERS} from "../utils/order_building";
 import {PowerOrderCreationForm} from "../forms/power_order_creation_form";
 import {MessageForm} from "../forms/message_form";
@@ -44,6 +43,9 @@ import {Button} from "../components/button";
 import {saveGameToDisk} from "../utils/saveGameToDisk";
 import {Game} from '../../diplomacy/engine/game';
 import {PowerOrdersActionBar} from "../components/power_orders_actions_bar";
+import {SvgStandard} from "../maps/standard/SvgStandard";
+import {MapData} from "../utils/map_data";
+import {Queue} from "../../diplomacy/utils/queue";
 
 const HotKey = require('react-shortcut');
 
@@ -74,6 +76,10 @@ const PRETTY_ROLES = {
     [STRINGS.OMNISCIENT_TYPE]: 'Omnicient',
     [STRINGS.OBSERVER_TYPE]: 'Observer'
 };
+
+function noPromise() {
+    return new Promise(resolve => resolve());
+}
 
 export class ContentGame extends React.Component {
 
@@ -111,7 +117,6 @@ export class ContentGame extends React.Component {
             historyShowOrders: true,
             historyCurrentLoc: null,
             historyCurrentOrders: null,
-            wait: null, // {power name => bool}
             orders: orders, // {power name => {loc => {local: bool, order: str}}}
             power: null,
             orderBuildingType: null,
@@ -156,6 +161,7 @@ export class ContentGame extends React.Component {
         this.setSelectedVia = this.setSelectedVia.bind(this);
         this.setWaitFlag = this.setWaitFlag.bind(this);
         this.vote = this.vote.bind(this);
+        this.updateDeadlineTimer = this.updateDeadlineTimer.bind(this);
     }
 
     static prettyRole(role) {
@@ -194,12 +200,24 @@ export class ContentGame extends React.Component {
         };
     }
 
+    setState(state) {
+        return new Promise(resolve => super.setState(state, resolve));
+    }
+
+    forceUpdate() {
+        return new Promise(resolve => super.forceUpdate(resolve));
+    }
+
+    /**
+     * Return current page object displaying this content.
+     * @returns {Page}
+     */
     getPage() {
         return this.context;
     }
 
     clearOrderBuildingPath() {
-        this.setState({
+        return this.setState({
             orderBuildingPath: []
         });
     }
@@ -275,7 +293,8 @@ export class ContentGame extends React.Component {
             engine.deadline_timer = 0;
             this.clearScheduleTimeout();
         }
-        this.getPage().load(`game: ${engine.game_id}`, <ContentGame data={engine}/>);
+        if (this.networkGameIsDisplayed(engine.client))
+            this.forceUpdate();
     }
 
     reloadDeadlineTimer(networkGame) {
@@ -287,13 +306,12 @@ export class ContentGame extends React.Component {
                 const server_remaining = server_end - server_current;
                 this.props.data.deadline_timer = server_remaining * schedule.time_unit;
                 if (!this.schedule_timeout_id)
-                    this.schedule_timeout_id = setInterval(() => this.updateDeadlineTimer(), schedule.time_unit * 1000);
+                    this.schedule_timeout_id = setInterval(this.updateDeadlineTimer, schedule.time_unit * 1000);
             })
             .catch(() => {
                 if (this.props.data.hasOwnProperty('deadline_timer'))
                     delete this.props.data.deadline_timer;
                 this.clearScheduleTimeout();
-                // this.getPage().error(`Error while updating deadline timer: ${error.toString()}`);
             });
     }
 
@@ -311,13 +329,10 @@ export class ContentGame extends React.Component {
     notifiedNetworkGame(networkGame, notification) {
         if (this.networkGameIsDisplayed(networkGame)) {
             const msg = `Game (${networkGame.local.game_id}) received notification ${notification.name}.`;
-            this.getPage().load(
-                `game: ${networkGame.local.game_id}`,
-                <ContentGame data={networkGame.local}/>,
-                {info: msg}
-            );
             this.reloadDeadlineTimer(networkGame);
+            return this.forceUpdate().then(() => this.getPage().info(msg));
         }
+        return noPromise();
     }
 
     notifiedPowersControllers(networkGame, notification) {
@@ -326,51 +341,46 @@ export class ContentGame extends React.Component {
             || !networkGame.channel.game_id_to_instances[networkGame.local.game_id].has(networkGame.local.role)
         )) {
             // This power game is now invalid.
-            this.getPage().disconnectGame(networkGame.local.game_id)
+            return this.getPage().disconnectGame(networkGame.local.game_id)
                 .then(() => {
                     if (this.networkGameIsDisplayed(networkGame)) {
-                        const page = this.getPage();
-                        page.loadGames(
+                        return this.getPage().loadGames(
                             {error: `${networkGame.local.game_id}/${networkGame.local.role} was kicked. Deadline over?`});
                     }
                 });
         } else {
-            this.notifiedNetworkGame(networkGame, notification);
+            return this.notifiedNetworkGame(networkGame, notification);
         }
     }
 
     notifiedGamePhaseUpdated(networkGame, notification) {
-        networkGame.getAllPossibleOrders()
+        return networkGame.getAllPossibleOrders()
             .then(allPossibleOrders => {
                 networkGame.local.setPossibleOrders(allPossibleOrders);
                 if (this.networkGameIsDisplayed(networkGame)) {
-                    this.getPage().load(
-                        `game: ${networkGame.local.game_id}`,
-                        <ContentGame data={networkGame.local}/>,
-                        {info: `Game update (${notification.name}) to ${networkGame.local.phase}.`}
-                    );
                     this.__store_orders(null);
-                    this.setState({orders: null, wait: null, messageHighlights: {}});
                     this.reloadDeadlineTimer(networkGame);
+                    return this.setState({orders: null, messageHighlights: {}})
+                        .then(() => this.getPage().info(
+                            `Game update (${notification.name}) to ${networkGame.local.phase}.`));
                 }
             })
             .catch(error => this.getPage().error('Error when updating possible orders: ' + error.toString()));
     }
 
     notifiedLocalStateChange(networkGame, notification) {
-        networkGame.getAllPossibleOrders()
+        return networkGame.getAllPossibleOrders()
             .then(allPossibleOrders => {
                 networkGame.local.setPossibleOrders(allPossibleOrders);
                 if (this.networkGameIsDisplayed(networkGame)) {
-                    this.getPage().load(
-                        `game: ${networkGame.local.game_id}`,
-                        <ContentGame data={networkGame.local}/>,
-                        {info: `Possible orders re-loaded.`}
-                    );
-                    if (notification.power_name) {
-                        this.reloadPowerServerOrders(notification.power_name);
-                    }
                     this.reloadDeadlineTimer(networkGame);
+                    let result = null;
+                    if (notification.power_name) {
+                        result = this.reloadPowerServerOrders(notification.power_name);
+                    } else {
+                        result = this.forceUpdate();
+                    }
+                    return result.then(() => this.getPage().info(`Possible orders re-loaded.`));
                 }
             })
             .catch(error => this.getPage().error('Error when updating possible orders: ' + error.toString()));
@@ -385,48 +395,79 @@ export class ContentGame extends React.Component {
             messageHighlights[protagonist] = 1;
         else
             ++messageHighlights[protagonist];
-        this.setState({messageHighlights: messageHighlights});
-        this.notifiedNetworkGame(networkGame, notification);
+        return this.setState({messageHighlights: messageHighlights})
+            .then(() => this.notifiedNetworkGame(networkGame, notification));
     }
 
     bindCallbacks(networkGame) {
+        const collector = (game, notification) => {
+            game.queue.append(notification);
+        };
+        const consumer = (notification) => {
+            switch (notification.name) {
+                case 'powers_controllers':
+                    return this.notifiedPowersControllers(networkGame, notification);
+                case 'game_message_received':
+                    return this.notifiedNewGameMessage(networkGame, notification);
+                case 'game_processed':
+                case 'game_phase_update':
+                    return this.notifiedGamePhaseUpdated(networkGame, notification);
+                case 'cleared_centers':
+                case 'cleared_orders':
+                case 'cleared_units':
+                case 'power_orders_update':
+                case 'power_orders_flag':
+                    return this.notifiedLocalStateChange(networkGame, notification);
+                case 'game_status_update':
+                case 'omniscient_updated':
+                case 'power_vote_updated':
+                case 'power_wait_flag':
+                case 'vote_count_updated':
+                case 'vote_updated':
+                    return this.notifiedNetworkGame(networkGame, notification);
+                default:
+                    throw new Error(`Unhandled notification: ${notification.name}`);
+            }
+        };
         if (!networkGame.callbacksBound) {
-            networkGame.addOnClearedCenters(this.notifiedLocalStateChange);
-            networkGame.addOnClearedOrders(this.notifiedLocalStateChange);
-            networkGame.addOnClearedUnits(this.notifiedLocalStateChange);
-            networkGame.addOnPowersControllers(this.notifiedPowersControllers);
-            networkGame.addOnGameMessageReceived(this.notifiedNewGameMessage);
-            networkGame.addOnGameProcessed(this.notifiedGamePhaseUpdated);
-            networkGame.addOnGamePhaseUpdate(this.notifiedGamePhaseUpdated);
-            networkGame.addOnGameStatusUpdate(this.notifiedNetworkGame);
-            networkGame.addOnOmniscientUpdated(this.notifiedNetworkGame);
-            networkGame.addOnPowerOrdersUpdate(this.notifiedLocalStateChange);
-            networkGame.addOnPowerOrdersFlag(this.notifiedLocalStateChange);
-            networkGame.addOnPowerVoteUpdated(this.notifiedNetworkGame);
-            networkGame.addOnPowerWaitFlag(this.notifiedNetworkGame);
-            networkGame.addOnVoteCountUpdated(this.notifiedNetworkGame);
-            networkGame.addOnVoteUpdated(this.notifiedNetworkGame);
+            networkGame.queue = new Queue();
+            networkGame.addOnClearedCenters(collector);
+            networkGame.addOnClearedOrders(collector);
+            networkGame.addOnClearedUnits(collector);
+            networkGame.addOnPowerOrdersUpdate(collector);
+            networkGame.addOnPowerOrdersFlag(collector);
+            networkGame.addOnPowersControllers(collector);
+            networkGame.addOnGameMessageReceived(collector);
+            networkGame.addOnGameProcessed(collector);
+            networkGame.addOnGamePhaseUpdate(collector);
+            networkGame.addOnGameStatusUpdate(collector);
+            networkGame.addOnOmniscientUpdated(collector);
+            networkGame.addOnPowerVoteUpdated(collector);
+            networkGame.addOnPowerWaitFlag(collector);
+            networkGame.addOnVoteCountUpdated(collector);
+            networkGame.addOnVoteUpdated(collector);
             networkGame.callbacksBound = true;
             networkGame.local.markAllMessagesRead();
+            networkGame.queue.consumeAsync(consumer);
         }
     }
 
     // ]
 
     onChangeCurrentPower(event) {
-        this.setState({power: event.target.value, tabPastMessages: null, tabCurrentMessages: null});
+        return this.setState({power: event.target.value, tabPastMessages: null, tabCurrentMessages: null});
     }
 
     onChangeMainTab(tab) {
-        this.setState({tabMain: tab});
+        return this.setState({tabMain: tab});
     }
 
     onChangeTabCurrentMessages(tab) {
-        this.setState({tabCurrentMessages: tab});
+        return this.setState({tabCurrentMessages: tab});
     }
 
     onChangeTabPastMessages(tab) {
-        this.setState({tabPastMessages: tab});
+        return this.setState({tabPastMessages: tab});
     }
 
     sendMessage(networkGame, recipient, body) {
@@ -466,10 +507,6 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const controllablePowers = engine.getControllablePowers();
         return this.state.power || (controllablePowers.length && controllablePowers[0]);
-    }
-
-    __get_wait(engine) {
-        return this.state.wait ? this.state.wait : ContentGame.getServerWaitFlags(engine);
     }
 
     // [ Methods involved in orders management.
@@ -535,12 +572,11 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const allOrders = this.__get_orders(engine);
         if (!allOrders.hasOwnProperty(powerName)) {
-            this.getPage().error(`Unknown power ${powerName}.`);
-            return;
+            return this.getPage().error(`Unknown power ${powerName}.`);
         }
         allOrders[powerName] = serverOrders[powerName];
         this.__store_orders(allOrders);
-        this.setState({orders: allOrders});
+        return this.setState({orders: allOrders});
     }
 
     /**
@@ -598,7 +634,7 @@ export class ContentGame extends React.Component {
         const orders = this.__get_orders(this.props.data);
         orders[powerName] = {};
         this.__store_orders(orders);
-        this.setState({orders: orders});
+        return this.setState({orders: orders});
     }
 
     /**
@@ -667,8 +703,8 @@ export class ContentGame extends React.Component {
 
     onOrderBuilding(powerName, path) {
         const pathToSave = path.slice(1);
-        this.getPage().success(`Building order ${pathToSave.join(' ')} ...`);
-        this.setState({orderBuildingPath: pathToSave});
+        return this.setState({orderBuildingPath: pathToSave})
+            .then(() => this.getPage().success(`Building order ${pathToSave.join(' ')} ...`));
     }
 
     onOrderBuilt(powerName, orderString) {
@@ -676,16 +712,14 @@ export class ContentGame extends React.Component {
         state.orderBuildingPath = [];
         if (!orderString) {
             Diplog.warn('No order built.');
-            this.setState(state);
-            return;
+            return this.setState(state);
         }
         const engine = this.props.data;
         const localOrder = new Order(orderString, true);
         const allOrders = this.__get_orders(engine);
         if (!allOrders.hasOwnProperty(powerName)) {
             Diplog.warn(`Unknown power ${powerName}.`);
-            this.setState(state);
-            return;
+            return this.setState(state);
         }
 
         if (!allOrders[powerName])
@@ -694,11 +728,11 @@ export class ContentGame extends React.Component {
         state.orders = allOrders;
         this.getPage().success(`Built order: ${orderString}`);
         this.__store_orders(allOrders);
-        this.setState(state);
+        return this.setState(state);
     }
 
     onChangeOrderType(form) {
-        this.setState({
+        return this.setState({
             orderBuildingType: form.order_type,
             orderBuildingPath: [],
         });
@@ -727,7 +761,9 @@ export class ContentGame extends React.Component {
         if (!currentPowerName)
             throw new Error(`Internal error: unable to detect current selected power name.`);
         networkGame.setWait(waitFlag, {power_name: currentPowerName})
-            .then(() => this.getPage().success(`Wait flag set to ${waitFlag} for ${currentPowerName}`))
+            .then(() => {
+                this.forceUpdate(() => this.getPage().success(`Wait flag set to ${waitFlag} for ${currentPowerName}`));
+            })
             .catch(error => {
                 Diplog.error(error.stack);
                 this.getPage().error(`Error while setting wait flag for ${currentPowerName}: ${error.toString()}`);
@@ -735,7 +771,7 @@ export class ContentGame extends React.Component {
     }
 
     __change_past_phase(newPhaseIndex) {
-        this.setState({
+        return this.setState({
             historyPhaseIndex: newPhaseIndex,
             historyCurrentLoc: null,
             historyCurrentOrders: null
@@ -780,7 +816,7 @@ export class ContentGame extends React.Component {
     }
 
     onChangeShowPastOrders(event) {
-        this.setState({historyShowOrders: event.target.checked});
+        return this.setState({historyShowOrders: event.target.checked});
     }
 
     onClickMessage(message) {
@@ -799,7 +835,7 @@ export class ContentGame extends React.Component {
     }
 
     displayLocationOrders(loc, orders) {
-        this.setState({
+        return this.setState({
             historyCurrentLoc: loc || null,
             historyCurrentOrders: orders && orders.length ? orders : null
         });
@@ -810,7 +846,7 @@ export class ContentGame extends React.Component {
     renderOrders(engine, currentPowerName) {
         const serverOrders = this.props.data.getServerOrders();
         const orders = this.__get_orders(engine);
-        const wait = this.__get_wait(engine);
+        const wait = ContentGame.getServerWaitFlags(engine);
 
         const render = [];
         render.push(<PowerOrders key={currentPowerName} name={currentPowerName} wait={wait[currentPowerName]}
@@ -908,27 +944,29 @@ export class ContentGame extends React.Component {
     }
 
     renderMapForResults(gameEngine, showOrders) {
-        return <Map key={'past-map'}
-                    id={'past-map'}
-                    game={gameEngine}
-                    mapInfo={this.getMapInfo(gameEngine.map_name)}
-                    onError={this.getPage().error}
-                    onHover={showOrders ? this.displayLocationOrders : null}
-                    showOrders={Boolean(showOrders)}
-                    orders={(gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
-        />;
+        return (
+            <div id="past-map" key="past-map">
+                <SvgStandard game={gameEngine}
+                             mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
+                             onError={this.getPage().error}
+                             orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
+                             onHover={showOrders ? this.displayLocationOrders : null}
+                             onSelectVia={this.onSelectVia}/>
+            </div>
+        );
     }
 
     renderMapForMessages(gameEngine, showOrders) {
-        return <Map key={'messages-map'}
-                    id={'messages-map'}
-                    game={gameEngine}
-                    mapInfo={this.getMapInfo(gameEngine.map_name)}
-                    onError={this.getPage().error}
-                    onHover={showOrders ? this.displayLocationOrders : null}
-                    showOrders={Boolean(showOrders)}
-                    orders={(gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
-        />;
+        return (
+            <div id="messages-map" key="messages-map">
+                <SvgStandard game={gameEngine}
+                             mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
+                             onError={this.getPage().error}
+                             orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
+                             onHover={showOrders ? this.displayLocationOrders : null}
+                             onSelectVia={this.onSelectVia}/>
+            </div>
+        );
     }
 
     renderMapForCurrent(gameEngine, powerName, orderType, orderPath) {
@@ -941,18 +979,19 @@ export class ContentGame extends React.Component {
                     orders[entry[0]].push(orderObject.order);
             }
         }
-        return <Map key={'current-map'}
-                    id={'current-map'}
-                    game={gameEngine}
-                    mapInfo={this.getMapInfo(gameEngine.map_name)}
-                    onError={this.getPage().error}
-                    orderBuilding={ContentGame.getOrderBuilding(powerName, orderType, orderPath)}
-                    onOrderBuilding={this.onOrderBuilding}
-                    onOrderBuilt={this.onOrderBuilt}
-                    showOrders={true}
-                    orders={orders}
-                    onSelectLocation={this.onSelectLocation}
-                    onSelectVia={this.onSelectVia}/>;
+        return (
+            <div id="current-map" key="current-map">
+                <SvgStandard game={gameEngine}
+                             mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
+                             onError={this.getPage().error}
+                             orderBuilding={ContentGame.getOrderBuilding(powerName, orderType, orderPath)}
+                             onOrderBuilding={this.onOrderBuilding}
+                             onOrderBuilt={this.onOrderBuilt}
+                             orders={orders}
+                             onSelectLocation={this.onSelectLocation}
+                             onSelectVia={this.onSelectVia}/>
+            </div>
+        );
     }
 
     __get_engine_to_display(initialEngine) {
@@ -1265,10 +1304,10 @@ export class ContentGame extends React.Component {
                             navigation={navigation}/>
                 <Tabs menu={tabNames} titles={tabTitles} onChange={this.onChangeMainTab} active={mainTab}>
                     {/* Tab Phase history. */}
-                    {(hasTabPhaseHistory && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
-                    {this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}
+                    {(hasTabPhaseHistory && mainTab === 'phase_history' && this.renderTabResults(mainTab === 'phase_history', engine)) || ''}
+                    {mainTab === 'messages' && this.renderTabMessages(mainTab === 'messages', engine, currentPowerName)}
                     {/* Tab Current phase. */}
-                    {(hasTabCurrentPhase && this.renderTabCurrentPhase(
+                    {(mainTab === 'current_phase' && hasTabCurrentPhase && this.renderTabCurrentPhase(
                         mainTab === 'current_phase',
                         engine,
                         currentPowerName,
