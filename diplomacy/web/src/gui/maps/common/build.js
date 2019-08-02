@@ -15,11 +15,13 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, Coordinates, FLEET, offset, SymbolSizes} from "./common";
+import {ARMY, FLEET, offset} from "./common";
 import PropTypes from "prop-types";
 
 export class Build extends React.Component {
     render() {
+        const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
         const loc = this.props.loc;
         const unit_type = this.props.unitType;
         const loc_x = offset(Coordinates[loc].unit[0], -11.5);
@@ -49,5 +51,7 @@ export class Build extends React.Component {
 Build.propTypes = {
     unitType: PropTypes.string.isRequired,
     loc: PropTypes.string.isRequired,
-    powerName: PropTypes.string.isRequired
+    powerName: PropTypes.string.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired
 };

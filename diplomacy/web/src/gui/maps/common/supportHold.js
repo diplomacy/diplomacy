@@ -15,11 +15,13 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Colors, Coordinates, offset} from "./common";
+import {offset} from "./common";
 import PropTypes from "prop-types";
 
 export class SupportHold extends React.Component {
     render() {
+        const Coordinates = this.props.coordinates;
+        const Colors = this.props.colors;
         const loc = this.props.loc;
         const dest_loc = this.props.dstLoc;
         const loc_x = offset(Coordinates[loc].unit[0], 10);
@@ -70,4 +72,6 @@ SupportHold.propTypes = {
     loc: PropTypes.string.isRequired,
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    colors: PropTypes.object.isRequired
 };

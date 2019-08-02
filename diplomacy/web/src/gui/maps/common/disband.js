@@ -15,11 +15,13 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Coordinates, offset, SymbolSizes} from "./common";
+import {offset} from "./common";
 import PropTypes from "prop-types";
 
 export class Disband extends React.Component {
     render() {
+        const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
         const loc = this.props.loc;
         const phaseType = this.props.phaseType;
         let loc_x = 0;
@@ -47,5 +49,7 @@ export class Disband extends React.Component {
 
 Disband.propTypes = {
     loc: PropTypes.string.isRequired,
-    phaseType: PropTypes.string.isRequired
+    phaseType: PropTypes.string.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired
 };

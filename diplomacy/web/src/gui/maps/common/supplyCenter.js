@@ -15,11 +15,13 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Coordinates, offset, SymbolSizes} from "./common";
+import {offset} from "./common";
 import PropTypes from "prop-types";
 
 export class SupplyCenter extends React.Component {
     render() {
+        const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
         const symbol = 'SupplyCenter';
         const loc_x = offset(Coordinates[this.props.loc].sc[0], -8.5);
         const loc_y = offset(Coordinates[this.props.loc].sc[1], -11.0);
@@ -36,5 +38,7 @@ export class SupplyCenter extends React.Component {
 
 SupplyCenter.propTypes = {
     loc: PropTypes.string.isRequired,
-    powerName: PropTypes.string
+    powerName: PropTypes.string,
+    coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired
 };

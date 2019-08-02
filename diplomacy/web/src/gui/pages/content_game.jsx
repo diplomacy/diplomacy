@@ -44,6 +44,9 @@ import {saveGameToDisk} from "../utils/saveGameToDisk";
 import {Game} from '../../diplomacy/engine/game';
 import {PowerOrdersActionBar} from "../components/power_orders_actions_bar";
 import {SvgStandard} from "../maps/standard/SvgStandard";
+import {SvgAncMed} from "../maps/ancmed/SvgAncMed";
+import {SvgModern} from "../maps/modern/SvgModern";
+import {SvgPure} from "../maps/pure/SvgPure";
 import {MapData} from "../utils/map_data";
 import {Queue} from "../../diplomacy/utils/queue";
 
@@ -76,6 +79,21 @@ const PRETTY_ROLES = {
     [STRINGS.OMNISCIENT_TYPE]: 'Omnicient',
     [STRINGS.OBSERVER_TYPE]: 'Observer'
 };
+
+const MAP_COMPONENTS = {
+    ancmed: SvgAncMed,
+    standard: SvgStandard,
+    modern: SvgModern,
+    pure: SvgPure
+};
+
+function getMapComponent(mapName) {
+    for (let rootMap of Object.keys(MAP_COMPONENTS)) {
+        if (mapName.indexOf(rootMap) === 0)
+            return MAP_COMPONENTS[rootMap];
+    }
+    throw new Error(`Un-implemented map: ${mapName}`);
+}
 
 function noPromise() {
     return new Promise(resolve => resolve());
@@ -943,9 +961,10 @@ export class ContentGame extends React.Component {
     }
 
     renderMapForResults(gameEngine, showOrders) {
+        const Map = getMapComponent(gameEngine.map_name);
         return (
             <div id="past-map" key="past-map">
-                <SvgStandard game={gameEngine}
+                <Map game={gameEngine}
                              mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
                              onError={this.getPage().error}
                              orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
@@ -956,9 +975,10 @@ export class ContentGame extends React.Component {
     }
 
     renderMapForMessages(gameEngine, showOrders) {
+        const Map = getMapComponent(gameEngine.map_name);
         return (
             <div id="messages-map" key="messages-map">
-                <SvgStandard game={gameEngine}
+                <Map game={gameEngine}
                              mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
                              onError={this.getPage().error}
                              orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
@@ -969,6 +989,7 @@ export class ContentGame extends React.Component {
     }
 
     renderMapForCurrent(gameEngine, powerName, orderType, orderPath) {
+        const Map = getMapComponent(gameEngine.map_name);
         const rawOrders = this.__get_orders(gameEngine);
         const orders = {};
         for (let entry of Object.entries(rawOrders)) {
@@ -980,7 +1001,7 @@ export class ContentGame extends React.Component {
         }
         return (
             <div id="current-map" key="current-map">
-                <SvgStandard game={gameEngine}
+                <Map game={gameEngine}
                              mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
                              onError={this.getPage().error}
                              orderBuilding={ContentGame.getOrderBuilding(powerName, orderType, orderPath)}

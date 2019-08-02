@@ -14,7 +14,6 @@
 //  You should have received a copy of the GNU Affero General Public License along
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
-import {SvgStandardExtra} from "./SvgStandardExtra";
 
 const TAG_ORDERDRAWING = 'jdipNS:ORDERDRAWING';
 const TAG_POWERCOLORS = 'jdipNS:POWERCOLORS';
@@ -29,9 +28,9 @@ const TAG_SUPPLY_CENTER = 'jdipNS:SUPPLY_CENTER';
 export const ARMY = 'Army';
 export const FLEET = 'Fleet';
 
-function getCoordinates() {
+export function getCoordinates(extra) {
     const coordinates = {};
-    for (let provinceDefiniton of SvgStandardExtra[TAG_PROVINCE_DATA][TAG_PROVINCE]) {
+    for (let provinceDefiniton of extra[TAG_PROVINCE_DATA][TAG_PROVINCE]) {
         const name = provinceDefiniton.name.toUpperCase().replace('-', '/');
         coordinates[name] = {};
         if (provinceDefiniton.hasOwnProperty(TAG_UNIT)) {
@@ -47,9 +46,9 @@ function getCoordinates() {
     return coordinates;
 }
 
-function getSymbolSizes() {
+export function getSymbolSizes(extra) {
     const sizes = {};
-    for (let definition of SvgStandardExtra[TAG_ORDERDRAWING][TAG_SYMBOLSIZE]) {
+    for (let definition of extra[TAG_ORDERDRAWING][TAG_SYMBOLSIZE]) {
         sizes[definition.name] = {
             width: parseInt(definition.width),
             height: parseInt(definition.height)
@@ -58,18 +57,40 @@ function getSymbolSizes() {
     return sizes;
 }
 
-function getColors() {
+export function getColors(extra) {
     const colors = {};
-    for (let definition of SvgStandardExtra[TAG_ORDERDRAWING][TAG_POWERCOLORS][TAG_POWERCOLOR]) {
+    for (let definition of extra[TAG_ORDERDRAWING][TAG_POWERCOLORS][TAG_POWERCOLOR]) {
         colors[definition.power.toUpperCase()] = definition.color;
     }
     return colors;
 }
 
-export const Coordinates = getCoordinates();
-export const SymbolSizes = getSymbolSizes();
-export const Colors = getColors();
-
 export function offset(floatString, offset) {
     return "" + (parseFloat(floatString) + offset);
+}
+
+export function setInfluence(classes, mapData, loc, power_name) {
+    const province = mapData.getProvince(loc);
+    if (!province)
+        throw new Error(`Unable to find province ${loc}`);
+    if (!['LAND', 'COAST'].includes(province.type))
+        return;
+    const id = province.getID(classes);
+    if (!id)
+        throw new Error(`Unable to find SVG path for loc ${id}`);
+    classes[id] = power_name ? power_name.toLowerCase() : 'nopower';
+}
+
+export function getClickedID(event) {
+    let node = event.target;
+    if (!node.id && node.parentNode.id && node.parentNode.tagName === 'g')
+        node = node.parentNode;
+    let id = node.id;
+    return id ? id.substr(0, 3) : null;
+}
+
+export function parseLocation(txt) {
+    if (txt.length > 2 && txt[1] === ' ' && ['A', 'F'].includes(txt[0]))
+        return txt.substr(2);
+    return txt;
 }

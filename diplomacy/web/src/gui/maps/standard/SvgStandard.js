@@ -1,63 +1,43 @@
-// ==============================================================================
-// Copyright (C) 2019 - Philip Paquette, Steven Bocco
-//
-//  This program is free software: you can redistribute it and/or modify it under
-//  the terms of the GNU Affero General Public License as published by the Free
-//  Software Foundation, either version 3 of the License, or (at your option) any
-//  later version.
-//
-//  This program is distributed in the hope that it will be useful, but WITHOUT
-//  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-//  FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
-//  details.
-//
-//  You should have received a copy of the GNU Affero General Public License along
-//  with this program.  If not, see <https://www.gnu.org/licenses/>.
-// ==============================================================================
+/**
+==============================================================================
+Copyright (C) 2019 - Philip Paquette, Steven Bocco
+
+ This program is free software: you can redistribute it and/or modify it under
+ the terms of the GNU Affero General Public License as published by the Free
+ Software Foundation, either version 3 of the License, or (at your option) any
+ later version.
+
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+ details.
+
+ You should have received a copy of the GNU Affero General Public License along
+ with this program.  If not, see <https:www.gnu.org/licenses/>.
+==============================================================================
+**/
 /** Generated using svg_to_react.py with parameters:
-Namespace(actionable=['MouseLayer'], input='src/diplomacy/maps/svg/standard.svg', name='SvgStandard', output='src/gui/maps/', remove=None)
+Namespace(input='src/diplomacy/maps/svg/standard.svg', name='SvgStandard', output='src/gui/maps/standard')
 **/
 import React from 'react';
 import PropTypes from 'prop-types';
-import "./SvgStandard.css";
+import './SvgStandard.css';
+import {Coordinates, SymbolSizes, Colors} from "./SvgStandardExtraParsed";
+import {getClickedID, parseLocation, setInfluence} from "../common/common";
 import {Game} from "../../../diplomacy/engine/game";
 import {MapData} from "../../utils/map_data";
-import {Unit} from "./unit";
-import {SupplyCenter} from "./supplyCenter";
-import {Hold} from "./hold";
-import {Move} from "./move";
-import {SupportMove} from "./supportMove";
-import {SupportHold} from "./supportHold";
-import {Convoy} from "./convoy";
-import {Build} from "./build";
-import {Disband} from "./disband";
 import {UTILS} from "../../../diplomacy/utils/utils";
 import {Diplog} from "../../../diplomacy/utils/diplog";
 import {extendOrderBuilding} from "../../utils/order_building";
-
-function setInfluence(classes, mapData, loc, power_name) {
-    loc = loc.toUpperCase().substr(0, 3);
-    if (!['LAND', 'COAST'].includes(mapData.getProvince(loc).type))
-        return;
-    const id = '_' + loc.toLowerCase();
-    if (!classes.hasOwnProperty(id))
-        throw new Error(`Unable to find SVG path for loc ${id}`);
-    classes[id] = power_name ? power_name.toLowerCase() : 'nopower';
-}
-
-function getClickedID(event) {
-    let node = event.target;
-    if (!node.id && node.parentNode.id && node.parentNode.tagName === 'g')
-        node = node.parentNode;
-    let id = node.id;
-    return id ? id.substr(0, 3) : null;
-}
-
-function parseLocation(txt) {
-    if (txt.length > 2 && txt[1] === ' ' && ['A', 'F'].includes(txt[0]))
-        return txt.substr(2);
-    return txt;
-}
+import {Unit} from "../common/unit";
+import {SupplyCenter} from "../common/supplyCenter";
+import {Hold} from "../common/hold";
+import {Move} from "../common/move";
+import {SupportMove} from "../common/supportMove";
+import {SupportHold} from "../common/supportHold";
+import {Convoy} from "../common/convoy";
+import {Build} from "../common/build";
+import {Disband} from "../common/disband";
 
 export class SvgStandard extends React.Component {
     constructor(props) {
@@ -225,13 +205,33 @@ export class SvgStandard extends React.Component {
         const renderedHighestOrders = [];
         for (let power of Object.values(game.powers)) {
             for (let unit of power.units) {
-                renderedUnits.push(<Unit key={unit} unit={unit} powerName={power.name} isDislodged={false}/>);
+                renderedUnits.push(
+                    <Unit key={unit}
+                          unit={unit}
+                          powerName={power.name}
+                          isDislodged={false}
+                          coordinates={Coordinates}
+                          symbolSizes={SymbolSizes}/>
+                );
             }
             for (let unit of Object.keys(power.retreats)) {
-                renderedDislodgedUnits.push(<Unit key={unit} unit={unit} powerName={power.name} isDislodged={true}/>);
+                renderedDislodgedUnits.push(
+                    <Unit key={unit}
+                          unit={unit}
+                          powerName={power.name}
+                          isDislodged={true}
+                          coordinates={Coordinates}
+                          symbolSizes={SymbolSizes}/>
+                );
             }
             for (let center of power.centers) {
-                renderedSupplyCenters.push(<SupplyCenter key={center} loc={center} powerName={power.name}/>);
+                renderedSupplyCenters.push(
+                    <SupplyCenter key={center}
+                                  loc={center}
+                                  powerName={power.name}
+                                  coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}/>
+                );
                 setInfluence(classes, mapData, center, power.name);
                 scs.delete(center);
             }
@@ -250,32 +250,89 @@ export class SvgStandard extends React.Component {
                         continue;
                     const unit_loc = tokens[1];
                     if (tokens[2] === 'H') {
-                        renderedOrders.push(<Hold key={order} loc={unit_loc} powerName={power.name}/>);
+                        renderedOrders.push(
+                            <Hold key={order}
+                                  loc={unit_loc}
+                                  powerName={power.name}
+                                  coordinates={Coordinates}
+                                  colors={Colors}/>
+                        );
                     } else if (tokens[2] === '-') {
                         const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === 'VIA' ? 2 : 1)];
-                        renderedOrders.push(<Move key={order} srcLoc={unit_loc} dstLoc={destLoc} powerName={power.name} phaseType={game.getPhaseType()}/>);
+                        renderedOrders.push(
+                            <Move key={order}
+                                  srcLoc={unit_loc}
+                                  dstLoc={destLoc}
+                                  powerName={power.name}
+                                  phaseType={game.getPhaseType()}
+                                  coordinates={Coordinates}
+                                  colors={Colors}/>
+                        );
                     } else if (tokens[2] === 'S') {
                         const destLoc = tokens[tokens.length - 1];
                         if (tokens.includes('-')) {
                             const srcLoc = tokens[4];
-                            renderedOrders2.push(<SupportMove key={order} loc={unit_loc} srcLoc={srcLoc} dstLoc={destLoc} powerName={power.name}/>);
+                            renderedOrders2.push(
+                                <SupportMove key={order}
+                                             loc={unit_loc}
+                                             srcLoc={srcLoc}
+                                             dstLoc={destLoc}
+                                             powerName={power.name}
+                                             coordinates={Coordinates}
+                                             colors={Colors}/>
+                            );
                         } else {
-                            renderedOrders2.push(<SupportHold key={order} loc={unit_loc} dstLoc={destLoc} powerName={power.name}/>);
+                            renderedOrders2.push(
+                                <SupportHold key={order}
+                                             loc={unit_loc}
+                                             dstLoc={destLoc}
+                                             powerName={power.name}
+                                             coordinates={Coordinates}
+                                             colors={Colors}/>
+                            );
                         }
                     } else if (tokens[2] === 'C') {
                         const srcLoc = tokens[4];
                         const destLoc = tokens[tokens.length - 1];
                         if ((srcLoc !== destLoc) && (tokens.includes('-'))) {
-                            renderedOrders2.push(<Convoy key={order} loc={unit_loc} srcLoc={srcLoc} dstLoc={destLoc} powerName={power.name}/>);
+                            renderedOrders2.push(
+                                <Convoy key={order}
+                                        loc={unit_loc}
+                                        srcLoc={srcLoc}
+                                        dstLoc={destLoc}
+                                        powerName={power.name}
+                                        coordinates={Coordinates} colors={Colors}/>
+                            );
                         }
                     } else if (tokens[2] === 'B') {
-                        renderedHighestOrders.push(<Build key={order} unitType={tokens[0]} loc={unit_loc} powerName={power.name}/>);
+                        renderedHighestOrders.push(
+                            <Build key={order}
+                                   unitType={tokens[0]}
+                                   loc={unit_loc}
+                                   powerName={power.name}
+                                   coordinates={Coordinates}
+                                   symbolSizes={SymbolSizes}/>
+                        );
                     } else if (tokens[2] === 'D') {
-                        renderedHighestOrders.push(<Disband key={order} loc={unit_loc} phaseType={game.getPhaseType()}/>);
+                        renderedHighestOrders.push(
+                            <Disband key={order}
+                                     loc={unit_loc}
+                                     phaseType={game.getPhaseType()}
+                                     coordinates={Coordinates}
+                                     symbolSizes={SymbolSizes}/>
+                        );
                     } else if (tokens[2] === 'R') {
                         const srcLoc = tokens[1];
                         const destLoc = tokens[3];
-                        renderedOrders.push(<Move key={order} srcLoc={srcLoc} dstLoc={destLoc} powerName={power.name} phaseType={game.getPhaseType()}/>);
+                        renderedOrders.push(
+                            <Move key={order}
+                                  srcLoc={srcLoc}
+                                  dstLoc={destLoc}
+                                  powerName={power.name}
+                                  phaseType={game.getPhaseType()}
+                                  coordinates={Coordinates}
+                                  colors={Colors}/>
+                        );
                     } else {
                         throw new Error(`Unknown error to render (${order}).`);
                     }
@@ -284,7 +341,12 @@ export class SvgStandard extends React.Component {
         }
         // Adding remaining supply centers.
         for (let remainingCenter of scs) {
-            renderedSupplyCenters.push(<SupplyCenter key={remainingCenter} loc={remainingCenter}/>);
+            renderedSupplyCenters.push(
+                <SupplyCenter key={remainingCenter}
+                              loc={remainingCenter}
+                              coordinates={Coordinates}
+                              symbolSizes={SymbolSizes}/>
+            );
         }
 
         if (this.props.orderBuilding && this.props.orderBuilding.path.length) {
@@ -311,7 +373,7 @@ export class SvgStandard extends React.Component {
         }
 
         return (
-            <svg colorRendering="optimizeQuality" height="680px" preserveAspectRatio="xMinYMin" version="1.0" viewBox="0 0 1835 1360" width="918px" xmlns="http://www.w3.org/2000/svg">
+            <svg className="SvgStandard" colorRendering="optimizeQuality" height="680px" preserveAspectRatio="xMinYMin" viewBox="0 0 1835 1360" width="918px" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <symbol id="WaivedBuild" overflow="visible" viewBox="0 0 100 100">
                         <linearGradient gradientUnits="userSpaceOnUse" id="symWBGradient" x1="15" x2="100" y1="100" y2="10">
@@ -527,26 +589,14 @@ export class SvgStandard extends React.Component {
                     <path className={classes['constantinople_water']} d="M 1348 1283 C 1350 1286 1356 1290 1357 1292 C 1359 1297 1352 1298 1349 1299 C 1334 1302 1327 1302 1314 1313 C 1314 1313 1297 1329 1297 1329 C 1294 1332 1292 1335 1287 1333 C 1282 1339 1281 1340 1285 1347 C 1291 1341 1304 1327 1311 1323 C 1318 1320 1324 1326 1335 1323 C 1341 1321 1342 1318 1347 1316 C 1347 1316 1357 1312 1357 1312 C 1357 1312 1366 1308 1366 1308 C 1366 1308 1375 1305 1375 1305 C 1371 1303 1366 1304 1363 1301 C 1359 1297 1363 1291 1371 1290 C 1366 1279 1358 1276 1348 1283 z" id="constantinople_water"/>
                     <path className={classes['_bla']} d="M 1570 1032 C 1570 1032 1546 1047 1546 1047 C 1546 1047 1511 1064 1511 1064 C 1511 1064 1483 1087 1483 1087 C 1483 1087 1462 1097 1462 1097 C 1462 1097 1474 1104 1474 1104 C 1481 1109 1488 1117 1496 1118 C 1505 1119 1513 1102 1521 1115 C 1523 1119 1523 1123 1520 1126 C 1515 1130 1507 1128 1503 1130 C 1500 1132 1499 1135 1496 1137 C 1492 1140 1489 1140 1486 1142 C 1483 1144 1478 1151 1475 1154 C 1471 1158 1467 1161 1461 1159 C 1457 1156 1454 1153 1453 1148 C 1453 1145 1454 1140 1452 1137 C 1449 1133 1442 1133 1438 1131 C 1435 1130 1432 1128 1432 1125 C 1433 1120 1438 1115 1442 1112 C 1444 1110 1448 1109 1449 1106 C 1450 1103 1448 1101 1445 1101 C 1439 1101 1428 1108 1417 1105 C 1408 1102 1409 1097 1402 1094 C 1405 1089 1409 1089 1415 1088 C 1413 1087 1413 1086 1411 1085 C 1404 1084 1389 1089 1384 1093 C 1380 1097 1378 1102 1375 1104 C 1372 1105 1369 1103 1366 1102 C 1368 1105 1371 1109 1371 1112 C 1371 1116 1368 1120 1366 1123 C 1364 1127 1362 1133 1361 1138 C 1359 1145 1360 1152 1357 1158 C 1353 1166 1347 1166 1344 1176 C 1344 1176 1339 1210 1339 1210 C 1336 1216 1332 1214 1329 1218 C 1325 1223 1327 1230 1325 1235 C 1325 1235 1322 1246 1322 1246 C 1322 1250 1325 1253 1327 1256 C 1327 1256 1337 1273 1337 1273 C 1338 1275 1340 1279 1343 1280 C 1347 1281 1350 1277 1355 1275 C 1366 1273 1370 1281 1375 1289 C 1375 1289 1400 1284 1400 1284 C 1406 1283 1414 1283 1419 1280 C 1419 1280 1442 1257 1442 1257 C 1453 1248 1463 1244 1477 1241 C 1477 1241 1501 1237 1501 1237 C 1506 1236 1507 1233 1511 1233 C 1519 1232 1522 1247 1529 1244 C 1530 1243 1532 1242 1533 1241 C 1534 1240 1536 1238 1537 1237 C 1537 1237 1552 1247 1552 1247 C 1552 1247 1553 1242 1553 1242 C 1561 1246 1570 1250 1579 1251 C 1582 1251 1584 1250 1587 1250 C 1603 1249 1607 1247 1622 1242 C 1640 1236 1637 1241 1655 1229 C 1670 1218 1687 1202 1673 1183 C 1670 1179 1665 1173 1660 1171 C 1652 1167 1640 1168 1630 1164 C 1620 1159 1611 1151 1601 1145 C 1592 1140 1583 1136 1573 1133 C 1573 1133 1556 1129 1556 1129 C 1556 1129 1543 1124 1543 1124 C 1538 1123 1533 1122 1530 1117 C 1528 1115 1527 1111 1530 1109 C 1534 1108 1539 1112 1543 1110 C 1547 1108 1546 1102 1547 1098 C 1549 1088 1555 1079 1556 1069 C 1554 1069 1551 1069 1549 1069 C 1544 1068 1540 1063 1544 1058 C 1544 1058 1565 1042 1565 1042 C 1568 1040 1571 1037 1570 1032 z" id="_bla"/>
                 </g>
-                <g id="SupplyCenterLayer">
-                    {renderedSupplyCenters}
-                </g>
+                <g id="SupplyCenterLayer">{renderedSupplyCenters}</g>
                 <g id="OrderLayer">
-                    <g id="Layer2">
-                        {renderedOrders2}
-                    </g>
-                    <g id="Layer1">
-                        {renderedOrders}
-                    </g>
+                    <g id="Layer2">{renderedOrders2}</g>
+                    <g id="Layer1">{renderedOrders}</g>
                 </g>
-                <g id="UnitLayer">
-                    {renderedUnits}
-                </g>
-                <g id="DislodgedUnitLayer">
-                    {renderedDislodgedUnits}
-                </g>
-                <g id="HighestOrderLayer">
-                    {renderedHighestOrders}
-                </g>
+                <g id="UnitLayer">{renderedUnits}</g>
+                <g id="DislodgedUnitLayer">{renderedDislodgedUnits}</g>
+                <g id="HighestOrderLayer">{renderedHighestOrders}</g>
                 <g className={classes['BriefLabelLayer']} id="BriefLabelLayer">
                     <text x="649.4" y="924.2">SWI</text>
                     <text className="labeltext18" x="849.4" y="1100.6">ADR</text>
@@ -626,15 +676,9 @@ export class SvgStandard extends React.Component {
                     <text className="labeltext18" x="496" y="653.5">YOR</text>
                 </g>
                 <rect className="currentnoterect" height="70" width="750" x="25" y="25"/>
-                <text className={classes['CurrentNote']} id="CurrentNote" x="35" y="50">
-                    {nb_centers_per_power ? nb_centers_per_power : ''}
-                </text>
-                <text className={classes['CurrentNote2']} id="CurrentNote2" x="35" y="85">
-                    {note ? note : ''}
-                </text>
-                <text className={classes['CurrentPhase']} id="CurrentPhase" x="1650" y="1325">
-                    {current_phase}
-                </text>
+                <text className={classes['CurrentNote']} id="CurrentNote" x="35" y="50">{nb_centers_per_power ? nb_centers_per_power : ''}</text>
+                <text className={classes['CurrentNote2']} id="CurrentNote2" x="35" y="85">{note ? note : ''}</text>
+                <text className={classes['CurrentPhase']} id="CurrentPhase" x="1650" y="1325">{current_phase}</text>
                 <g className={classes['MouseLayer']} id="MouseLayer" transform="translate(-195 -170)">
                     <g id="con" onClick={this.onClick} onMouseOver={this.onHover}>
                         <path d="M 1331 1267 C 1320 1272 1310 1264 1298 1274 C 1289 1282 1298 1291 1291 1305 C 1289 1310 1284 1314 1287 1316 C 1289 1319 1295 1316 1303 1317 C 1303 1317 1303 1319 1303 1319 C 1299 1321 1292 1327 1290 1332 C 1294 1330 1296 1329 1297 1324 C 1297 1324 1323 1304 1323 1304 C 1323 1304 1337 1298 1337 1298 C 1337 1298 1356 1294 1356 1294 C 1356 1294 1340 1282 1340 1282 C 1340 1282 1331 1267 1331 1267 z M 1414 1284 C 1414 1284 1389 1288 1389 1288 C 1389 1288 1375 1292 1375 1292 C 1372 1292 1361 1293 1364 1299 C 1366 1301 1376 1303 1380 1304 C 1380 1304 1380 1306 1380 1306 C 1380 1306 1367 1310 1367 1310 C 1367 1310 1357 1315 1357 1315 C 1357 1315 1348 1318 1348 1318 C 1341 1321 1342 1326 1329 1326 C 1322 1326 1314 1323 1308 1328 C 1304 1331 1290 1344 1288 1349 C 1287 1351 1287 1353 1288 1356 C 1296 1354 1305 1345 1307 1359 C 1307 1359 1307 1364 1307 1364 C 1311 1361 1315 1355 1319 1355 C 1323 1354 1328 1358 1331 1360 C 1335 1363 1340 1364 1345 1365 C 1355 1366 1363 1362 1368 1361 C 1374 1361 1378 1364 1383 1365 C 1389 1365 1393 1361 1400 1361 C 1405 1361 1407 1361 1412 1362 C 1414 1363 1418 1364 1419 1363 C 1422 1362 1424 1355 1424 1352 C 1429 1337 1427 1328 1422 1314 C 1422 1314 1416 1297 1416 1297 C 1415 1292 1416 1288 1414 1284 z M 1346 1295 C 1346 1295 1346 1296 1346 1296 C 1346 1296 1345 1295 1345 1295 C 1345 1295 1346 1295 1346 1295 z"/>

@@ -84,12 +84,10 @@ export class MapData {
         if (!abbr)
             return null;
         if (!this.provinces.hasOwnProperty(abbr)) {
-            const firstLetter = abbr[0];
-            if (firstLetter === firstLetter.toLowerCase()) {
+            if (this.provinces.hasOwnProperty(abbr.toUpperCase()))
                 abbr = abbr.toUpperCase();
-            } else {
+            else if (this.provinces.hasOwnProperty(abbr.toLowerCase()))
                 abbr = abbr.toLowerCase();
-            }
         }
         if (!this.provinces.hasOwnProperty(abbr))
             abbr = this.aliases[abbr];

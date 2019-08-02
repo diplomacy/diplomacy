@@ -56,6 +56,8 @@ export class ContentConnection extends React.Component {
                         return channel.getAvailableMaps();
                     })
                     .then(availableMaps => {
+                        for (let mapName of Object.keys(availableMaps))
+                            availableMaps[mapName].powers.sort();
                         page.availableMaps = availableMaps;
                         const userGameIndices = DipStorage.getUserGames(page.channel.username);
                         if (userGameIndices && userGameIndices.length) {

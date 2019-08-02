@@ -708,8 +708,14 @@
         	.currentphasetext {font-family:serif,sans-serif; font-size:14px; fill:black; stroke:black;}
 
 			/* Mouse Layer */
-			.invisible		{stroke:#000000;fill:#000000;fill-opacity:0.0;opacity:0.0}
-			
+			.invisibleContent		{stroke:#000000;fill:#000000;fill-opacity:0.0;opacity:0.0}
+
+			.provinceRed {fill:url(#patternRed)}
+			.provinceBrown {fill:url(#patternBrown)}
+			.provinceGreen {fill:url(#patternGreen)}
+			.provinceBlack {fill:url(#patternBlack)}
+			.provinceBlue {fill:url(#patternBlue)}
+
 			/* Nations */
 			.nopower 		{fill:#FFEEEE; stroke:black; stroke-linejoin:round}
 			.water			{fill:#DDDDFF; stroke:black; stroke-linejoin:round}
@@ -777,6 +783,8 @@
 			.symBorder          {stroke:black;stroke-width:3%;}
 			.symThinBorder      {stroke:black;stroke-width:0.4;}
 			.symSilhouette      {stroke:black;fill:black;stroke-width:1;}
+
+			.style1 {fill:darkGray}
 			
 		]]>
 		</style>
@@ -930,7 +938,7 @@
 	
 	
 	<g id="MapLayer">
-		<rect x="205" y="355" width="210" height="85" style="fill:darkGray"/>
+		<rect x="205" y="355" width="210" height="85" class="style1"/>
 		<polygon id="_ada" class="nopower" points="483,407 491,409 499,400 502,403 506,396,516,393,520,389,530,390,546,378,552,380,558,373 563,374 568,369 585,369 581,362 575,360 571,343 569,340 563,339 560,337 555,341,543,345,539,352,515,359,502,357 480,376 482,383 478,393"/>
 		<polygon id="_adr" class="water"  points="309,374 308,372 288,354 291,350 281,351 275,348 271,342 266,325 258,319 258,305 266,300 269,302 268,305 271,311 274,305 279,306 281,319 298,337 310,346 319,352 321,354 319,371 321,374"/>
 		<polygon id="_aeg" class="water"  points="361,423 357,412 362,413 361,406 369,408 366,399 355,392 362,388 353,378 356,372 363,379 368,373 365,368 389,366 395,369 391,374 393,375 390,382 398,381 400,397 397,400 402,402 404,410 408,412 404,417 413,415 413,421 402,432 390,429 376,430 371,428 368,430"/>
@@ -1277,7 +1285,7 @@
     <text x="8" y="22" class="currentnotetext" id="CurrentNote2"> </text>
     <text x="645" y="550" class="currentphasetext" id="CurrentPhase">S1901M</text>
 	
-	<g id="MouseLayer" class="invisible">
+	<g id="MouseLayer" class="invisibleContent">
 		<polygon id="ada" points="483,407 491,409 499,400 502,403 506,396,516,393,520,389,530,390,546,378,552,380,558,373 563,374 568,369 585,369 581,362 575,360 571,343 569,340 563,339 560,337 555,341,543,345,539,352,515,359,502,357 480,376 482,383 478,393"/>
 		<polygon id="adr" points="309,374 308,372 288,354 291,350 281,351 275,348 271,342 266,325 258,319 258,305 266,300 269,302 268,305 271,311 274,305 279,306 281,319 298,337 310,346 319,352 321,354 319,371 321,374"/>
 		<polygon id="aeg" points="361,423 357,412 362,413 361,406 369,408 366,399 355,392 362,388 353,378 356,372 363,379 368,373 365,368 389,366 395,369 391,374 393,375 390,382 398,381 400,397 397,400 402,402 404,410 408,412 404,417 413,415 413,421 402,432 390,429 376,430 371,428 368,430"/>

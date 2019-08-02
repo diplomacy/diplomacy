@@ -444,12 +444,12 @@
         .provtext  {text-anchor:middle; stroke-width:0.3; font-family:sans-serif; font-size:0.7em; stroke:black; fill:black;}
         .labeltext {stroke-width:0.1; stroke:black; fill:black;}
         .unordered {fill:red; stroke:black; stroke-width:1; fill-opacity:0.90;}
-        .labeltext24 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:18px;}
-        .labeltext18 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:18px;}
+        .labeltext24 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.4em;}
+        .labeltext18 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.1em;}
         .fulllabeltext {font-family:serif,sans-serif; font-style:italic; font-size:1.2em; fill:black; stroke:black;}
-        .currentnotetext {font-family:serif,sans-serif; font-size:18px; fill:black; stroke:black;}
+        .currentnotetext {font-family:serif,sans-serif; font-size:1.5em; fill:black; stroke:black;}
         .currentnoterect {fill:#c5dfea;}
-        .currentphasetext {font-family:serif,sans-serif; font-size:30px; fill:black; stroke:black;}
+        .currentphasetext {font-family:serif,sans-serif; font-size:2.5em; fill:black; stroke:black;}
 
         .labeltext24 text {cursor:default;}
 

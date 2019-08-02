@@ -31,8 +31,8 @@ export class FancyBox extends React.Component {
                         <Button title={TIMES} color={'danger'} onClick={this.props.onClose}/>
                     </div>
                 </div>
-                <div>
-                    <div className="col fancy-content">{this.props.children}</div>
+                <div className="fancy-content p-2">
+                    {this.props.children}
                 </div>
             </div>
         );

@@ -95,7 +95,7 @@ export class ContentGames extends React.Component {
     }
 
     wrapGameData(gameData) {
-        return new InlineGameView(this.getPage(), gameData);
+        return new InlineGameView(this.getPage(), gameData, this.getPage().availableMaps);
     }
 
     gameCreationButton() {

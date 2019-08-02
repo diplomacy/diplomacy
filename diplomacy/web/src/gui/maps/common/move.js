@@ -15,11 +15,13 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Colors, Coordinates, offset} from "./common";
+import {offset} from "./common";
 import PropTypes from "prop-types";
 
 export class Move extends React.Component {
     render() {
+        const Coordinates = this.props.coordinates;
+        const Colors = this.props.colors;
         const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
         let src_loc_x = 0;
@@ -65,5 +67,7 @@ Move.propTypes = {
     srcLoc: PropTypes.string.isRequired,
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
-    phaseType: PropTypes.string.isRequired
+    phaseType: PropTypes.string.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    colors: PropTypes.object.isRequired
 };
