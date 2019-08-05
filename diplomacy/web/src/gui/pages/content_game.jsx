@@ -417,7 +417,6 @@ export class ContentGame extends React.Component {
                 case 'cleared_units':
                 case 'power_orders_update':
                 case 'power_orders_flag':
-                    return this.notifiedLocalStateChange(networkGame, notification);
                 case 'game_status_update':
                 case 'omniscient_updated':
                 case 'power_vote_updated':
