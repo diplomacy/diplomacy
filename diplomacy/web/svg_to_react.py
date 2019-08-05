@@ -19,11 +19,11 @@
 """
 import argparse
 import os
+import re
 import sys
 from xml.dom import minidom, Node
-import re
-import ujson as json
 
+import ujson as json
 
 LICENSE_TEXT = """/**
 ==============================================================================
@@ -54,6 +54,7 @@ def prepend_css_selectors(prefix, css_text):
         return '%s%s %s{' % (match.group(1), prefix, match.group(2))
 
     return SELECTOR_REGEX.sub(repl, css_text)
+
 
 class ExtractedData:
     __slots__ = ('name', 'extra', 'style_lines', 'id_to_class')
