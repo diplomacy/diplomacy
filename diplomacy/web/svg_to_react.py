@@ -83,6 +83,8 @@ def safe_react_attribute_name(name):
         for piece in input_pieces[1:]:
             output_pieces.append('%s%s' % (piece[0].upper(), piece[1:]))
         return ''.join(output_pieces)
+    if name == 'xlink:href':
+        return 'href'
     # Otherwise, return name as-is.
     return name
 
@@ -246,9 +248,7 @@ def extract_dom(node, nb_indentation, lines, data):
                 attributes['className'] = data.name
         if node_id:
             if not child_lines:
-                if node_id == 'SupplyCenterLayer':
-                    child_lines.append('{renderedSupplyCenters}')
-                elif node_id == 'Layer2':
+                if node_id == 'Layer2':
                     child_lines.append('{renderedOrders2}')
                 elif node_id == 'Layer1':
                     child_lines.append('{renderedOrders}')
@@ -358,7 +358,6 @@ import {UTILS} from "../../../diplomacy/utils/utils";
 import {Diplog} from "../../../diplomacy/utils/diplog";
 import {extendOrderBuilding} from "../../utils/order_building";
 import {Unit} from "../common/unit";
-import {SupplyCenter} from "../common/supplyCenter";
 import {Hold} from "../common/hold";
 import {Move} from "../common/move";
 import {SupportMove} from "../common/supportMove";
@@ -523,11 +522,9 @@ export class %(classname)s extends React.Component {
         const nb_centers_per_power = nb_centers.map((couple) => (couple[0] + ': ' + couple[1])).join(' ');
         const note = game.note;
 
-        //// Adding units, supply centers, influence and orders.
-        const scs = new Set(mapData.supplyCenters);
+        //// Adding units, influence and orders.
         const renderedUnits = [];
         const renderedDislodgedUnits = [];
-        const renderedSupplyCenters = [];
         const renderedOrders = [];
         const renderedOrders2 = [];
         const renderedHighestOrders = [];
@@ -553,15 +550,7 @@ export class %(classname)s extends React.Component {
                 );
             }
             for (let center of power.centers) {
-                renderedSupplyCenters.push(
-                    <SupplyCenter key={center}
-                                  loc={center}
-                                  powerName={power.name}
-                                  coordinates={Coordinates}
-                                  symbolSizes={SymbolSizes}/>
-                );
                 setInfluence(classes, mapData, center, power.name);
-                scs.delete(center);
             }
             if (!power.isEliminated()) {
                 for (let loc of power.influence) {
@@ -666,15 +655,6 @@ export class %(classname)s extends React.Component {
                     }
                 }
             }
-        }
-        // Adding remaining supply centers.
-        for (let remainingCenter of scs) {
-            renderedSupplyCenters.push(
-                <SupplyCenter key={remainingCenter}
-                              loc={remainingCenter}
-                              coordinates={Coordinates}
-                              symbolSizes={SymbolSizes}/>
-            );
         }
 
         if (this.props.orderBuilding && this.props.orderBuilding.path.length) {

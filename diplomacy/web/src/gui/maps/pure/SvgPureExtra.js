@@ -180,10 +180,6 @@ export const SvgPureExtra = {
                     "x":"777",
                     "y":"190"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"664",
-                    "y":"149"
-                },
                 "name":"vie"
             },
             {
@@ -194,10 +190,6 @@ export const SvgPureExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"905",
                     "y":"509"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"874",
-                    "y":"404"
                 },
                 "name":"lon"
             },
@@ -210,10 +202,6 @@ export const SvgPureExtra = {
                     "x":"734",
                     "y":"810"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"800",
-                    "y":"734"
-                },
                 "name":"par"
             },
             {
@@ -224,10 +212,6 @@ export const SvgPureExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"389",
                     "y":"859"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"497",
-                    "y":"885"
                 },
                 "name":"ber"
             },
@@ -240,10 +224,6 @@ export const SvgPureExtra = {
                     "x":"143",
                     "y":"623"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"193",
-                    "y":"738"
-                },
                 "name":"rom"
             },
             {
@@ -255,10 +235,6 @@ export const SvgPureExtra = {
                     "x":"167",
                     "y":"384"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"119",
-                    "y":"409"
-                },
                 "name":"mos"
             },
             {
@@ -269,10 +245,6 @@ export const SvgPureExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"439",
                     "y":"93"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"331",
-                    "y":"147"
                 },
                 "name":"con"
             }

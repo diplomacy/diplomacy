@@ -213,10 +213,6 @@ export const SvgStandardExtra = {
                     "x":"1300.5",
                     "y":"1107.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1271",
-                    "y":"1144"
-                },
                 "name":"ank"
             },
             {
@@ -272,10 +268,6 @@ export const SvgStandardExtra = {
                     "x":"560.5",
                     "y":"750.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"575",
-                    "y":"755"
-                },
                 "name":"bel"
             },
             {
@@ -286,10 +278,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"770.5",
                     "y":"687.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"783",
-                    "y":"736"
                 },
                 "name":"ber"
             },
@@ -335,10 +323,6 @@ export const SvgStandardExtra = {
                     "x":"403.5",
                     "y":"816.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"369",
-                    "y":"799"
-                },
                 "name":"bre"
             },
             {
@@ -350,10 +334,6 @@ export const SvgStandardExtra = {
                     "x":"949.5",
                     "y":"901.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"900",
-                    "y":"916"
-                },
                 "name":"bud"
             },
             {
@@ -364,10 +344,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"1047.5",
                     "y":"1065.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1013",
-                    "y":"1078"
                 },
                 "name":"bul"
             },
@@ -391,10 +367,6 @@ export const SvgStandardExtra = {
                     "x":"435.5",
                     "y":"489.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"446",
-                    "y":"480"
-                },
                 "name":"cly"
             },
             {
@@ -406,10 +378,6 @@ export const SvgStandardExtra = {
                     "x":"1144.5",
                     "y":"1134.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1141",
-                    "y":"1119"
-                },
                 "name":"con"
             },
             {
@@ -420,10 +388,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"702.5",
                     "y":"584.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"767",
-                    "y":"626"
                 },
                 "name":"den"
             },
@@ -446,10 +410,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"472.5",
                     "y":"511.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"489",
-                    "y":"565"
                 },
                 "name":"edi"
             },
@@ -517,10 +477,6 @@ export const SvgStandardExtra = {
                     "x":"965.5",
                     "y":"1187.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1023",
-                    "y":"1237"
-                },
                 "name":"gre"
             },
             {
@@ -542,10 +498,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"595.5",
                     "y":"708.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"630",
-                    "y":"692"
                 },
                 "name":"hol"
             },
@@ -580,10 +532,6 @@ export const SvgStandardExtra = {
                     "x":"682.5",
                     "y":"698.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"724",
-                    "y":"685"
-                },
                 "name":"kie"
             },
             {
@@ -594,10 +542,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"487.5",
                     "y":"672.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"489",
-                    "y":"717"
                 },
                 "name":"lon"
             },
@@ -621,10 +565,6 @@ export const SvgStandardExtra = {
                     "x":"449.5",
                     "y":"573.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"458",
-                    "y":"638"
-                },
                 "name":"lvp"
             },
             {
@@ -646,10 +586,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"523.5",
                     "y":"972.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"562",
-                    "y":"1018"
                 },
                 "name":"mar"
             },
@@ -684,10 +620,6 @@ export const SvgStandardExtra = {
                     "x":"1199.5",
                     "y":"587.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1267",
-                    "y":"584"
-                },
                 "name":"mos"
             },
             {
@@ -698,10 +630,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"692.5",
                     "y":"825.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"730",
-                    "y":"878"
                 },
                 "name":"mun"
             },
@@ -735,10 +663,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"815.5",
                     "y":"1167.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"778",
-                    "y":"1143"
                 },
                 "name":"nap"
             },
@@ -795,10 +719,6 @@ export const SvgStandardExtra = {
                     "x":"702.5",
                     "y":"407.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"761",
-                    "y":"463"
-                },
                 "name":"nwy"
             },
             {
@@ -809,10 +729,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"487.5",
                     "y":"842.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"518",
-                    "y":"819"
                 },
                 "name":"par"
             },
@@ -847,10 +763,6 @@ export const SvgStandardExtra = {
                     "x":"180.5",
                     "y":"1010.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"151",
-                    "y":"1060"
-                },
                 "name":"por"
             },
             {
@@ -872,10 +784,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"730.5",
                     "y":"1099.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"719",
-                    "y":"1087"
                 },
                 "name":"rom"
             },
@@ -899,10 +807,6 @@ export const SvgStandardExtra = {
                     "x":"1095.5",
                     "y":"964.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1083",
-                    "y":"1014"
-                },
                 "name":"rum"
             },
             {
@@ -914,10 +818,6 @@ export const SvgStandardExtra = {
                     "x":"932.5",
                     "y":"1047.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"936",
-                    "y":"1021"
-                },
                 "name":"ser"
             },
             {
@@ -928,10 +828,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"1283.5",
                     "y":"842.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1267",
-                    "y":"973"
                 },
                 "name":"sev"
             },
@@ -966,10 +862,6 @@ export const SvgStandardExtra = {
                     "x":"1252.5",
                     "y":"1207.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1132",
-                    "y":"1222"
-                },
                 "name":"smy"
             },
             {
@@ -980,10 +872,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"334.5",
                     "y":"1036.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"302",
-                    "y":"1056"
                 },
                 "name":"spa"
             },
@@ -996,10 +884,6 @@ export const SvgStandardExtra = {
                     "x":"1165.5",
                     "y":"402.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"1113",
-                    "y":"469"
-                },
                 "name":"stp"
             },
             {
@@ -1010,10 +894,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"828.5",
                     "y":"456.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"890",
-                    "y":"489"
                 },
                 "name":"swe"
             },
@@ -1048,10 +928,6 @@ export const SvgStandardExtra = {
                     "x":"824.5",
                     "y":"993.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"794",
-                    "y":"975"
-                },
                 "name":"tri"
             },
             {
@@ -1062,10 +938,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"621.5",
                     "y":"1297.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"647",
-                    "y":"1282"
                 },
                 "name":"tun"
             },
@@ -1133,10 +1005,6 @@ export const SvgStandardExtra = {
                     "x":"706.5",
                     "y":"991.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"733",
-                    "y":"971"
-                },
                 "name":"ven"
             },
             {
@@ -1147,10 +1015,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"854.5",
                     "y":"861.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"835",
-                    "y":"887"
                 },
                 "name":"vie"
             },
@@ -1163,10 +1027,6 @@ export const SvgStandardExtra = {
                     "x":"427.5",
                     "y":"655.5"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"440",
-                    "y":"712"
-                },
                 "name":"wal"
             },
             {
@@ -1177,10 +1037,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"982.5",
                     "y":"737.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"937",
-                    "y":"748"
                 },
                 "name":"war"
             },
@@ -1203,10 +1059,6 @@ export const SvgStandardExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"491.5",
                     "y":"613.5"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"506",
-                    "y":"647"
                 },
                 "name":"yor"
             },

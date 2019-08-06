@@ -63,7 +63,6 @@
         <jdipNS:PROVINCE name="ank">
             <jdipNS:UNIT x="1313" y="1120"/>
             <jdipNS:DISLODGED_UNIT x="1300.5" y="1107.5"/>
-            <jdipNS:SUPPLY_CENTER x="1271" y="1144"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="apu">
             <jdipNS:UNIT x="803" y="1116"/>
@@ -84,12 +83,10 @@
         <jdipNS:PROVINCE name="bel">
             <jdipNS:UNIT x="573" y="763"/>
             <jdipNS:DISLODGED_UNIT x="560.5" y="750.5"/>
-            <jdipNS:SUPPLY_CENTER x="575" y="755"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="ber">
             <jdipNS:UNIT x="783" y="700"/>
             <jdipNS:DISLODGED_UNIT x="770.5" y="687.5"/>
-            <jdipNS:SUPPLY_CENTER x="783" y="736"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="bla">
             <jdipNS:UNIT x="1245" y="1010"/>
@@ -106,17 +103,14 @@
         <jdipNS:PROVINCE name="bre">
             <jdipNS:UNIT x="416" y="829"/>
             <jdipNS:DISLODGED_UNIT x="403.5" y="816.5"/>
-            <jdipNS:SUPPLY_CENTER x="369" y="799"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="bud">
             <jdipNS:UNIT x="962" y="914"/>
             <jdipNS:DISLODGED_UNIT x="949.5" y="901.5"/>
-            <jdipNS:SUPPLY_CENTER x="900" y="916"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="bul">
             <jdipNS:UNIT x="1060" y="1078"/>
             <jdipNS:DISLODGED_UNIT x="1047.5" y="1065.5"/>
-            <jdipNS:SUPPLY_CENTER x="1013" y="1078"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="bur">
             <jdipNS:UNIT x="571" y="881"/>
@@ -125,17 +119,14 @@
         <jdipNS:PROVINCE name="cly">
             <jdipNS:UNIT x="448" y="502"/>
             <jdipNS:DISLODGED_UNIT x="435.5" y="489.5"/>
-            <jdipNS:SUPPLY_CENTER x="446" y="480"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="con">
             <jdipNS:UNIT x="1157" y="1147"/>
             <jdipNS:DISLODGED_UNIT x="1144.5" y="1134.5"/>
-            <jdipNS:SUPPLY_CENTER x="1141" y="1119"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="den">
             <jdipNS:UNIT x="715" y="597"/>
             <jdipNS:DISLODGED_UNIT x="702.5" y="584.5"/>
-            <jdipNS:SUPPLY_CENTER x="767" y="626"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="eas">
             <jdipNS:UNIT x="1230" y="1321"/>
@@ -144,7 +135,6 @@
         <jdipNS:PROVINCE name="edi">
             <jdipNS:UNIT x="485" y="524"/>
             <jdipNS:DISLODGED_UNIT x="472.5" y="511.5"/>
-            <jdipNS:SUPPLY_CENTER x="489" y="565"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="eng">
             <jdipNS:UNIT x="406" y="761"/>
@@ -169,7 +159,6 @@
         <jdipNS:PROVINCE name="gre">
             <jdipNS:UNIT x="978" y="1200"/>
             <jdipNS:DISLODGED_UNIT x="965.5" y="1187.5"/>
-            <jdipNS:SUPPLY_CENTER x="1023" y="1237"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="hel">
             <jdipNS:UNIT x="663" y="641"/>
@@ -178,7 +167,6 @@
         <jdipNS:PROVINCE name="hol">
             <jdipNS:UNIT x="608" y="721"/>
             <jdipNS:DISLODGED_UNIT x="595.5" y="708.5"/>
-            <jdipNS:SUPPLY_CENTER x="630" y="692"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="ion">
             <jdipNS:UNIT x="858" y="1296"/>
@@ -191,12 +179,10 @@
         <jdipNS:PROVINCE name="kie">
             <jdipNS:UNIT x="695" y="711"/>
             <jdipNS:DISLODGED_UNIT x="682.5" y="698.5"/>
-            <jdipNS:SUPPLY_CENTER x="724" y="685"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="lon">
             <jdipNS:UNIT x="500" y="685"/>
             <jdipNS:DISLODGED_UNIT x="487.5" y="672.5"/>
-            <jdipNS:SUPPLY_CENTER x="489" y="717"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="lvn">
             <jdipNS:UNIT x="1037" y="577"/>
@@ -205,7 +191,6 @@
         <jdipNS:PROVINCE name="lvp">
             <jdipNS:UNIT x="462" y="586"/>
             <jdipNS:DISLODGED_UNIT x="449.5" y="573.5"/>
-            <jdipNS:SUPPLY_CENTER x="458" y="638"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="lyo">
             <jdipNS:UNIT x="525.8" y="1065"/>
@@ -214,7 +199,6 @@
         <jdipNS:PROVINCE name="mar">
             <jdipNS:UNIT x="536" y="985"/>
             <jdipNS:DISLODGED_UNIT x="523.5" y="972.5"/>
-            <jdipNS:SUPPLY_CENTER x="562" y="1018"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="mao">
             <jdipNS:UNIT x="153.3" y="845.3"/>
@@ -227,12 +211,10 @@
         <jdipNS:PROVINCE name="mos">
             <jdipNS:UNIT x="1212" y="600"/>
             <jdipNS:DISLODGED_UNIT x="1199.5" y="587.5"/>
-            <jdipNS:SUPPLY_CENTER x="1267" y="584"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="mun">
             <jdipNS:UNIT x="705" y="838"/>
             <jdipNS:DISLODGED_UNIT x="692.5" y="825.5"/>
-            <jdipNS:SUPPLY_CENTER x="730" y="878"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="naf">
             <jdipNS:UNIT x="337" y="1291"/>
@@ -245,7 +227,6 @@
         <jdipNS:PROVINCE name="nap">
             <jdipNS:UNIT x="818" y="1180"/>
             <jdipNS:DISLODGED_UNIT x="815.5" y="1167.5"/>
-            <jdipNS:SUPPLY_CENTER x="778" y="1143"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="nat">
             <jdipNS:UNIT x="238" y="427"/>
@@ -266,12 +247,10 @@
         <jdipNS:PROVINCE name="nwy">
             <jdipNS:UNIT x="715" y="420"/>
             <jdipNS:DISLODGED_UNIT x="702.5" y="407.5"/>
-            <jdipNS:SUPPLY_CENTER x="761" y="463"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="par">
             <jdipNS:UNIT x="500" y="855"/>
             <jdipNS:DISLODGED_UNIT x="487.5" y="842.5"/>
-            <jdipNS:SUPPLY_CENTER x="518" y="819"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="pic">
             <jdipNS:UNIT x="535" y="791"/>
@@ -284,7 +263,6 @@
         <jdipNS:PROVINCE name="por">
             <jdipNS:UNIT x="193" y="1023"/>
             <jdipNS:DISLODGED_UNIT x="180.5" y="1010.5"/>
-            <jdipNS:SUPPLY_CENTER x="151" y="1060"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="pru">
             <jdipNS:UNIT x="877" y="700"/>
@@ -293,7 +271,6 @@
         <jdipNS:PROVINCE name="rom">
             <jdipNS:UNIT x="743" y="1112"/>
             <jdipNS:DISLODGED_UNIT x="730.5" y="1099.5"/>
-            <jdipNS:SUPPLY_CENTER x="719" y="1087"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="ruh">
             <jdipNS:UNIT x="648" y="789"/>
@@ -302,17 +279,14 @@
         <jdipNS:PROVINCE name="rum">
             <jdipNS:UNIT x="1108" y="977"/>
             <jdipNS:DISLODGED_UNIT x="1095.5" y="964.5"/>
-            <jdipNS:SUPPLY_CENTER x="1083" y="1014"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="ser">
             <jdipNS:UNIT x="945" y="1060"/>
             <jdipNS:DISLODGED_UNIT x="932.5" y="1047.5"/>
-            <jdipNS:SUPPLY_CENTER x="936" y="1021"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="sev">
             <jdipNS:UNIT x="1296" y="855"/>
             <jdipNS:DISLODGED_UNIT x="1283.5" y="842.5"/>
-            <jdipNS:SUPPLY_CENTER x="1267" y="973"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="sil">
             <jdipNS:UNIT x="844" y="779"/>
@@ -325,22 +299,18 @@
         <jdipNS:PROVINCE name="smy">
             <jdipNS:UNIT x="1265" y="1220"/>
             <jdipNS:DISLODGED_UNIT x="1252.5" y="1207.5"/>
-            <jdipNS:SUPPLY_CENTER x="1132" y="1222"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="spa">
             <jdipNS:UNIT x="347" y="1049"/>
             <jdipNS:DISLODGED_UNIT x="334.5" y="1036.5"/>
-            <jdipNS:SUPPLY_CENTER x="302" y="1056"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="stp">
             <jdipNS:UNIT x="1178" y="415"/>
             <jdipNS:DISLODGED_UNIT x="1165.5" y="402.5"/>
-            <jdipNS:SUPPLY_CENTER x="1113" y="469"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="swe">
             <jdipNS:UNIT x="841" y="469"/>
             <jdipNS:DISLODGED_UNIT x="828.5" y="456.5"/>
-            <jdipNS:SUPPLY_CENTER x="890" y="489"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="swi">
             <jdipNS:UNIT x="642" y="928"/>
@@ -353,12 +323,10 @@
         <jdipNS:PROVINCE name="tri">
             <jdipNS:UNIT x="837" y="1006"/>
             <jdipNS:DISLODGED_UNIT x="824.5" y="993.5"/>
-            <jdipNS:SUPPLY_CENTER x="794" y="975"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="tun">
             <jdipNS:UNIT x="634" y="1310"/>
             <jdipNS:DISLODGED_UNIT x="621.5" y="1297.5"/>
-            <jdipNS:SUPPLY_CENTER x="647" y="1282"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="tus">
             <jdipNS:UNIT x="698" y="1044"/>
@@ -383,22 +351,18 @@
         <jdipNS:PROVINCE name="ven">
             <jdipNS:UNIT x="719" y="1004"/>
             <jdipNS:DISLODGED_UNIT x="706.5" y="991.5"/>
-            <jdipNS:SUPPLY_CENTER x="733" y="971"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="vie">
             <jdipNS:UNIT x="867" y="874"/>
             <jdipNS:DISLODGED_UNIT x="854.5" y="861.5"/>
-            <jdipNS:SUPPLY_CENTER x="835" y="887"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="wal">
             <jdipNS:UNIT x="440" y="668"/>
             <jdipNS:DISLODGED_UNIT x="427.5" y="655.5"/>
-            <jdipNS:SUPPLY_CENTER x="440" y="712"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="war">
             <jdipNS:UNIT x="995" y="750"/>
             <jdipNS:DISLODGED_UNIT x="982.5" y="737.5"/>
-            <jdipNS:SUPPLY_CENTER x="937" y="748"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="wes">
             <jdipNS:UNIT x="474" y="1173"/>
@@ -407,7 +371,6 @@
         <jdipNS:PROVINCE name="yor">
             <jdipNS:UNIT x="504" y="626"/>
             <jdipNS:DISLODGED_UNIT x="491.5" y="613.5"/>
-            <jdipNS:SUPPLY_CENTER x="506" y="647"/>
         </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="stp-nc">
             <jdipNS:UNIT x="1218" y="222"/>
@@ -779,7 +742,42 @@
     </g>
 
     <!-- drawing layer: supply centers -->
-    <g id="SupplyCenterLayer"/>
+    <g id="SupplyCenterLayer">
+        <use class="scnopower" height="20" id="sc_BUD" width="20" x="891.5" xlink:href="#SupplyCenter" y="905.0"/>
+        <use class="scnopower" height="20" id="sc_TRI" width="20" x="785.5" xlink:href="#SupplyCenter" y="964.0"/>
+        <use class="scnopower" height="20" id="sc_VIE" width="20" x="826.5" xlink:href="#SupplyCenter" y="876.0"/>
+        <use class="scnopower" height="20" id="sc_EDI" width="20" x="480.5" xlink:href="#SupplyCenter" y="554.0"/>
+        <use class="scnopower" height="20" id="sc_LON" width="20" x="480.5" xlink:href="#SupplyCenter" y="706.0"/>
+        <use class="scnopower" height="20" id="sc_LVP" width="20" x="449.5" xlink:href="#SupplyCenter" y="627.0"/>
+        <use class="scnopower" height="20" id="sc_BRE" width="20" x="360.5" xlink:href="#SupplyCenter" y="788.0"/>
+        <use class="scnopower" height="20" id="sc_MAR" width="20" x="553.5" xlink:href="#SupplyCenter" y="1007.0"/>
+        <use class="scnopower" height="20" id="sc_PAR" width="20" x="509.5" xlink:href="#SupplyCenter" y="808.0"/>
+        <use class="scnopower" height="20" id="sc_BER" width="20" x="774.5" xlink:href="#SupplyCenter" y="725.0"/>
+        <use class="scnopower" height="20" id="sc_KIE" width="20" x="715.5" xlink:href="#SupplyCenter" y="674.0"/>
+        <use class="scnopower" height="20" id="sc_MUN" width="20" x="721.5" xlink:href="#SupplyCenter" y="867.0"/>
+        <use class="scnopower" height="20" id="sc_NAP" width="20" x="769.5" xlink:href="#SupplyCenter" y="1132.0"/>
+        <use class="scnopower" height="20" id="sc_ROM" width="20" x="710.5" xlink:href="#SupplyCenter" y="1076.0"/>
+        <use class="scnopower" height="20" id="sc_VEN" width="20" x="724.5" xlink:href="#SupplyCenter" y="960.0"/>
+        <use class="scnopower" height="20" id="sc_MOS" width="20" x="1258.5" xlink:href="#SupplyCenter" y="573.0"/>
+        <use class="scnopower" height="20" id="sc_SEV" width="20" x="1258.5" xlink:href="#SupplyCenter" y="962.0"/>
+        <use class="scnopower" height="20" id="sc_STP" width="20" x="1104.5" xlink:href="#SupplyCenter" y="458.0"/>
+        <use class="scnopower" height="20" id="sc_WAR" width="20" x="928.5" xlink:href="#SupplyCenter" y="737.0"/>
+        <use class="scnopower" height="20" id="sc_ANK" width="20" x="1262.5" xlink:href="#SupplyCenter" y="1133.0"/>
+        <use class="scnopower" height="20" id="sc_CON" width="20" x="1132.5" xlink:href="#SupplyCenter" y="1108.0"/>
+        <use class="scnopower" height="20" id="sc_SMY" width="20" x="1123.5" xlink:href="#SupplyCenter" y="1211.0"/>
+        <use class="scnopower" height="20" id="sc_BEL" width="20" x="566.5" xlink:href="#SupplyCenter" y="744.0"/>
+        <use class="scnopower" height="20" id="sc_BUL" width="20" x="1004.5" xlink:href="#SupplyCenter" y="1067.0"/>
+        <use class="scnopower" height="20" id="sc_DEN" width="20" x="758.5" xlink:href="#SupplyCenter" y="615.0"/>
+        <use class="scnopower" height="20" id="sc_GRE" width="20" x="1014.5" xlink:href="#SupplyCenter" y="1226.0"/>
+        <use class="scnopower" height="20" id="sc_HOL" width="20" x="621.5" xlink:href="#SupplyCenter" y="681.0"/>
+        <use class="scnopower" height="20" id="sc_NWY" width="20" x="752.5" xlink:href="#SupplyCenter" y="452.0"/>
+        <use class="scnopower" height="20" id="sc_POR" width="20" x="142.5" xlink:href="#SupplyCenter" y="1049.0"/>
+        <use class="scnopower" height="20" id="sc_RUM" width="20" x="1074.5" xlink:href="#SupplyCenter" y="1003.0"/>
+        <use class="scnopower" height="20" id="sc_SER" width="20" x="927.5" xlink:href="#SupplyCenter" y="1010.0"/>
+        <use class="scnopower" height="20" id="sc_SPA" width="20" x="293.5" xlink:href="#SupplyCenter" y="1045.0"/>
+        <use class="scnopower" height="20" id="sc_SWE" width="20" x="881.5" xlink:href="#SupplyCenter" y="478.0"/>
+        <use class="scnopower" height="20" id="sc_TUN" width="20" x="638.5" xlink:href="#SupplyCenter" y="1271.0"/>
+    </g>
 
     <!-- drawing layer: orders -->
     <g id="OrderLayer">

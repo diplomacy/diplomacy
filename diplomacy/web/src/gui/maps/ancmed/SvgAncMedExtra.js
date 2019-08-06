@@ -194,10 +194,6 @@ export const SvgAncMedExtra = {
                     "x":"722",
                     "y":"509"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"732.7",
-                    "y":"501.2"
-                },
                 "name":"ale"
             },
             {
@@ -208,10 +204,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"928",
                     "y":"309"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"907.3",
-                    "y":"331.4"
                 },
                 "name":"ant"
             },
@@ -257,10 +249,6 @@ export const SvgAncMedExtra = {
                     "x":"598",
                     "y":"305"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"623",
-                    "y":"314.4"
-                },
                 "name":"ath"
             },
             {
@@ -282,10 +270,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"170",
                     "y":"245"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"191.7",
-                    "y":"249.4"
                 },
                 "name":"bal"
             },
@@ -342,10 +326,6 @@ export const SvgAncMedExtra = {
                     "x":"699",
                     "y":"247"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"686.4",
-                    "y":"267.2"
-                },
                 "name":"byz"
             },
             {
@@ -368,10 +348,6 @@ export const SvgAncMedExtra = {
                     "x":"320",
                     "y":"377"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"327.4",
-                    "y":"364.7"
-                },
                 "name":"car"
             },
             {
@@ -382,10 +358,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"898",
                     "y":"64"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"874.9",
-                    "y":"86.9"
                 },
                 "name":"che"
             },
@@ -409,10 +381,6 @@ export const SvgAncMedExtra = {
                     "x":"253",
                     "y":"447"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"264",
-                    "y":"445.1"
-                },
                 "name":"cir"
             },
             {
@@ -435,10 +403,6 @@ export const SvgAncMedExtra = {
                     "x":"667",
                     "y":"387"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"679.9",
-                    "y":"394"
-                },
                 "name":"cre"
             },
             {
@@ -450,10 +414,6 @@ export const SvgAncMedExtra = {
                     "x":"847",
                     "y":"373"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"817",
-                    "y":"388"
-                },
                 "name":"cyp"
             },
             {
@@ -464,10 +424,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"642",
                     "y":"513"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"597.9",
-                    "y":"476"
                 },
                 "name":"cyr"
             },
@@ -491,10 +447,6 @@ export const SvgAncMedExtra = {
                     "x":"519",
                     "y":"183"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"463.8",
-                    "y":"150.3"
-                },
                 "name":"dal"
             },
             {
@@ -505,10 +457,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"990",
                     "y":"313"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"953.6",
-                    "y":"281.1"
                 },
                 "name":"dam"
             },
@@ -653,10 +601,6 @@ export const SvgAncMedExtra = {
                     "x":"916",
                     "y":"456"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"896",
-                    "y":"447.6"
-                },
                 "name":"jer"
             },
             {
@@ -667,10 +611,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"485",
                     "y":"538"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"407.8",
-                    "y":"505.3"
                 },
                 "name":"lep"
             },
@@ -716,10 +656,6 @@ export const SvgAncMedExtra = {
                     "x":"628",
                     "y":"236"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"613.3",
-                    "y":"254.3"
-                },
                 "name":"mac"
             },
             {
@@ -741,10 +677,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"270",
                     "y":"132"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"265.6",
-                    "y":"166.5"
                 },
                 "name":"mas"
             },
@@ -768,10 +700,6 @@ export const SvgAncMedExtra = {
                     "x":"800",
                     "y":"559"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"800.1",
-                    "y":"597.9"
-                },
                 "name":"mem"
             },
             {
@@ -793,10 +721,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"747",
                     "y":"318"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"720.5",
-                    "y":"320.9"
                 },
                 "name":"mil"
             },
@@ -831,10 +755,6 @@ export const SvgAncMedExtra = {
                     "x":"474",
                     "y":"279"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"429.7",
-                    "y":"243.7"
-                },
                 "name":"nea"
             },
             {
@@ -846,10 +766,6 @@ export const SvgAncMedExtra = {
                     "x":"360",
                     "y":"476"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"376.1",
-                    "y":"484.1"
-                },
                 "name":"num"
             },
             {
@@ -860,10 +776,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"934",
                     "y":"513"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"913",
-                    "y":"490.6"
                 },
                 "name":"pet"
             },
@@ -898,10 +810,6 @@ export const SvgAncMedExtra = {
                     "x":"408",
                     "y":"174"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"386.7",
-                    "y":"164.1"
-                },
                 "name":"rav"
             },
             {
@@ -935,10 +843,6 @@ export const SvgAncMedExtra = {
                     "x":"385",
                     "y":"193"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"359",
-                    "y":"174.6"
-                },
                 "name":"rom"
             },
             {
@@ -949,10 +853,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"75",
                     "y":"307"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"106.4",
-                    "y":"314.4"
                 },
                 "name":"sag"
             },
@@ -976,10 +876,6 @@ export const SvgAncMedExtra = {
                     "x":"321",
                     "y":"269"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"309.5",
-                    "y":"288.4"
-                },
                 "name":"sad"
             },
             {
@@ -1002,10 +898,6 @@ export const SvgAncMedExtra = {
                     "x":"438",
                     "y":"338"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"407",
-                    "y":"342"
-                },
                 "name":"sic"
             },
             {
@@ -1016,10 +908,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"936",
                     "y":"360"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"910.6",
-                    "y":"372.8"
                 },
                 "name":"sid"
             },
@@ -1043,10 +931,6 @@ export const SvgAncMedExtra = {
                     "x":"882",
                     "y":"201"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"846.4",
-                    "y":"203.1"
-                },
                 "name":"sip"
             },
             {
@@ -1057,10 +941,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"600",
                     "y":"327"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"596.2",
-                    "y":"348.5"
                 },
                 "name":"spa"
             },
@@ -1095,10 +975,6 @@ export const SvgAncMedExtra = {
                     "x":"324",
                     "y":"424"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"324.1",
-                    "y":"414.3"
-                },
                 "name":"tha"
             },
             {
@@ -1110,10 +986,6 @@ export const SvgAncMedExtra = {
                     "x":"896",
                     "y":"596"
                 },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"852.9",
-                    "y":"527.2"
-                },
                 "name":"thb"
             },
             {
@@ -1124,10 +996,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"931",
                     "y":"388"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"906.5",
-                    "y":"404.5"
                 },
                 "name":"tye"
             },
@@ -1161,10 +1029,6 @@ export const SvgAncMedExtra = {
                 "jdipNS:DISLODGED_UNIT":{
                     "x":"427",
                     "y":"76"
-                },
-                "jdipNS:SUPPLY_CENTER":{
-                    "x":"433",
-                    "y":"72.3"
                 },
                 "name":"vin"
             }

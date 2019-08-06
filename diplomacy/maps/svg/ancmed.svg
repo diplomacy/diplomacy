@@ -55,12 +55,10 @@
 		<jdipNS:PROVINCE name="ale">
 			<jdipNS:UNIT x="717" y="514"/>
 			<jdipNS:DISLODGED_UNIT x="722" y="509"/>
-			<jdipNS:SUPPLY_CENTER x="732.7" y="501.2"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="ant">
 			<jdipNS:UNIT x="923" y="314"/>
 			<jdipNS:DISLODGED_UNIT x="928" y="309"/>
-			<jdipNS:SUPPLY_CENTER x="907.3" y="331.4"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="apu">
 			<jdipNS:UNIT x="455" y="232"/>
@@ -77,7 +75,6 @@
 		<jdipNS:PROVINCE name="ath">
 			<jdipNS:UNIT x="593" y="310"/>
 			<jdipNS:DISLODGED_UNIT x="598" y="305"/>
-			<jdipNS:SUPPLY_CENTER x="623" y="314.4"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="aus">
 			<jdipNS:UNIT x="497" y="392"/>
@@ -86,7 +83,6 @@
 		<jdipNS:PROVINCE name="bal">
 			<jdipNS:UNIT x="165" y="250"/>
 			<jdipNS:DISLODGED_UNIT x="170" y="245"/>
-			<jdipNS:SUPPLY_CENTER x="191.7" y="249.4"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="bay">
 			<jdipNS:UNIT x="694" y="627"/>
@@ -107,7 +103,6 @@
 		<jdipNS:PROVINCE name="byz">
 			<jdipNS:UNIT x="694" y="252"/>
 			<jdipNS:DISLODGED_UNIT x="699" y="247"/>
-			<jdipNS:SUPPLY_CENTER x="686.4" y="267.2"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="cap">
 			<jdipNS:UNIT x="877" y="279"/>
@@ -116,12 +111,10 @@
 		<jdipNS:PROVINCE name="car">
 			<jdipNS:UNIT x="315" y="382"/>
 			<jdipNS:DISLODGED_UNIT x="320" y="377"/>
-			<jdipNS:SUPPLY_CENTER x="327.4" y="364.7"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="che">
 			<jdipNS:UNIT x="893" y="69"/>
 			<jdipNS:DISLODGED_UNIT x="898" y="64"/>
-			<jdipNS:SUPPLY_CENTER x="874.9" y="86.9"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="cil">
 			<jdipNS:UNIT x="797" y="363"/>
@@ -130,7 +123,6 @@
 		<jdipNS:PROVINCE name="cir">
 			<jdipNS:UNIT x="248" y="452"/>
 			<jdipNS:DISLODGED_UNIT x="253" y="447"/>
-			<jdipNS:SUPPLY_CENTER x="264" y="445.1"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="cor">
 			<jdipNS:UNIT x="319" y="225"/>
@@ -139,17 +131,14 @@
 		<jdipNS:PROVINCE name="cre">
 			<jdipNS:UNIT x="662" y="392"/>
 			<jdipNS:DISLODGED_UNIT x="667" y="387"/>
-			<jdipNS:SUPPLY_CENTER x="679.9" y="394"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="cyp">
 			<jdipNS:UNIT x="842" y="378"/>
 			<jdipNS:DISLODGED_UNIT x="847" y="373"/>
-			<jdipNS:SUPPLY_CENTER x="817" y="388"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="cyr">
 			<jdipNS:UNIT x="637" y="518"/>
 			<jdipNS:DISLODGED_UNIT x="642" y="513"/>
-			<jdipNS:SUPPLY_CENTER x="597.9" y="476"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="dac">
 			<jdipNS:UNIT x="633" y="148"/>
@@ -158,12 +147,10 @@
 		<jdipNS:PROVINCE name="dal">
 			<jdipNS:UNIT x="514" y="188"/>
 			<jdipNS:DISLODGED_UNIT x="519" y="183"/>
-			<jdipNS:SUPPLY_CENTER x="463.8" y="150.3"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="dam">
 			<jdipNS:UNIT x="985" y="318"/>
 			<jdipNS:DISLODGED_UNIT x="990" y="313"/>
-			<jdipNS:SUPPLY_CENTER x="953.6" y="281.1"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="egy">
 			<jdipNS:UNIT x="740" y="451"/>
@@ -216,12 +203,10 @@
 		<jdipNS:PROVINCE name="jer">
 			<jdipNS:UNIT x="911" y="461"/>
 			<jdipNS:DISLODGED_UNIT x="916" y="456"/>
-			<jdipNS:SUPPLY_CENTER x="896" y="447.6"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="lep">
 			<jdipNS:UNIT x="480" y="543"/>
 			<jdipNS:DISLODGED_UNIT x="485" y="538"/>
-			<jdipNS:SUPPLY_CENTER x="407.8" y="505.3"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="lib">
 			<jdipNS:UNIT x="556" y="438"/>
@@ -238,7 +223,6 @@
 		<jdipNS:PROVINCE name="mac">
 			<jdipNS:UNIT x="623" y="241"/>
 			<jdipNS:DISLODGED_UNIT x="628" y="236"/>
-			<jdipNS:SUPPLY_CENTER x="613.3" y="254.3"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="mar">
 			<jdipNS:UNIT x="613" y="571"/>
@@ -247,7 +231,6 @@
 		<jdipNS:PROVINCE name="mas">
 			<jdipNS:UNIT x="265" y="137"/>
 			<jdipNS:DISLODGED_UNIT x="270" y="132"/>
-			<jdipNS:SUPPLY_CENTER x="265.6" y="166.5"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="mau">
 			<jdipNS:UNIT x="124" y="420"/>
@@ -256,7 +239,6 @@
 		<jdipNS:PROVINCE name="mem">
 			<jdipNS:UNIT x="795" y="564"/>
 			<jdipNS:DISLODGED_UNIT x="800" y="559"/>
-			<jdipNS:SUPPLY_CENTER x="800.1" y="597.9"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="mes">
 			<jdipNS:UNIT x="547" y="388"/>
@@ -265,7 +247,6 @@
 		<jdipNS:PROVINCE name="mil">
 			<jdipNS:UNIT x="742" y="323"/>
 			<jdipNS:DISLODGED_UNIT x="747" y="318"/>
-			<jdipNS:SUPPLY_CENTER x="720.5" y="320.9"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="min">
 			<jdipNS:UNIT x="721" y="380"/>
@@ -278,17 +259,14 @@
 		<jdipNS:PROVINCE name="nea">
 			<jdipNS:UNIT x="469" y="284"/>
 			<jdipNS:DISLODGED_UNIT x="474" y="279"/>
-			<jdipNS:SUPPLY_CENTER x="429.7" y="243.7"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="num">
 			<jdipNS:UNIT x="355" y="481"/>
 			<jdipNS:DISLODGED_UNIT x="360" y="476"/>
-			<jdipNS:SUPPLY_CENTER x="376.1" y="484.1"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="pet">
 			<jdipNS:UNIT x="929" y="518"/>
 			<jdipNS:DISLODGED_UNIT x="934" y="513"/>
-			<jdipNS:SUPPLY_CENTER x="913" y="490.6"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="pha">
 			<jdipNS:UNIT x="412" y="563"/>
@@ -301,7 +279,6 @@
 		<jdipNS:PROVINCE name="rav">
 			<jdipNS:UNIT x="403" y="179"/>
 			<jdipNS:DISLODGED_UNIT x="408" y="174"/>
-			<jdipNS:SUPPLY_CENTER x="386.7" y="164.1"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="ree">
 			<jdipNS:UNIT x="962" y="604"/>
@@ -314,12 +291,10 @@
 		<jdipNS:PROVINCE name="rom">
 			<jdipNS:UNIT x="380" y="198"/>
 			<jdipNS:DISLODGED_UNIT x="385" y="193"/>
-			<jdipNS:SUPPLY_CENTER x="359" y="174.6"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="sag">
 			<jdipNS:UNIT x="70" y="312"/>
 			<jdipNS:DISLODGED_UNIT x="75" y="307"/>
-			<jdipNS:SUPPLY_CENTER x="106.4" y="314.4"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="sah">
 			<jdipNS:UNIT x="281" y="598"/>
@@ -328,7 +303,6 @@
 		<jdipNS:PROVINCE name="sad">
 			<jdipNS:UNIT x="316" y="274"/>
 			<jdipNS:DISLODGED_UNIT x="321" y="269"/>
-			<jdipNS:SUPPLY_CENTER x="309.5" y="288.4"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="sam">
 			<jdipNS:UNIT x="529" y="66"/>
@@ -337,12 +311,10 @@
 		<jdipNS:PROVINCE name="sic">
 			<jdipNS:UNIT x="433" y="343"/>
 			<jdipNS:DISLODGED_UNIT x="438" y="338"/>
-			<jdipNS:SUPPLY_CENTER x="407" y="342"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="sid">
 			<jdipNS:UNIT x="931" y="365"/>
 			<jdipNS:DISLODGED_UNIT x="936" y="360"/>
-			<jdipNS:SUPPLY_CENTER x="910.6" y="372.8"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="sin">
 			<jdipNS:UNIT x="883" y="500"/>
@@ -351,12 +323,10 @@
 		<jdipNS:PROVINCE name="sip">
 			<jdipNS:UNIT x="877" y="206"/>
 			<jdipNS:DISLODGED_UNIT x="882" y="201"/>
-			<jdipNS:SUPPLY_CENTER x="846.4" y="203.1"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="spa">
 			<jdipNS:UNIT x="595" y="332"/>
 			<jdipNS:DISLODGED_UNIT x="600" y="327"/>
-			<jdipNS:SUPPLY_CENTER x="596.2" y="348.5"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="syr">
 			<jdipNS:UNIT x="876" y="412"/>
@@ -369,17 +339,14 @@
 		<jdipNS:PROVINCE name="tha">
 			<jdipNS:UNIT x="319" y="429"/>
 			<jdipNS:DISLODGED_UNIT x="324" y="424"/>
-			<jdipNS:SUPPLY_CENTER x="324.1" y="414.3"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="thb">
 			<jdipNS:UNIT x="891" y="601"/>
 			<jdipNS:DISLODGED_UNIT x="896" y="596"/>
-			<jdipNS:SUPPLY_CENTER x="852.9" y="527.2"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="tye">
 			<jdipNS:UNIT x="926" y="393"/>
 			<jdipNS:DISLODGED_UNIT x="931" y="388"/>
-			<jdipNS:SUPPLY_CENTER x="906.5" y="404.5"/>
 		</jdipNS:PROVINCE>
 		<jdipNS:PROVINCE name="tyn">
 			<jdipNS:UNIT x="407" y="278"/>
@@ -392,7 +359,6 @@
 		<jdipNS:PROVINCE name="vin">
 			<jdipNS:UNIT x="422" y="81"/>
 			<jdipNS:DISLODGED_UNIT x="427" y="76"/>
-			<jdipNS:SUPPLY_CENTER x="433" y="72.3"/>
 		</jdipNS:PROVINCE>
 	</jdipNS:PROVINCE_DATA>
 	
@@ -754,7 +720,288 @@
 	</g>
 
     <!-- drawing layer: supply centers -->
-    <g id="SupplyCenterLayer"/>
+	<g id="SupplyCenterLayer">
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_CAR"
+       width="10"
+       x="318.9"
+       xlink:href="#SupplyCenter"
+       y="353.7" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_CIR"
+       width="10"
+       x="255.5"
+       xlink:href="#SupplyCenter"
+       y="434.1" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_THA"
+       width="10"
+       x="315.6"
+       xlink:href="#SupplyCenter"
+       y="403.3" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_ALE"
+       width="10"
+       x="724.2"
+       xlink:href="#SupplyCenter"
+       y="490.2" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_MEM"
+       width="10"
+       x="791.6"
+       xlink:href="#SupplyCenter"
+       y="586.9" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_THB"
+       width="10"
+       x="844.4"
+       xlink:href="#SupplyCenter"
+       y="516.2" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_SPA"
+       width="10"
+       x="587.7"
+       xlink:href="#SupplyCenter"
+       y="337.5" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_ATH"
+       width="10"
+       x="614.5"
+       xlink:href="#SupplyCenter"
+       y="303.4" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_MAC"
+       width="10"
+       x="604.8"
+       xlink:href="#SupplyCenter"
+       y="243.3" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_ANT"
+       width="10"
+       x="898.8"
+       xlink:href="#SupplyCenter"
+       y="320.4" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_SID"
+       width="10"
+       x="902.09998"
+       xlink:href="#SupplyCenter"
+       y="361.79999"
+       transform="translate(4)"/>
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_DAM"
+       width="10"
+       x="945.1"
+       xlink:href="#SupplyCenter"
+       y="270.1" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_NEA"
+       width="10"
+       x="421.2"
+       xlink:href="#SupplyCenter"
+       y="232.7" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_ROM"
+       width="10"
+       x="350.5"
+       xlink:href="#SupplyCenter"
+       y="163.6" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_RAV"
+       width="10"
+       x="378.2"
+       xlink:href="#SupplyCenter"
+       y="153.1" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_SAG"
+       width="10"
+       x="97.9"
+       xlink:href="#SupplyCenter"
+       y="303.4" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_MAS"
+       width="10"
+       x="257.1"
+       xlink:href="#SupplyCenter"
+       y="155.5" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_BAL"
+       width="10"
+       x="183.2"
+       xlink:href="#SupplyCenter"
+       y="238.39999"
+       transform="translate(4,18)"/>
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_SAD"
+       width="10"
+       x="301.0"
+       xlink:href="#SupplyCenter"
+       y="277.4" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_SIC"
+       width="10"
+       x="398.5"
+       xlink:href="#SupplyCenter"
+       y="331.0" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_VIN"
+       width="10"
+       x="424.5"
+       xlink:href="#SupplyCenter"
+       y="61.3" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_DAL"
+       width="10"
+       x="455.3"
+       xlink:href="#SupplyCenter"
+       y="139.3" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_NUM"
+       width="10"
+       x="367.6"
+       xlink:href="#SupplyCenter"
+       y="473.1" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_LEP"
+       width="10"
+       x="399.3"
+       xlink:href="#SupplyCenter"
+       y="494.3" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_CYR"
+       width="10"
+       x="589.40002"
+       xlink:href="#SupplyCenter"
+       y="465"
+       transform="translate(0,4)"/>
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_CRE"
+       width="10"
+       x="671.40002"
+       xlink:href="#SupplyCenter"
+       y="383"
+       transform="translate(-4,4)"/>
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_CYP"
+       width="10"
+       x="808.5"
+       xlink:href="#SupplyCenter"
+       y="377"
+       transform="translate(-2,8)"/>
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_PET"
+       width="10"
+       x="904.5"
+       xlink:href="#SupplyCenter"
+       y="479.60001"
+       transform="translate(6)"/>
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_JER"
+       width="10"
+       x="887.5"
+       xlink:href="#SupplyCenter"
+       y="436.60001"
+       transform="translate(8,4)"/>
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_TYE"
+       width="10"
+       x="898.0"
+       xlink:href="#SupplyCenter"
+       y="393.5" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_SIP"
+       width="10"
+       x="837.9"
+       xlink:href="#SupplyCenter"
+       y="192.1" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_CHE"
+       width="10"
+       x="866.4"
+       xlink:href="#SupplyCenter"
+       y="75.9" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_BYZ"
+       width="10"
+       x="677.9"
+       xlink:href="#SupplyCenter"
+       y="256.2" />
+    <use
+       class="scnopower"
+       height="10"
+       id="sc_MIL"
+       width="10"
+       x="712"
+       xlink:href="#SupplyCenter"
+       y="309.89999"
+       transform="translate(4,6)"/>
+  </g>
 
     <!-- drawing layer: orders -->
     <g id="OrderLayer">

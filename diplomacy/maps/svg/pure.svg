@@ -45,37 +45,30 @@
         <jdipNS:PROVINCE name="vie">
 			<jdipNS:UNIT x="762" y="205"/>
 			<jdipNS:DISLODGED_UNIT x="777" y="190"/>
-			<jdipNS:SUPPLY_CENTER x="664" y="149"/>
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="lon">
 			<jdipNS:UNIT x="890" y="524"/>
 			<jdipNS:DISLODGED_UNIT x="905" y="509"/>
-			<jdipNS:SUPPLY_CENTER x="874" y="404"/>
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="par">
 			<jdipNS:UNIT x="719" y="825"/>
 			<jdipNS:DISLODGED_UNIT x="734" y="810"/>
-			<jdipNS:SUPPLY_CENTER x="800" y="734"/>
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="ber">
 			<jdipNS:UNIT x="374" y="874"/>
 			<jdipNS:DISLODGED_UNIT x="389" y="859"/>
-			<jdipNS:SUPPLY_CENTER x="497" y="885"/>
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="rom">
 			<jdipNS:UNIT x="128" y="638"/>
 			<jdipNS:DISLODGED_UNIT x="143" y="623"/>
-			<jdipNS:SUPPLY_CENTER x="193" y="738"/>
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="mos">
 			<jdipNS:UNIT x="152" y="299"/>
 			<jdipNS:DISLODGED_UNIT x="167" y="384"/>
-			<jdipNS:SUPPLY_CENTER x="119" y="409"/>
 		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="con">
 			<jdipNS:UNIT x="424" y="108"/>
 			<jdipNS:DISLODGED_UNIT x="439" y="93"/>
-			<jdipNS:SUPPLY_CENTER x="331" y="147"/>
 		</jdipNS:PROVINCE>
     </jdipNS:PROVINCE_DATA>
 
@@ -94,7 +87,7 @@
         .fulllabeltext {font-family:serif,sans-serif; font-style:italic; font-size:1.2em; fill:black; stroke:black;}
         .currentnotetext {font-family:serif,sans-serif; font-size:1.5em; fill:black; stroke:black;}
         .currentnoterect {fill:#c5dfea;}
-        .currentphasetext {font-family:serif,sans-serif; font-size:2.5em; fill:black; stroke:black;}
+        .currentphasetext {font-family:serif,sans-serif; fill:black; stroke:black;}
 
         .labeltext24 text {cursor:default;}
 
@@ -441,10 +434,18 @@
 	<!-- Current phase -->
     <text x="15" y="25" class="currentnotetext" id="CurrentNote"> </text>
     <text x="15" y="50" class="currentnotetext" id="CurrentNote2"> </text>
-    <text x="845" y="970" class="currentphasetext" id="CurrentPhase">S1901M</text>
+    <text x="845" y="970" class="currentphasetext" id="CurrentPhase" font-size="30">S1901M</text>
 
     <!-- drawing layer: supply centers -->
-	<g id="SupplyCenterLayer"/>
+    <g id="SupplyCenterLayer">
+        <use class="scnopower" height="20" id="sc_VIE" width="20" x="655.5" xlink:href="#SupplyCenter" y="138.0"/>
+        <use class="scnopower" height="20" id="sc_LON" width="20" x="865.5" xlink:href="#SupplyCenter" y="393.0"/>
+        <use class="scnopower" height="20" id="sc_PAR" width="20" x="791.5" xlink:href="#SupplyCenter" y="723.0"/>
+        <use class="scnopower" height="20" id="sc_BER" width="20" x="488.5" xlink:href="#SupplyCenter" y="874.0"/>
+        <use class="scnopower" height="20" id="sc_ROM" width="20" x="184.5" xlink:href="#SupplyCenter" y="727.0"/>
+        <use class="scnopower" height="20" id="sc_MOS" width="20" x="110.5" xlink:href="#SupplyCenter" y="398.0"/>
+        <use class="scnopower" height="20" id="sc_CON" width="20" x="322.5" xlink:href="#SupplyCenter" y="136.0"/>
+    </g>
 
      <!-- drawing layer: orders -->
     <g id="OrderLayer">

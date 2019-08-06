@@ -23,7 +23,6 @@ from xml.dom import minidom
 from diplomacy import settings
 
 # Constants
-LAYER_SC = 'SupplyCenterLayer'
 LAYER_ORDER = 'OrderLayer'
 LAYER_UNIT = 'UnitLayer'
 LAYER_DISL = 'DislodgedUnitLayer'
@@ -87,7 +86,6 @@ class Renderer():
 
         # Parsing XML
         xml_map = minidom.parseString(self.xml_map)
-        scs = self.game.map.scs[:]
 
         # Setting phase and note
         nb_centers = [(power.name[:3], len(power.centers))
@@ -98,16 +96,14 @@ class Renderer():
         xml_map = self._set_current_phase(xml_map, self.game.get_current_phase())
         xml_map = self._set_note(xml_map, nb_centers_per_power, self.game.note)
 
-        # Adding units, supply centers, and influence
+        # Adding units and influence
         for power in self.game.powers.values():
             for unit in power.units:
                 xml_map = self._add_unit(xml_map, unit, power.name, is_dislodged=False)
             for unit in power.retreats:
                 xml_map = self._add_unit(xml_map, unit, power.name, is_dislodged=True)
             for center in power.centers:
-                xml_map = self._add_supply_center(xml_map, center, power.name)
                 xml_map = self._set_influence(xml_map, center, power.name, has_supply_center=True)
-                scs.remove(center)
             for loc in power.influence:
                 xml_map = self._set_influence(xml_map, loc, power.name, has_supply_center=False)
 
@@ -179,10 +175,6 @@ class Renderer():
                     else:
                         raise RuntimeError('Unknown order: {}'.format(order))
 
-        # Adding remaining supply centers
-        for center in scs:
-            xml_map = self._add_supply_center(xml_map, center, None)
-
         # Removing abbrev and mouse layer
         svg_node = xml_map.getElementsByTagName('svg')[0]
         for child_node in svg_node.childNodes:
@@ -248,8 +240,6 @@ class Renderer():
                             self.metadata['coord'][province]['unit'] = (_attr(coord_node, 'x'), _attr(coord_node, 'y'))
                         elif coord_node.nodeName == 'jdipNS:DISLODGED_UNIT':
                             self.metadata['coord'][province]['disl'] = (_attr(coord_node, 'x'), _attr(coord_node, 'y'))
-                        elif coord_node.nodeName == 'jdipNS:SUPPLY_CENTER':
-                            self.metadata['coord'][province]['sc'] = (_attr(coord_node, 'x'), _attr(coord_node, 'y'))
 
         # Deleting
         svg_node = xml_map.getElementsByTagName('svg')[0]
@@ -282,34 +272,6 @@ class Renderer():
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'g' \
                     and _attr(child_node, 'id') == ['UnitLayer', 'DislodgedUnitLayer'][is_dislodged]:
-                child_node.appendChild(node)
-                break
-        return xml_map
-
-    def _add_supply_center(self, xml_map, loc, power_name):
-        """ Adds a supply center to the map
-            :param xml_map: The xml map being generated
-            :param loc: The province where to add the SC (e.g. 'PAR')
-            :param power_name: The name of the power owning the SC or None
-            :return: Nothing
-        """
-        symbol = 'SupplyCenter'
-        loc_x = _offset(self.metadata['coord'][loc]['sc'][0], -8.5)
-        loc_y = _offset(self.metadata['coord'][loc]['sc'][1], -11.)
-        node = xml_map.createElement('use')
-        node.setAttribute('x', loc_x)
-        node.setAttribute('y', loc_y)
-        node.setAttribute('height', self.metadata['symbol_size'][symbol][0])
-        node.setAttribute('width', self.metadata['symbol_size'][symbol][1])
-        node.setAttribute('xlink:href', '#{}'.format(symbol))
-        if power_name:
-            node.setAttribute('class', 'sc{}'.format(power_name.lower()))
-        else:
-            node.setAttribute('class', 'scnopower')
-
-        # Inserting
-        for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
-            if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'SupplyCenterLayer':
                 child_node.appendChild(node)
                 break
         return xml_map
