@@ -1054,7 +1054,6 @@
     <!-- drawing layer: supply centers -->
 	<g id="SupplyCenterLayer">
     <use
-       class="scnopower"
        height="10"
        id="sc_LON"
        width="10"
@@ -1063,7 +1062,6 @@
        y="204.60001"
        transform="translate(-6,-4)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_LIV"
        width="10"
@@ -1072,7 +1070,6 @@
        y="170.7"
        transform="translate(-5.3588517,-6.0287081)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_EDI"
        width="10"
@@ -1081,7 +1078,6 @@
        y="141.7"
        transform="translate(-6.6985646,-6.6985646)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_GIB"
        width="10"
@@ -1089,7 +1085,6 @@
        xlink:href="#SupplyCenter"
        y="378.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_CAI"
        width="10"
@@ -1098,7 +1093,6 @@
        y="469.79999"
        transform="translate(-6,-4)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ALE"
        width="10"
@@ -1106,7 +1100,6 @@
        xlink:href="#SupplyCenter"
        y="472.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ASW"
        width="10"
@@ -1114,7 +1107,6 @@
        xlink:href="#SupplyCenter"
        y="542.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_PAR"
        width="10"
@@ -1122,7 +1114,6 @@
        xlink:href="#SupplyCenter"
        y="243.5" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BOR"
        width="10"
@@ -1130,7 +1121,6 @@
        xlink:href="#SupplyCenter"
        y="279.6" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MAR"
        width="10"
@@ -1138,7 +1128,6 @@
        xlink:href="#SupplyCenter"
        y="287.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_LYO"
        width="10"
@@ -1146,7 +1135,6 @@
        xlink:href="#SupplyCenter"
        y="273.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_HAM"
        width="10"
@@ -1154,7 +1142,6 @@
        xlink:href="#SupplyCenter"
        y="192.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BER"
        width="10"
@@ -1163,7 +1150,6 @@
        y="208"
        transform="translate(-3.3492823,-6.0287081)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_FRA"
        width="10"
@@ -1172,7 +1158,6 @@
        y="242.2"
        transform="translate(-2.6794258,-4.6889952)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MUN"
        width="10"
@@ -1181,7 +1166,6 @@
        y="267.60001"
        transform="translate(-4.6889952,-4.0191388)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MIL"
        width="10"
@@ -1190,7 +1174,6 @@
        y="308.79999"
        transform="translate(-4.6889952,-6.0287081)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_VEN"
        width="10"
@@ -1199,7 +1182,6 @@
        y="295.29999"
        transform="translate(-8.708134,-5.3588517)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ROM"
        width="10"
@@ -1207,7 +1189,6 @@
        xlink:href="#SupplyCenter"
        y="344.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_NAP"
        width="10"
@@ -1215,7 +1196,6 @@
        xlink:href="#SupplyCenter"
        y="364.8" />
     <use
-       class="scnopower"
        height="10"
        id="sc_WAR"
        width="10"
@@ -1224,7 +1204,6 @@
        y="214.5"
        transform="translate(2.0095694,-10.047847)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_GDA"
        width="10"
@@ -1232,7 +1211,6 @@
        xlink:href="#SupplyCenter"
        y="188.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_KRA"
        width="10"
@@ -1241,7 +1219,6 @@
        y="245.8"
        transform="translate(-1.3397129,-6.6985646)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MOS"
        width="10"
@@ -1249,7 +1226,6 @@
        xlink:href="#SupplyCenter"
        y="160.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_GOR"
        width="10"
@@ -1257,7 +1233,6 @@
        xlink:href="#SupplyCenter"
        y="103.5" />
     <use
-       class="scnopower"
        height="10"
        id="sc_STP"
        width="10"
@@ -1265,7 +1240,6 @@
        xlink:href="#SupplyCenter"
        y="107.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MUR"
        width="10"
@@ -1273,7 +1247,6 @@
        xlink:href="#SupplyCenter"
        y="24.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ROS"
        width="10"
@@ -1281,7 +1254,6 @@
        xlink:href="#SupplyCenter"
        y="273.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BAR"
        width="10"
@@ -1290,7 +1262,6 @@
        y="331.89999"
        transform="translate(0,-4)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MAD"
        width="10"
@@ -1298,7 +1269,6 @@
        xlink:href="#SupplyCenter"
        y="327.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SVE"
        width="10"
@@ -1307,7 +1277,6 @@
        y="363.79999"
        transform="translate(-4.6889952,-4.6889952)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ADA"
        width="10"
@@ -1316,7 +1285,6 @@
        y="400.5"
        transform="translate(-4.0191388,-5.3588517)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_IZM"
        width="10"
@@ -1324,7 +1292,6 @@
        xlink:href="#SupplyCenter"
        y="406.9" />
     <use
-       class="scnopower"
        height="10"
        id="sc_IST"
        width="10"
@@ -1332,7 +1299,6 @@
        xlink:href="#SupplyCenter"
        y="356.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ANK"
        width="10"
@@ -1341,7 +1307,6 @@
        y="365.89999"
        transform="translate(-2.0095694,-4.0191388)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SEV"
        width="10"
@@ -1350,7 +1315,6 @@
        y="300.79999"
        transform="translate(-4,-4)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_KHA"
        width="10"
@@ -1358,7 +1322,6 @@
        xlink:href="#SupplyCenter"
        y="230.8" />
     <use
-       class="scnopower"
        height="10"
        id="sc_KIE"
        width="10"
@@ -1366,7 +1329,6 @@
        xlink:href="#SupplyCenter"
        y="227.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ODE"
        width="10"
@@ -1375,7 +1337,6 @@
        y="276"
        transform="translate(-4.0191388,-7.3684211)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_IRE"
        width="10"
@@ -1383,7 +1344,6 @@
        xlink:href="#SupplyCenter"
        y="161.5" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MOR"
        width="10"
@@ -1391,7 +1351,6 @@
        xlink:href="#SupplyCenter"
        y="416.8" />
     <use
-       class="scnopower"
        height="10"
        id="sc_NWY"
        width="10"
@@ -1399,7 +1358,6 @@
        xlink:href="#SupplyCenter"
        y="109.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ISR"
        width="10"
@@ -1408,7 +1366,6 @@
        y="454.29999"
        transform="translate(-4.0191388,-6.6985646)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_LIB"
        width="10"
@@ -1416,7 +1373,6 @@
        xlink:href="#SupplyCenter"
        y="465.6" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BEL"
        width="10"
@@ -1425,7 +1381,6 @@
        y="215"
        transform="translate(-17.416268,0.66985648)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MON"
        width="10"
@@ -1434,7 +1389,6 @@
        y="298"
        transform="translate(-12,12)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SWI"
        width="10"
@@ -1443,7 +1397,6 @@
        y="271"
        transform="translate(-4)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_AUS"
        width="10"
@@ -1451,7 +1404,6 @@
        xlink:href="#SupplyCenter"
        y="266.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_DEN"
        width="10"
@@ -1460,7 +1412,6 @@
        y="168.5"
        transform="translate(-6.6985841,-6.6985841)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_HOL"
        width="10"
@@ -1468,7 +1419,6 @@
        xlink:href="#SupplyCenter"
        y="193.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_CRO"
        width="10"
@@ -1476,7 +1426,6 @@
        xlink:href="#SupplyCenter"
        y="298.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SER"
        width="10"
@@ -1484,7 +1433,6 @@
        xlink:href="#SupplyCenter"
        y="309.3" />
     <use
-       class="scnopower"
        height="10"
        id="sc_TUN"
        width="10"
@@ -1492,7 +1440,6 @@
        xlink:href="#SupplyCenter"
        y="429.5" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BIE"
        width="10"
@@ -1500,7 +1447,6 @@
        xlink:href="#SupplyCenter"
        y="189.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_CZE"
        width="10"
@@ -1509,7 +1455,6 @@
        y="238"
        transform="translate(-11.387593,-2.6794337)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_LIT"
        width="10"
@@ -1518,7 +1463,6 @@
        y="172.2"
        transform="translate(-8.038301,-4.6890089)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SWE"
        width="10"
@@ -1527,7 +1471,6 @@
        y="124.3"
        transform="translate(-2,-4)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_POR"
        width="10"
@@ -1535,7 +1478,6 @@
        xlink:href="#SupplyCenter"
        y="332.6" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BUL"
        width="10"
@@ -1543,7 +1485,6 @@
        xlink:href="#SupplyCenter"
        y="343.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_GEO"
        width="10"
@@ -1552,7 +1493,6 @@
        y="310.79999"
        transform="translate(-4.0191505,-4.6890089)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_GRE"
        width="10"
@@ -1560,7 +1500,6 @@
        xlink:href="#SupplyCenter"
        y="403.4" />
     <use
-       class="scnopower"
        height="10"
        id="sc_IRN"
        width="10"
@@ -1568,7 +1507,6 @@
        xlink:href="#SupplyCenter"
        y="370.1" />
     <use
-       class="scnopower"
        height="10"
        id="sc_RUM"
        width="10"
@@ -1577,7 +1515,6 @@
        y="311.39999"
        transform="translate(1.3397168,-6.0287257)" />
     <use
-       class="scnopower"
        height="10"
        id="sc_HUN"
        width="10"
@@ -1585,7 +1522,6 @@
        xlink:href="#SupplyCenter"
        y="273.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SAU"
        width="10"

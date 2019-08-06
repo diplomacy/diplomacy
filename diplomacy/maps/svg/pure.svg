@@ -144,17 +144,6 @@
         .unitrussia  {fill:white; fill-opacity:1.0}
         .unitturkey  {fill:yellow; fill-opacity:0.85}
 
-        /* supply center styles */
-
-        .scnopower {fill:black; stroke:black;}
-        .scaustria {fill:black; stroke:black;}
-        .scengland {fill:black; stroke:black;}
-        .scfrance  {fill:black; stroke:black;}
-        .scgermany {fill:black; stroke:black;}
-        .scitaly   {fill:black; stroke:black;}
-        .scrussia  {fill:black; stroke:black;}
-        .scturkey  {fill:black; stroke:black;}
-
         /* order drawing styles, stroke and fill colors should not be specified */
 
         .defaultorder {stroke-width:6; fill:none;}
@@ -438,13 +427,13 @@
 
     <!-- drawing layer: supply centers -->
     <g id="SupplyCenterLayer">
-        <use class="scnopower" height="20" id="sc_VIE" width="20" x="655.5" xlink:href="#SupplyCenter" y="138.0"/>
-        <use class="scnopower" height="20" id="sc_LON" width="20" x="865.5" xlink:href="#SupplyCenter" y="393.0"/>
-        <use class="scnopower" height="20" id="sc_PAR" width="20" x="791.5" xlink:href="#SupplyCenter" y="723.0"/>
-        <use class="scnopower" height="20" id="sc_BER" width="20" x="488.5" xlink:href="#SupplyCenter" y="874.0"/>
-        <use class="scnopower" height="20" id="sc_ROM" width="20" x="184.5" xlink:href="#SupplyCenter" y="727.0"/>
-        <use class="scnopower" height="20" id="sc_MOS" width="20" x="110.5" xlink:href="#SupplyCenter" y="398.0"/>
-        <use class="scnopower" height="20" id="sc_CON" width="20" x="322.5" xlink:href="#SupplyCenter" y="136.0"/>
+        <use height="20" id="sc_VIE" width="20" x="655.5" xlink:href="#SupplyCenter" y="138.0"/>
+        <use height="20" id="sc_LON" width="20" x="865.5" xlink:href="#SupplyCenter" y="393.0"/>
+        <use height="20" id="sc_PAR" width="20" x="791.5" xlink:href="#SupplyCenter" y="723.0"/>
+        <use height="20" id="sc_BER" width="20" x="488.5" xlink:href="#SupplyCenter" y="874.0"/>
+        <use height="20" id="sc_ROM" width="20" x="184.5" xlink:href="#SupplyCenter" y="727.0"/>
+        <use height="20" id="sc_MOS" width="20" x="110.5" xlink:href="#SupplyCenter" y="398.0"/>
+        <use height="20" id="sc_CON" width="20" x="322.5" xlink:href="#SupplyCenter" y="136.0"/>
     </g>
 
      <!-- drawing layer: orders -->

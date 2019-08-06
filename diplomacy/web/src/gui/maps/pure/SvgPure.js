@@ -173,7 +173,7 @@ export class SvgPure extends React.Component {
         return neighbors.length ? neighbors: null;
     }
     render() {
-        const classes = {"_vie":"nopower","_lon":"nopower","_par":"nopower","_ber":"nopower","_rom":"nopower","_mos":"nopower","_con":"nopower","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","sc_VIE":"scnopower","sc_LON":"scnopower","sc_PAR":"scnopower","sc_BER":"scnopower","sc_ROM":"scnopower","sc_MOS":"scnopower","sc_CON":"scnopower","BriefLabelLayer":"labeltext","FullLabelLayer":"labeltext","MouseLayer":"invisibleContent"};
+        const classes = {"_vie":"nopower","_lon":"nopower","_par":"nopower","_ber":"nopower","_rom":"nopower","_mos":"nopower","_con":"nopower","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","BriefLabelLayer":"labeltext","FullLabelLayer":"labeltext","MouseLayer":"invisibleContent"};
         const game = this.props.game;
         const mapData = this.props.mapData;
         const orders = this.props.orders;
@@ -560,13 +560,13 @@ export class SvgPure extends React.Component {
                 <text className={classes['CurrentNote2']} id="CurrentNote2" x="15" y="50">{note ? note : ''}</text>
                 <text className={classes['CurrentPhase']} fontSize="30" id="CurrentPhase" x="845" y="970">{current_phase}</text>
                 <g id="SupplyCenterLayer">
-                    <use className={classes['sc_VIE']} height="20" href="#SupplyCenter" id="sc_VIE" width="20" x="655.5" y="138.0"/>
-                    <use className={classes['sc_LON']} height="20" href="#SupplyCenter" id="sc_LON" width="20" x="865.5" y="393.0"/>
-                    <use className={classes['sc_PAR']} height="20" href="#SupplyCenter" id="sc_PAR" width="20" x="791.5" y="723.0"/>
-                    <use className={classes['sc_BER']} height="20" href="#SupplyCenter" id="sc_BER" width="20" x="488.5" y="874.0"/>
-                    <use className={classes['sc_ROM']} height="20" href="#SupplyCenter" id="sc_ROM" width="20" x="184.5" y="727.0"/>
-                    <use className={classes['sc_MOS']} height="20" href="#SupplyCenter" id="sc_MOS" width="20" x="110.5" y="398.0"/>
-                    <use className={classes['sc_CON']} height="20" href="#SupplyCenter" id="sc_CON" width="20" x="322.5" y="136.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_VIE" width="20" x="655.5" y="138.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_LON" width="20" x="865.5" y="393.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_PAR" width="20" x="791.5" y="723.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_BER" width="20" x="488.5" y="874.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_ROM" width="20" x="184.5" y="727.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_MOS" width="20" x="110.5" y="398.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_CON" width="20" x="322.5" y="136.0"/>
                 </g>
                 <g id="OrderLayer">
                     <g id="Layer2">{renderedOrders2}</g>

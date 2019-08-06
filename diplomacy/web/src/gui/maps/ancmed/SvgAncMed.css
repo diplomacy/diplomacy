@@ -54,16 +54,6 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 		.SvgAncMed .unitgreece 	{fill:forestgreen;}
 		.SvgAncMed .unitegypt  	{fill:yellow;}
 		
-		/* supply center styles (nopower if supply center not owned) */
-		
-		.SvgAncMed .scnopower	{fill:black;stroke:black;stroke-width:1;}
-		
-		.SvgAncMed .scrome    	{fill:red;stroke:black;stroke-width:1}
-		.SvgAncMed .sccarthage {fill:blue;stroke:black;stroke-width:1}
-		.SvgAncMed .scpersia 	{fill:gray;stroke:black;stroke-width:1}
-		.SvgAncMed .scgreece 	{fill:forestgreen;stroke:black;stroke-width:1}
-		.SvgAncMed .scegypt  	{fill:yellow;stroke:black;stroke-width:1}
-		
 		/* map accents */
 		.SvgAncMed .thickdash	{fill:none;stroke:black;stroke-width:6;stroke-dasharray:2,1.5;}
 

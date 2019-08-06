@@ -405,16 +405,6 @@
 		.unitgreece 	{fill:forestgreen;}
 		.unitegypt  	{fill:yellow;}
 		
-		/* supply center styles (nopower if supply center not owned) */
-		
-		.scnopower	{fill:black;stroke:black;stroke-width:1;}
-		
-		.scrome    	{fill:red;stroke:black;stroke-width:1}
-		.sccarthage {fill:blue;stroke:black;stroke-width:1}
-		.scpersia 	{fill:gray;stroke:black;stroke-width:1}
-		.scgreece 	{fill:forestgreen;stroke:black;stroke-width:1}
-		.scegypt  	{fill:yellow;stroke:black;stroke-width:1}
-		
 		/* map accents */
 		.thickdash	{fill:none;stroke:black;stroke-width:6;stroke-dasharray:2,1.5;}
 
@@ -722,7 +712,6 @@
     <!-- drawing layer: supply centers -->
 	<g id="SupplyCenterLayer">
     <use
-       class="scnopower"
        height="10"
        id="sc_CAR"
        width="10"
@@ -730,7 +719,6 @@
        xlink:href="#SupplyCenter"
        y="353.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_CIR"
        width="10"
@@ -738,7 +726,6 @@
        xlink:href="#SupplyCenter"
        y="434.1" />
     <use
-       class="scnopower"
        height="10"
        id="sc_THA"
        width="10"
@@ -746,7 +733,6 @@
        xlink:href="#SupplyCenter"
        y="403.3" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ALE"
        width="10"
@@ -754,7 +740,6 @@
        xlink:href="#SupplyCenter"
        y="490.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MEM"
        width="10"
@@ -762,7 +747,6 @@
        xlink:href="#SupplyCenter"
        y="586.9" />
     <use
-       class="scnopower"
        height="10"
        id="sc_THB"
        width="10"
@@ -770,7 +754,6 @@
        xlink:href="#SupplyCenter"
        y="516.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SPA"
        width="10"
@@ -778,7 +761,6 @@
        xlink:href="#SupplyCenter"
        y="337.5" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ATH"
        width="10"
@@ -786,7 +768,6 @@
        xlink:href="#SupplyCenter"
        y="303.4" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MAC"
        width="10"
@@ -794,7 +775,6 @@
        xlink:href="#SupplyCenter"
        y="243.3" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ANT"
        width="10"
@@ -802,7 +782,6 @@
        xlink:href="#SupplyCenter"
        y="320.4" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SID"
        width="10"
@@ -811,7 +790,6 @@
        y="361.79999"
        transform="translate(4)"/>
     <use
-       class="scnopower"
        height="10"
        id="sc_DAM"
        width="10"
@@ -819,7 +797,6 @@
        xlink:href="#SupplyCenter"
        y="270.1" />
     <use
-       class="scnopower"
        height="10"
        id="sc_NEA"
        width="10"
@@ -827,7 +804,6 @@
        xlink:href="#SupplyCenter"
        y="232.7" />
     <use
-       class="scnopower"
        height="10"
        id="sc_ROM"
        width="10"
@@ -835,7 +811,6 @@
        xlink:href="#SupplyCenter"
        y="163.6" />
     <use
-       class="scnopower"
        height="10"
        id="sc_RAV"
        width="10"
@@ -843,7 +818,6 @@
        xlink:href="#SupplyCenter"
        y="153.1" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SAG"
        width="10"
@@ -851,7 +825,6 @@
        xlink:href="#SupplyCenter"
        y="303.4" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MAS"
        width="10"
@@ -859,7 +832,6 @@
        xlink:href="#SupplyCenter"
        y="155.5" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BAL"
        width="10"
@@ -868,7 +840,6 @@
        y="238.39999"
        transform="translate(4,18)"/>
     <use
-       class="scnopower"
        height="10"
        id="sc_SAD"
        width="10"
@@ -876,7 +847,6 @@
        xlink:href="#SupplyCenter"
        y="277.4" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SIC"
        width="10"
@@ -884,7 +854,6 @@
        xlink:href="#SupplyCenter"
        y="331.0" />
     <use
-       class="scnopower"
        height="10"
        id="sc_VIN"
        width="10"
@@ -892,7 +861,6 @@
        xlink:href="#SupplyCenter"
        y="61.3" />
     <use
-       class="scnopower"
        height="10"
        id="sc_DAL"
        width="10"
@@ -900,7 +868,6 @@
        xlink:href="#SupplyCenter"
        y="139.3" />
     <use
-       class="scnopower"
        height="10"
        id="sc_NUM"
        width="10"
@@ -908,7 +875,6 @@
        xlink:href="#SupplyCenter"
        y="473.1" />
     <use
-       class="scnopower"
        height="10"
        id="sc_LEP"
        width="10"
@@ -916,7 +882,6 @@
        xlink:href="#SupplyCenter"
        y="494.3" />
     <use
-       class="scnopower"
        height="10"
        id="sc_CYR"
        width="10"
@@ -925,7 +890,6 @@
        y="465"
        transform="translate(0,4)"/>
     <use
-       class="scnopower"
        height="10"
        id="sc_CRE"
        width="10"
@@ -934,7 +898,6 @@
        y="383"
        transform="translate(-4,4)"/>
     <use
-       class="scnopower"
        height="10"
        id="sc_CYP"
        width="10"
@@ -943,7 +906,6 @@
        y="377"
        transform="translate(-2,8)"/>
     <use
-       class="scnopower"
        height="10"
        id="sc_PET"
        width="10"
@@ -952,7 +914,6 @@
        y="479.60001"
        transform="translate(6)"/>
     <use
-       class="scnopower"
        height="10"
        id="sc_JER"
        width="10"
@@ -961,7 +922,6 @@
        y="436.60001"
        transform="translate(8,4)"/>
     <use
-       class="scnopower"
        height="10"
        id="sc_TYE"
        width="10"
@@ -969,7 +929,6 @@
        xlink:href="#SupplyCenter"
        y="393.5" />
     <use
-       class="scnopower"
        height="10"
        id="sc_SIP"
        width="10"
@@ -977,7 +936,6 @@
        xlink:href="#SupplyCenter"
        y="192.1" />
     <use
-       class="scnopower"
        height="10"
        id="sc_CHE"
        width="10"
@@ -985,7 +943,6 @@
        xlink:href="#SupplyCenter"
        y="75.9" />
     <use
-       class="scnopower"
        height="10"
        id="sc_BYZ"
        width="10"
@@ -993,7 +950,6 @@
        xlink:href="#SupplyCenter"
        y="256.2" />
     <use
-       class="scnopower"
        height="10"
        id="sc_MIL"
        width="10"

@@ -469,17 +469,6 @@
         .unitrussia  {fill:white; fill-opacity:1.0}
         .unitturkey  {fill:yellow; fill-opacity:0.85}
 
-        /* supply center styles */
-
-        .scnopower {fill:black; stroke:black;}
-        .scaustria {fill:black; stroke:black;}
-        .scengland {fill:black; stroke:black;}
-        .scfrance  {fill:black; stroke:black;}
-        .scgermany {fill:black; stroke:black;}
-        .scitaly   {fill:black; stroke:black;}
-        .scrussia  {fill:black; stroke:black;}
-        .scturkey  {fill:black; stroke:black;}
-
         /* order drawing styles, stroke and fill colors should not be specified */
 
         .defaultorder {stroke-width:6; fill:none;}
@@ -743,40 +732,40 @@
 
     <!-- drawing layer: supply centers -->
     <g id="SupplyCenterLayer">
-        <use class="scnopower" height="20" id="sc_BUD" width="20" x="891.5" xlink:href="#SupplyCenter" y="905.0"/>
-        <use class="scnopower" height="20" id="sc_TRI" width="20" x="785.5" xlink:href="#SupplyCenter" y="964.0"/>
-        <use class="scnopower" height="20" id="sc_VIE" width="20" x="826.5" xlink:href="#SupplyCenter" y="876.0"/>
-        <use class="scnopower" height="20" id="sc_EDI" width="20" x="480.5" xlink:href="#SupplyCenter" y="554.0"/>
-        <use class="scnopower" height="20" id="sc_LON" width="20" x="480.5" xlink:href="#SupplyCenter" y="706.0"/>
-        <use class="scnopower" height="20" id="sc_LVP" width="20" x="449.5" xlink:href="#SupplyCenter" y="627.0"/>
-        <use class="scnopower" height="20" id="sc_BRE" width="20" x="360.5" xlink:href="#SupplyCenter" y="788.0"/>
-        <use class="scnopower" height="20" id="sc_MAR" width="20" x="553.5" xlink:href="#SupplyCenter" y="1007.0"/>
-        <use class="scnopower" height="20" id="sc_PAR" width="20" x="509.5" xlink:href="#SupplyCenter" y="808.0"/>
-        <use class="scnopower" height="20" id="sc_BER" width="20" x="774.5" xlink:href="#SupplyCenter" y="725.0"/>
-        <use class="scnopower" height="20" id="sc_KIE" width="20" x="715.5" xlink:href="#SupplyCenter" y="674.0"/>
-        <use class="scnopower" height="20" id="sc_MUN" width="20" x="721.5" xlink:href="#SupplyCenter" y="867.0"/>
-        <use class="scnopower" height="20" id="sc_NAP" width="20" x="769.5" xlink:href="#SupplyCenter" y="1132.0"/>
-        <use class="scnopower" height="20" id="sc_ROM" width="20" x="710.5" xlink:href="#SupplyCenter" y="1076.0"/>
-        <use class="scnopower" height="20" id="sc_VEN" width="20" x="724.5" xlink:href="#SupplyCenter" y="960.0"/>
-        <use class="scnopower" height="20" id="sc_MOS" width="20" x="1258.5" xlink:href="#SupplyCenter" y="573.0"/>
-        <use class="scnopower" height="20" id="sc_SEV" width="20" x="1258.5" xlink:href="#SupplyCenter" y="962.0"/>
-        <use class="scnopower" height="20" id="sc_STP" width="20" x="1104.5" xlink:href="#SupplyCenter" y="458.0"/>
-        <use class="scnopower" height="20" id="sc_WAR" width="20" x="928.5" xlink:href="#SupplyCenter" y="737.0"/>
-        <use class="scnopower" height="20" id="sc_ANK" width="20" x="1262.5" xlink:href="#SupplyCenter" y="1133.0"/>
-        <use class="scnopower" height="20" id="sc_CON" width="20" x="1132.5" xlink:href="#SupplyCenter" y="1108.0"/>
-        <use class="scnopower" height="20" id="sc_SMY" width="20" x="1123.5" xlink:href="#SupplyCenter" y="1211.0"/>
-        <use class="scnopower" height="20" id="sc_BEL" width="20" x="566.5" xlink:href="#SupplyCenter" y="744.0"/>
-        <use class="scnopower" height="20" id="sc_BUL" width="20" x="1004.5" xlink:href="#SupplyCenter" y="1067.0"/>
-        <use class="scnopower" height="20" id="sc_DEN" width="20" x="758.5" xlink:href="#SupplyCenter" y="615.0"/>
-        <use class="scnopower" height="20" id="sc_GRE" width="20" x="1014.5" xlink:href="#SupplyCenter" y="1226.0"/>
-        <use class="scnopower" height="20" id="sc_HOL" width="20" x="621.5" xlink:href="#SupplyCenter" y="681.0"/>
-        <use class="scnopower" height="20" id="sc_NWY" width="20" x="752.5" xlink:href="#SupplyCenter" y="452.0"/>
-        <use class="scnopower" height="20" id="sc_POR" width="20" x="142.5" xlink:href="#SupplyCenter" y="1049.0"/>
-        <use class="scnopower" height="20" id="sc_RUM" width="20" x="1074.5" xlink:href="#SupplyCenter" y="1003.0"/>
-        <use class="scnopower" height="20" id="sc_SER" width="20" x="927.5" xlink:href="#SupplyCenter" y="1010.0"/>
-        <use class="scnopower" height="20" id="sc_SPA" width="20" x="293.5" xlink:href="#SupplyCenter" y="1045.0"/>
-        <use class="scnopower" height="20" id="sc_SWE" width="20" x="881.5" xlink:href="#SupplyCenter" y="478.0"/>
-        <use class="scnopower" height="20" id="sc_TUN" width="20" x="638.5" xlink:href="#SupplyCenter" y="1271.0"/>
+        <use height="20" id="sc_BUD" width="20" x="891.5" xlink:href="#SupplyCenter" y="905.0"/>
+        <use height="20" id="sc_TRI" width="20" x="785.5" xlink:href="#SupplyCenter" y="964.0"/>
+        <use height="20" id="sc_VIE" width="20" x="826.5" xlink:href="#SupplyCenter" y="876.0"/>
+        <use height="20" id="sc_EDI" width="20" x="480.5" xlink:href="#SupplyCenter" y="554.0"/>
+        <use height="20" id="sc_LON" width="20" x="480.5" xlink:href="#SupplyCenter" y="706.0"/>
+        <use height="20" id="sc_LVP" width="20" x="449.5" xlink:href="#SupplyCenter" y="627.0"/>
+        <use height="20" id="sc_BRE" width="20" x="360.5" xlink:href="#SupplyCenter" y="788.0"/>
+        <use height="20" id="sc_MAR" width="20" x="553.5" xlink:href="#SupplyCenter" y="1007.0"/>
+        <use height="20" id="sc_PAR" width="20" x="509.5" xlink:href="#SupplyCenter" y="808.0"/>
+        <use height="20" id="sc_BER" width="20" x="774.5" xlink:href="#SupplyCenter" y="725.0"/>
+        <use height="20" id="sc_KIE" width="20" x="715.5" xlink:href="#SupplyCenter" y="674.0"/>
+        <use height="20" id="sc_MUN" width="20" x="721.5" xlink:href="#SupplyCenter" y="867.0"/>
+        <use height="20" id="sc_NAP" width="20" x="769.5" xlink:href="#SupplyCenter" y="1132.0"/>
+        <use height="20" id="sc_ROM" width="20" x="710.5" xlink:href="#SupplyCenter" y="1076.0"/>
+        <use height="20" id="sc_VEN" width="20" x="724.5" xlink:href="#SupplyCenter" y="960.0"/>
+        <use height="20" id="sc_MOS" width="20" x="1258.5" xlink:href="#SupplyCenter" y="573.0"/>
+        <use height="20" id="sc_SEV" width="20" x="1258.5" xlink:href="#SupplyCenter" y="962.0"/>
+        <use height="20" id="sc_STP" width="20" x="1104.5" xlink:href="#SupplyCenter" y="458.0"/>
+        <use height="20" id="sc_WAR" width="20" x="928.5" xlink:href="#SupplyCenter" y="737.0"/>
+        <use height="20" id="sc_ANK" width="20" x="1262.5" xlink:href="#SupplyCenter" y="1133.0"/>
+        <use height="20" id="sc_CON" width="20" x="1132.5" xlink:href="#SupplyCenter" y="1108.0"/>
+        <use height="20" id="sc_SMY" width="20" x="1123.5" xlink:href="#SupplyCenter" y="1211.0"/>
+        <use height="20" id="sc_BEL" width="20" x="566.5" xlink:href="#SupplyCenter" y="744.0"/>
+        <use height="20" id="sc_BUL" width="20" x="1004.5" xlink:href="#SupplyCenter" y="1067.0"/>
+        <use height="20" id="sc_DEN" width="20" x="758.5" xlink:href="#SupplyCenter" y="615.0"/>
+        <use height="20" id="sc_GRE" width="20" x="1014.5" xlink:href="#SupplyCenter" y="1226.0"/>
+        <use height="20" id="sc_HOL" width="20" x="621.5" xlink:href="#SupplyCenter" y="681.0"/>
+        <use height="20" id="sc_NWY" width="20" x="752.5" xlink:href="#SupplyCenter" y="452.0"/>
+        <use height="20" id="sc_POR" width="20" x="142.5" xlink:href="#SupplyCenter" y="1049.0"/>
+        <use height="20" id="sc_RUM" width="20" x="1074.5" xlink:href="#SupplyCenter" y="1003.0"/>
+        <use height="20" id="sc_SER" width="20" x="927.5" xlink:href="#SupplyCenter" y="1010.0"/>
+        <use height="20" id="sc_SPA" width="20" x="293.5" xlink:href="#SupplyCenter" y="1045.0"/>
+        <use height="20" id="sc_SWE" width="20" x="881.5" xlink:href="#SupplyCenter" y="478.0"/>
+        <use height="20" id="sc_TUN" width="20" x="638.5" xlink:href="#SupplyCenter" y="1271.0"/>
     </g>
 
     <!-- drawing layer: orders -->

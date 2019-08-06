@@ -173,7 +173,7 @@ export class SvgAncMed extends React.Component {
         return neighbors.length ? neighbors: null;
     }
     render() {
-        const classes = {"_adr":"water","_aeg":"water","_ale":"nopower","_ant":"nopower","_apu":"nopower","_ara":"nopower","_arm":"nopower","_ath":"nopower","_aus":"water","_bal":"nopower","_bay":"nopower","_ber":"water","_bit":"nopower","_bla":"water","_byz":"nopower","_cap":"nopower","_car":"nopower","_che":"nopower","_cil":"water","_cir":"nopower","_cor":"nopower","_cre":"nopower","_cyp":"nopower","_cyr":"nopower","_dac":"nopower","_dal":"nopower","_dam":"nopower","_egy":"water","_epi":"nopower","_etr":"nopower","_gal":"nopower","_gau":"nopower","_gop":"water","_gos":"water","_got":"water","_ibe":"water","_ill":"nopower","_ion":"water","_isa":"nopower","_jer":"nopower","_lep":"nopower","_lib":"water","_lig":"water","_lus":"nopower","_mac":"nopower","_mar":"nopower","_mas":"nopower","_mau":"nopower","_mem":"nopower","_mes":"water","_mil":"nopower","_min":"water","_nab":"nopower","_nea":"nopower","_num":"nopower","_pet":"nopower","_pha":"nopower","_pun":"water","_rav":"nopower","_ree":"water","_rha":"nopower","_rom":"nopower","_sag":"nopower","_sah":"nopower","_sad":"nopower","_sam":"nopower","_sic":"nopower","_sid":"nopower","_sin":"nopower","_sip":"nopower","_spa":"nopower","_syr":"water","_tar":"nopower","_tha":"nopower","_thb":"nopower","_tye":"nopower","_tyn":"water","_ven":"nopower","_vin":"nopower","water":"water","sc_CAR":"scnopower","sc_CIR":"scnopower","sc_THA":"scnopower","sc_ALE":"scnopower","sc_MEM":"scnopower","sc_THB":"scnopower","sc_SPA":"scnopower","sc_ATH":"scnopower","sc_MAC":"scnopower","sc_ANT":"scnopower","sc_SID":"scnopower","sc_DAM":"scnopower","sc_NEA":"scnopower","sc_ROM":"scnopower","sc_RAV":"scnopower","sc_SAG":"scnopower","sc_MAS":"scnopower","sc_BAL":"scnopower","sc_SAD":"scnopower","sc_SIC":"scnopower","sc_VIN":"scnopower","sc_DAL":"scnopower","sc_NUM":"scnopower","sc_LEP":"scnopower","sc_CYR":"scnopower","sc_CRE":"scnopower","sc_CYP":"scnopower","sc_PET":"scnopower","sc_JER":"scnopower","sc_TYE":"scnopower","sc_SIP":"scnopower","sc_CHE":"scnopower","sc_BYZ":"scnopower","sc_MIL":"scnopower","BriefLabelLayer":"smalllabeltext","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","MouseLayer":"invisibleContent"};
+        const classes = {"_adr":"water","_aeg":"water","_ale":"nopower","_ant":"nopower","_apu":"nopower","_ara":"nopower","_arm":"nopower","_ath":"nopower","_aus":"water","_bal":"nopower","_bay":"nopower","_ber":"water","_bit":"nopower","_bla":"water","_byz":"nopower","_cap":"nopower","_car":"nopower","_che":"nopower","_cil":"water","_cir":"nopower","_cor":"nopower","_cre":"nopower","_cyp":"nopower","_cyr":"nopower","_dac":"nopower","_dal":"nopower","_dam":"nopower","_egy":"water","_epi":"nopower","_etr":"nopower","_gal":"nopower","_gau":"nopower","_gop":"water","_gos":"water","_got":"water","_ibe":"water","_ill":"nopower","_ion":"water","_isa":"nopower","_jer":"nopower","_lep":"nopower","_lib":"water","_lig":"water","_lus":"nopower","_mac":"nopower","_mar":"nopower","_mas":"nopower","_mau":"nopower","_mem":"nopower","_mes":"water","_mil":"nopower","_min":"water","_nab":"nopower","_nea":"nopower","_num":"nopower","_pet":"nopower","_pha":"nopower","_pun":"water","_rav":"nopower","_ree":"water","_rha":"nopower","_rom":"nopower","_sag":"nopower","_sah":"nopower","_sad":"nopower","_sam":"nopower","_sic":"nopower","_sid":"nopower","_sin":"nopower","_sip":"nopower","_spa":"nopower","_syr":"water","_tar":"nopower","_tha":"nopower","_thb":"nopower","_tye":"nopower","_tyn":"water","_ven":"nopower","_vin":"nopower","water":"water","BriefLabelLayer":"smalllabeltext","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","MouseLayer":"invisibleContent"};
         const game = this.props.game;
         const mapData = this.props.mapData;
         const orders = this.props.orders;
@@ -588,40 +588,40 @@ export class SvgAncMed extends React.Component {
                     </g>
                 </g>
                 <g id="SupplyCenterLayer">
-                    <use className={classes['sc_CAR']} height="10" href="#SupplyCenter" id="sc_CAR" width="10" x="318.9" y="353.7"/>
-                    <use className={classes['sc_CIR']} height="10" href="#SupplyCenter" id="sc_CIR" width="10" x="255.5" y="434.1"/>
-                    <use className={classes['sc_THA']} height="10" href="#SupplyCenter" id="sc_THA" width="10" x="315.6" y="403.3"/>
-                    <use className={classes['sc_ALE']} height="10" href="#SupplyCenter" id="sc_ALE" width="10" x="724.2" y="490.2"/>
-                    <use className={classes['sc_MEM']} height="10" href="#SupplyCenter" id="sc_MEM" width="10" x="791.6" y="586.9"/>
-                    <use className={classes['sc_THB']} height="10" href="#SupplyCenter" id="sc_THB" width="10" x="844.4" y="516.2"/>
-                    <use className={classes['sc_SPA']} height="10" href="#SupplyCenter" id="sc_SPA" width="10" x="587.7" y="337.5"/>
-                    <use className={classes['sc_ATH']} height="10" href="#SupplyCenter" id="sc_ATH" width="10" x="614.5" y="303.4"/>
-                    <use className={classes['sc_MAC']} height="10" href="#SupplyCenter" id="sc_MAC" width="10" x="604.8" y="243.3"/>
-                    <use className={classes['sc_ANT']} height="10" href="#SupplyCenter" id="sc_ANT" width="10" x="898.8" y="320.4"/>
-                    <use className={classes['sc_SID']} height="10" href="#SupplyCenter" id="sc_SID" transform="translate(4)" width="10" x="902.09998" y="361.79999"/>
-                    <use className={classes['sc_DAM']} height="10" href="#SupplyCenter" id="sc_DAM" width="10" x="945.1" y="270.1"/>
-                    <use className={classes['sc_NEA']} height="10" href="#SupplyCenter" id="sc_NEA" width="10" x="421.2" y="232.7"/>
-                    <use className={classes['sc_ROM']} height="10" href="#SupplyCenter" id="sc_ROM" width="10" x="350.5" y="163.6"/>
-                    <use className={classes['sc_RAV']} height="10" href="#SupplyCenter" id="sc_RAV" width="10" x="378.2" y="153.1"/>
-                    <use className={classes['sc_SAG']} height="10" href="#SupplyCenter" id="sc_SAG" width="10" x="97.9" y="303.4"/>
-                    <use className={classes['sc_MAS']} height="10" href="#SupplyCenter" id="sc_MAS" width="10" x="257.1" y="155.5"/>
-                    <use className={classes['sc_BAL']} height="10" href="#SupplyCenter" id="sc_BAL" transform="translate(4,18)" width="10" x="183.2" y="238.39999"/>
-                    <use className={classes['sc_SAD']} height="10" href="#SupplyCenter" id="sc_SAD" width="10" x="301.0" y="277.4"/>
-                    <use className={classes['sc_SIC']} height="10" href="#SupplyCenter" id="sc_SIC" width="10" x="398.5" y="331.0"/>
-                    <use className={classes['sc_VIN']} height="10" href="#SupplyCenter" id="sc_VIN" width="10" x="424.5" y="61.3"/>
-                    <use className={classes['sc_DAL']} height="10" href="#SupplyCenter" id="sc_DAL" width="10" x="455.3" y="139.3"/>
-                    <use className={classes['sc_NUM']} height="10" href="#SupplyCenter" id="sc_NUM" width="10" x="367.6" y="473.1"/>
-                    <use className={classes['sc_LEP']} height="10" href="#SupplyCenter" id="sc_LEP" width="10" x="399.3" y="494.3"/>
-                    <use className={classes['sc_CYR']} height="10" href="#SupplyCenter" id="sc_CYR" transform="translate(0,4)" width="10" x="589.40002" y="465"/>
-                    <use className={classes['sc_CRE']} height="10" href="#SupplyCenter" id="sc_CRE" transform="translate(-4,4)" width="10" x="671.40002" y="383"/>
-                    <use className={classes['sc_CYP']} height="10" href="#SupplyCenter" id="sc_CYP" transform="translate(-2,8)" width="10" x="808.5" y="377"/>
-                    <use className={classes['sc_PET']} height="10" href="#SupplyCenter" id="sc_PET" transform="translate(6)" width="10" x="904.5" y="479.60001"/>
-                    <use className={classes['sc_JER']} height="10" href="#SupplyCenter" id="sc_JER" transform="translate(8,4)" width="10" x="887.5" y="436.60001"/>
-                    <use className={classes['sc_TYE']} height="10" href="#SupplyCenter" id="sc_TYE" width="10" x="898.0" y="393.5"/>
-                    <use className={classes['sc_SIP']} height="10" href="#SupplyCenter" id="sc_SIP" width="10" x="837.9" y="192.1"/>
-                    <use className={classes['sc_CHE']} height="10" href="#SupplyCenter" id="sc_CHE" width="10" x="866.4" y="75.9"/>
-                    <use className={classes['sc_BYZ']} height="10" href="#SupplyCenter" id="sc_BYZ" width="10" x="677.9" y="256.2"/>
-                    <use className={classes['sc_MIL']} height="10" href="#SupplyCenter" id="sc_MIL" transform="translate(4,6)" width="10" x="712" y="309.89999"/>
+                    <use height="10" href="#SupplyCenter" id="sc_CAR" width="10" x="318.9" y="353.7"/>
+                    <use height="10" href="#SupplyCenter" id="sc_CIR" width="10" x="255.5" y="434.1"/>
+                    <use height="10" href="#SupplyCenter" id="sc_THA" width="10" x="315.6" y="403.3"/>
+                    <use height="10" href="#SupplyCenter" id="sc_ALE" width="10" x="724.2" y="490.2"/>
+                    <use height="10" href="#SupplyCenter" id="sc_MEM" width="10" x="791.6" y="586.9"/>
+                    <use height="10" href="#SupplyCenter" id="sc_THB" width="10" x="844.4" y="516.2"/>
+                    <use height="10" href="#SupplyCenter" id="sc_SPA" width="10" x="587.7" y="337.5"/>
+                    <use height="10" href="#SupplyCenter" id="sc_ATH" width="10" x="614.5" y="303.4"/>
+                    <use height="10" href="#SupplyCenter" id="sc_MAC" width="10" x="604.8" y="243.3"/>
+                    <use height="10" href="#SupplyCenter" id="sc_ANT" width="10" x="898.8" y="320.4"/>
+                    <use height="10" href="#SupplyCenter" id="sc_SID" transform="translate(4)" width="10" x="902.09998" y="361.79999"/>
+                    <use height="10" href="#SupplyCenter" id="sc_DAM" width="10" x="945.1" y="270.1"/>
+                    <use height="10" href="#SupplyCenter" id="sc_NEA" width="10" x="421.2" y="232.7"/>
+                    <use height="10" href="#SupplyCenter" id="sc_ROM" width="10" x="350.5" y="163.6"/>
+                    <use height="10" href="#SupplyCenter" id="sc_RAV" width="10" x="378.2" y="153.1"/>
+                    <use height="10" href="#SupplyCenter" id="sc_SAG" width="10" x="97.9" y="303.4"/>
+                    <use height="10" href="#SupplyCenter" id="sc_MAS" width="10" x="257.1" y="155.5"/>
+                    <use height="10" href="#SupplyCenter" id="sc_BAL" transform="translate(4,18)" width="10" x="183.2" y="238.39999"/>
+                    <use height="10" href="#SupplyCenter" id="sc_SAD" width="10" x="301.0" y="277.4"/>
+                    <use height="10" href="#SupplyCenter" id="sc_SIC" width="10" x="398.5" y="331.0"/>
+                    <use height="10" href="#SupplyCenter" id="sc_VIN" width="10" x="424.5" y="61.3"/>
+                    <use height="10" href="#SupplyCenter" id="sc_DAL" width="10" x="455.3" y="139.3"/>
+                    <use height="10" href="#SupplyCenter" id="sc_NUM" width="10" x="367.6" y="473.1"/>
+                    <use height="10" href="#SupplyCenter" id="sc_LEP" width="10" x="399.3" y="494.3"/>
+                    <use height="10" href="#SupplyCenter" id="sc_CYR" transform="translate(0,4)" width="10" x="589.40002" y="465"/>
+                    <use height="10" href="#SupplyCenter" id="sc_CRE" transform="translate(-4,4)" width="10" x="671.40002" y="383"/>
+                    <use height="10" href="#SupplyCenter" id="sc_CYP" transform="translate(-2,8)" width="10" x="808.5" y="377"/>
+                    <use height="10" href="#SupplyCenter" id="sc_PET" transform="translate(6)" width="10" x="904.5" y="479.60001"/>
+                    <use height="10" href="#SupplyCenter" id="sc_JER" transform="translate(8,4)" width="10" x="887.5" y="436.60001"/>
+                    <use height="10" href="#SupplyCenter" id="sc_TYE" width="10" x="898.0" y="393.5"/>
+                    <use height="10" href="#SupplyCenter" id="sc_SIP" width="10" x="837.9" y="192.1"/>
+                    <use height="10" href="#SupplyCenter" id="sc_CHE" width="10" x="866.4" y="75.9"/>
+                    <use height="10" href="#SupplyCenter" id="sc_BYZ" width="10" x="677.9" y="256.2"/>
+                    <use height="10" href="#SupplyCenter" id="sc_MIL" transform="translate(4,6)" width="10" x="712" y="309.89999"/>
                 </g>
                 <g id="OrderLayer">
                     <g id="Layer2">{renderedOrders2}</g>

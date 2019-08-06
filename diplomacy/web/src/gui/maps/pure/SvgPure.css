@@ -84,17 +84,6 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
         .SvgPure .unitrussia  {fill:white; fill-opacity:1.0}
         .SvgPure .unitturkey  {fill:yellow; fill-opacity:0.85}
 
-        /* supply center styles */
-
-        .SvgPure .scnopower {fill:black; stroke:black;}
-        .SvgPure .scaustria {fill:black; stroke:black;}
-        .SvgPure .scengland {fill:black; stroke:black;}
-        .SvgPure .scfrance  {fill:black; stroke:black;}
-        .SvgPure .scgermany {fill:black; stroke:black;}
-        .SvgPure .scitaly   {fill:black; stroke:black;}
-        .SvgPure .scrussia  {fill:black; stroke:black;}
-        .SvgPure .scturkey  {fill:black; stroke:black;}
-
         /* order drawing styles, stroke and fill colors should not be specified */
 
         .SvgPure .defaultorder {stroke-width:6; fill:none;}

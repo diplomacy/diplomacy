@@ -173,7 +173,7 @@ export class SvgStandard extends React.Component {
         return neighbors.length ? neighbors: null;
     }
     render() {
-        const classes = {"_ank":"nopower","_arm":"nopower","_con":"nopower","_mos":"nopower","_sev":"nopower","_stp":"nopower","_syr":"nopower","_ukr":"nopower","_lvn":"nopower","_war":"nopower","_pru":"nopower","_sil":"nopower","_ber":"nopower","_kie":"nopower","_ruh":"nopower","_mun":"nopower","_rum":"nopower","_bul":"nopower","_gre":"nopower","_smy":"nopower","_alb":"nopower","_ser":"nopower","_bud":"nopower","_gal":"nopower","_vie":"nopower","_boh":"nopower","_tyr":"nopower","_tri":"nopower","_fin":"nopower","_swe":"nopower","_nwy":"nopower","_den":"nopower","_hol":"nopower","_bel":"nopower","_swi":"impassable","_ven":"nopower","_pie":"nopower","_tus":"nopower","_rom":"nopower","_apu":"nopower","_nap":"nopower","_bur":"nopower","_mar":"nopower","_gas":"nopower","_pic":"nopower","_par":"nopower","_bre":"nopower","_spa":"nopower","_por":"nopower","_naf":"nopower","_tun":"nopower","_lon":"nopower","_wal":"nopower","_lvp":"nopower","_yor":"nopower","_edi":"nopower","_cly":"nopower","unplayable":"neutral","unplayable_water":"water","_nat":"water","_nrg":"water","_bar":"water","_bot":"water","_bal":"water","denmark_water":"water","_ska":"water","_hel":"water","_nth":"water","_eng":"water","_iri":"water","_mid":"water","_wes":"water","_gol":"water","_tyn":"water","_adr":"water","_ion":"water","_aeg":"water","_eas":"water","constantinople_water":"water","_bla":"water","sc_BUD":"scnopower","sc_TRI":"scnopower","sc_VIE":"scnopower","sc_EDI":"scnopower","sc_LON":"scnopower","sc_LVP":"scnopower","sc_BRE":"scnopower","sc_MAR":"scnopower","sc_PAR":"scnopower","sc_BER":"scnopower","sc_KIE":"scnopower","sc_MUN":"scnopower","sc_NAP":"scnopower","sc_ROM":"scnopower","sc_VEN":"scnopower","sc_MOS":"scnopower","sc_SEV":"scnopower","sc_STP":"scnopower","sc_WAR":"scnopower","sc_ANK":"scnopower","sc_CON":"scnopower","sc_SMY":"scnopower","sc_BEL":"scnopower","sc_BUL":"scnopower","sc_DEN":"scnopower","sc_GRE":"scnopower","sc_HOL":"scnopower","sc_NWY":"scnopower","sc_POR":"scnopower","sc_RUM":"scnopower","sc_SER":"scnopower","sc_SPA":"scnopower","sc_SWE":"scnopower","sc_TUN":"scnopower","BriefLabelLayer":"labeltext24","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","MouseLayer":"invisibleContent"};
+        const classes = {"_ank":"nopower","_arm":"nopower","_con":"nopower","_mos":"nopower","_sev":"nopower","_stp":"nopower","_syr":"nopower","_ukr":"nopower","_lvn":"nopower","_war":"nopower","_pru":"nopower","_sil":"nopower","_ber":"nopower","_kie":"nopower","_ruh":"nopower","_mun":"nopower","_rum":"nopower","_bul":"nopower","_gre":"nopower","_smy":"nopower","_alb":"nopower","_ser":"nopower","_bud":"nopower","_gal":"nopower","_vie":"nopower","_boh":"nopower","_tyr":"nopower","_tri":"nopower","_fin":"nopower","_swe":"nopower","_nwy":"nopower","_den":"nopower","_hol":"nopower","_bel":"nopower","_swi":"impassable","_ven":"nopower","_pie":"nopower","_tus":"nopower","_rom":"nopower","_apu":"nopower","_nap":"nopower","_bur":"nopower","_mar":"nopower","_gas":"nopower","_pic":"nopower","_par":"nopower","_bre":"nopower","_spa":"nopower","_por":"nopower","_naf":"nopower","_tun":"nopower","_lon":"nopower","_wal":"nopower","_lvp":"nopower","_yor":"nopower","_edi":"nopower","_cly":"nopower","unplayable":"neutral","unplayable_water":"water","_nat":"water","_nrg":"water","_bar":"water","_bot":"water","_bal":"water","denmark_water":"water","_ska":"water","_hel":"water","_nth":"water","_eng":"water","_iri":"water","_mid":"water","_wes":"water","_gol":"water","_tyn":"water","_adr":"water","_ion":"water","_aeg":"water","_eas":"water","constantinople_water":"water","_bla":"water","BriefLabelLayer":"labeltext24","CurrentNote":"currentnotetext","CurrentNote2":"currentnotetext","CurrentPhase":"currentphasetext","MouseLayer":"invisibleContent"};
         const game = this.props.game;
         const mapData = this.props.mapData;
         const orders = this.props.orders;
@@ -570,40 +570,40 @@ export class SvgStandard extends React.Component {
                     <path className={classes['_bla']} d="M 1570 1032 C 1570 1032 1546 1047 1546 1047 C 1546 1047 1511 1064 1511 1064 C 1511 1064 1483 1087 1483 1087 C 1483 1087 1462 1097 1462 1097 C 1462 1097 1474 1104 1474 1104 C 1481 1109 1488 1117 1496 1118 C 1505 1119 1513 1102 1521 1115 C 1523 1119 1523 1123 1520 1126 C 1515 1130 1507 1128 1503 1130 C 1500 1132 1499 1135 1496 1137 C 1492 1140 1489 1140 1486 1142 C 1483 1144 1478 1151 1475 1154 C 1471 1158 1467 1161 1461 1159 C 1457 1156 1454 1153 1453 1148 C 1453 1145 1454 1140 1452 1137 C 1449 1133 1442 1133 1438 1131 C 1435 1130 1432 1128 1432 1125 C 1433 1120 1438 1115 1442 1112 C 1444 1110 1448 1109 1449 1106 C 1450 1103 1448 1101 1445 1101 C 1439 1101 1428 1108 1417 1105 C 1408 1102 1409 1097 1402 1094 C 1405 1089 1409 1089 1415 1088 C 1413 1087 1413 1086 1411 1085 C 1404 1084 1389 1089 1384 1093 C 1380 1097 1378 1102 1375 1104 C 1372 1105 1369 1103 1366 1102 C 1368 1105 1371 1109 1371 1112 C 1371 1116 1368 1120 1366 1123 C 1364 1127 1362 1133 1361 1138 C 1359 1145 1360 1152 1357 1158 C 1353 1166 1347 1166 1344 1176 C 1344 1176 1339 1210 1339 1210 C 1336 1216 1332 1214 1329 1218 C 1325 1223 1327 1230 1325 1235 C 1325 1235 1322 1246 1322 1246 C 1322 1250 1325 1253 1327 1256 C 1327 1256 1337 1273 1337 1273 C 1338 1275 1340 1279 1343 1280 C 1347 1281 1350 1277 1355 1275 C 1366 1273 1370 1281 1375 1289 C 1375 1289 1400 1284 1400 1284 C 1406 1283 1414 1283 1419 1280 C 1419 1280 1442 1257 1442 1257 C 1453 1248 1463 1244 1477 1241 C 1477 1241 1501 1237 1501 1237 C 1506 1236 1507 1233 1511 1233 C 1519 1232 1522 1247 1529 1244 C 1530 1243 1532 1242 1533 1241 C 1534 1240 1536 1238 1537 1237 C 1537 1237 1552 1247 1552 1247 C 1552 1247 1553 1242 1553 1242 C 1561 1246 1570 1250 1579 1251 C 1582 1251 1584 1250 1587 1250 C 1603 1249 1607 1247 1622 1242 C 1640 1236 1637 1241 1655 1229 C 1670 1218 1687 1202 1673 1183 C 1670 1179 1665 1173 1660 1171 C 1652 1167 1640 1168 1630 1164 C 1620 1159 1611 1151 1601 1145 C 1592 1140 1583 1136 1573 1133 C 1573 1133 1556 1129 1556 1129 C 1556 1129 1543 1124 1543 1124 C 1538 1123 1533 1122 1530 1117 C 1528 1115 1527 1111 1530 1109 C 1534 1108 1539 1112 1543 1110 C 1547 1108 1546 1102 1547 1098 C 1549 1088 1555 1079 1556 1069 C 1554 1069 1551 1069 1549 1069 C 1544 1068 1540 1063 1544 1058 C 1544 1058 1565 1042 1565 1042 C 1568 1040 1571 1037 1570 1032 z" id="_bla"/>
                 </g>
                 <g id="SupplyCenterLayer">
-                    <use className={classes['sc_BUD']} height="20" href="#SupplyCenter" id="sc_BUD" width="20" x="891.5" y="905.0"/>
-                    <use className={classes['sc_TRI']} height="20" href="#SupplyCenter" id="sc_TRI" width="20" x="785.5" y="964.0"/>
-                    <use className={classes['sc_VIE']} height="20" href="#SupplyCenter" id="sc_VIE" width="20" x="826.5" y="876.0"/>
-                    <use className={classes['sc_EDI']} height="20" href="#SupplyCenter" id="sc_EDI" width="20" x="480.5" y="554.0"/>
-                    <use className={classes['sc_LON']} height="20" href="#SupplyCenter" id="sc_LON" width="20" x="480.5" y="706.0"/>
-                    <use className={classes['sc_LVP']} height="20" href="#SupplyCenter" id="sc_LVP" width="20" x="449.5" y="627.0"/>
-                    <use className={classes['sc_BRE']} height="20" href="#SupplyCenter" id="sc_BRE" width="20" x="360.5" y="788.0"/>
-                    <use className={classes['sc_MAR']} height="20" href="#SupplyCenter" id="sc_MAR" width="20" x="553.5" y="1007.0"/>
-                    <use className={classes['sc_PAR']} height="20" href="#SupplyCenter" id="sc_PAR" width="20" x="509.5" y="808.0"/>
-                    <use className={classes['sc_BER']} height="20" href="#SupplyCenter" id="sc_BER" width="20" x="774.5" y="725.0"/>
-                    <use className={classes['sc_KIE']} height="20" href="#SupplyCenter" id="sc_KIE" width="20" x="715.5" y="674.0"/>
-                    <use className={classes['sc_MUN']} height="20" href="#SupplyCenter" id="sc_MUN" width="20" x="721.5" y="867.0"/>
-                    <use className={classes['sc_NAP']} height="20" href="#SupplyCenter" id="sc_NAP" width="20" x="769.5" y="1132.0"/>
-                    <use className={classes['sc_ROM']} height="20" href="#SupplyCenter" id="sc_ROM" width="20" x="710.5" y="1076.0"/>
-                    <use className={classes['sc_VEN']} height="20" href="#SupplyCenter" id="sc_VEN" width="20" x="724.5" y="960.0"/>
-                    <use className={classes['sc_MOS']} height="20" href="#SupplyCenter" id="sc_MOS" width="20" x="1258.5" y="573.0"/>
-                    <use className={classes['sc_SEV']} height="20" href="#SupplyCenter" id="sc_SEV" width="20" x="1258.5" y="962.0"/>
-                    <use className={classes['sc_STP']} height="20" href="#SupplyCenter" id="sc_STP" width="20" x="1104.5" y="458.0"/>
-                    <use className={classes['sc_WAR']} height="20" href="#SupplyCenter" id="sc_WAR" width="20" x="928.5" y="737.0"/>
-                    <use className={classes['sc_ANK']} height="20" href="#SupplyCenter" id="sc_ANK" width="20" x="1262.5" y="1133.0"/>
-                    <use className={classes['sc_CON']} height="20" href="#SupplyCenter" id="sc_CON" width="20" x="1132.5" y="1108.0"/>
-                    <use className={classes['sc_SMY']} height="20" href="#SupplyCenter" id="sc_SMY" width="20" x="1123.5" y="1211.0"/>
-                    <use className={classes['sc_BEL']} height="20" href="#SupplyCenter" id="sc_BEL" width="20" x="566.5" y="744.0"/>
-                    <use className={classes['sc_BUL']} height="20" href="#SupplyCenter" id="sc_BUL" width="20" x="1004.5" y="1067.0"/>
-                    <use className={classes['sc_DEN']} height="20" href="#SupplyCenter" id="sc_DEN" width="20" x="758.5" y="615.0"/>
-                    <use className={classes['sc_GRE']} height="20" href="#SupplyCenter" id="sc_GRE" width="20" x="1014.5" y="1226.0"/>
-                    <use className={classes['sc_HOL']} height="20" href="#SupplyCenter" id="sc_HOL" width="20" x="621.5" y="681.0"/>
-                    <use className={classes['sc_NWY']} height="20" href="#SupplyCenter" id="sc_NWY" width="20" x="752.5" y="452.0"/>
-                    <use className={classes['sc_POR']} height="20" href="#SupplyCenter" id="sc_POR" width="20" x="142.5" y="1049.0"/>
-                    <use className={classes['sc_RUM']} height="20" href="#SupplyCenter" id="sc_RUM" width="20" x="1074.5" y="1003.0"/>
-                    <use className={classes['sc_SER']} height="20" href="#SupplyCenter" id="sc_SER" width="20" x="927.5" y="1010.0"/>
-                    <use className={classes['sc_SPA']} height="20" href="#SupplyCenter" id="sc_SPA" width="20" x="293.5" y="1045.0"/>
-                    <use className={classes['sc_SWE']} height="20" href="#SupplyCenter" id="sc_SWE" width="20" x="881.5" y="478.0"/>
-                    <use className={classes['sc_TUN']} height="20" href="#SupplyCenter" id="sc_TUN" width="20" x="638.5" y="1271.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_BUD" width="20" x="891.5" y="905.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_TRI" width="20" x="785.5" y="964.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_VIE" width="20" x="826.5" y="876.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_EDI" width="20" x="480.5" y="554.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_LON" width="20" x="480.5" y="706.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_LVP" width="20" x="449.5" y="627.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_BRE" width="20" x="360.5" y="788.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_MAR" width="20" x="553.5" y="1007.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_PAR" width="20" x="509.5" y="808.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_BER" width="20" x="774.5" y="725.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_KIE" width="20" x="715.5" y="674.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_MUN" width="20" x="721.5" y="867.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_NAP" width="20" x="769.5" y="1132.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_ROM" width="20" x="710.5" y="1076.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_VEN" width="20" x="724.5" y="960.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_MOS" width="20" x="1258.5" y="573.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_SEV" width="20" x="1258.5" y="962.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_STP" width="20" x="1104.5" y="458.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_WAR" width="20" x="928.5" y="737.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_ANK" width="20" x="1262.5" y="1133.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_CON" width="20" x="1132.5" y="1108.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_SMY" width="20" x="1123.5" y="1211.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_BEL" width="20" x="566.5" y="744.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_BUL" width="20" x="1004.5" y="1067.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_DEN" width="20" x="758.5" y="615.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_GRE" width="20" x="1014.5" y="1226.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_HOL" width="20" x="621.5" y="681.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_NWY" width="20" x="752.5" y="452.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_POR" width="20" x="142.5" y="1049.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_RUM" width="20" x="1074.5" y="1003.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_SER" width="20" x="927.5" y="1010.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_SPA" width="20" x="293.5" y="1045.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_SWE" width="20" x="881.5" y="478.0"/>
+                    <use height="20" href="#SupplyCenter" id="sc_TUN" width="20" x="638.5" y="1271.0"/>
                 </g>
                 <g id="OrderLayer">
                     <g id="Layer2">{renderedOrders2}</g>
