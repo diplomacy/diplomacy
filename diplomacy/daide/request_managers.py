@@ -495,7 +495,7 @@ def on_accept_request(server, request, connection_handler, game):
         :param game: the game
         :return: the list of responses
     """
-    _, _, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
+    _, daide_user, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
     response = None
     accept_response = request.response_bytes
@@ -503,12 +503,24 @@ def on_accept_request(server, request, connection_handler, game):
 
     if bytes(lead_token) == bytes(tokens.MAP):
 
-        # find next available power
+        # Assigning a power to the user
         if not power_name:
-            power_names = sorted([power_name for power_name, power in game.powers.items() if not power.is_controlled()])
-            if not power_names:
+            uncontrolled_powers = [pow_name for pow_name, power in game.powers.items()
+                                   if not power.is_eliminated() and not power.is_controlled()]
+            if not uncontrolled_powers:
                 return [responses.OFF()]
-            power_name = power_names[0]
+
+            # 1 - Trying to respect the choice specified by the DAIDE user
+            # i.e. if the Daide client is 'FRA:Dumbbot', it wants to be assigned to a power starting with 'FRA'
+            if ':' in daide_user.client_name:
+                prefix = daide_user.client_name.split(':')[0].upper()
+                selected_powers = [pow_name for pow_name in uncontrolled_powers if pow_name.upper().startswith(prefix)]
+                if selected_powers:
+                    power_name = selected_powers[0]
+
+            # 2 - Otherwise, assigning to the first uncontrolled power
+            if not power_name:
+                power_name = sorted(uncontrolled_powers)[0]
 
             join_game_request = internal_requests.JoinGame(game_id=game.game_id,
                                                            power_name=power_name,
