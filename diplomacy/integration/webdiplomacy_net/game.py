@@ -250,9 +250,8 @@ def state_dict_to_game_and_power(state_dict, country_id, max_phases=None):
         state_dict_phases = state_dict_phases[-1 * max_phases:]
     all_phases = [process_phase_dict(phase_dict, map_id=map_id) for phase_dict in state_dict_phases]
 
-    # Building game - Replaying the last 6 phases
-    game = Game()
-    game.game_id = game_id
+    # Building game - Replaying the last phases
+    game = Game(game_id=game_id, map_name=CACHE['ix_to_map'][map_id])
 
     for phase_to_replay in all_phases[:-1]:
         game.set_current_phase(phase_to_replay['name'])
