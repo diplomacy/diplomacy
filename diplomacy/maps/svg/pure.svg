@@ -42,34 +42,34 @@
     </jdipNS:ORDERDRAWING>
 
     <jdipNS:PROVINCE_DATA>
-        <jdipNS:PROVINCE name="vie">
-			<jdipNS:UNIT x="762" y="205"/>
-			<jdipNS:DISLODGED_UNIT x="777" y="190"/>
-		</jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="lon">
-			<jdipNS:UNIT x="890" y="524"/>
-			<jdipNS:DISLODGED_UNIT x="905" y="509"/>
-		</jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="par">
-			<jdipNS:UNIT x="719" y="825"/>
-			<jdipNS:DISLODGED_UNIT x="734" y="810"/>
-		</jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="ber">
-			<jdipNS:UNIT x="374" y="874"/>
-			<jdipNS:DISLODGED_UNIT x="389" y="859"/>
-		</jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="rom">
-			<jdipNS:UNIT x="128" y="638"/>
-			<jdipNS:DISLODGED_UNIT x="143" y="623"/>
-		</jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mos">
-			<jdipNS:UNIT x="152" y="299"/>
-			<jdipNS:DISLODGED_UNIT x="167" y="384"/>
-		</jdipNS:PROVINCE>
+            <jdipNS:UNIT x="362.5" y="864.0"/>
+            <jdipNS:DISLODGED_UNIT x="374.5" y="852.0"/>
+        </jdipNS:PROVINCE>
         <jdipNS:PROVINCE name="con">
-			<jdipNS:UNIT x="424" y="108"/>
-			<jdipNS:DISLODGED_UNIT x="439" y="93"/>
-		</jdipNS:PROVINCE>
+            <jdipNS:UNIT x="412.5" y="98.0"/>
+            <jdipNS:DISLODGED_UNIT x="424.5" y="86.0"/>
+        </jdipNS:PROVINCE>
+        <jdipNS:PROVINCE name="lon">
+            <jdipNS:UNIT x="878.5" y="514.0"/>
+            <jdipNS:DISLODGED_UNIT x="890.5" y="502.0"/>
+        </jdipNS:PROVINCE>
+        <jdipNS:PROVINCE name="mos">
+            <jdipNS:UNIT x="140.5" y="289.0"/>
+            <jdipNS:DISLODGED_UNIT x="152.5" y="277.0"/>
+        </jdipNS:PROVINCE>
+        <jdipNS:PROVINCE name="par">
+            <jdipNS:UNIT x="707.5" y="815.0"/>
+            <jdipNS:DISLODGED_UNIT x="719.5" y="803.0"/>
+        </jdipNS:PROVINCE>
+        <jdipNS:PROVINCE name="rom">
+            <jdipNS:UNIT x="116.5" y="628.0"/>
+            <jdipNS:DISLODGED_UNIT x="128.5" y="616.0"/>
+        </jdipNS:PROVINCE>
+        <jdipNS:PROVINCE name="vie">
+            <jdipNS:UNIT x="750.5" y="195.0"/>
+            <jdipNS:DISLODGED_UNIT x="762.5" y="183.0"/>
+        </jdipNS:PROVINCE>
     </jdipNS:PROVINCE_DATA>
 
     <title>Pure</title>

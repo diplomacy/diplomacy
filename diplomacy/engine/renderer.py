@@ -258,9 +258,10 @@ class Renderer():
         """
         unit_type, loc = unit.split()
         symbol = FLEET if unit_type == 'F' else ARMY
-        loc_x = _offset(self.metadata['coord'][loc][('unit', 'disl')[is_dislodged]][0], -11.5)
-        loc_y = _offset(self.metadata['coord'][loc][('unit', 'disl')[is_dislodged]][1], - 10.)
+        loc_x = self.metadata['coord'][loc][('unit', 'disl')[is_dislodged]][0]
+        loc_y = self.metadata['coord'][loc][('unit', 'disl')[is_dislodged]][1]
         node = xml_map.createElement('use')
+        node.setAttribute('id', '%sunit_%s' % ('dislodged_' if is_dislodged else '', loc))
         node.setAttribute('x', loc_x)
         node.setAttribute('y', loc_y)
         node.setAttribute('height', self.metadata['symbol_size'][symbol][0])
