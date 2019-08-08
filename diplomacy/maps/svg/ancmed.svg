@@ -31,336 +31,341 @@
 		<jdipNS:SYMBOLSIZE name="BuildUnit" width="30" height="30"/>
 		<jdipNS:SYMBOLSIZE name="RemoveUnit" width="30" height="30"/>
 		<jdipNS:SYMBOLSIZE name="WaivedBuild" width="25" height="25"/>
-		
+		<jdipNS:SYMBOLSIZE name="HoldUnit" width="40" height="40"/>
+		<jdipNS:SYMBOLSIZE name="SupportHoldUnit" width="50" height="50"/>
+		<jdipNS:SYMBOLSIZE name="ConvoyTriangle" width="66.4" height="57.4"/>
+		<!-- Special symbol size to contain stroke width for plain (in "height") and power-colored lines (in "width") -->
+		<jdipNS:SYMBOLSIZE name="Stroke" width="4" height="8"/>
+
 		<jdipNS:BUILD deltaRadius="0"/>
-        <jdipNS:REMOVE deltaRadius="5"/>
-        <jdipNS:DISBAND deltaRadius="5"/>
-        <jdipNS:WAIVE deltaRadius="0"/>
-        <jdipNS:HOLD deltaRadius="5" strokeCSSStyle="varwidthorder" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
-        <jdipNS:MOVE deltaRadius="5" strokeCSSStyle="varwidthorder" markerID="arrow" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
-        <jdipNS:RETREAT deltaRadius="5" strokeCSSStyle="defaultorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadoworder"/>
-        <jdipNS:SUPPORT deltaRadius="10" strokeCSSStyle="supportorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
-        <jdipNS:CONVOY deltaRadius="10" strokeCSSStyle="convoyorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
-    </jdipNS:ORDERDRAWING>
+		<jdipNS:REMOVE deltaRadius="5"/>
+		<jdipNS:DISBAND deltaRadius="5"/>
+		<jdipNS:WAIVE deltaRadius="0"/>
+		<jdipNS:HOLD deltaRadius="5" strokeCSSStyle="varwidthorder" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
+		<jdipNS:MOVE deltaRadius="5" strokeCSSStyle="varwidthorder" markerID="arrow" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
+		<jdipNS:RETREAT deltaRadius="5" strokeCSSStyle="defaultorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadoworder"/>
+		<jdipNS:SUPPORT deltaRadius="10" strokeCSSStyle="supportorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
+		<jdipNS:CONVOY deltaRadius="10" strokeCSSStyle="convoyorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
+	</jdipNS:ORDERDRAWING>
 	
-    <jdipNS:PROVINCE_DATA>
-        <jdipNS:PROVINCE name="adr">
-            <jdipNS:UNIT x="472.5" y="201.0"/>
-            <jdipNS:DISLODGED_UNIT x="479.5" y="194.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="aeg">
-            <jdipNS:UNIT x="657.5" y="335.0"/>
-            <jdipNS:DISLODGED_UNIT x="664.5" y="328.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ale">
-            <jdipNS:UNIT x="705.5" y="504.0"/>
-            <jdipNS:DISLODGED_UNIT x="712.5" y="497.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ant">
-            <jdipNS:UNIT x="911.5" y="304.0"/>
-            <jdipNS:DISLODGED_UNIT x="918.5" y="297.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="apu">
-            <jdipNS:UNIT x="443.5" y="222.0"/>
-            <jdipNS:DISLODGED_UNIT x="450.5" y="215.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ara">
-            <jdipNS:UNIT x="971.5" y="416.0"/>
-            <jdipNS:DISLODGED_UNIT x="978.5" y="409.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="arm">
-            <jdipNS:UNIT x="977.5" y="214.0"/>
-            <jdipNS:DISLODGED_UNIT x="984.5" y="207.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ath">
-            <jdipNS:UNIT x="581.5" y="300.0"/>
-            <jdipNS:DISLODGED_UNIT x="588.5" y="293.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="aus">
-            <jdipNS:UNIT x="485.5" y="382.0"/>
-            <jdipNS:DISLODGED_UNIT x="492.5" y="375.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="bal">
-            <jdipNS:UNIT x="153.5" y="240.0"/>
-            <jdipNS:DISLODGED_UNIT x="160.5" y="233.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="bay">
-            <jdipNS:UNIT x="682.5" y="617.0"/>
-            <jdipNS:DISLODGED_UNIT x="689.5" y="610.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ber">
-            <jdipNS:UNIT x="205.5" y="315.0"/>
-            <jdipNS:DISLODGED_UNIT x="212.5" y="308.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="bit">
-            <jdipNS:UNIT x="759.5" y="209.0"/>
-            <jdipNS:DISLODGED_UNIT x="766.5" y="202.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="bla">
-            <jdipNS:UNIT x="770.5" y="143.0"/>
-            <jdipNS:DISLODGED_UNIT x="777.5" y="136.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="byz">
-            <jdipNS:UNIT x="682.5" y="242.0"/>
-            <jdipNS:DISLODGED_UNIT x="689.5" y="235.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="cap">
-            <jdipNS:UNIT x="865.5" y="269.0"/>
-            <jdipNS:DISLODGED_UNIT x="872.5" y="262.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="car">
-            <jdipNS:UNIT x="303.5" y="372.0"/>
-            <jdipNS:DISLODGED_UNIT x="310.5" y="365.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="che">
-            <jdipNS:UNIT x="881.5" y="59.0"/>
-            <jdipNS:DISLODGED_UNIT x="888.5" y="52.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="cil">
-            <jdipNS:UNIT x="785.5" y="353.0"/>
-            <jdipNS:DISLODGED_UNIT x="792.5" y="346.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="cir">
-            <jdipNS:UNIT x="236.5" y="442.0"/>
-            <jdipNS:DISLODGED_UNIT x="243.5" y="435.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="cor">
-            <jdipNS:UNIT x="307.5" y="215.0"/>
-            <jdipNS:DISLODGED_UNIT x="314.5" y="208.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="cre">
-            <jdipNS:UNIT x="650.5" y="382.0"/>
-            <jdipNS:DISLODGED_UNIT x="657.5" y="375.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="cyp">
-            <jdipNS:UNIT x="816.5" y="374.0"/>
-            <jdipNS:DISLODGED_UNIT x="823.5" y="367.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="cyr">
-            <jdipNS:UNIT x="625.5" y="508.0"/>
-            <jdipNS:DISLODGED_UNIT x="632.5" y="501.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="dac">
-            <jdipNS:UNIT x="621.5" y="138.0"/>
-            <jdipNS:DISLODGED_UNIT x="628.5" y="131.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="dal">
-            <jdipNS:UNIT x="502.5" y="178.0"/>
-            <jdipNS:DISLODGED_UNIT x="509.5" y="171.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="dam">
-            <jdipNS:UNIT x="973.5" y="308.0"/>
-            <jdipNS:DISLODGED_UNIT x="980.5" y="301.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="egy">
-            <jdipNS:UNIT x="728.5" y="441.0"/>
-            <jdipNS:DISLODGED_UNIT x="735.5" y="434.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="epi">
-            <jdipNS:UNIT x="544.5" y="267.0"/>
-            <jdipNS:DISLODGED_UNIT x="551.5" y="260.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="etr">
-            <jdipNS:UNIT x="313.5" y="129.0"/>
-            <jdipNS:DISLODGED_UNIT x="320.5" y="122.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="gal">
-            <jdipNS:UNIT x="774.5" y="264.0"/>
-            <jdipNS:DISLODGED_UNIT x="781.5" y="257.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="gau">
-            <jdipNS:UNIT x="197.5" y="83.0"/>
-            <jdipNS:DISLODGED_UNIT x="204.5" y="76.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="gop">
-            <jdipNS:UNIT x="843.5" y="446.0"/>
-            <jdipNS:DISLODGED_UNIT x="850.5" y="439.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="gos">
-            <jdipNS:UNIT x="509.5" y="498.0"/>
-            <jdipNS:DISLODGED_UNIT x="516.5" y="491.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="got">
-            <jdipNS:UNIT x="475.5" y="428.0"/>
-            <jdipNS:DISLODGED_UNIT x="482.5" y="421.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ibe">
-            <jdipNS:UNIT x="82.5" y="356.0"/>
-            <jdipNS:DISLODGED_UNIT x="89.5" y="349.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ill">
-            <jdipNS:UNIT x="536.5" y="157.0"/>
-            <jdipNS:DISLODGED_UNIT x="543.5" y="150.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ion">
-            <jdipNS:UNIT x="508.5" y="306.0"/>
-            <jdipNS:DISLODGED_UNIT x="515.5" y="299.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="isa">
-            <jdipNS:UNIT x="806.5" y="313.0"/>
-            <jdipNS:DISLODGED_UNIT x="813.5" y="306.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="jer">
-            <jdipNS:UNIT x="899.5" y="451.0"/>
-            <jdipNS:DISLODGED_UNIT x="906.5" y="444.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="lep">
-            <jdipNS:UNIT x="468.5" y="533.0"/>
-            <jdipNS:DISLODGED_UNIT x="475.5" y="526.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="lib">
-            <jdipNS:UNIT x="544.5" y="428.0"/>
-            <jdipNS:DISLODGED_UNIT x="551.5" y="421.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="lig">
-            <jdipNS:UNIT x="256.5" y="215.0"/>
-            <jdipNS:DISLODGED_UNIT x="263.5" y="208.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="lus">
-            <jdipNS:UNIT x="18.5" y="227.0"/>
-            <jdipNS:DISLODGED_UNIT x="25.5" y="220.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mac">
-            <jdipNS:UNIT x="611.5" y="231.0"/>
-            <jdipNS:DISLODGED_UNIT x="618.5" y="224.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mar">
-            <jdipNS:UNIT x="601.5" y="561.0"/>
-            <jdipNS:DISLODGED_UNIT x="608.5" y="554.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mas">
-            <jdipNS:UNIT x="253.5" y="127.0"/>
-            <jdipNS:DISLODGED_UNIT x="260.5" y="120.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mau">
-            <jdipNS:UNIT x="112.5" y="410.0"/>
-            <jdipNS:DISLODGED_UNIT x="119.5" y="403.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mem">
-            <jdipNS:UNIT x="783.5" y="554.0"/>
-            <jdipNS:DISLODGED_UNIT x="790.5" y="547.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mes">
-            <jdipNS:UNIT x="535.5" y="378.0"/>
-            <jdipNS:DISLODGED_UNIT x="542.5" y="371.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="mil">
-            <jdipNS:UNIT x="730.5" y="313.0"/>
-            <jdipNS:DISLODGED_UNIT x="737.5" y="306.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="min">
-            <jdipNS:UNIT x="709.5" y="370.0"/>
-            <jdipNS:DISLODGED_UNIT x="716.5" y="363.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="nab">
-            <jdipNS:UNIT x="976.5" y="528.0"/>
-            <jdipNS:DISLODGED_UNIT x="983.5" y="521.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="nea">
-            <jdipNS:UNIT x="457.5" y="274.0"/>
-            <jdipNS:DISLODGED_UNIT x="464.5" y="267.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="num">
-            <jdipNS:UNIT x="343.5" y="471.0"/>
-            <jdipNS:DISLODGED_UNIT x="350.5" y="464.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="pet">
-            <jdipNS:UNIT x="917.5" y="508.0"/>
-            <jdipNS:DISLODGED_UNIT x="924.5" y="501.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="pha">
-            <jdipNS:UNIT x="400.5" y="553.0"/>
-            <jdipNS:DISLODGED_UNIT x="407.5" y="546.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="pun">
-            <jdipNS:UNIT x="358.5" y="338.0"/>
-            <jdipNS:DISLODGED_UNIT x="365.5" y="331.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="rav">
-            <jdipNS:UNIT x="391.5" y="169.0"/>
-            <jdipNS:DISLODGED_UNIT x="398.5" y="162.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ree">
-            <jdipNS:UNIT x="950.5" y="594.0"/>
-            <jdipNS:DISLODGED_UNIT x="957.5" y="587.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="rha">
-            <jdipNS:UNIT x="339.5" y="59.0"/>
-            <jdipNS:DISLODGED_UNIT x="346.5" y="52.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="rom">
-            <jdipNS:UNIT x="368.5" y="188.0"/>
-            <jdipNS:DISLODGED_UNIT x="375.5" y="181.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sad">
-            <jdipNS:UNIT x="304.5" y="264.0"/>
-            <jdipNS:DISLODGED_UNIT x="311.5" y="257.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sag">
-            <jdipNS:UNIT x="58.5" y="302.0"/>
-            <jdipNS:DISLODGED_UNIT x="65.5" y="295.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sah">
-            <jdipNS:UNIT x="269.5" y="588.0"/>
-            <jdipNS:DISLODGED_UNIT x="276.5" y="581.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sam">
-            <jdipNS:UNIT x="517.5" y="56.0"/>
-            <jdipNS:DISLODGED_UNIT x="524.5" y="49.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sic">
-            <jdipNS:UNIT x="421.5" y="333.0"/>
-            <jdipNS:DISLODGED_UNIT x="428.5" y="326.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sid">
-            <jdipNS:UNIT x="919.5" y="355.0"/>
-            <jdipNS:DISLODGED_UNIT x="926.5" y="348.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sin">
-            <jdipNS:UNIT x="871.5" y="490.0"/>
-            <jdipNS:DISLODGED_UNIT x="878.5" y="483.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="sip">
-            <jdipNS:UNIT x="865.5" y="196.0"/>
-            <jdipNS:DISLODGED_UNIT x="872.5" y="189.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="spa">
-            <jdipNS:UNIT x="583.5" y="322.0"/>
-            <jdipNS:DISLODGED_UNIT x="590.5" y="315.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="syr">
-            <jdipNS:UNIT x="864.5" y="402.0"/>
-            <jdipNS:DISLODGED_UNIT x="871.5" y="395.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="tar">
-            <jdipNS:UNIT x="128.5" y="221.0"/>
-            <jdipNS:DISLODGED_UNIT x="135.5" y="214.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="tha">
-            <jdipNS:UNIT x="307.5" y="419.0"/>
-            <jdipNS:DISLODGED_UNIT x="314.5" y="412.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="thb">
-            <jdipNS:UNIT x="879.5" y="591.0"/>
-            <jdipNS:DISLODGED_UNIT x="886.5" y="584.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="tye">
-            <jdipNS:UNIT x="914.5" y="383.0"/>
-            <jdipNS:DISLODGED_UNIT x="921.5" y="376.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="tyn">
-            <jdipNS:UNIT x="395.5" y="268.0"/>
-            <jdipNS:DISLODGED_UNIT x="402.5" y="261.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="ven">
-            <jdipNS:UNIT x="346.5" y="100.0"/>
-            <jdipNS:DISLODGED_UNIT x="353.5" y="93.0"/>
-        </jdipNS:PROVINCE>
-        <jdipNS:PROVINCE name="vin">
-            <jdipNS:UNIT x="410.5" y="71.0"/>
-            <jdipNS:DISLODGED_UNIT x="417.5" y="64.0"/>
-        </jdipNS:PROVINCE>
-    </jdipNS:PROVINCE_DATA>
+	<jdipNS:PROVINCE_DATA>
+		<jdipNS:PROVINCE name="adr">
+			<jdipNS:UNIT x="472.5" y="201.0"/>
+			<jdipNS:DISLODGED_UNIT x="479.5" y="194.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="aeg">
+			<jdipNS:UNIT x="657.5" y="335.0"/>
+			<jdipNS:DISLODGED_UNIT x="664.5" y="328.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ale">
+			<jdipNS:UNIT x="705.5" y="504.0"/>
+			<jdipNS:DISLODGED_UNIT x="712.5" y="497.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ant">
+			<jdipNS:UNIT x="911.5" y="304.0"/>
+			<jdipNS:DISLODGED_UNIT x="918.5" y="297.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="apu">
+			<jdipNS:UNIT x="443.5" y="222.0"/>
+			<jdipNS:DISLODGED_UNIT x="450.5" y="215.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ara">
+			<jdipNS:UNIT x="971.5" y="416.0"/>
+			<jdipNS:DISLODGED_UNIT x="978.5" y="409.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="arm">
+			<jdipNS:UNIT x="977.5" y="214.0"/>
+			<jdipNS:DISLODGED_UNIT x="984.5" y="207.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ath">
+			<jdipNS:UNIT x="581.5" y="300.0"/>
+			<jdipNS:DISLODGED_UNIT x="588.5" y="293.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="aus">
+			<jdipNS:UNIT x="485.5" y="382.0"/>
+			<jdipNS:DISLODGED_UNIT x="492.5" y="375.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="bal">
+			<jdipNS:UNIT x="153.5" y="240.0"/>
+			<jdipNS:DISLODGED_UNIT x="160.5" y="233.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="bay">
+			<jdipNS:UNIT x="682.5" y="617.0"/>
+			<jdipNS:DISLODGED_UNIT x="689.5" y="610.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ber">
+			<jdipNS:UNIT x="205.5" y="315.0"/>
+			<jdipNS:DISLODGED_UNIT x="212.5" y="308.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="bit">
+			<jdipNS:UNIT x="759.5" y="209.0"/>
+			<jdipNS:DISLODGED_UNIT x="766.5" y="202.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="bla">
+			<jdipNS:UNIT x="770.5" y="143.0"/>
+			<jdipNS:DISLODGED_UNIT x="777.5" y="136.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="byz">
+			<jdipNS:UNIT x="682.5" y="242.0"/>
+			<jdipNS:DISLODGED_UNIT x="689.5" y="235.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="cap">
+			<jdipNS:UNIT x="865.5" y="269.0"/>
+			<jdipNS:DISLODGED_UNIT x="872.5" y="262.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="car">
+			<jdipNS:UNIT x="303.5" y="372.0"/>
+			<jdipNS:DISLODGED_UNIT x="310.5" y="365.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="che">
+			<jdipNS:UNIT x="881.5" y="59.0"/>
+			<jdipNS:DISLODGED_UNIT x="888.5" y="52.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="cil">
+			<jdipNS:UNIT x="785.5" y="353.0"/>
+			<jdipNS:DISLODGED_UNIT x="792.5" y="346.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="cir">
+			<jdipNS:UNIT x="236.5" y="442.0"/>
+			<jdipNS:DISLODGED_UNIT x="243.5" y="435.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="cor">
+			<jdipNS:UNIT x="307.5" y="215.0"/>
+			<jdipNS:DISLODGED_UNIT x="314.5" y="208.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="cre">
+			<jdipNS:UNIT x="650.5" y="382.0"/>
+			<jdipNS:DISLODGED_UNIT x="657.5" y="375.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="cyp">
+			<jdipNS:UNIT x="816.5" y="374.0"/>
+			<jdipNS:DISLODGED_UNIT x="823.5" y="367.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="cyr">
+			<jdipNS:UNIT x="625.5" y="508.0"/>
+			<jdipNS:DISLODGED_UNIT x="632.5" y="501.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="dac">
+			<jdipNS:UNIT x="621.5" y="138.0"/>
+			<jdipNS:DISLODGED_UNIT x="628.5" y="131.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="dal">
+			<jdipNS:UNIT x="502.5" y="178.0"/>
+			<jdipNS:DISLODGED_UNIT x="509.5" y="171.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="dam">
+			<jdipNS:UNIT x="973.5" y="308.0"/>
+			<jdipNS:DISLODGED_UNIT x="980.5" y="301.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="egy">
+			<jdipNS:UNIT x="728.5" y="441.0"/>
+			<jdipNS:DISLODGED_UNIT x="735.5" y="434.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="epi">
+			<jdipNS:UNIT x="544.5" y="267.0"/>
+			<jdipNS:DISLODGED_UNIT x="551.5" y="260.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="etr">
+			<jdipNS:UNIT x="313.5" y="129.0"/>
+			<jdipNS:DISLODGED_UNIT x="320.5" y="122.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="gal">
+			<jdipNS:UNIT x="774.5" y="264.0"/>
+			<jdipNS:DISLODGED_UNIT x="781.5" y="257.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="gau">
+			<jdipNS:UNIT x="197.5" y="83.0"/>
+			<jdipNS:DISLODGED_UNIT x="204.5" y="76.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="gop">
+			<jdipNS:UNIT x="843.5" y="446.0"/>
+			<jdipNS:DISLODGED_UNIT x="850.5" y="439.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="gos">
+			<jdipNS:UNIT x="509.5" y="498.0"/>
+			<jdipNS:DISLODGED_UNIT x="516.5" y="491.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="got">
+			<jdipNS:UNIT x="475.5" y="428.0"/>
+			<jdipNS:DISLODGED_UNIT x="482.5" y="421.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ibe">
+			<jdipNS:UNIT x="82.5" y="356.0"/>
+			<jdipNS:DISLODGED_UNIT x="89.5" y="349.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ill">
+			<jdipNS:UNIT x="536.5" y="157.0"/>
+			<jdipNS:DISLODGED_UNIT x="543.5" y="150.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ion">
+			<jdipNS:UNIT x="508.5" y="306.0"/>
+			<jdipNS:DISLODGED_UNIT x="515.5" y="299.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="isa">
+			<jdipNS:UNIT x="806.5" y="313.0"/>
+			<jdipNS:DISLODGED_UNIT x="813.5" y="306.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="jer">
+			<jdipNS:UNIT x="899.5" y="451.0"/>
+			<jdipNS:DISLODGED_UNIT x="906.5" y="444.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="lep">
+			<jdipNS:UNIT x="468.5" y="533.0"/>
+			<jdipNS:DISLODGED_UNIT x="475.5" y="526.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="lib">
+			<jdipNS:UNIT x="544.5" y="428.0"/>
+			<jdipNS:DISLODGED_UNIT x="551.5" y="421.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="lig">
+			<jdipNS:UNIT x="256.5" y="215.0"/>
+			<jdipNS:DISLODGED_UNIT x="263.5" y="208.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="lus">
+			<jdipNS:UNIT x="18.5" y="227.0"/>
+			<jdipNS:DISLODGED_UNIT x="25.5" y="220.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="mac">
+			<jdipNS:UNIT x="611.5" y="231.0"/>
+			<jdipNS:DISLODGED_UNIT x="618.5" y="224.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="mar">
+			<jdipNS:UNIT x="601.5" y="561.0"/>
+			<jdipNS:DISLODGED_UNIT x="608.5" y="554.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="mas">
+			<jdipNS:UNIT x="253.5" y="127.0"/>
+			<jdipNS:DISLODGED_UNIT x="260.5" y="120.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="mau">
+			<jdipNS:UNIT x="112.5" y="410.0"/>
+			<jdipNS:DISLODGED_UNIT x="119.5" y="403.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="mem">
+			<jdipNS:UNIT x="783.5" y="554.0"/>
+			<jdipNS:DISLODGED_UNIT x="790.5" y="547.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="mes">
+			<jdipNS:UNIT x="535.5" y="378.0"/>
+			<jdipNS:DISLODGED_UNIT x="542.5" y="371.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="mil">
+			<jdipNS:UNIT x="730.5" y="313.0"/>
+			<jdipNS:DISLODGED_UNIT x="737.5" y="306.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="min">
+			<jdipNS:UNIT x="709.5" y="370.0"/>
+			<jdipNS:DISLODGED_UNIT x="716.5" y="363.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="nab">
+			<jdipNS:UNIT x="976.5" y="528.0"/>
+			<jdipNS:DISLODGED_UNIT x="983.5" y="521.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="nea">
+			<jdipNS:UNIT x="457.5" y="274.0"/>
+			<jdipNS:DISLODGED_UNIT x="464.5" y="267.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="num">
+			<jdipNS:UNIT x="343.5" y="471.0"/>
+			<jdipNS:DISLODGED_UNIT x="350.5" y="464.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="pet">
+			<jdipNS:UNIT x="917.5" y="508.0"/>
+			<jdipNS:DISLODGED_UNIT x="924.5" y="501.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="pha">
+			<jdipNS:UNIT x="400.5" y="553.0"/>
+			<jdipNS:DISLODGED_UNIT x="407.5" y="546.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="pun">
+			<jdipNS:UNIT x="358.5" y="338.0"/>
+			<jdipNS:DISLODGED_UNIT x="365.5" y="331.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="rav">
+			<jdipNS:UNIT x="391.5" y="169.0"/>
+			<jdipNS:DISLODGED_UNIT x="398.5" y="162.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ree">
+			<jdipNS:UNIT x="950.5" y="594.0"/>
+			<jdipNS:DISLODGED_UNIT x="957.5" y="587.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="rha">
+			<jdipNS:UNIT x="339.5" y="59.0"/>
+			<jdipNS:DISLODGED_UNIT x="346.5" y="52.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="rom">
+			<jdipNS:UNIT x="368.5" y="188.0"/>
+			<jdipNS:DISLODGED_UNIT x="375.5" y="181.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sad">
+			<jdipNS:UNIT x="304.5" y="264.0"/>
+			<jdipNS:DISLODGED_UNIT x="311.5" y="257.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sag">
+			<jdipNS:UNIT x="58.5" y="302.0"/>
+			<jdipNS:DISLODGED_UNIT x="65.5" y="295.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sah">
+			<jdipNS:UNIT x="269.5" y="588.0"/>
+			<jdipNS:DISLODGED_UNIT x="276.5" y="581.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sam">
+			<jdipNS:UNIT x="517.5" y="56.0"/>
+			<jdipNS:DISLODGED_UNIT x="524.5" y="49.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sic">
+			<jdipNS:UNIT x="421.5" y="333.0"/>
+			<jdipNS:DISLODGED_UNIT x="428.5" y="326.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sid">
+			<jdipNS:UNIT x="919.5" y="355.0"/>
+			<jdipNS:DISLODGED_UNIT x="926.5" y="348.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sin">
+			<jdipNS:UNIT x="871.5" y="490.0"/>
+			<jdipNS:DISLODGED_UNIT x="878.5" y="483.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="sip">
+			<jdipNS:UNIT x="865.5" y="196.0"/>
+			<jdipNS:DISLODGED_UNIT x="872.5" y="189.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="spa">
+			<jdipNS:UNIT x="583.5" y="322.0"/>
+			<jdipNS:DISLODGED_UNIT x="590.5" y="315.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="syr">
+			<jdipNS:UNIT x="864.5" y="402.0"/>
+			<jdipNS:DISLODGED_UNIT x="871.5" y="395.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="tar">
+			<jdipNS:UNIT x="128.5" y="221.0"/>
+			<jdipNS:DISLODGED_UNIT x="135.5" y="214.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="tha">
+			<jdipNS:UNIT x="307.5" y="419.0"/>
+			<jdipNS:DISLODGED_UNIT x="314.5" y="412.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="thb">
+			<jdipNS:UNIT x="879.5" y="591.0"/>
+			<jdipNS:DISLODGED_UNIT x="886.5" y="584.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="tye">
+			<jdipNS:UNIT x="914.5" y="383.0"/>
+			<jdipNS:DISLODGED_UNIT x="921.5" y="376.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="tyn">
+			<jdipNS:UNIT x="395.5" y="268.0"/>
+			<jdipNS:DISLODGED_UNIT x="402.5" y="261.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="ven">
+			<jdipNS:UNIT x="346.5" y="100.0"/>
+			<jdipNS:DISLODGED_UNIT x="353.5" y="93.0"/>
+		</jdipNS:PROVINCE>
+		<jdipNS:PROVINCE name="vin">
+			<jdipNS:UNIT x="410.5" y="71.0"/>
+			<jdipNS:DISLODGED_UNIT x="417.5" y="64.0"/>
+		</jdipNS:PROVINCE>
+	</jdipNS:PROVINCE_DATA>
 
 	
 	<title>Ancient Med Map</title>
@@ -373,8 +378,8 @@
 		.brieflabeltext	{text-anchor:middle;stroke-width:0.1;stroke:black;fill:black;font-family:serif;font-style:italic;font-size:14px;}
 		.fulllabeltext	{font-family:serif;font-style:italic;font-size:24;fill:black;stroke:black;}
 		.currentnotetext {font-family:serif,sans-serif; font-size:12px; fill:black; stroke:black;}
-        .currentnoterect {opacity:0;}
-        .currentphasetext {font-family:serif,sans-serif; font-size:18px; fill:black; stroke:black;}
+		.currentnoterect {opacity:0;}
+		.currentphasetext {font-family:serif,sans-serif; font-size:18px; fill:black; stroke:black;}
 
 		/* style class for invisible regions */
 		
@@ -382,11 +387,11 @@
 		
 		/* default region coloring, by power (nopower if region not owned) */
 
-        .provinceRed {fill:url(#patternRed)}
-        .provinceBrown {fill:url(#patternBrown)}
-        .provinceGreen {fill:url(#patternGreen)}
-        .provinceBlack {fill:url(#patternBlack)}
-        .provinceBlue {fill:url(#patternBlue)}
+		.provinceRed {fill:url(#patternRed)}
+		.provinceBrown {fill:url(#patternBrown)}
+		.provinceGreen {fill:url(#patternGreen)}
+		.provinceBlack {fill:url(#patternBlack)}
+		.provinceBlue {fill:url(#patternBlue)}
 		
 		.nopower 	{fill:none;stroke:black;stroke-width:1}
 		.water		{fill:lightblue;stroke:black;stroke-width:1}
@@ -409,190 +414,211 @@
 		/* map accents */
 		.thickdash	{fill:none;stroke:black;stroke-width:6;stroke-dasharray:2,1.5;}
 
-        /* order drawing styles, stroke and fill colors should not be specified */
+		/* order drawing styles, stroke and fill colors should not be specified */
 
-        .defaultorder {stroke-width:6; fill:none;}
-        .supportorder {stroke-width:6; fill:none; stroke-dasharray:5,5;}
-        .convoyorder  {stroke-dasharray:15,5; stroke-width:6; fill:none;}
+		.defaultorder {stroke-width:6; fill:none;}
+		.supportorder {stroke-width:4; fill:none; stroke-dasharray:5,5;}
+		.convoyorder  {stroke-dasharray:15,5; stroke-width:4; fill:none;}
 
-        .shadoworder  {stroke-width:10; fill:none; stroke:black;}
-        .shadowdash   {stroke-width:10; fill:none; stroke:black; opacity:0.45;}
+		.shadoworder  {stroke-width:10; fill:none; stroke:black;}
+		.shadowdash   {stroke-width:8; fill:none; stroke:black; opacity:0.45;}
 
-        .varwidthorder  {fill:none;}
-        .varwidthshadow {fill:none; stroke:black;}
+		.varwidthorder  {fill:none;}
+		.varwidthshadow {fill:none; stroke:black;}
 
-        /* Symbol private styles. Always start with "sym" to avoid name collisions! */
+		/* Symbol private styles. Always start with "sym" to avoid name collisions! */
 
-        .symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
-        .symBuild       {stroke:yellow;stroke-width:7;fill:none;}
-        .symRemove      {stroke:red;stroke-width:1;fill:none;}
+		.symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
+		.symBuild       {stroke:yellow;stroke-width:7;fill:none;}
+		.symRemove      {stroke:red;stroke-width:1;fill:none;}
 
-        .symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
-        .symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
-        .symDislodgedBorder {stroke:red;stroke-width:3%;}
+		.symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
+		.symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
+		.symDislodgedBorder {stroke:red;stroke-width:3%;}
 
-        .symDarkener        {fill:black;opacity:0.45;fill-opacity:0.45;}
-        .symCenterHub       {fill:black; stroke:black; opacity:0.60; stroke-width:0.5px;}
-        .symBorder          {stroke:black;stroke-width:3%;}
-        .symThinBorder      {stroke:black;stroke-width:0.4;}
-        .symSilhouette      {stroke:black;fill:black;stroke-width:1;}
+		.symDarkener        {fill:black;opacity:0.45;fill-opacity:0.45;}
+		.symCenterHub       {fill:black; stroke:black; opacity:0.60; stroke-width:0.5px;}
+		.symBorder          {stroke:black;stroke-width:3%;}
+		.symThinBorder      {stroke:black;stroke-width:0.4;}
+		.symSilhouette      {stroke:black;fill:black;stroke-width:1;}
 
-        .style1 {fill:none;stroke:#17A1F8;stroke-width:5;}
-        .style2 {fill:none;stroke:black;stroke-width:2}
+		.style1 {fill:none;stroke:#17A1F8;stroke-width:5;}
+		.style2 {fill:none;stroke:black;stroke-width:2}
 
 		]]></style>
 		
-        <!-- NON UNIT SYMBOLS -->
-        <symbol id="WaivedBuild" viewBox="0 0 100 100" overflow="visible">
-               <linearGradient x1="15" y1="100" x2="100" y2="10" id="symWBGradient" gradientUnits="userSpaceOnUse">
-                <stop offset="20%" stop-color="yellow" stop-opacity="1"/>
-                <stop offset="95%" stop-color="yellow" stop-opacity="0"/>
-            </linearGradient>
-               <linearGradient x1="15" y1="100" x2="100" y2="10" id="symShadowWBGradient" gradientUnits="userSpaceOnUse">
-                <stop offset="20%" stop-color="black" stop-opacity="0.5"/>
-                <stop offset="90%" stop-color="black" stop-opacity="0"/>
-            </linearGradient>
-            <g>
-                <polygon transform="translate(1 7)" fill="url(#symShadowWBGradient)" points="40,100 100,35 95,30 40,85 13,65 10,70"/>
-                <polygon stroke="black" stroke-width="0.5" fill="url(#symWBGradient)" points="40,100 100,35 90,20 40,85 13,65 10,70"/>
-            </g>
-        </symbol>
+		<!-- NON UNIT SYMBOLS -->
+		<symbol id="WaivedBuild" viewBox="0 0 100 100" overflow="visible">
+			   <linearGradient x1="15" y1="100" x2="100" y2="10" id="symWBGradient" gradientUnits="userSpaceOnUse">
+				<stop offset="20%" stop-color="yellow" stop-opacity="1"/>
+				<stop offset="95%" stop-color="yellow" stop-opacity="0"/>
+			</linearGradient>
+			   <linearGradient x1="15" y1="100" x2="100" y2="10" id="symShadowWBGradient" gradientUnits="userSpaceOnUse">
+				<stop offset="20%" stop-color="black" stop-opacity="0.5"/>
+				<stop offset="90%" stop-color="black" stop-opacity="0"/>
+			</linearGradient>
+			<g>
+				<polygon transform="translate(1 7)" fill="url(#symShadowWBGradient)" points="40,100 100,35 95,30 40,85 13,65 10,70"/>
+				<polygon stroke="black" stroke-width="0.5" fill="url(#symWBGradient)" points="40,100 100,35 90,20 40,85 13,65 10,70"/>
+			</g>
+		</symbol>
 
-        <symbol id="BuildUnit" viewBox="0 0 100 100" overflow="visible">
-            <g>
-                <g transform="translate(6 6)" class="symBuildShadow">
-                    <circle cx="50" cy="50" r="10"/>
-                    <circle cx="50" cy="50" r="30"/>
-                    <circle cx="50" cy="50" r="50"/>
-                    <circle cx="50" cy="50" r="70"/>
-                </g>
-                <g class="symBuild">
-                    <circle cx="50" cy="50" r="10"/>
-                    <circle cx="50" cy="50" r="30"/>
-                    <circle cx="50" cy="50" r="50"/>
-                    <circle cx="50" cy="50" r="70"/>
-                </g>
-            </g>
-        </symbol>
+		<symbol id="BuildUnit" viewBox="0 0 100 100" overflow="visible">
+			<g>
+				<g transform="translate(6 6)" class="symBuildShadow">
+					<circle cx="50" cy="50" r="10"/>
+					<circle cx="50" cy="50" r="30"/>
+					<circle cx="50" cy="50" r="50"/>
+					<circle cx="50" cy="50" r="70"/>
+				</g>
+				<g class="symBuild">
+					<circle cx="50" cy="50" r="10"/>
+					<circle cx="50" cy="50" r="30"/>
+					<circle cx="50" cy="50" r="50"/>
+					<circle cx="50" cy="50" r="70"/>
+				</g>
+			</g>
+		</symbol>
 
-        <symbol id="RemoveUnit" viewBox="0 0 10 10" overflow="visible">
-            <g class="symRemove">
-                <circle cx="5" cy="5" r="7"/>
-                <line x1="-2" y1="-2" x2="12" y2="12"/>
-                <line x1="-2" y1="12" x2="12" y2="-2"/>
-            </g>
-        </symbol>
+		<symbol id="RemoveUnit" viewBox="0 0 10 10" overflow="visible">
+			<g class="symRemove">
+				<circle cx="5" cy="5" r="7"/>
+				<line x1="-2" y1="-2" x2="12" y2="12"/>
+				<line x1="-2" y1="12" x2="12" y2="-2"/>
+			</g>
+		</symbol>
 
-        <symbol id="FailedOrder" viewBox="0 0 35 35" overflow="visible">
-            <g>
-                <polygon transform="translate(3.5,3.5)" class="shadow" stroke-width="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17"/>
-                <polygon stroke="black" fill="red" stroke-width="3%" fill-opacity="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17"/>
-            </g>
-        </symbol>
+		<symbol id="FailedOrder" viewBox="0 0 35 35" overflow="visible">
+			<g>
+				<polygon transform="translate(3.5,3.5)" class="shadow" stroke-width="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17"/>
+				<polygon stroke="black" fill="red" stroke-width="3%" fill-opacity="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17"/>
+			</g>
+		</symbol>
 
-        <symbol id="SupplyCenter" viewBox="0 0 10 10" overflow="visible">
-            <g>
-                <circle cx="5" cy="5" r="3" class="symThinBorder"/>
-                <circle cx="5" cy="5" r="5" stroke-width="0.75" stroke="black" fill="none"/>
-            </g>
-        </symbol>
+		<symbol id="SupplyCenter" viewBox="0 0 10 10" overflow="visible">
+			<g>
+				<circle cx="5" cy="5" r="3" class="symThinBorder"/>
+				<circle cx="5" cy="5" r="5" stroke-width="0.75" stroke="black" fill="none"/>
+			</g>
+		</symbol>
 
-        <!-- UNIT SYMBOLS -->
-        <symbol id="Army" viewBox="0 0 23 15" overflow="visible">
-            <g>
-                <rect x="2" y="2" width="23" height="13" rx="4" stroke-width="1" class="symShadow" />
-                <rect x="0" y="0" width="23" height="13" rx="4" class="symBorder" />
-                <g class="symSilhouette">
-                    <rect x="6" y="6" width="13" height="1"/>
-                    <rect x="5" y="7" width="14" height="1"/>
-                    <rect x="6" y="8" width="12" height="1"/>
-                    <rect x="7" y="9" width="10" height="1"/>
-                    <rect x="10" y="3" width="5" height="3"/>
-                    <rect x="15" y="4.5" width="1" height="1.5"/>
-                    <line x1="3" y1="4" x2="10" y2="4"/>
-                </g>
-            </g>
-        </symbol>
+		<symbol id="HoldUnit" viewBox="0 0 66.6 66.6" overflow="visible">
+			<g>
+				<polygon stroke-width="10" class="varwidthshadow" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0"/>
+				<polygon stroke-width="6" class="varwidthorder" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0"/>
+			</g>
+		</symbol>
 
-        <symbol id="Fleet" viewBox="0 0 23 15" overflow="visible">
-            <g>
-                <rect x="2" y="2" width="23" height="13" rx="4" stroke-width="1" class="symShadow" />
-                <rect x="0" y="0" width="23" height="13" rx="4" class="symBorder" />
-                <g class="symSilhouette">
-                    <rect x="3" y="7" width="16.5" height="1"/>
-                    <rect x="4" y="8" width="15" height="1"/>
-                    <rect x="5" y="9" width="13.5" height="1"/>
-                    <rect x="13.5" y="6" width="2.75" height="1"/>
-                    <rect x="7" y="5"  width="4" height="2"/>
-                    <rect x="8.5" y="4"  width="1" height="1"/>
-                    <rect x="6" y="6" width="1" height="1"/>
-                </g>
-            </g>
-        </symbol>
+		<symbol id="SupportHoldUnit" viewBox="0 0 76.6 76.6" overflow="visible">
+			<g>
+				<polygon class="shadowdash" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0"/>
+				<polygon class="supportorder" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0"/>
+			</g>
+		</symbol>
 
-        <!-- DISLODGED UNIT SYMBOLS -->
-        <symbol id="DislodgedArmy" viewBox="0 0 23 15" overflow="visible">
-            <g>
-                <rect x="3" y="3" width="23" height="13" rx="4" stroke-width="1" class="symDislodgedShadow" />
-                <rect x="0" y="0" width="23" height="13" rx="4" class="symDislodgedBorder" />
-                <g class="symSilhouette">
-                    <rect x="6" y="6" width="13" height="1"/>
-                    <rect x="5" y="7" width="14" height="1"/>
-                    <rect x="6" y="8" width="12" height="1"/>
-                    <rect x="7" y="9" width="10" height="1"/>
-                    <rect x="10" y="3" width="5" height="3"/>
-                    <rect x="15" y="4.5" width="1" height="1.5"/>
-                    <line x1="3" y1="4" x2="10" y2="4"/>
-                </g>
-            </g>
-        </symbol>
+		<symbol id="ConvoyTriangle" viewBox="0 0 66.4 57.4" overflow="visible">
+			<g>
+				<polygon class="shadowdash" points="33.2,0.0 66.4,57.4 0.0,57.4"/>
+				<polygon class="convoyorder" points="33.2,0.0 66.4,57.4 0.0,57.4"/>
+			</g>
+		</symbol>
 
-        <symbol id="DislodgedFleet" viewBox="0 0 23 15" overflow="visible">
-            <g>
-                <rect x="3" y="3" width="23" height="13" rx="4" stroke-width="1" class="symDislodgedShadow" />
-                <rect x="0" y="0" width="23" height="13" rx="4" class="symDislodgedBorder" />
-                <g class="symSilhouette">
-                    <rect x="3" y="7" width="16.5" height="1"/>
-                    <rect x="4" y="8" width="15" height="1"/>
-                    <rect x="5" y="9" width="13.5" height="1"/>
-                    <rect x="13.5" y="6" width="2.75" height="1"/>
-                    <rect x="7" y="5"  width="4" height="2"/>
-                    <rect x="8.5" y="4"  width="1" height="1"/>
-                    <rect x="6" y="6" width="1" height="1"/>
-                </g>
-            </g>
-        </symbol>
+		<!-- UNIT SYMBOLS -->
+		<symbol id="Army" viewBox="0 0 23 15" overflow="visible">
+			<g>
+				<rect x="2" y="2" width="23" height="13" rx="4" stroke-width="1" class="symShadow" />
+				<rect x="0" y="0" width="23" height="13" rx="4" class="symBorder" />
+				<g class="symSilhouette">
+					<rect x="6" y="6" width="13" height="1"/>
+					<rect x="5" y="7" width="14" height="1"/>
+					<rect x="6" y="8" width="12" height="1"/>
+					<rect x="7" y="9" width="10" height="1"/>
+					<rect x="10" y="3" width="5" height="3"/>
+					<rect x="15" y="4.5" width="1" height="1.5"/>
+					<line x1="3" y1="4" x2="10" y2="4"/>
+				</g>
+			</g>
+		</symbol>
 
-        <marker id="arrow" markerHeight="4" markerUnits="strokeWidth" markerWidth="4" orient="auto" refX="5" refY="5" viewBox="0 0 10 10">
-            <path d="M 0 0 L 10 5 L 0 10 z"/>
-        </marker>
+		<symbol id="Fleet" viewBox="0 0 23 15" overflow="visible">
+			<g>
+				<rect x="2" y="2" width="23" height="13" rx="4" stroke-width="1" class="symShadow" />
+				<rect x="0" y="0" width="23" height="13" rx="4" class="symBorder" />
+				<g class="symSilhouette">
+					<rect x="3" y="7" width="16.5" height="1"/>
+					<rect x="4" y="8" width="15" height="1"/>
+					<rect x="5" y="9" width="13.5" height="1"/>
+					<rect x="13.5" y="6" width="2.75" height="1"/>
+					<rect x="7" y="5"  width="4" height="2"/>
+					<rect x="8.5" y="4"  width="1" height="1"/>
+					<rect x="6" y="6" width="1" height="1"/>
+				</g>
+			</g>
+		</symbol>
 
-        <pattern id="patternRed" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="10" height="10" fill="red"/>
-            <rect x="5" y="0" width="10" height="10" fill="pink"/>
-        </pattern>
-        <pattern id="patternBrown" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="10" height="10" fill="peru"/>
-            <rect x="5" y="0" width="10" height="10" fill="antiquewhite"/>
-        </pattern>
-        <pattern id="patternGreen" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="10" height="10" fill="seagreen"/>
-            <rect x="5" y="0" width="10" height="10" fill="yellowgreen"/>
-        </pattern>
-        <pattern id="patternBlue" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="10" height="10" fill="CornflowerBlue"/>
-            <rect x="5" y="0" width="10" height="10" fill="cyan"/>
-        </pattern>
-        <pattern id="patternBlack" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
-            <rect x="0" y="0" width="10" height="10" fill="black"/>
-            <rect x="0" y="5" width="10" height="10" fill="gray"/>
-        </pattern>
+		<!-- DISLODGED UNIT SYMBOLS -->
+		<symbol id="DislodgedArmy" viewBox="0 0 23 15" overflow="visible">
+			<g>
+				<rect x="3" y="3" width="23" height="13" rx="4" stroke-width="1" class="symDislodgedShadow" />
+				<rect x="0" y="0" width="23" height="13" rx="4" class="symDislodgedBorder" />
+				<g class="symSilhouette">
+					<rect x="6" y="6" width="13" height="1"/>
+					<rect x="5" y="7" width="14" height="1"/>
+					<rect x="6" y="8" width="12" height="1"/>
+					<rect x="7" y="9" width="10" height="1"/>
+					<rect x="10" y="3" width="5" height="3"/>
+					<rect x="15" y="4.5" width="1" height="1.5"/>
+					<line x1="3" y1="4" x2="10" y2="4"/>
+				</g>
+			</g>
+		</symbol>
+
+		<symbol id="DislodgedFleet" viewBox="0 0 23 15" overflow="visible">
+			<g>
+				<rect x="3" y="3" width="23" height="13" rx="4" stroke-width="1" class="symDislodgedShadow" />
+				<rect x="0" y="0" width="23" height="13" rx="4" class="symDislodgedBorder" />
+				<g class="symSilhouette">
+					<rect x="3" y="7" width="16.5" height="1"/>
+					<rect x="4" y="8" width="15" height="1"/>
+					<rect x="5" y="9" width="13.5" height="1"/>
+					<rect x="13.5" y="6" width="2.75" height="1"/>
+					<rect x="7" y="5"  width="4" height="2"/>
+					<rect x="8.5" y="4"  width="1" height="1"/>
+					<rect x="6" y="6" width="1" height="1"/>
+				</g>
+			</g>
+		</symbol>
+
+		<marker id="arrow" markerHeight="4" markerUnits="strokeWidth" markerWidth="4" orient="auto" refX="5" refY="5" viewBox="0 0 10 10">
+			<path d="M 0 0 L 10 5 L 0 10 z"/>
+		</marker>
+
+		<pattern id="patternRed" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+			<rect x="0" y="0" width="10" height="10" fill="red"/>
+			<rect x="5" y="0" width="10" height="10" fill="pink"/>
+		</pattern>
+		<pattern id="patternBrown" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+			<rect x="0" y="0" width="10" height="10" fill="peru"/>
+			<rect x="5" y="0" width="10" height="10" fill="antiquewhite"/>
+		</pattern>
+		<pattern id="patternGreen" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+			<rect x="0" y="0" width="10" height="10" fill="seagreen"/>
+			<rect x="5" y="0" width="10" height="10" fill="yellowgreen"/>
+		</pattern>
+		<pattern id="patternBlue" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+			<rect x="0" y="0" width="10" height="10" fill="CornflowerBlue"/>
+			<rect x="5" y="0" width="10" height="10" fill="cyan"/>
+		</pattern>
+		<pattern id="patternBlack" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+			<rect x="0" y="0" width="10" height="10" fill="black"/>
+			<rect x="0" y="5" width="10" height="10" fill="gray"/>
+		</pattern>
 		
 	</defs>    
-    
+
 	
 	<g id="MapLayer">
-    	<!-- gradient background -->
+		<!-- gradient background -->
 		<rect fill="antiquewhite" x="0" y="0"  width="1030" height="660"/>
 		
 		<polygon id="_adr" class="water" points="530,249 529,255 523,252 509,252 504,253 500,250 490,245 484,244 460,227 460,222 464,219 465,216 461,214 452,214 446,215 438,213 432,208 425,198 419,184 417,179 414,176 410,170 397,162 389,154 383,140 384,137 388,135 388,131 384,127 385,121 393,115 399,111 406,110 415,111 419,115 419,118 415,118 412,120 413,129 420,139 422,138 425,133 427,130 430,129 433,130 436,135 437,140 441,145 443,148 441,149 439,149 437,151 439,154 445,159 450,161 454,163 454,167 456,169 459,168 463,168 467,171 472,176 476,180 481,182 482,184 480,185 476,184 474,185 476,186 479,187 482,189 485,192 488,193 488,190 491,189 493,192 498,196 501,199 502,201 506,203 511,204 513,203 516,204 515,206 513,206 513,208 515,210 518,214 520,217 523,218 527,219 529,220 530,224 531,232 530,241 530,249" />
@@ -710,270 +736,270 @@
 		
 	</g>
 
-    <!-- drawing layer: supply centers -->
+	<!-- drawing layer: supply centers -->
 	<g id="SupplyCenterLayer">
-    <use
-       height="10"
-       id="sc_CAR"
-       width="10"
-       x="318.9"
-       xlink:href="#SupplyCenter"
-       y="353.7" />
-    <use
-       height="10"
-       id="sc_CIR"
-       width="10"
-       x="255.5"
-       xlink:href="#SupplyCenter"
-       y="434.1" />
-    <use
-       height="10"
-       id="sc_THA"
-       width="10"
-       x="315.6"
-       xlink:href="#SupplyCenter"
-       y="403.3" />
-    <use
-       height="10"
-       id="sc_ALE"
-       width="10"
-       x="724.2"
-       xlink:href="#SupplyCenter"
-       y="490.2" />
-    <use
-       height="10"
-       id="sc_MEM"
-       width="10"
-       x="791.6"
-       xlink:href="#SupplyCenter"
-       y="586.9" />
-    <use
-       height="10"
-       id="sc_THB"
-       width="10"
-       x="844.4"
-       xlink:href="#SupplyCenter"
-       y="516.2" />
-    <use
-       height="10"
-       id="sc_SPA"
-       width="10"
-       x="587.7"
-       xlink:href="#SupplyCenter"
-       y="337.5" />
-    <use
-       height="10"
-       id="sc_ATH"
-       width="10"
-       x="614.5"
-       xlink:href="#SupplyCenter"
-       y="303.4" />
-    <use
-       height="10"
-       id="sc_MAC"
-       width="10"
-       x="604.8"
-       xlink:href="#SupplyCenter"
-       y="243.3" />
-    <use
-       height="10"
-       id="sc_ANT"
-       width="10"
-       x="898.8"
-       xlink:href="#SupplyCenter"
-       y="320.4" />
-    <use
-       height="10"
-       id="sc_SID"
-       width="10"
-       x="902.09998"
-       xlink:href="#SupplyCenter"
-       y="361.79999"
-       transform="translate(4)"/>
-    <use
-       height="10"
-       id="sc_DAM"
-       width="10"
-       x="945.1"
-       xlink:href="#SupplyCenter"
-       y="270.1" />
-    <use
-       height="10"
-       id="sc_NEA"
-       width="10"
-       x="421.2"
-       xlink:href="#SupplyCenter"
-       y="232.7" />
-    <use
-       height="10"
-       id="sc_ROM"
-       width="10"
-       x="350.5"
-       xlink:href="#SupplyCenter"
-       y="163.6" />
-    <use
-       height="10"
-       id="sc_RAV"
-       width="10"
-       x="378.2"
-       xlink:href="#SupplyCenter"
-       y="153.1" />
-    <use
-       height="10"
-       id="sc_SAG"
-       width="10"
-       x="97.9"
-       xlink:href="#SupplyCenter"
-       y="303.4" />
-    <use
-       height="10"
-       id="sc_MAS"
-       width="10"
-       x="257.1"
-       xlink:href="#SupplyCenter"
-       y="155.5" />
-    <use
-       height="10"
-       id="sc_BAL"
-       width="10"
-       x="183.2"
-       xlink:href="#SupplyCenter"
-       y="238.39999"
-       transform="translate(4,18)"/>
-    <use
-       height="10"
-       id="sc_SAD"
-       width="10"
-       x="301.0"
-       xlink:href="#SupplyCenter"
-       y="277.4" />
-    <use
-       height="10"
-       id="sc_SIC"
-       width="10"
-       x="398.5"
-       xlink:href="#SupplyCenter"
-       y="331.0" />
-    <use
-       height="10"
-       id="sc_VIN"
-       width="10"
-       x="424.5"
-       xlink:href="#SupplyCenter"
-       y="61.3" />
-    <use
-       height="10"
-       id="sc_DAL"
-       width="10"
-       x="455.3"
-       xlink:href="#SupplyCenter"
-       y="139.3" />
-    <use
-       height="10"
-       id="sc_NUM"
-       width="10"
-       x="367.6"
-       xlink:href="#SupplyCenter"
-       y="473.1" />
-    <use
-       height="10"
-       id="sc_LEP"
-       width="10"
-       x="399.3"
-       xlink:href="#SupplyCenter"
-       y="494.3" />
-    <use
-       height="10"
-       id="sc_CYR"
-       width="10"
-       x="589.40002"
-       xlink:href="#SupplyCenter"
-       y="465"
-       transform="translate(0,4)"/>
-    <use
-       height="10"
-       id="sc_CRE"
-       width="10"
-       x="671.40002"
-       xlink:href="#SupplyCenter"
-       y="383"
-       transform="translate(-4,4)"/>
-    <use
-       height="10"
-       id="sc_CYP"
-       width="10"
-       x="808.5"
-       xlink:href="#SupplyCenter"
-       y="377"
-       transform="translate(-2,8)"/>
-    <use
-       height="10"
-       id="sc_PET"
-       width="10"
-       x="904.5"
-       xlink:href="#SupplyCenter"
-       y="479.60001"
-       transform="translate(6)"/>
-    <use
-       height="10"
-       id="sc_JER"
-       width="10"
-       x="887.5"
-       xlink:href="#SupplyCenter"
-       y="436.60001"
-       transform="translate(8,4)"/>
-    <use
-       height="10"
-       id="sc_TYE"
-       width="10"
-       x="898.0"
-       xlink:href="#SupplyCenter"
-       y="393.5" />
-    <use
-       height="10"
-       id="sc_SIP"
-       width="10"
-       x="837.9"
-       xlink:href="#SupplyCenter"
-       y="192.1" />
-    <use
-       height="10"
-       id="sc_CHE"
-       width="10"
-       x="866.4"
-       xlink:href="#SupplyCenter"
-       y="75.9" />
-    <use
-       height="10"
-       id="sc_BYZ"
-       width="10"
-       x="677.9"
-       xlink:href="#SupplyCenter"
-       y="256.2" />
-    <use
-       height="10"
-       id="sc_MIL"
-       width="10"
-       x="712"
-       xlink:href="#SupplyCenter"
-       y="309.89999"
-       transform="translate(4,6)"/>
+	<use
+	   height="10"
+	   id="sc_CAR"
+	   width="10"
+	   x="318.9"
+	   xlink:href="#SupplyCenter"
+	   y="353.7" />
+	<use
+	   height="10"
+	   id="sc_CIR"
+	   width="10"
+	   x="255.5"
+	   xlink:href="#SupplyCenter"
+	   y="434.1" />
+	<use
+	   height="10"
+	   id="sc_THA"
+	   width="10"
+	   x="315.6"
+	   xlink:href="#SupplyCenter"
+	   y="403.3" />
+	<use
+	   height="10"
+	   id="sc_ALE"
+	   width="10"
+	   x="724.2"
+	   xlink:href="#SupplyCenter"
+	   y="490.2" />
+	<use
+	   height="10"
+	   id="sc_MEM"
+	   width="10"
+	   x="791.6"
+	   xlink:href="#SupplyCenter"
+	   y="586.9" />
+	<use
+	   height="10"
+	   id="sc_THB"
+	   width="10"
+	   x="844.4"
+	   xlink:href="#SupplyCenter"
+	   y="516.2" />
+	<use
+	   height="10"
+	   id="sc_SPA"
+	   width="10"
+	   x="587.7"
+	   xlink:href="#SupplyCenter"
+	   y="337.5" />
+	<use
+	   height="10"
+	   id="sc_ATH"
+	   width="10"
+	   x="614.5"
+	   xlink:href="#SupplyCenter"
+	   y="303.4" />
+	<use
+	   height="10"
+	   id="sc_MAC"
+	   width="10"
+	   x="604.8"
+	   xlink:href="#SupplyCenter"
+	   y="243.3" />
+	<use
+	   height="10"
+	   id="sc_ANT"
+	   width="10"
+	   x="898.8"
+	   xlink:href="#SupplyCenter"
+	   y="320.4" />
+	<use
+	   height="10"
+	   id="sc_SID"
+	   width="10"
+	   x="902.09998"
+	   xlink:href="#SupplyCenter"
+	   y="361.79999"
+	   transform="translate(4)"/>
+	<use
+	   height="10"
+	   id="sc_DAM"
+	   width="10"
+	   x="945.1"
+	   xlink:href="#SupplyCenter"
+	   y="270.1" />
+	<use
+	   height="10"
+	   id="sc_NEA"
+	   width="10"
+	   x="421.2"
+	   xlink:href="#SupplyCenter"
+	   y="232.7" />
+	<use
+	   height="10"
+	   id="sc_ROM"
+	   width="10"
+	   x="350.5"
+	   xlink:href="#SupplyCenter"
+	   y="163.6" />
+	<use
+	   height="10"
+	   id="sc_RAV"
+	   width="10"
+	   x="378.2"
+	   xlink:href="#SupplyCenter"
+	   y="153.1" />
+	<use
+	   height="10"
+	   id="sc_SAG"
+	   width="10"
+	   x="97.9"
+	   xlink:href="#SupplyCenter"
+	   y="303.4" />
+	<use
+	   height="10"
+	   id="sc_MAS"
+	   width="10"
+	   x="257.1"
+	   xlink:href="#SupplyCenter"
+	   y="155.5" />
+	<use
+	   height="10"
+	   id="sc_BAL"
+	   width="10"
+	   x="183.2"
+	   xlink:href="#SupplyCenter"
+	   y="238.39999"
+	   transform="translate(4,18)"/>
+	<use
+	   height="10"
+	   id="sc_SAD"
+	   width="10"
+	   x="301.0"
+	   xlink:href="#SupplyCenter"
+	   y="277.4" />
+	<use
+	   height="10"
+	   id="sc_SIC"
+	   width="10"
+	   x="398.5"
+	   xlink:href="#SupplyCenter"
+	   y="331.0" />
+	<use
+	   height="10"
+	   id="sc_VIN"
+	   width="10"
+	   x="424.5"
+	   xlink:href="#SupplyCenter"
+	   y="61.3" />
+	<use
+	   height="10"
+	   id="sc_DAL"
+	   width="10"
+	   x="455.3"
+	   xlink:href="#SupplyCenter"
+	   y="139.3" />
+	<use
+	   height="10"
+	   id="sc_NUM"
+	   width="10"
+	   x="367.6"
+	   xlink:href="#SupplyCenter"
+	   y="473.1" />
+	<use
+	   height="10"
+	   id="sc_LEP"
+	   width="10"
+	   x="399.3"
+	   xlink:href="#SupplyCenter"
+	   y="494.3" />
+	<use
+	   height="10"
+	   id="sc_CYR"
+	   width="10"
+	   x="589.40002"
+	   xlink:href="#SupplyCenter"
+	   y="465"
+	   transform="translate(0,4)"/>
+	<use
+	   height="10"
+	   id="sc_CRE"
+	   width="10"
+	   x="671.40002"
+	   xlink:href="#SupplyCenter"
+	   y="383"
+	   transform="translate(-4,4)"/>
+	<use
+	   height="10"
+	   id="sc_CYP"
+	   width="10"
+	   x="808.5"
+	   xlink:href="#SupplyCenter"
+	   y="377"
+	   transform="translate(-2,8)"/>
+	<use
+	   height="10"
+	   id="sc_PET"
+	   width="10"
+	   x="904.5"
+	   xlink:href="#SupplyCenter"
+	   y="479.60001"
+	   transform="translate(6)"/>
+	<use
+	   height="10"
+	   id="sc_JER"
+	   width="10"
+	   x="887.5"
+	   xlink:href="#SupplyCenter"
+	   y="436.60001"
+	   transform="translate(8,4)"/>
+	<use
+	   height="10"
+	   id="sc_TYE"
+	   width="10"
+	   x="898.0"
+	   xlink:href="#SupplyCenter"
+	   y="393.5" />
+	<use
+	   height="10"
+	   id="sc_SIP"
+	   width="10"
+	   x="837.9"
+	   xlink:href="#SupplyCenter"
+	   y="192.1" />
+	<use
+	   height="10"
+	   id="sc_CHE"
+	   width="10"
+	   x="866.4"
+	   xlink:href="#SupplyCenter"
+	   y="75.9" />
+	<use
+	   height="10"
+	   id="sc_BYZ"
+	   width="10"
+	   x="677.9"
+	   xlink:href="#SupplyCenter"
+	   y="256.2" />
+	<use
+	   height="10"
+	   id="sc_MIL"
+	   width="10"
+	   x="712"
+	   xlink:href="#SupplyCenter"
+	   y="309.89999"
+	   transform="translate(4,6)"/>
   </g>
 
-    <!-- drawing layer: orders -->
-    <g id="OrderLayer">
-        <g id="Layer2"/>
-        <g id="Layer1"/>
-    </g>
+	<!-- drawing layer: orders -->
+	<g id="OrderLayer">
+		<g id="Layer2"/>
+		<g id="Layer1"/>
+	</g>
 
-    <!-- drawing layer: units -->
-    <g id="UnitLayer"/>
+	<!-- drawing layer: units -->
+	<g id="UnitLayer"/>
 
-    <!-- drawing layer: dislodged units -->
-    <g id="DislodgedUnitLayer"/>
+	<!-- drawing layer: dislodged units -->
+	<g id="DislodgedUnitLayer"/>
 
-    <!-- above-the-unit drawing layer -->
-    <g id="HighestOrderLayer"/>
+	<!-- above-the-unit drawing layer -->
+	<g id="HighestOrderLayer"/>
 	
 	<!-- abbreviated name layer -->
 	<g id="BriefLabelLayer" class="smalllabeltext">
@@ -1062,9 +1088,9 @@
 	<g id="FullLabelLayer" visibility="hidden" />
 
 	<!-- Current phase -->
-    <text x="20" y="25" class="currentnotetext" id="CurrentNote"> </text>
-    <text x="20" y="40" class="currentnotetext" id="CurrentNote2"> </text>
-    <text x="930" y="640" class="currentphasetext" id="CurrentPhase">S1901M</text>
+	<text x="20" y="25" class="currentnotetext" id="CurrentNote"> </text>
+	<text x="20" y="40" class="currentnotetext" id="CurrentNote2"> </text>
+	<text x="930" y="640" class="currentphasetext" id="CurrentPhase">S1901M</text>
 	
 	
 	<!-- 	MouseLayer: for determining the mouse map for clickability 

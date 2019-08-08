@@ -19,6 +19,7 @@
     - Contains the renderer object which is responsible for rendering a game state to svg
 """
 import os
+import math
 from xml.dom import minidom
 from diplomacy import settings
 
@@ -36,7 +37,6 @@ def _attr(node_element, attr_name):
 def _offset(str_float, offset):
     """ Shorthand to add a offset to an attribute """
     return str(float(str_float) + offset)
-
 
 class Renderer():
     """ Renderer object responsible for rendering a game state to svg """
@@ -127,23 +127,25 @@ class Renderer():
 
                     # Normalizing and splitting in tokens
                     tokens = self.norm_order(order)
+                    unit_type = tokens[0]
                     unit_loc = tokens[1]
 
                     # Parsing based on order type
                     if not tokens or len(tokens) < 3:
                         continue
                     elif tokens[2] == 'H':
-                        xml_map = self._issue_hold_order(xml_map, unit_loc, power.name)
+                        xml_map = self._issue_hold_order(xml_map, unit_type, unit_loc, power.name)
                     elif tokens[2] == '-':
                         dest_loc = tokens[-1] if tokens[-1] != 'VIA' else tokens[-2]
-                        xml_map = self._issue_move_order(xml_map, unit_loc, dest_loc, power.name)
+                        xml_map = self._issue_move_order(xml_map, unit_type, unit_loc, dest_loc, power.name)
                     elif tokens[2] == 'S':
                         dest_loc = tokens[-1]
                         if '-' in tokens:
                             src_loc = tokens[4] if tokens[3] == 'A' or tokens[3] == 'F' else tokens[3]
                             xml_map = self._issue_support_move_order(xml_map, unit_loc, src_loc, dest_loc, power.name)
                         else:
-                            xml_map = self._issue_support_hold_order(xml_map, unit_loc, dest_loc, power.name)
+                            dest_type = tokens[-2]
+                            xml_map = self._issue_support_hold_order(xml_map, unit_type, unit_loc, dest_type, dest_loc, power.name)
                     elif tokens[2] == 'C':
                         src_loc = tokens[4] if tokens[3] == 'A' or tokens[3] == 'F' else tokens[3]
                         dest_loc = tokens[-1]
@@ -167,11 +169,11 @@ class Renderer():
                             continue
                         xml_map = self._issue_build_order(xml_map, tokens[0], tokens[1], power.name)
                     elif tokens[-1] == 'D':
-                        xml_map = self._issue_disband_order(xml_map, tokens[1])
+                        xml_map = self._issue_disband_order(xml_map, tokens[1], tokens[0])
                     elif tokens[-2] == 'R':
                         src_loc = tokens[1] if tokens[0] == 'A' or tokens[0] == 'F' else tokens[0]
                         dest_loc = tokens[-1]
-                        xml_map = self._issue_move_order(xml_map, src_loc, dest_loc, power.name)
+                        xml_map = self._issue_move_order(xml_map, tokens[0] if tokens[0] in 'AF' else 'A', src_loc, dest_loc, power.name)
                     else:
                         raise RuntimeError('Unknown order: {}'.format(order))
 
@@ -295,7 +297,7 @@ class Renderer():
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'MapLayer':
                 for map_node in child_node.childNodes:
-                    if map_node.nodeName == 'path' and _attr(map_node, 'id') == '_{}'.format(loc.lower()):
+                    if map_node.nodeName in ('path', 'polygon') and _attr(map_node, 'id') == '_{}'.format(loc.lower()):
                         if power_name:
                             map_node.setAttribute('class', power_name.lower())
                         else:
@@ -336,39 +338,30 @@ class Renderer():
                 child_node.childNodes[0].nodeValue = note_2
         return xml_map
 
-    def _issue_hold_order(self, xml_map, loc, power_name):
+    def _issue_hold_order(self, xml_map, loc_type, loc, power_name):
         """ Adds a hold order to the map
             :param xml_map: The xml map being generated
             :param loc: The province where the unit is holding (e.g. 'PAR')
             :param power_name: The name of the power owning the unit
             :return: Nothing
         """
-        # Calculating polygon coord
-        polygon_coord = []
-        loc_x = _offset(self.metadata['coord'][loc]['unit'][0], 8.5)
-        loc_y = _offset(self.metadata['coord'][loc]['unit'][1], 9.5)
-        for offset in [(13.8, -33.3), (33.3, -13.8), (33.3, 13.8), (13.8, 33.3), (-13.8, 33.3), (-33.3, 13.8),
-                       (-33.3, -13.8), (-13.8, -33.3)]:
-            polygon_coord += [_offset(loc_x, offset[0]) + ',' + _offset(loc_y, offset[1])]
+        ####
+        # Symbols
+        symbol = 'HoldUnit'
+        loc_x, loc_y = self._center_symbol_around_unit(loc_type, loc, False, symbol)
 
-        # Building polygon
+        # Creating nodes
         g_node = xml_map.createElement('g')
-
-        poly_1 = xml_map.createElement('polygon')
-        poly_1.setAttribute('stroke-width', '10')
-        poly_1.setAttribute('class', 'varwidthshadow')
-        poly_1.setAttribute('points', ' '.join(polygon_coord))
-
-        poly_2 = xml_map.createElement('polygon')
-        poly_2.setAttribute('stroke-width', '6')
-        poly_2.setAttribute('class', 'varwidthorder')
-        poly_2.setAttribute('points', ' '.join(polygon_coord))
-        poly_2.setAttribute('stroke', self.metadata['color'][power_name])
-
-        g_node.appendChild(poly_1)
-        g_node.appendChild(poly_2)
+        g_node.setAttribute('stroke', self.metadata['color'][power_name])
+        symbol_node = xml_map.createElement('use')
+        symbol_node.setAttribute('x', loc_x)
+        symbol_node.setAttribute('y', loc_y)
+        symbol_node.setAttribute('height', self.metadata['symbol_size'][symbol][0])
+        symbol_node.setAttribute('width', self.metadata['symbol_size'][symbol][1])
+        symbol_node.setAttribute('xlink:href', '#{}'.format(symbol))
 
         # Inserting
+        g_node.appendChild(symbol_node)
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'OrderLayer':
                 for layer_node in child_node.childNodes:
@@ -379,7 +372,7 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _issue_support_hold_order(self, xml_map, loc, dest_loc, power_name):
+    def _issue_support_hold_order(self, xml_map, loc_type, loc, dest_type, dest_loc, power_name):
         """ Issues a support hold order
             :param xml_map: The xml map being generated
             :param loc: The location of the unit sending support (e.g. 'BER')
@@ -387,58 +380,49 @@ class Renderer():
             :param power_name: The power name issuing the move order
             :return: Nothing
         """
-        loc_x = _offset(self.metadata['coord'][loc]['unit'][0], 10)
-        loc_y = _offset(self.metadata['coord'][loc]['unit'][1], 10)
-        dest_loc_x = _offset(self.metadata['coord'][dest_loc]['unit'][0], 10)
-        dest_loc_y = _offset(self.metadata['coord'][dest_loc]['unit'][1], 10)
+        # Symbols
+        symbol = 'SupportHoldUnit'
+        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit(dest_type, dest_loc, False, symbol)
+        symbol_node = xml_map.createElement('use')
+        symbol_node.setAttribute('x', symbol_loc_x)
+        symbol_node.setAttribute('y', symbol_loc_y)
+        symbol_node.setAttribute('height', self.metadata['symbol_size'][symbol][0])
+        symbol_node.setAttribute('width', self.metadata['symbol_size'][symbol][1])
+        symbol_node.setAttribute('xlink:href', '#{}'.format(symbol))
+
+        loc_x, loc_y = self._get_unit_center(loc_type, loc, False)
+        dest_loc_x, dest_loc_y = self._get_unit_center(dest_type, dest_loc, False)
 
         # Adjusting destination
-        delta_x = float(dest_loc_x) - float(loc_x)
-        delta_y = float(dest_loc_y) - float(loc_y)
-        vector_length = (delta_x ** 2. + delta_y ** 2.) ** 0.5
-        dest_loc_x = str(round(float(loc_x) + (vector_length - 35.) / vector_length * delta_x, 2))
-        dest_loc_y = str(round(float(loc_y) + (vector_length - 35.) / vector_length * delta_y, 2))
-
-        # Getting polygon coordinates
-        polygon_coord = []
-        poly_loc_x = _offset(self.metadata['coord'][dest_loc]['unit'][0], 8.5)
-        poly_loc_y = _offset(self.metadata['coord'][dest_loc]['unit'][1], 9.5)
-        for offset in [(15.9, -38.3), (38.3, -15.9), (38.3, 15.9), (15.9, 38.3), (-15.9, 38.3), (-38.3, 15.9),
-                       (-38.3, -15.9), (-15.9, -38.3)]:
-            polygon_coord += [_offset(poly_loc_x, offset[0]) + ',' + _offset(poly_loc_y, offset[1])]
+        delta_x = dest_loc_x - loc_x
+        delta_y = dest_loc_y - loc_y
+        vector_length = (delta_x ** 2 + delta_y ** 2) ** 0.5
+        delta_dec = float(self.metadata['symbol_size'][symbol][1]) / 2
+        dest_loc_x = round(loc_x + (vector_length - delta_dec) / vector_length * delta_x, 2)
+        dest_loc_y = round(loc_y + (vector_length - delta_dec) / vector_length * delta_y, 2)
 
         # Creating nodes
         g_node = xml_map.createElement('g')
+        g_node.setAttribute('stroke', self.metadata['color'][power_name])
 
         shadow_line = xml_map.createElement('line')
-        shadow_line.setAttribute('x1', loc_x)
-        shadow_line.setAttribute('y1', loc_y)
-        shadow_line.setAttribute('x2', dest_loc_x)
-        shadow_line.setAttribute('y2', dest_loc_y)
+        shadow_line.setAttribute('x1', str(loc_x))
+        shadow_line.setAttribute('y1', str(loc_y))
+        shadow_line.setAttribute('x2', str(dest_loc_x))
+        shadow_line.setAttribute('y2', str(dest_loc_y))
         shadow_line.setAttribute('class', 'shadowdash')
 
         support_line = xml_map.createElement('line')
-        support_line.setAttribute('x1', loc_x)
-        support_line.setAttribute('y1', loc_y)
-        support_line.setAttribute('x2', dest_loc_x)
-        support_line.setAttribute('y2', dest_loc_y)
+        support_line.setAttribute('x1', str(loc_x))
+        support_line.setAttribute('y1', str(loc_y))
+        support_line.setAttribute('x2', str(dest_loc_x))
+        support_line.setAttribute('y2', str(dest_loc_y))
         support_line.setAttribute('class', 'supportorder')
-        support_line.setAttribute('stroke', self.metadata['color'][power_name])
-
-        shadow_poly = xml_map.createElement('polygon')
-        shadow_poly.setAttribute('class', 'shadowdash')
-        shadow_poly.setAttribute('points', ' '.join(polygon_coord))
-
-        support_poly = xml_map.createElement('polygon')
-        support_poly.setAttribute('class', 'supportorder')
-        support_poly.setAttribute('points', ' '.join(polygon_coord))
-        support_poly.setAttribute('stroke', self.metadata['color'][power_name])
 
         # Inserting
         g_node.appendChild(shadow_line)
         g_node.appendChild(support_line)
-        g_node.appendChild(shadow_poly)
-        g_node.appendChild(support_poly)
+        g_node.appendChild(symbol_node)
 
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'OrderLayer':
@@ -450,7 +434,7 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _issue_move_order(self, xml_map, src_loc, dest_loc, power_name):
+    def _issue_move_order(self, xml_map, src_type, src_loc, dest_loc, power_name):
         """ Issues a move order
             :param xml_map: The xml map being generated
             :param src_loc: The location where the unit is moving from (e.g. 'PAR')
@@ -458,21 +442,22 @@ class Renderer():
             :param power_name: The power name issuing the move order
             :return: Nothing
         """
-        if self.game.get_current_phase()[-1] == 'R':
-            src_loc_x = _offset(self.metadata['coord'][src_loc]['unit'][0], -2.5)
-            src_loc_y = _offset(self.metadata['coord'][src_loc]['unit'][1], -2.5)
-        else:
-            src_loc_x = _offset(self.metadata['coord'][src_loc]['unit'][0], 10)
-            src_loc_y = _offset(self.metadata['coord'][src_loc]['unit'][1], 10)
-        dest_loc_x = _offset(self.metadata['coord'][dest_loc]['unit'][0], 10)
-        dest_loc_y = _offset(self.metadata['coord'][dest_loc]['unit'][1], 10)
+        is_dislodged = self.game.get_current_phase()[-1] == 'R'
+        src_loc_x, src_loc_y = self._get_unit_center(src_type, src_loc, is_dislodged)
+        dest_loc_x, dest_loc_y = self._get_unit_center('A', dest_loc, is_dislodged)
 
         # Adjusting destination
-        delta_x = float(dest_loc_x) - float(src_loc_x)
-        delta_y = float(dest_loc_y) - float(src_loc_y)
-        vector_length = (delta_x ** 2. + delta_y ** 2.) ** 0.5
-        dest_loc_x = str(round(float(src_loc_x) + (vector_length - 30.) / vector_length * delta_x, 2))
-        dest_loc_y = str(round(float(src_loc_y) + (vector_length - 30.) / vector_length * delta_y, 2))
+        delta_x = dest_loc_x - src_loc_x
+        delta_y = dest_loc_y - src_loc_y
+        vector_length = (delta_x ** 2 + delta_y ** 2) ** 0.5
+        delta_dec = float(self.metadata['symbol_size'][ARMY][1]) / 2 + 2 * self._colored_stroke_width()
+        dest_loc_x = str(round(src_loc_x + (vector_length - delta_dec) / vector_length * delta_x, 2))
+        dest_loc_y = str(round(src_loc_y + (vector_length - delta_dec) / vector_length * delta_y, 2))
+
+        src_loc_x = str(src_loc_x)
+        src_loc_y = str(src_loc_y)
+        dest_loc_x = str(dest_loc_x)
+        dest_loc_y = str(dest_loc_y)
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -483,7 +468,7 @@ class Renderer():
         line_with_shadow.setAttribute('x2', dest_loc_x)
         line_with_shadow.setAttribute('y2', dest_loc_y)
         line_with_shadow.setAttribute('class', 'varwidthshadow')
-        line_with_shadow.setAttribute('stroke-width', '10')
+        line_with_shadow.setAttribute('stroke-width', str(self._plain_stroke_width()))
 
         line_with_arrow = xml_map.createElement('line')
         line_with_arrow.setAttribute('x1', src_loc_x)
@@ -492,7 +477,7 @@ class Renderer():
         line_with_arrow.setAttribute('y2', dest_loc_y)
         line_with_arrow.setAttribute('class', 'varwidthorder')
         line_with_arrow.setAttribute('stroke', self.metadata['color'][power_name])
-        line_with_arrow.setAttribute('stroke-width', '6')
+        line_with_arrow.setAttribute('stroke-width', str(self._colored_stroke_width()))
         line_with_arrow.setAttribute('marker-end', 'url(#arrow)')
 
         # Inserting
@@ -517,19 +502,17 @@ class Renderer():
             :param power_name: The power name issuing the move order
             :return: Nothing
         """
-        loc_x = _offset(self.metadata['coord'][loc]['unit'][0], 10)
-        loc_y = _offset(self.metadata['coord'][loc]['unit'][1], 10)
-        src_loc_x = _offset(self.metadata['coord'][src_loc]['unit'][0], 10)
-        src_loc_y = _offset(self.metadata['coord'][src_loc]['unit'][1], 10)
-        dest_loc_x = _offset(self.metadata['coord'][dest_loc]['unit'][0], 10)
-        dest_loc_y = _offset(self.metadata['coord'][dest_loc]['unit'][1], 10)
+        loc_x, loc_y = self._get_unit_center('A', loc, False)
+        src_loc_x, src_loc_y = self._get_unit_center('A', src_loc, False)
+        dest_loc_x, dest_loc_y = self._get_unit_center('A', dest_loc, False)
 
         # Adjusting destination
-        delta_x = float(dest_loc_x) - float(src_loc_x)
-        delta_y = float(dest_loc_y) - float(src_loc_y)
-        vector_length = (delta_x ** 2. + delta_y ** 2.) ** 0.5
-        dest_loc_x = str(round(float(src_loc_x) + (vector_length - 30.) / vector_length * delta_x, 2))
-        dest_loc_y = str(round(float(src_loc_y) + (vector_length - 30.) / vector_length * delta_y, 2))
+        delta_x = dest_loc_x - src_loc_x
+        delta_y = dest_loc_y - src_loc_y
+        vector_length = (delta_x ** 2 + delta_y ** 2) ** 0.5
+        delta_dec = float(self.metadata['symbol_size'][ARMY][1]) / 2 + 2 * self._colored_stroke_width()
+        dest_loc_x = str(round(src_loc_x + (vector_length - delta_dec) / vector_length * delta_x, 2))
+        dest_loc_y = str(round(src_loc_y + (vector_length - delta_dec) / vector_length * delta_y, 2))
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -578,46 +561,54 @@ class Renderer():
             :param power_name: The power name issuing the convoy order
             :return: Nothing
         """
-        loc_x = _offset(self.metadata['coord'][loc]['unit'][0], 10)
-        loc_y = _offset(self.metadata['coord'][loc]['unit'][1], 10)
-        src_loc_x = _offset(self.metadata['coord'][src_loc]['unit'][0], 10)
-        src_loc_y = _offset(self.metadata['coord'][src_loc]['unit'][1], 10)
-        dest_loc_x = _offset(self.metadata['coord'][dest_loc]['unit'][0], 10)
-        dest_loc_y = _offset(self.metadata['coord'][dest_loc]['unit'][1], 10)
+        symbol = 'ConvoyTriangle'
+        loc_x, loc_y = self._get_unit_center('A', loc, False)
+        src_loc_x, src_loc_y = self._get_unit_center('A', src_loc, False)
+        dest_loc_x, dest_loc_y = self._get_unit_center('A', dest_loc, False)
 
         # Adjusting starting arrow (from convoy to start location)
         # This is to avoid the end of the arrow conflicting with the convoy triangle
-        src_delta_x = float(src_loc_x) - float(loc_x)
-        src_delta_y = float(src_loc_y) - float(loc_y)
-        src_vector_length = (src_delta_x ** 2. + src_delta_y ** 2.) ** 0.5
-        src_loc_x_1 = str(round(float(loc_x) + (src_vector_length - 30.) / src_vector_length * src_delta_x, 2))
-        src_loc_y_1 = str(round(float(loc_y) + (src_vector_length - 30.) / src_vector_length * src_delta_y, 2))
+        src_delta_x = src_loc_x - loc_x
+        src_delta_y = src_loc_y - loc_y
+        src_vector_length = (src_delta_x ** 2 + src_delta_y ** 2) ** 0.5
+        src_delta_dec = 2 * float(self.metadata['symbol_size'][symbol][0]) / 3 - self._plain_stroke_width()
+        src_loc_x_1 = str(round(loc_x + (src_vector_length - src_delta_dec) / src_vector_length * src_delta_x, 2))
+        src_loc_y_1 = str(round(loc_y + (src_vector_length - src_delta_dec) / src_vector_length * src_delta_y, 2))
 
         # Adjusting destination arrow (from start location to destination location)
         # This is to avoid the start of the arrow conflicting with the convoy triangle
-        dest_delta_x = float(src_loc_x) - float(dest_loc_x)
-        dest_delta_y = float(src_loc_y) - float(dest_loc_y)
-        dest_vector_length = (dest_delta_x ** 2. + dest_delta_y ** 2.) ** 0.5
-        src_loc_x_2 = str(round(float(dest_loc_x) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_x, 2))
-        src_loc_y_2 = str(round(float(dest_loc_y) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_y, 2))
+        dest_delta_x = src_loc_x - dest_loc_x
+        dest_delta_y = src_loc_y - dest_loc_y
+        dest_vector_length = (dest_delta_x ** 2 + dest_delta_y ** 2) ** 0.5
+        dest_delta_dec = 2 * float(self.metadata['symbol_size'][symbol][0]) / 3 - self._plain_stroke_width()
+        src_loc_x_2 = str(round(dest_loc_x + (dest_vector_length - dest_delta_dec) / dest_vector_length * dest_delta_x, 2))
+        src_loc_y_2 = str(round(dest_loc_y + (dest_vector_length - dest_delta_dec) / dest_vector_length * dest_delta_y, 2))
 
         # Adjusting destination arrow (from start location to destination location)
         # This is to avoid the start of the arrow conflicting with the convoy triangle
-        dest_delta_x = float(dest_loc_x) - float(src_loc_x)
-        dest_delta_y = float(dest_loc_y) - float(src_loc_y)
-        dest_vector_length = (dest_delta_x ** 2. + dest_delta_y ** 2.) ** 0.5
-        dest_loc_x = str(round(float(src_loc_x) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_x, 2))
-        dest_loc_y = str(round(float(src_loc_y) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_y, 2))
+        dest_delta_x = dest_loc_x - src_loc_x
+        dest_delta_y = dest_loc_y - src_loc_y
+        dest_vector_length = (dest_delta_x ** 2 + dest_delta_y ** 2) ** 0.5
+        delta_dec = float(self.metadata['symbol_size'][ARMY][1]) / 2 + 2 * self._colored_stroke_width()
+        dest_loc_x = str(round(src_loc_x + (dest_vector_length - delta_dec) / dest_vector_length * dest_delta_x, 2))
+        dest_loc_y = str(round(src_loc_y + (dest_vector_length - delta_dec) / dest_vector_length * dest_delta_y, 2))
 
-        # Getting convoy triangle coordinates
-        triangle_coord = []
-        triangle_loc_x = _offset(self.metadata['coord'][src_loc]['unit'][0], 10)
-        triangle_loc_y = _offset(self.metadata['coord'][src_loc]['unit'][1], 10)
-        for offset in [(0, -38.3), (33.2, 19.1), (-33.2, 19.1)]:
-            triangle_coord += [_offset(triangle_loc_x, offset[0]) + ',' + _offset(triangle_loc_y, offset[1])]
+        loc_x = str(loc_x)
+        loc_y = str(loc_y)
+
+        # Generating convoy triangle node
+        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit('A', src_loc, False, symbol)
+        symbol_loc_y = str(float(symbol_loc_y) - float(self.metadata['symbol_size'][symbol][0]) / 6)
+        symbol_node = xml_map.createElement('use')
+        symbol_node.setAttribute('x', symbol_loc_x)
+        symbol_node.setAttribute('y', symbol_loc_y)
+        symbol_node.setAttribute('height', self.metadata['symbol_size'][symbol][0])
+        symbol_node.setAttribute('width', self.metadata['symbol_size'][symbol][1])
+        symbol_node.setAttribute('xlink:href', '#{}'.format(symbol))
 
         # Creating nodes
         g_node = xml_map.createElement('g')
+        g_node.setAttribute('stroke', self.metadata['color'][power_name])
 
         src_shadow_line = xml_map.createElement('line')
         src_shadow_line.setAttribute('x1', loc_x)
@@ -626,6 +617,13 @@ class Renderer():
         src_shadow_line.setAttribute('y2', src_loc_y_1)
         src_shadow_line.setAttribute('class', 'shadowdash')
 
+        src_convoy_line = xml_map.createElement('line')
+        src_convoy_line.setAttribute('x1', loc_x)
+        src_convoy_line.setAttribute('y1', loc_y)
+        src_convoy_line.setAttribute('x2', src_loc_x_1)
+        src_convoy_line.setAttribute('y2', src_loc_y_1)
+        src_convoy_line.setAttribute('class', 'convoyorder')
+
         dest_shadow_line = xml_map.createElement('line')
         dest_shadow_line.setAttribute('x1', src_loc_x_2)
         dest_shadow_line.setAttribute('y1', src_loc_y_2)
@@ -633,39 +631,20 @@ class Renderer():
         dest_shadow_line.setAttribute('y2', dest_loc_y)
         dest_shadow_line.setAttribute('class', 'shadowdash')
 
-        src_convoy_line = xml_map.createElement('line')
-        src_convoy_line.setAttribute('x1', loc_x)
-        src_convoy_line.setAttribute('y1', loc_y)
-        src_convoy_line.setAttribute('x2', src_loc_x_1)
-        src_convoy_line.setAttribute('y2', src_loc_y_1)
-        src_convoy_line.setAttribute('class', 'convoyorder')
-        src_convoy_line.setAttribute('stroke', self.metadata['color'][power_name])
-
         dest_convoy_line = xml_map.createElement('line')
         dest_convoy_line.setAttribute('x1', src_loc_x_2)
         dest_convoy_line.setAttribute('y1', src_loc_y_2)
         dest_convoy_line.setAttribute('x2', dest_loc_x)
         dest_convoy_line.setAttribute('y2', dest_loc_y)
         dest_convoy_line.setAttribute('class', 'convoyorder')
-        dest_convoy_line.setAttribute('stroke', self.metadata['color'][power_name])
         dest_convoy_line.setAttribute('marker-end', 'url(#arrow)')
-
-        shadow_poly = xml_map.createElement('polygon')
-        shadow_poly.setAttribute('class', 'shadowdash')
-        shadow_poly.setAttribute('points', ' '.join(triangle_coord))
-
-        convoy_poly = xml_map.createElement('polygon')
-        convoy_poly.setAttribute('class', 'convoyorder')
-        convoy_poly.setAttribute('points', ' '.join(triangle_coord))
-        convoy_poly.setAttribute('stroke', self.metadata['color'][power_name])
 
         # Inserting
         g_node.appendChild(src_shadow_line)
         g_node.appendChild(dest_shadow_line)
         g_node.appendChild(src_convoy_line)
         g_node.appendChild(dest_convoy_line)
-        g_node.appendChild(shadow_poly)
-        g_node.appendChild(convoy_poly)
+        g_node.appendChild(symbol_node)
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'OrderLayer':
                 for layer_node in child_node.childNodes:
@@ -684,14 +663,13 @@ class Renderer():
             :param power_name: The name of the power building the unit
             :return: Nothing
         """
-        loc_x = _offset(self.metadata['coord'][loc]['unit'][0], -11.5)
-        loc_y = _offset(self.metadata['coord'][loc]['unit'][1], - 10.)
-        build_loc_x = _offset(self.metadata['coord'][loc]['unit'][0], -20.5)
-        build_loc_y = _offset(self.metadata['coord'][loc]['unit'][1], -20.5)
-
         # Symbols
         symbol = ARMY if unit_type == 'A' else FLEET
         build_symbol = 'BuildUnit'
+
+        loc_x = self.metadata['coord'][loc]['unit'][0]
+        loc_y = self.metadata['coord'][loc]['unit'][1]
+        build_loc_x, build_loc_y = self._center_symbol_around_unit(unit_type, loc, False, build_symbol)
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -722,21 +700,15 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _issue_disband_order(self, xml_map, loc):
+    def _issue_disband_order(self, xml_map, loc, unit_type):
         """ Adds a disband order to the map
             :param xml_map: The xml map being generated
             :param loc: The province where the unit is disbanded (e.g. 'PAR')
             :return: Nothing
         """
-        if self.game.get_current_phase()[-1] == 'R':
-            loc_x = _offset(self.metadata['coord'][loc]['unit'][0], -29.)
-            loc_y = _offset(self.metadata['coord'][loc]['unit'][1], -27.5)
-        else:
-            loc_x = _offset(self.metadata['coord'][loc]['unit'][0], -16.5)
-            loc_y = _offset(self.metadata['coord'][loc]['unit'][1], -15.)
-
         # Symbols
         symbol = 'RemoveUnit'
+        loc_x, loc_y = self._center_symbol_around_unit(unit_type, loc, self.game.get_current_phase()[-1] == 'R', symbol)
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -756,3 +728,27 @@ class Renderer():
 
         # Returning
         return xml_map
+
+    def _center_symbol_around_unit(self, unit_type, loc, is_dislodged, symbol):
+        key = 'disl' if is_dislodged else 'unit'
+        unit_x, unit_y = self.metadata['coord'][loc][key]
+        unit_height, unit_width = self.metadata['symbol_size'][FLEET if unit_type == 'F' else ARMY]
+        symbol_height, symbol_width = self.metadata['symbol_size'][symbol]
+        return (
+            str(float(unit_x) + float(unit_width) / 2 - float(symbol_width) / 2),
+            str(float(unit_y) + float(unit_height) / 2 - float(symbol_height) / 2)
+        )
+
+    def _get_unit_center(self, unit_type, loc, is_dislodged):
+        unit_x, unit_y = self.metadata['coord'][loc]['disl' if is_dislodged else 'unit']
+        unit_height, unit_width = self.metadata['symbol_size'][FLEET if unit_type == 'F' else ARMY]
+        return (
+            float(unit_x) + float(unit_width) / 2,
+            float(unit_y) + float(unit_height) / 2
+        )
+
+    def _plain_stroke_width(self):
+        return float(self.metadata['symbol_size']['Stroke'][0])
+
+    def _colored_stroke_width(self):
+        return float(self.metadata['symbol_size']['Stroke'][1])

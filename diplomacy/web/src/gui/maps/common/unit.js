@@ -27,8 +27,8 @@ export class Unit extends React.Component {
         const loc = split_unit[1];
         const dislogged_type = this.props.isDislodged ? 'disl' : 'unit';
         const symbol = unit_type === 'F' ? FLEET : ARMY;
-        const loc_x = offset(Coordinates[loc][dislogged_type][0], -11.5);
-        const loc_y = offset(Coordinates[loc][dislogged_type][1], -10.0);
+        const loc_x = Coordinates[loc][dislogged_type][0];
+        const loc_y = Coordinates[loc][dislogged_type][1];
         return (
             <use href={`#${this.props.isDislodged ? 'Dislodged' : ''}${symbol}`}
                  x={loc_x}
