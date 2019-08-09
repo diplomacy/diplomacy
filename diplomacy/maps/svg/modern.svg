@@ -21,8 +21,8 @@
 			<jdipNS:POWERCOLOR power="Ukraine"	color="#FF00FF"/>
 		</jdipNS:POWERCOLORS>
 		
-		<jdipNS:SYMBOLSIZE name="Fleet" width="15" height="15"/>
-		<jdipNS:SYMBOLSIZE name="Army" width="15" height="15"/>
+		<jdipNS:SYMBOLSIZE name="Fleet" width="16" height="16"/>
+		<jdipNS:SYMBOLSIZE name="Army" width="16" height="16"/>
 		<jdipNS:SYMBOLSIZE name="Wing" width="20" height="20"/>
 		<jdipNS:SYMBOLSIZE name="DislodgedFleet" width="20" height="20"/>
 		<jdipNS:SYMBOLSIZE name="DislodgedArmy" width="20" height="20"/>
@@ -36,7 +36,7 @@
 		<jdipNS:SYMBOLSIZE name="SupportHoldUnit" width="40" height="40"/>
 		<jdipNS:SYMBOLSIZE name="ConvoyTriangle" width="40" height="34.5"/>
 		<!-- Special symbol size to contain stroke width for plain (in "height") and power-colored lines (in "width") -->
-		<jdipNS:SYMBOLSIZE name="Stroke" width="4" height="8"/>
+		<jdipNS:SYMBOLSIZE name="Stroke" width="2" height="4"/>
 
 		<jdipNS:BUILD deltaRadius="0"/>
 		<jdipNS:REMOVE deltaRadius="5"/>
@@ -44,7 +44,6 @@
 		<jdipNS:WAIVE deltaRadius="0"/>
 		<jdipNS:HOLD deltaRadius="5" strokeCSSStyle="varwidthorder" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
 		<jdipNS:MOVE deltaRadius="5" strokeCSSStyle="varwidthorder" markerID="arrow" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
-		<jdipNS:RETREAT deltaRadius="5" strokeCSSStyle="defaultorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadoworder"/>
 		<jdipNS:SUPPORT deltaRadius="10" strokeCSSStyle="supportorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
 		<jdipNS:CONVOY deltaRadius="10" strokeCSSStyle="convoyorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
 	</jdipNS:ORDERDRAWING>
@@ -641,13 +640,11 @@
 			text         {font-size:10pt;fill:black;font-family:Arial;}
 			
 			/* Text */
-			.credits     	{font-size:8pt;font-family:Arial;}
-			.titletext   	{font-size:14px;font-weight:bolder;font-family:Arial;}
+			/* .credits     	{font-size:8pt;font-family:Arial;} */
+			/* .titletext   	{font-size:14px;font-weight:bolder;font-family:Arial;} */
 			.labeltext		{font-size:12px;fill:black;font-family:Arial;}
 			.currentnotetext {font-family:serif,sans-serif; font-size:8px; fill:black; stroke:black;}
-			.currentnoterect {opacity:0;}
 			.currentphasetext {font-family:serif,sans-serif; font-size:14px; fill:black; stroke:black;}
-			#BriefLabelLayer.labeltext text {font-size: 0.7em;}
 
 			/* Mouse Layer */
 			.invisibleContent		{stroke:#000000;fill:#000000;fill-opacity:0.0;opacity:0.0}
@@ -661,8 +658,7 @@
 			/* Nations */
 			.nopower 		{fill:#FFEEEE; stroke:black; stroke-linejoin:round}
 			.water			{fill:#DDDDFF; stroke:black; stroke-linejoin:round}
-			.unordered 		{fill:red; stroke:black; fill-opacity:0.90;}
-			
+
 			.britain	{fill:#0000FF;stroke:black;}
 			.egypt		{fill:#808000;stroke:black;}
 			.france		{fill:#00FFFF;stroke:black;}
@@ -686,26 +682,12 @@
 			.unitturkey		{fill:#FFFF00;stroke:black;fill-opacity:0.90;}
 			.unitukraine	{fill:#FF00FF;stroke:black;fill-opacity:0.90;}
 			
-			/* Supply Center Styles */
-			.scbritain		{fill:black;stroke:black;}
-			.scegypt		{fill:black;stroke:black;}
-			.scfrance		{fill:black;stroke:black;}
-			.scgermany		{fill:black;stroke:black;}
-			.scitaly		{fill:black;stroke:black;}
-			.scpoland		{fill:black;stroke:black;}
-			.scrussia		{fill:black;stroke:black;}
-			.scspain		{fill:black;stroke:black;}
-			.scturkey		{fill:black;stroke:black;}
-			.scukraine		{fill:black;stroke:black;}
-			
 			/* order drawing styles, stroke and fill colors should not be specified */
 
-			.defaultorder {stroke-width:6; fill:none;}
-			.supportorder {stroke-width:4; fill:none; stroke-dasharray:5,5;}
-			.convoyorder  {stroke-dasharray:15,5; stroke-width:4; fill:none;}
+			.supportorder {stroke-width:2; fill:none; stroke-dasharray:5,5;}
+			.convoyorder  {stroke-dasharray:15,5; stroke-width:2; fill:none;}
 
-			.shadoworder  {stroke-width:10; fill:none; stroke:black;}
-			.shadowdash   {stroke-width:8; fill:none; stroke:black; opacity:0.45;}
+			.shadowdash   {stroke-width:4; fill:none; stroke:black; opacity:0.45;}
 
 			.varwidthorder  {fill:none;}
 			.varwidthshadow {fill:none; stroke:black;}
@@ -720,8 +702,6 @@
 			.symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
 			.symDislodgedBorder {stroke:red;stroke-width:3%;}
 
-			.symDarkener        {fill:black;opacity:0.45;fill-opacity:0.45;}
-			.symCenterHub       {fill:black; stroke:black; opacity:0.60; stroke-width:0.5px;}
 			.symBorder          {stroke:black;stroke-width:3%;}
 			.symThinBorder      {stroke:black;stroke-width:0.4;}
 			.symSilhouette      {stroke:black;fill:black;stroke-width:1;}
@@ -1080,482 +1060,71 @@
 	
 	<!-- drawing layer: supply centers -->
 	<g id="SupplyCenterLayer">
-	<use
-	   height="5"
-	   id="sc_LON"
-	   width="5"
-	   x="162.8"
-	   xlink:href="#SupplyCenter"
-	   y="204.60001"
-	   transform="translate(-6,-4)" />
-	<use
-	   height="5"
-	   id="sc_LIV"
-	   width="5"
-	   x="150.7"
-	   xlink:href="#SupplyCenter"
-	   y="170.7"
-	   transform="translate(-5.3588517,-6.0287081)" />
-	<use
-	   height="5"
-	   id="sc_EDI"
-	   width="5"
-	   x="159.89999"
-	   xlink:href="#SupplyCenter"
-	   y="141.7"
-	   transform="translate(-6.6985646,-6.6985646)" />
-	<use
-	   height="5"
-	   id="sc_GIB"
-	   width="5"
-	   x="56.7"
-	   xlink:href="#SupplyCenter"
-	   y="378.0" />
-	<use
-	   height="5"
-	   id="sc_CAI"
-	   width="5"
-	   x="471.10001"
-	   xlink:href="#SupplyCenter"
-	   y="469.79999"
-	   transform="translate(-6,-4)" />
-	<use
-	   height="5"
-	   id="sc_ALE"
-	   width="5"
-	   x="441.4"
-	   xlink:href="#SupplyCenter"
-	   y="472.7" />
-	<use
-	   height="5"
-	   id="sc_ASW"
-	   width="5"
-	   x="482.5"
-	   xlink:href="#SupplyCenter"
-	   y="542.7" />
-	<use
-	   height="5"
-	   id="sc_PAR"
-	   width="5"
-	   x="169.1"
-	   xlink:href="#SupplyCenter"
-	   y="243.5" />
-	<use
-	   height="5"
-	   id="sc_BOR"
-	   width="5"
-	   x="136.6"
-	   xlink:href="#SupplyCenter"
-	   y="279.6" />
-	<use
-	   height="5"
-	   id="sc_MAR"
-	   width="5"
-	   x="193.0"
-	   xlink:href="#SupplyCenter"
-	   y="287.0" />
-	<use
-	   height="5"
-	   id="sc_LYO"
-	   width="5"
-	   x="188.2"
-	   xlink:href="#SupplyCenter"
-	   y="273.2" />
-	<use
-	   height="5"
-	   id="sc_HAM"
-	   width="5"
-	   x="243.4"
-	   xlink:href="#SupplyCenter"
-	   y="192.7" />
-	<use
-	   height="5"
-	   id="sc_BER"
-	   width="5"
-	   x="277.60001"
-	   xlink:href="#SupplyCenter"
-	   y="208"
-	   transform="translate(-3.3492823,-6.0287081)" />
-	<use
-	   height="5"
-	   id="sc_FRA"
-	   width="5"
-	   x="232.2"
-	   xlink:href="#SupplyCenter"
-	   y="242.2"
-	   transform="translate(-2.6794258,-4.6889952)" />
-	<use
-	   height="5"
-	   id="sc_MUN"
-	   width="5"
-	   x="255.2"
-	   xlink:href="#SupplyCenter"
-	   y="267.60001"
-	   transform="translate(-4.6889952,-4.0191388)" />
-	<use
-	   height="5"
-	   id="sc_MIL"
-	   width="5"
-	   x="238.10001"
-	   xlink:href="#SupplyCenter"
-	   y="308.79999"
-	   transform="translate(-4.6889952,-6.0287081)" />
-	<use
-	   height="5"
-	   id="sc_VEN"
-	   width="5"
-	   x="261.70001"
-	   xlink:href="#SupplyCenter"
-	   y="295.29999"
-	   transform="translate(-8.708134,-5.3588517)" />
-	<use
-	   height="5"
-	   id="sc_ROM"
-	   width="5"
-	   x="251.1"
-	   xlink:href="#SupplyCenter"
-	   y="344.2" />
-	<use
-	   height="5"
-	   id="sc_NAP"
-	   width="5"
-	   x="273.5"
-	   xlink:href="#SupplyCenter"
-	   y="364.8" />
-	<use
-	   height="5"
-	   id="sc_WAR"
-	   width="5"
-	   x="335.29999"
-	   xlink:href="#SupplyCenter"
-	   y="214.5"
-	   transform="translate(2.0095694,-10.047847)" />
-	<use
-	   height="5"
-	   id="sc_GDA"
-	   width="5"
-	   x="324.7"
-	   xlink:href="#SupplyCenter"
-	   y="188.0" />
-	<use
-	   height="5"
-	   id="sc_KRA"
-	   width="5"
-	   x="324.10001"
-	   xlink:href="#SupplyCenter"
-	   y="245.8"
-	   transform="translate(-1.3397129,-6.6985646)" />
-	<use
-	   height="5"
-	   id="sc_MOS"
-	   width="5"
-	   x="475.0"
-	   xlink:href="#SupplyCenter"
-	   y="160.0" />
-	<use
-	   height="5"
-	   id="sc_GOR"
-	   width="5"
-	   x="491.7"
-	   xlink:href="#SupplyCenter"
-	   y="103.5" />
-	<use
-	   height="5"
-	   id="sc_STP"
-	   width="5"
-	   x="397.6"
-	   xlink:href="#SupplyCenter"
-	   y="107.7" />
-	<use
-	   height="5"
-	   id="sc_MUR"
-	   width="5"
-	   x="393.3"
-	   xlink:href="#SupplyCenter"
-	   y="24.2" />
-	<use
-	   height="5"
-	   id="sc_ROS"
-	   width="5"
-	   x="522.0"
-	   xlink:href="#SupplyCenter"
-	   y="273.0" />
-	<use
-	   height="5"
-	   id="sc_BAR"
-	   width="5"
-	   x="139.39999"
-	   xlink:href="#SupplyCenter"
-	   y="331.89999"
-	   transform="translate(0,-4)" />
-	<use
-	   height="5"
-	   id="sc_MAD"
-	   width="5"
-	   x="87.1"
-	   xlink:href="#SupplyCenter"
-	   y="327.7" />
-	<use
-	   height="5"
-	   id="sc_SVE"
-	   width="5"
-	   x="49.599998"
-	   xlink:href="#SupplyCenter"
-	   y="363.79999"
-	   transform="translate(-4.6889952,-4.6889952)" />
-	<use
-	   height="5"
-	   id="sc_ADA"
-	   width="5"
-	   x="488.79999"
-	   xlink:href="#SupplyCenter"
-	   y="400.5"
-	   transform="translate(-4.0191388,-5.3588517)" />
-	<use
-	   height="5"
-	   id="sc_IZM"
-	   width="5"
-	   x="410.3"
-	   xlink:href="#SupplyCenter"
-	   y="406.9" />
-	<use
-	   height="5"
-	   id="sc_IST"
-	   width="5"
-	   x="405.4"
-	   xlink:href="#SupplyCenter"
-	   y="356.7" />
-	<use
-	   height="5"
-	   id="sc_ANK"
-	   width="5"
-	   x="461.20001"
-	   xlink:href="#SupplyCenter"
-	   y="365.89999"
-	   transform="translate(-2.0095694,-4.0191388)" />
-	<use
-	   height="5"
-	   id="sc_SEV"
-	   width="5"
-	   x="458.39999"
-	   xlink:href="#SupplyCenter"
-	   y="300.79999"
-	   transform="translate(-4,-4)" />
-	<use
-	   height="5"
-	   id="sc_KHA"
-	   width="5"
-	   x="472.6"
-	   xlink:href="#SupplyCenter"
-	   y="230.8" />
-	<use
-	   height="5"
-	   id="sc_KIE"
-	   width="5"
-	   x="417.4"
-	   xlink:href="#SupplyCenter"
-	   y="227.2" />
-	<use
-	   height="5"
-	   id="sc_ODE"
-	   width="5"
-	   x="430.10001"
-	   xlink:href="#SupplyCenter"
-	   y="276"
-	   transform="translate(-4.0191388,-7.3684211)" />
-	<use
-	   height="5"
-	   id="sc_IRE"
-	   width="5"
-	   x="111.1"
-	   xlink:href="#SupplyCenter"
-	   y="161.5" />
-	<use
-	   height="5"
-	   id="sc_MOR"
-	   width="5"
-	   x="34.0"
-	   xlink:href="#SupplyCenter"
-	   y="416.8" />
-	<use
-	   height="5"
-	   id="sc_NWY"
-	   width="5"
-	   x="262.3"
-	   xlink:href="#SupplyCenter"
-	   y="109.0" />
-	<use
-	   height="5"
-	   id="sc_ISR"
-	   width="5"
-	   x="506.5"
-	   xlink:href="#SupplyCenter"
-	   y="454.29999"
-	   transform="translate(-4.0191388,-6.6985646)" />
-	<use
-	   height="5"
-	   id="sc_LIB"
-	   width="5"
-	   x="238.4"
-	   xlink:href="#SupplyCenter"
-	   y="465.6" />
-	<use
-	   height="5"
-	   id="sc_BEL"
-	   width="5"
-	   x="204"
-	   xlink:href="#SupplyCenter"
-	   y="215"
-	   transform="translate(-17.416268,0.66985648)" />
-	<use
-	   height="5"
-	   id="sc_MON"
-	   width="5"
-	   x="205"
-	   xlink:href="#SupplyCenter"
-	   y="298"
-	   transform="translate(-12,12)" />
-	<use
-	   height="5"
-	   id="sc_SWI"
-	   width="5"
-	   x="225"
-	   xlink:href="#SupplyCenter"
-	   y="271"
-	   transform="translate(-4)" />
-	<use
-	   height="5"
-	   id="sc_AUS"
-	   width="5"
-	   x="287.0"
-	   xlink:href="#SupplyCenter"
-	   y="266.0" />
-	<use
-	   height="5"
-	   id="sc_DEN"
-	   width="5"
-	   x="265.79999"
-	   xlink:href="#SupplyCenter"
-	   y="168.5"
-	   transform="translate(-6.6985841,-6.6985841)" />
-	<use
-	   height="5"
-	   id="sc_HOL"
-	   width="5"
-	   x="212.0"
-	   xlink:href="#SupplyCenter"
-	   y="193.0" />
-	<use
-	   height="5"
-	   id="sc_CRO"
-	   width="5"
-	   x="279.4"
-	   xlink:href="#SupplyCenter"
-	   y="298.2" />
-	<use
-	   height="5"
-	   id="sc_SER"
-	   width="5"
-	   x="331.1"
-	   xlink:href="#SupplyCenter"
-	   y="309.3" />
-	<use
-	   height="5"
-	   id="sc_TUN"
-	   width="5"
-	   x="215.8"
-	   xlink:href="#SupplyCenter"
-	   y="429.5" />
-	<use
-	   height="5"
-	   id="sc_BIE"
-	   width="5"
-	   x="405.0"
-	   xlink:href="#SupplyCenter"
-	   y="189.0" />
-	<use
-	   height="5"
-	   id="sc_CZE"
-	   width="5"
-	   x="293"
-	   xlink:href="#SupplyCenter"
-	   y="238"
-	   transform="translate(-11.387593,-2.6794337)" />
-	<use
-	   height="5"
-	   id="sc_LIT"
-	   width="5"
-	   x="375.89999"
-	   xlink:href="#SupplyCenter"
-	   y="172.2"
-	   transform="translate(-8.038301,-4.6890089)" />
-	<use
-	   height="5"
-	   id="sc_SWE"
-	   width="5"
-	   x="309.39999"
-	   xlink:href="#SupplyCenter"
-	   y="124.3"
-	   transform="translate(-2,-4)" />
-	<use
-	   height="5"
-	   id="sc_POR"
-	   width="5"
-	   x="34.7"
-	   xlink:href="#SupplyCenter"
-	   y="332.6" />
-	<use
-	   height="5"
-	   id="sc_BUL"
-	   width="5"
-	   x="360.8"
-	   xlink:href="#SupplyCenter"
-	   y="343.2" />
-	<use
-	   height="5"
-	   id="sc_GEO"
-	   width="5"
-	   x="567"
-	   xlink:href="#SupplyCenter"
-	   y="310.79999"
-	   transform="translate(-4.0191505,-4.6890089)" />
-	<use
-	   height="5"
-	   id="sc_GRE"
-	   width="5"
-	   x="360.8"
-	   xlink:href="#SupplyCenter"
-	   y="403.4" />
-	<use
-	   height="5"
-	   id="sc_IRN"
-	   width="5"
-	   x="663.5"
-	   xlink:href="#SupplyCenter"
-	   y="370.1" />
-	<use
-	   height="5"
-	   id="sc_RUM"
-	   width="5"
-	   x="391.20001"
-	   xlink:href="#SupplyCenter"
-	   y="311.39999"
-	   transform="translate(1.3397168,-6.0287257)" />
-	<use
-	   height="5"
-	   id="sc_HUN"
-	   width="5"
-	   x="332.0"
-	   xlink:href="#SupplyCenter"
-	   y="273.0" />
-	<use
-	   height="5"
-	   id="sc_SAU"
-	   width="5"
-	   x="607.7"
-	   xlink:href="#SupplyCenter"
-	   y="492.5" />
-  </g>
+		<use height="7" id="sc_LON" width="7" x="162.8" xlink:href="#SupplyCenter" y="204.60001" transform="translate(-6,-4)" />
+		<use height="7" id="sc_LIV" width="7" x="150.7" xlink:href="#SupplyCenter" y="170.7" transform="translate(-5.3588517,-6.0287081)" />
+		<use height="7" id="sc_EDI" width="7" x="159.89999" xlink:href="#SupplyCenter" y="141.7" transform="translate(-6.6985646,-6.6985646)" />
+		<use height="7" id="sc_GIB" width="7" x="56.7" xlink:href="#SupplyCenter" y="378.0" />
+		<use height="7" id="sc_CAI" width="7" x="471.10001" xlink:href="#SupplyCenter" y="469.79999" transform="translate(-6,-4)" />
+		<use height="7" id="sc_ALE" width="7" x="441.4" xlink:href="#SupplyCenter" y="472.7" />
+		<use height="7" id="sc_ASW" width="7" x="482.5" xlink:href="#SupplyCenter" y="542.7" />
+		<use height="7" id="sc_PAR" width="7" x="169.1" xlink:href="#SupplyCenter" y="243.5" />
+		<use height="7" id="sc_BOR" width="7" x="136.6" xlink:href="#SupplyCenter" y="279.6" />
+		<use height="7" id="sc_MAR" width="7" x="193.0" xlink:href="#SupplyCenter" y="287.0" />
+		<use height="7" id="sc_LYO" width="7" x="188.2" xlink:href="#SupplyCenter" y="273.2" />
+		<use height="7" id="sc_HAM" width="7" x="243.4" xlink:href="#SupplyCenter" y="192.7" />
+		<use height="7" id="sc_BER" width="7" x="277.60001" xlink:href="#SupplyCenter" y="208" transform="translate(-3.3492823,-6.0287081)" />
+		<use height="7" id="sc_FRA" width="7" x="232.2" xlink:href="#SupplyCenter" y="242.2" transform="translate(-2.6794258,-4.6889952)" />
+		<use height="7" id="sc_MUN" width="7" x="255.2" xlink:href="#SupplyCenter" y="267.60001" transform="translate(-4.6889952,-4.0191388)" />
+		<use height="7" id="sc_MIL" width="7" x="238.10001" xlink:href="#SupplyCenter" y="308.79999" transform="translate(-4.6889952,-6.0287081)" />
+		<use height="7" id="sc_VEN" width="7" x="261.70001" xlink:href="#SupplyCenter" y="295.29999" transform="translate(-8.708134,-5.3588517)" />
+		<use height="7" id="sc_ROM" width="7" x="251.1" xlink:href="#SupplyCenter" y="344.2" />
+		<use height="7" id="sc_NAP" width="7" x="273.5" xlink:href="#SupplyCenter" y="364.8" />
+		<use height="7" id="sc_WAR" width="7" x="335.29999" xlink:href="#SupplyCenter" y="214.5" transform="translate(2.0095694,-10.047847)" />
+		<use height="7" id="sc_GDA" width="7" x="324.7" xlink:href="#SupplyCenter" y="188.0" />
+		<use height="7" id="sc_KRA" width="7" x="324.10001" xlink:href="#SupplyCenter" y="245.8" transform="translate(-1.3397129,-6.6985646)" />
+		<use height="7" id="sc_MOS" width="7" x="475.0" xlink:href="#SupplyCenter" y="160.0" />
+		<use height="7" id="sc_GOR" width="7" x="491.7" xlink:href="#SupplyCenter" y="103.5" />
+		<use height="7" id="sc_STP" width="7" x="397.6" xlink:href="#SupplyCenter" y="107.7" />
+		<use height="7" id="sc_MUR" width="7" x="393.3" xlink:href="#SupplyCenter" y="24.2" />
+		<use height="7" id="sc_ROS" width="7" x="522.0" xlink:href="#SupplyCenter" y="273.0" />
+		<use height="7" id="sc_BAR" width="7" x="139.39999" xlink:href="#SupplyCenter" y="331.89999" transform="translate(0,-4)" />
+		<use height="7" id="sc_MAD" width="7" x="87.1" xlink:href="#SupplyCenter" y="327.7" />
+		<use height="7" id="sc_SVE" width="7" x="49.599998" xlink:href="#SupplyCenter" y="363.79999" transform="translate(-4.6889952,-4.6889952)" />
+		<use height="7" id="sc_ADA" width="7" x="488.79999" xlink:href="#SupplyCenter" y="400.5" transform="translate(-4.0191388,-5.3588517)" />
+		<use height="7" id="sc_IZM" width="7" x="410.3" xlink:href="#SupplyCenter" y="406.9" />
+		<use height="7" id="sc_IST" width="7" x="405.4" xlink:href="#SupplyCenter" y="356.7" />
+		<use height="7" id="sc_ANK" width="7" x="461.20001" xlink:href="#SupplyCenter" y="365.89999" transform="translate(-2.0095694,-4.0191388)" />
+		<use height="7" id="sc_SEV" width="7" x="458.39999" xlink:href="#SupplyCenter" y="300.79999" transform="translate(-4,-4)" />
+		<use height="7" id="sc_KHA" width="7" x="472.6" xlink:href="#SupplyCenter" y="230.8" />
+		<use height="7" id="sc_KIE" width="7" x="417.4" xlink:href="#SupplyCenter" y="227.2" />
+		<use height="7" id="sc_ODE" width="7" x="430.10001" xlink:href="#SupplyCenter" y="276" transform="translate(-4.0191388,-7.3684211)" />
+		<use height="7" id="sc_IRE" width="7" x="111.1" xlink:href="#SupplyCenter" y="161.5" />
+		<use height="7" id="sc_MOR" width="7" x="34.0" xlink:href="#SupplyCenter" y="416.8" />
+		<use height="7" id="sc_NWY" width="7" x="262.3" xlink:href="#SupplyCenter" y="109.0" />
+		<use height="7" id="sc_ISR" width="7" x="506.5" xlink:href="#SupplyCenter" y="454.29999" transform="translate(-4.0191388,-6.6985646)" />
+		<use height="7" id="sc_LIB" width="7" x="238.4" xlink:href="#SupplyCenter" y="465.6" />
+		<use height="7" id="sc_BEL" width="7" x="204" xlink:href="#SupplyCenter" y="215" transform="translate(-17.416268,0.66985648)" />
+		<use height="7" id="sc_MON" width="7" x="205" xlink:href="#SupplyCenter" y="298" transform="translate(-10,6)" />
+		<use height="7" id="sc_SWI" width="7" x="225" xlink:href="#SupplyCenter" y="271" transform="translate(-4)" />
+		<use height="7" id="sc_AUS" width="7" x="287.0" xlink:href="#SupplyCenter" y="266.0" />
+		<use height="7" id="sc_DEN" width="7" x="265.79999" xlink:href="#SupplyCenter" y="168.5" transform="translate(-6.6985841,-6.6985841)" />
+		<use height="7" id="sc_HOL" width="7" x="212.0" xlink:href="#SupplyCenter" y="193.0" />
+		<use height="7" id="sc_CRO" width="7" x="279.4" xlink:href="#SupplyCenter" y="298.2" />
+		<use height="7" id="sc_SER" width="7" x="331.1" xlink:href="#SupplyCenter" y="309.3" />
+		<use height="7" id="sc_TUN" width="7" x="215.8" xlink:href="#SupplyCenter" y="429.5" />
+		<use height="7" id="sc_BIE" width="7" x="405.0" xlink:href="#SupplyCenter" y="189.0" />
+		<use height="7" id="sc_CZE" width="7" x="293" xlink:href="#SupplyCenter" y="238" transform="translate(-11.387593,-2.6794337)" />
+		<use height="7" id="sc_LIT" width="7" x="375.89999" xlink:href="#SupplyCenter" y="172.2" transform="translate(-8.038301,-4.6890089)" />
+		<use height="7" id="sc_SWE" width="7" x="309.39999" xlink:href="#SupplyCenter" y="124.3" transform="translate(-2,-4)" />
+		<use height="7" id="sc_POR" width="7" x="34.7" xlink:href="#SupplyCenter" y="332.6" />
+		<use height="7" id="sc_BUL" width="7" x="360.8" xlink:href="#SupplyCenter" y="343.2" />
+		<use height="7" id="sc_GEO" width="7" x="567" xlink:href="#SupplyCenter" y="310.79999" transform="translate(-4.0191505,-4.6890089)" />
+		<use height="7" id="sc_GRE" width="7" x="360.8" xlink:href="#SupplyCenter" y="403.4" />
+		<use height="7" id="sc_IRN" width="7" x="663.5" xlink:href="#SupplyCenter" y="370.1" />
+		<use height="7" id="sc_RUM" width="7" x="391.20001" xlink:href="#SupplyCenter" y="311.39999" transform="translate(1.3397168,-6.0287257)" />
+		<use height="7" id="sc_HUN" width="7" x="332.0" xlink:href="#SupplyCenter" y="273.0" />
+		<use height="7" id="sc_SAU" width="7" x="607.7" xlink:href="#SupplyCenter" y="492.5" />
+	</g>
 
 	<!-- drawing layer: orders -->
 	<g id="OrderLayer">

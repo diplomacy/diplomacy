@@ -19,7 +19,6 @@
     - Contains the renderer object which is responsible for rendering a game state to svg
 """
 import os
-import math
 from xml.dom import minidom
 from diplomacy import settings
 
@@ -37,6 +36,7 @@ def _attr(node_element, attr_name):
 def _offset(str_float, offset):
     """ Shorthand to add a offset to an attribute """
     return str(float(str_float) + offset)
+
 
 class Renderer():
     """ Renderer object responsible for rendering a game state to svg """
