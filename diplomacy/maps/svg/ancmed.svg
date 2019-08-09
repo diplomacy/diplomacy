@@ -13,11 +13,11 @@
 	
 	<jdipNS:ORDERDRAWING>
 		<jdipNS:POWERCOLORS>
-			<jdipNS:POWERCOLOR power="rome" color="red" />
-			<jdipNS:POWERCOLOR power="carthage" color="blue" />
-			<jdipNS:POWERCOLOR power="persia" color="black" />
+			<jdipNS:POWERCOLOR power="rome" color="#c48f85" />
+			<jdipNS:POWERCOLOR power="carthage" color="royalblue" />
+			<jdipNS:POWERCOLOR power="persia" color="gray" />
 			<jdipNS:POWERCOLOR power="greece" color="forestgreen" />
-			<jdipNS:POWERCOLOR power="egypt" color="yellow" />
+			<jdipNS:POWERCOLOR power="egypt" color="#b9a61c" />
 		</jdipNS:POWERCOLORS>
 		
 		<jdipNS:SYMBOLSIZE name="Fleet" width="20" height="20"/>
