@@ -20,6 +20,7 @@
 """
 import os
 from xml.dom import minidom
+
 from diplomacy import settings
 
 # Constants
@@ -37,6 +38,100 @@ def _offset(str_float, offset):
     """ Shorthand to add a offset to an attribute """
     return str(float(str_float) + offset)
 
+class EquilateralTriangle:
+    """ Helper class that represent an equilateral triangle.
+        Used to compute intersection of a line with a side of convoy symbol, which is an equilateral triangle.
+    """
+    __slots__ = ('x_A', 'y_A', 'x_B', 'y_B', 'x_C', 'y_C', 'x_O', 'y_O', 'h',
+                 'line_AB_a', 'line_AB_b', 'line_AC_a', 'line_AC_b')
+
+    def __init__(self, x_top, y_top, x_right, y_right, x_left, y_left):
+        # type: (float, float, float, float, float, float) -> None
+        assert y_left == y_right > y_top
+        assert x_left < x_top < x_right
+        self.x_A = x_top
+        self.y_A = y_top
+        self.x_B = x_right
+        self.y_B = y_right
+        self.x_C = x_left
+        self.y_C = y_left
+        self.h = self.y_B - self.y_A
+        self.x_O = self.x_A
+        self.y_O = self.y_A + 2 * self.h / 3
+        self.line_AB_a = (self.y_B - self.y_A) / (self.x_B - self.x_A)
+        self.line_AB_b = self.y_B - self.x_B * self.line_AB_a
+        self.line_AC_a = (self.y_C - self.y_A) / (self.x_C - self.x_A)
+        self.line_AC_b = self.y_C - self.x_C * self.line_AC_a
+
+    def __line_OM(self, x_M, y_M):
+        a = (y_M - self.y_O) / (x_M - self.x_O)
+        b = y_M - a * x_M
+        return a, b
+
+    def __intersection_with_AB(self, x_M, y_M):
+        a, b = self.line_AB_a, self.line_AB_b
+        u, v = self.__line_OM(x_M, y_M)
+        assert a != u
+        x = (v - b) / (a - u)
+        y = a * x + b
+        if self.x_A <= x <= self.x_B and self.y_A <= y <= self.y_B:
+            return x, y
+        return None, None
+
+    def __intersection_with_AC(self, x_M, y_M):
+        a, b = self.line_AC_a, self.line_AC_b
+        u, v = self.__line_OM(x_M, y_M)
+        x = (v - b) / (a - u)
+        y = a * x + b
+        if self.x_C <= x <= self.x_A and self.y_A <= y <= self.y_C:
+            return x, y
+        return None, None
+
+    def __intersection_with_BC(self, x_M, y_M):
+        a, b = self.__line_OM(x_M, y_M)
+        y = self.y_C
+        x = (y - b) / a
+        if self.x_C <= x <= self.x_A:
+            return x, y
+        return None, None
+
+    def intersection(self, x_M, y_M):
+        # type: (float, float) -> (float, float)
+        if self.x_O == x_M and self.y_O == y_M:
+            return x_M, y_M
+        if self.x_O == x_M:
+            if y_M < self.y_O:
+                return x_M, self.y_A
+            else:
+                # vertical line intersects BC
+                return x_M, self.y_C
+        elif self.y_O == y_M:
+            if x_M < self.x_O:
+                # horizontal line intersects AC
+                a, b = self.line_AC_a, self.line_AC_b
+            else:
+                # horizontal line intersects AB
+                a, b = self.line_AB_a, self.line_AB_b
+            x = (y_M - b) / a
+            return x, y_M
+        else:
+            # get nearest point in intersections with AB, AC, BC
+            p1_x, p1_y = self.__intersection_with_AB(x_M, y_M)
+            p2_x, p2_y = self.__intersection_with_AC(x_M, y_M)
+            p3_x, p3_y = self.__intersection_with_BC(x_M, y_M)
+            distances = []
+            if p1_x is not None:
+                d1 = ((p1_x - x_M) ** 2 + (p1_y - y_M) ** 2) ** 0.5
+                distances.append((d1, p1_x, p1_y))
+            if p2_x is not None:
+                d2 = ((p2_x - x_M) ** 2 + (p2_y - y_M) ** 2) ** 0.5
+                distances.append((d2, p2_x, p2_y))
+            if p3_x is not None:
+                d3 = ((p3_x - x_M) ** 2 + (p3_y - y_M) ** 2) ** 0.5
+                distances.append((d3, p3_x, p3_y))
+            assert distances
+            distances.sort()
+            return distances[0][1:]
 
 class Renderer():
     """ Renderer object responsible for rendering a game state to svg """
@@ -69,7 +164,7 @@ class Renderer():
             :param order: The unformatted order (e.g. 'Paris - Burgundy')
             :return: The tokens of the formatted order (e.g. ['A', 'PAR', '-', 'BUR'])
         """
-        return self.game._add_unit_types(self.game._expand_order(order.split()))    # pylint: disable=protected-access
+        return self.game._add_unit_types(self.game._expand_order(order.split()))  # pylint: disable=protected-access
 
     def render(self, incl_orders=True, incl_abbrev=False, output_format='svg'):
         """ Renders the current game and returns the XML representation
@@ -145,7 +240,8 @@ class Renderer():
                             xml_map = self._issue_support_move_order(xml_map, unit_loc, src_loc, dest_loc, power.name)
                         else:
                             dest_type = tokens[-2]
-                            xml_map = self._issue_support_hold_order(xml_map, unit_type, unit_loc, dest_type, dest_loc, power.name)
+                            xml_map = self._issue_support_hold_order(xml_map, unit_type, unit_loc, dest_type, dest_loc,
+                                                                     power.name)
                     elif tokens[2] == 'C':
                         src_loc = tokens[4] if tokens[3] == 'A' or tokens[3] == 'F' else tokens[3]
                         dest_loc = tokens[-1]
@@ -173,7 +269,8 @@ class Renderer():
                     elif tokens[-2] == 'R':
                         src_loc = tokens[1] if tokens[0] == 'A' or tokens[0] == 'F' else tokens[0]
                         dest_loc = tokens[-1]
-                        xml_map = self._issue_move_order(xml_map, tokens[0] if tokens[0] in 'AF' else 'A', src_loc, dest_loc, power.name)
+                        xml_map = self._issue_move_order(xml_map, tokens[0] if tokens[0] in 'AF' else 'A', src_loc,
+                                                         dest_loc, power.name)
                     else:
                         raise RuntimeError('Unknown order: {}'.format(order))
 
@@ -553,27 +650,34 @@ class Renderer():
             :return: Nothing
         """
         symbol = 'ConvoyTriangle'
+        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit('A', src_loc, False, symbol)
+        symbol_height = float(self.metadata['symbol_size'][symbol][0])
+        symbol_width = float(self.metadata['symbol_size'][symbol][1])
+        triangle = EquilateralTriangle(
+            float(symbol_loc_x) + symbol_width / 2,
+            float(symbol_loc_y),
+            float(symbol_loc_x) + symbol_width,
+            float(symbol_loc_y) + symbol_height,
+            float(symbol_loc_x),
+            float(symbol_loc_y) + symbol_height
+        )
+        symbol_loc_y = str(float(symbol_loc_y) - float(self.metadata['symbol_size'][symbol][0]) / 6)
+
         loc_x, loc_y = self._get_unit_center('A', loc, False)
         src_loc_x, src_loc_y = self._get_unit_center('A', src_loc, False)
         dest_loc_x, dest_loc_y = self._get_unit_center('A', dest_loc, False)
 
         # Adjusting starting arrow (from convoy to start location)
         # This is to avoid the end of the arrow conflicting with the convoy triangle
-        src_delta_x = src_loc_x - loc_x
-        src_delta_y = src_loc_y - loc_y
-        src_vector_length = (src_delta_x ** 2 + src_delta_y ** 2) ** 0.5
-        src_delta_dec = 2 * float(self.metadata['symbol_size'][symbol][0]) / 3 - self._plain_stroke_width()
-        src_loc_x_1 = str(round(loc_x + (src_vector_length - src_delta_dec) / src_vector_length * src_delta_x, 2))
-        src_loc_y_1 = str(round(loc_y + (src_vector_length - src_delta_dec) / src_vector_length * src_delta_y, 2))
+        src_loc_x_1, src_loc_y_1 = triangle.intersection(loc_x, loc_y)
+        src_loc_x_1 = str(src_loc_x_1)
+        src_loc_y_1 = str(src_loc_y_1)
 
         # Adjusting destination arrow (from start location to destination location)
         # This is to avoid the start of the arrow conflicting with the convoy triangle
-        dest_delta_x = src_loc_x - dest_loc_x
-        dest_delta_y = src_loc_y - dest_loc_y
-        dest_vector_length = (dest_delta_x ** 2 + dest_delta_y ** 2) ** 0.5
-        dest_delta_dec = 2 * float(self.metadata['symbol_size'][symbol][0]) / 3 - self._plain_stroke_width()
-        src_loc_x_2 = str(round(dest_loc_x + (dest_vector_length - dest_delta_dec) / dest_vector_length * dest_delta_x, 2))
-        src_loc_y_2 = str(round(dest_loc_y + (dest_vector_length - dest_delta_dec) / dest_vector_length * dest_delta_y, 2))
+        src_loc_x_2, src_loc_y_2 = triangle.intersection(dest_loc_x, dest_loc_y)
+        src_loc_x_2 = str(src_loc_x_2)
+        src_loc_y_2 = str(src_loc_y_2)
 
         # Adjusting destination arrow (from start location to destination location)
         # This is to avoid the start of the arrow conflicting with the convoy triangle
@@ -588,8 +692,6 @@ class Renderer():
         loc_y = str(loc_y)
 
         # Generating convoy triangle node
-        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit('A', src_loc, False, symbol)
-        symbol_loc_y = str(float(symbol_loc_y) - float(self.metadata['symbol_size'][symbol][0]) / 6)
         symbol_node = xml_map.createElement('use')
         symbol_node.setAttribute('x', symbol_loc_x)
         symbol_node.setAttribute('y', symbol_loc_y)
