@@ -20,7 +20,8 @@ import os
 from urllib.parse import urlencode
 import ujson as json
 from tornado import gen
-from tornado.httpclient import AsyncHTTPClient, HTTPRequest
+from tornado.httpclient import HTTPRequest
+from diplomacy.integration.base_api import BaseAPI
 from diplomacy.integration.webdiplomacy_net.game import state_dict_to_game_and_power
 from diplomacy.integration.webdiplomacy_net.orders import Order
 from diplomacy.integration.webdiplomacy_net.utils import CACHE, GameIdCountryId
@@ -30,19 +31,8 @@ LOGGER = logging.getLogger(__name__)
 API_USER_AGENT = 'KestasBot / Philip Paquette v1.0'
 API_WEBDIPLOMACY_NET = os.environ.get('API_WEBDIPLOMACY', 'https://webdiplomacy.net/api.php')
 
-class API():
+class API(BaseAPI):
     """ API to interact with webdiplomacy.net """
-
-    def __init__(self, api_key, connect_timeout=30, request_timeout=60):
-        """ Constructor
-            :param api_key: The API key to use for sending API requests
-            :param connect_timeout: The maximum amount of time to wait for the connection to be established
-            :param request_timeout: The maximum amount of time to wait for the request to be processed
-        """
-        self.api_key = api_key
-        self.http_client = AsyncHTTPClient()
-        self.connect_timeout = connect_timeout
-        self.request_timeout = request_timeout
 
     @gen.coroutine
     def list_games_with_players_in_cd(self):
