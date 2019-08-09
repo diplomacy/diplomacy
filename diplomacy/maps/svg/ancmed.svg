@@ -383,11 +383,11 @@
 		.nopower 	{fill:none;stroke:black;stroke-width:1}
 		.water		{fill:lightblue;stroke:black;stroke-width:1}
 		
-		.rome    	{fill:red;stroke:black;stroke-width:1}
-		.carthage 	{fill:blue;stroke:black;stroke-width:1}
+		.rome    	{fill:#c48f85;stroke:black;stroke-width:1}
+		.carthage 	{fill:royalblue;stroke:black;stroke-width:1}
 		.persia 	{fill:gray;stroke:black;stroke-width:1}
 		.greece 	{fill:forestgreen;stroke:black;stroke-width:1}
-		.egypt  	{fill:yellow;stroke:black;stroke-width:1}
+		.egypt  	{fill:#b9a61c;stroke:black;stroke-width:1}
 		
 		/* unit colors fills, by power (units always have a power) */
 		
