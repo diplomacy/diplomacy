@@ -36,15 +36,6 @@
 		<jdipNS:SYMBOLSIZE name="ConvoyTriangle" width="66.4" height="57.4"/>
 		<!-- Special symbol size to contain stroke width for plain (in "height") and power-colored lines (in "width") -->
 		<jdipNS:SYMBOLSIZE name="Stroke" width="3" height="5"/>
-
-		<jdipNS:BUILD deltaRadius="0"/>
-		<jdipNS:REMOVE deltaRadius="5"/>
-		<jdipNS:DISBAND deltaRadius="5"/>
-		<jdipNS:WAIVE deltaRadius="0"/>
-		<jdipNS:HOLD deltaRadius="5" strokeCSSStyle="varwidthorder" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
-		<jdipNS:MOVE deltaRadius="5" strokeCSSStyle="varwidthorder" markerID="arrow" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
-		<jdipNS:SUPPORT deltaRadius="10" strokeCSSStyle="supportorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
-		<jdipNS:CONVOY deltaRadius="10" strokeCSSStyle="convoyorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
 	</jdipNS:ORDERDRAWING>
 	
 	<jdipNS:PROVINCE_DATA>
@@ -413,9 +404,7 @@
 
 		.supportorder {stroke-width:3; fill:none; stroke-dasharray:5,5;}
 		.convoyorder  {stroke-dasharray:15,5; stroke-width:3; fill:none;}
-
 		.shadowdash   {stroke-width:5; fill:none; stroke:black; opacity:0.45;}
-
 		.varwidthorder  {fill:none;}
 		.varwidthshadow {fill:none; stroke:black;}
 
@@ -439,6 +428,8 @@
 		]]></style>
 		
 		<!-- NON UNIT SYMBOLS -->
+
+		<!-- Currently unused. -->
 		<symbol id="WaivedBuild" viewBox="0 0 100 100" overflow="visible">
 			   <linearGradient x1="15" y1="100" x2="100" y2="10" id="symWBGradient" gradientUnits="userSpaceOnUse">
 				<stop offset="20%" stop-color="yellow" stop-opacity="1"/>
@@ -454,7 +445,7 @@
 			</g>
 		</symbol>
 
-		<symbol id="BuildUnit" viewBox="0 0 100 100" overflow="visible">
+		<symbol id="BuildUnit" viewBox="-23.5 -23.5 153 153" overflow="visible">
 			<g>
 				<g transform="translate(6 6)" class="symBuildShadow">
 					<circle cx="50" cy="50" r="10"/>
@@ -471,7 +462,7 @@
 			</g>
 		</symbol>
 
-		<symbol id="RemoveUnit" viewBox="0 0 10 10" overflow="visible">
+		<symbol id="RemoveUnit" viewBox="-2.5 -2.5 15.5 15.5" overflow="visible">
 			<g class="symRemove">
 				<circle cx="5" cy="5" r="7"/>
 				<line x1="-2" y1="-2" x2="12" y2="12"/>
@@ -479,6 +470,7 @@
 			</g>
 		</symbol>
 
+		<!-- Currently unused. -->
 		<symbol id="FailedOrder" viewBox="0 0 35 35" overflow="visible">
 			<g>
 				<polygon transform="translate(3.5,3.5)" class="shadow" stroke-width="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17"/>
@@ -502,15 +494,15 @@
 
 		<symbol id="SupportHoldUnit" viewBox="-5 -5 86.6 86.6" overflow="visible">
 			<g>
-				<polygon class="shadowdash" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0"/>
-				<polygon class="supportorder" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0"/>
+				<polygon stroke-width="10" fill="none" stroke="black" opacity="0.45" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0"/>
+				<polygon stroke-width="6" fill="none" stroke-dasharray="5,5" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0"/>
 			</g>
 		</symbol>
 
-		<symbol id="ConvoyTriangle" viewBox="0 0 66.4 57.4" overflow="visible">
+		<symbol id="ConvoyTriangle" viewBox="-9 -10 84.4 72.4" overflow="visible">
 			<g>
-				<polygon class="shadowdash" points="33.2,0.0 66.4,57.4 0.0,57.4"/>
-				<polygon class="convoyorder" points="33.2,0.0 66.4,57.4 0.0,57.4"/>
+				<polygon stroke-width="10" fill="none" stroke="black" opacity="0.45" points="33.2,0.0 66.4,57.4 0.0,57.4"/>
+				<polygon stroke-width="6" fill="none" stroke-dasharray="15,5" points="33.2,0.0 66.4,57.4 0.0,57.4"/>
 			</g>
 		</symbol>
 

@@ -37,15 +37,6 @@
 		<jdipNS:SYMBOLSIZE name="ConvoyTriangle" width="40" height="34.5"/>
 		<!-- Special symbol size to contain stroke width for plain (in "height") and power-colored lines (in "width") -->
 		<jdipNS:SYMBOLSIZE name="Stroke" width="2" height="4"/>
-
-		<jdipNS:BUILD deltaRadius="0"/>
-		<jdipNS:REMOVE deltaRadius="5"/>
-		<jdipNS:DISBAND deltaRadius="5"/>
-		<jdipNS:WAIVE deltaRadius="0"/>
-		<jdipNS:HOLD deltaRadius="5" strokeCSSStyle="varwidthorder" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
-		<jdipNS:MOVE deltaRadius="5" strokeCSSStyle="varwidthorder" markerID="arrow" highlightOffset="0" highlightCSSClass="varwidthshadow" widths="6,9,12,18" shadowWidths="10,15,20,25"/>
-		<jdipNS:SUPPORT deltaRadius="10" strokeCSSStyle="supportorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
-		<jdipNS:CONVOY deltaRadius="10" strokeCSSStyle="convoyorder" markerID="arrow" highlightOffset="0" highlightCSSClass="shadowdash"/>
 	</jdipNS:ORDERDRAWING>
 
 	<jdipNS:PROVINCE_DATA>
@@ -634,82 +625,79 @@
 	-->
 
 	<defs>
-		<style type="text/css">
-		<![CDATA[
-			/* Default Text */
-			text         {font-size:10pt;fill:black;font-family:Arial;}
+		<style type="text/css"><![CDATA[
+
+		/* Default Text */
+		text         {font-size:10pt;fill:black;font-family:Arial;}
+
+		/* Text */
+		/* .credits     	{font-size:8pt;font-family:Arial;} */
+		/* .titletext   	{font-size:14px;font-weight:bolder;font-family:Arial;} */
+		.labeltext		{font-size:12px;fill:black;font-family:Arial;}
+		.currentnotetext {font-family:serif,sans-serif; font-size:8px; fill:black; stroke:black;}
+		.currentphasetext {font-family:serif,sans-serif; font-size:14px; fill:black; stroke:black;}
+
+		/* Mouse Layer */
+		.invisibleContent		{stroke:#000000;fill:#000000;fill-opacity:0.0;opacity:0.0}
+
+		.provinceRed {fill:url(#patternRed)}
+		.provinceBrown {fill:url(#patternBrown)}
+		.provinceGreen {fill:url(#patternGreen)}
+		.provinceBlack {fill:url(#patternBlack)}
+		.provinceBlue {fill:url(#patternBlue)}
+
+		/* Nations */
+		.nopower 		{fill:#FFEEEE; stroke:black; stroke-linejoin:round}
+		.water			{fill:#DDDDFF; stroke:black; stroke-linejoin:round}
+
+		.britain	{fill:#0000FF;stroke:black;}
+		.egypt		{fill:#808000;stroke:black;}
+		.france		{fill:#00FFFF;stroke:black;}
+		.germany	{fill:darkgrey;stroke:black;}
+		.italy		{fill:#80FF80;stroke:black;}
+		.poland		{fill:#FF0000;stroke:black;}
+		.russia		{fill:#008000;stroke:black;}
+		.spain		{fill:#FF8080;stroke:black;}
+		.turkey		{fill:#FFFF00;stroke:black;}
+		.ukraine	{fill:#FF00FF;stroke:black;}
+
+		/* Unit Colors */
+		.unitbritain	{fill:#0000FF;stroke:black;fill-opacity:0.90;}
+		.unitegypt		{fill:#808000;stroke:black;fill-opacity:0.90;}
+		.unitfrance		{fill:#00FFFF;stroke:black;fill-opacity:0.90;}
+		.unitgermany	{fill:darkgrey;stroke:black;fill-opacity:0.90;}
+		.unititaly		{fill:#80FF80;stroke:black;fill-opacity:0.90;}
+		.unitpoland		{fill:#FF0000;stroke:black;fill-opacity:0.90;}
+		.unitrussia		{fill:#008000;stroke:black;fill-opacity:0.90;}
+		.unitspain		{fill:#FF8080;stroke:black;fill-opacity:0.90;}
+		.unitturkey		{fill:#FFFF00;stroke:black;fill-opacity:0.90;}
+		.unitukraine	{fill:#FF00FF;stroke:black;fill-opacity:0.90;}
+
+		/* order drawing styles, stroke and fill colors should not be specified */
+
+		.supportorder {stroke-width:2; fill:none; stroke-dasharray:5,5;}
+		.convoyorder  {stroke-dasharray:15,5; stroke-width:2; fill:none;}
+		.shadowdash   {stroke-width:4; fill:none; stroke:black; opacity:0.45;}
+		.varwidthorder  {fill:none;}
+		.varwidthshadow {fill:none; stroke:black;}
+
+		/* Symbol private styles. Always start with "sym" to avoid name collisions! */
+
+		.symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
+		.symBuild       {stroke:yellow;stroke-width:7;fill:none;}
+		.symRemove      {stroke:red;stroke-width:1;fill:none;}
+
+		.symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
+		.symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
+		.symDislodgedBorder {stroke:red;stroke-width:3%;}
+
+		.symBorder          {stroke:black;stroke-width:3%;}
+		.symThinBorder      {stroke:black;stroke-width:0.4;}
+		.symSilhouette      {stroke:black;fill:black;stroke-width:1;}
+
+		.style1 {fill:darkGray}
 			
-			/* Text */
-			/* .credits     	{font-size:8pt;font-family:Arial;} */
-			/* .titletext   	{font-size:14px;font-weight:bolder;font-family:Arial;} */
-			.labeltext		{font-size:12px;fill:black;font-family:Arial;}
-			.currentnotetext {font-family:serif,sans-serif; font-size:8px; fill:black; stroke:black;}
-			.currentphasetext {font-family:serif,sans-serif; font-size:14px; fill:black; stroke:black;}
-
-			/* Mouse Layer */
-			.invisibleContent		{stroke:#000000;fill:#000000;fill-opacity:0.0;opacity:0.0}
-
-			.provinceRed {fill:url(#patternRed)}
-			.provinceBrown {fill:url(#patternBrown)}
-			.provinceGreen {fill:url(#patternGreen)}
-			.provinceBlack {fill:url(#patternBlack)}
-			.provinceBlue {fill:url(#patternBlue)}
-
-			/* Nations */
-			.nopower 		{fill:#FFEEEE; stroke:black; stroke-linejoin:round}
-			.water			{fill:#DDDDFF; stroke:black; stroke-linejoin:round}
-
-			.britain	{fill:#0000FF;stroke:black;}
-			.egypt		{fill:#808000;stroke:black;}
-			.france		{fill:#00FFFF;stroke:black;}
-			.germany	{fill:darkgrey;stroke:black;}
-			.italy		{fill:#80FF80;stroke:black;}
-			.poland		{fill:#FF0000;stroke:black;}
-			.russia		{fill:#008000;stroke:black;}
-			.spain		{fill:#FF8080;stroke:black;}
-			.turkey		{fill:#FFFF00;stroke:black;}
-			.ukraine	{fill:#FF00FF;stroke:black;}
-			
-			/* Unit Colors */
-			.unitbritain	{fill:#0000FF;stroke:black;fill-opacity:0.90;}
-			.unitegypt		{fill:#808000;stroke:black;fill-opacity:0.90;}
-			.unitfrance		{fill:#00FFFF;stroke:black;fill-opacity:0.90;}
-			.unitgermany	{fill:darkgrey;stroke:black;fill-opacity:0.90;}
-			.unititaly		{fill:#80FF80;stroke:black;fill-opacity:0.90;}
-			.unitpoland		{fill:#FF0000;stroke:black;fill-opacity:0.90;}
-			.unitrussia		{fill:#008000;stroke:black;fill-opacity:0.90;}
-			.unitspain		{fill:#FF8080;stroke:black;fill-opacity:0.90;}
-			.unitturkey		{fill:#FFFF00;stroke:black;fill-opacity:0.90;}
-			.unitukraine	{fill:#FF00FF;stroke:black;fill-opacity:0.90;}
-			
-			/* order drawing styles, stroke and fill colors should not be specified */
-
-			.supportorder {stroke-width:2; fill:none; stroke-dasharray:5,5;}
-			.convoyorder  {stroke-dasharray:15,5; stroke-width:2; fill:none;}
-
-			.shadowdash   {stroke-width:4; fill:none; stroke:black; opacity:0.45;}
-
-			.varwidthorder  {fill:none;}
-			.varwidthshadow {fill:none; stroke:black;}
-
-			/* Symbol private styles. Always start with "sym" to avoid name collisions! */
-
-			.symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
-			.symBuild       {stroke:yellow;stroke-width:7;fill:none;}
-			.symRemove      {stroke:red;stroke-width:1;fill:none;}
-
-			.symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
-			.symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
-			.symDislodgedBorder {stroke:red;stroke-width:3%;}
-
-			.symBorder          {stroke:black;stroke-width:3%;}
-			.symThinBorder      {stroke:black;stroke-width:0.4;}
-			.symSilhouette      {stroke:black;fill:black;stroke-width:1;}
-
-			.style1 {fill:darkGray}
-			
-		]]>
-		</style>
+		]]></style>
 		
 		<!-- NON UNIT SYMBOLS -->
 		<symbol id="WaivedBuild" viewBox="0 0 100 100" overflow="visible">

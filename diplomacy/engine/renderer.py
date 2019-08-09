@@ -219,15 +219,6 @@ class Renderer():
                     self.metadata['symbol_size'][_attr(child_node, 'name')] = (_attr(child_node, 'height'),
                                                                                _attr(child_node, 'width'))
 
-                # Order type
-                elif child_node.nodeName.startswith('jdipNS'):
-                    order_type = child_node.nodeName.replace('jdipNS:', '')
-                    self.metadata['orders'][order_type] = {}
-                    for attr_name, attr_value in child_node.attributes.items():
-                        if ':' in attr_name:
-                            continue
-                        self.metadata['orders'][order_type][attr_name] = attr_value
-
         # Object coordinates
         for province_data in xml_map.getElementsByTagName('jdipNS:PROVINCE_DATA'):
             for child_node in province_data.childNodes:
