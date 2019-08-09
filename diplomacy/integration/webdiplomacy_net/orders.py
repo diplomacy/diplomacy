@@ -46,12 +46,14 @@ def is_adjacent_for_convoy(loc_1, loc_2, map_object):
     # Otherwise, not adjacent
     return False
 
-def find_convoy_path(src, dest, map_object, game=None):
+def find_convoy_path(src, dest, map_object, game=None, including=None, excluding=None):
     """ Finds a convoy path from src to dest
         :param src: The source location (e.g. 'BRE')
         :param dest: The destination location (e.g. 'LON')
         :param map_object: A diplomacy.Map object representation of the current map
         :param game: Optional. The current game object to retrieve the list of fleets.
+        :param including: Optional. A single province (e.g. 'NAO') or a list of provinces that must be in the path.
+        :param excluding: Optional. A single province (e.g. 'NAO') or a list of provinces that must NOT be in the path.
         :return: Either an empty list if a convoy is not possible between src and dest
                  or a list of [src, fleet1, fleet2, ..., fleet_n, dest] to use to convoy A `src` - `dest`.
         :type map_object: diplomacy.Map
@@ -59,6 +61,12 @@ def find_convoy_path(src, dest, map_object, game=None):
     """
     if map_object.area_type(src) != 'COAST' or map_object.area_type(dest) != 'COAST':
         return []
+
+    # Converting including and excluding to a list
+    if not isinstance(including, list):
+        including = [including] if including is not None else []
+    if not isinstance(excluding, list):
+        excluding = [excluding] if excluding is not None else []
 
     # Finding all water locs
     water_locs = {loc.upper() for loc in map_object.locs if map_object.area_type(loc.upper()) == 'WATER'}
@@ -70,13 +78,17 @@ def find_convoy_path(src, dest, map_object, game=None):
         for power_units in game.get_units().values():
             convoyers |= {unit[2:] for unit in power_units if unit[0] == 'F' and unit[2:] in water_locs}
 
-    # Finding the minimum set of units that would allow a convoy
+    # Finding the minimum set of units that would allow a convoy and that matches all the conditions
     fleets_in_convoy = set()
     for nb_fleets in map_object.convoy_paths:
         for start_loc, fleet_locs, dest_locs in map_object.convoy_paths[nb_fleets]:
             if start_loc != src or dest not in dest_locs:                   # Src or dest do not match
                 continue
             if not fleet_locs.issubset(convoyers):                          # Missing some convoyers to use this path
+                continue
+            if fleet_locs.intersection(including) != set(including):        # Missing some fleets needed to be incl.
+                continue
+            if fleet_locs.intersection(excluding):                          # Contains fleets needed to be excl.
                 continue
             fleets_in_convoy = fleet_locs
             break
@@ -221,6 +233,8 @@ class Order():
             if unit_type != 'Army':
                 via_flag = ''
             else:
+                # Any plausible convoy path (i.e. where fleets are on water, even though they are not convoying)
+                # is valid for the 'convoyPath' argument
                 reachable_by_land = map_object.abuts('A', loc_name, '-', to_loc_name)
                 via_convoy = bool(words[-1] == 'VIA') or not reachable_by_land
                 via_flag = ' VIA' if via_convoy else ''
@@ -294,8 +308,10 @@ class Order():
                 return
 
             # Deciding if we are support a move by convoy or not
+            # Any plausible convoy path (i.e. where fleets are on water, even though they are not convoying)
+            # is valid for the 'convoyPath' argument, only if it does not include the fleet issuing the support
             if words[move_index - 2] != 'F' and map_object.area_type(from_loc_name) == 'COAST':
-                convoy_path = find_convoy_path(from_loc_name, to_loc_name, map_object, game)
+                convoy_path = find_convoy_path(from_loc_name, to_loc_name, map_object, game, excluding=loc_name)
 
             self.order_str = '%s %s S %s - %s' % (short_unit_type, loc_name, from_loc_name, to_loc_name)
             self.order_dict = {'terrID': terr_id,
@@ -336,7 +352,9 @@ class Order():
                 return
 
             # Finding convoy path
-            convoy_path = find_convoy_path(from_loc_name, to_loc_name, map_object, game)
+            # Any plausible convoy path (i.e. where fleets are on water, even though they are not convoying)
+            # is valid for the 'convoyPath' argument, only if it includes the current fleet issuing the convoy order
+            convoy_path = find_convoy_path(from_loc_name, to_loc_name, map_object, game, including=loc_name)
 
             self.order_str = '%s %s C A %s - %s' % (short_unit_type, loc_name, from_loc_name, to_loc_name)
             self.order_dict = {'terrID': terr_id,
