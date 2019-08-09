@@ -392,9 +392,9 @@
 		/* unit colors fills, by power (units always have a power) */
 		
 		.unitrome    	{fill:red;}
-		.unitcarthage 	{fill:blue;}
-		.unitpersia 	{fill:gray;}
-		.unitgreece 	{fill:forestgreen;}
+		.unitcarthage 	{fill:deepskyblue;}
+		.unitpersia 	{fill:white;}
+		.unitgreece 	{fill:#8db600;}
 		.unitegypt  	{fill:yellow;}
 		
 		/* map accents */
