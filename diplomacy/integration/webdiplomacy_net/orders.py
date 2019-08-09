@@ -374,8 +374,6 @@ class Order():
         # --- Disband (R phase) ---
         # {"id": "152", "unitID": "18", "type": "Disband", "toTerrID": "", "fromTerrID": "", "viaConvoy": ""}
         elif order_type == 'D' and self.phase_type == 'R':
-            loc_name = loc_name[:3]
-            terr_id = CACHE[self.map_name]['loc_to_ix'][loc_name]
             self.order_str = '%s %s D' % (short_unit_type, loc_name)
             self.order_dict = {'terrID': terr_id,
                                'unitType': unit_type,
@@ -409,8 +407,6 @@ class Order():
         # Disband (A phase)
         # {"id": "152", "unitID": null, "type": "Destroy", "toTerrID": "18", "fromTerrID": "", "viaConvoy": ""}
         elif order_type == 'D':
-            loc_name = loc_name[:3]
-            terr_id = CACHE[self.map_name]['loc_to_ix'][loc_name]
             self.order_str = '%s %s D' % (short_unit_type, loc_name)
             self.order_dict = {'terrID': terr_id,
                                'unitType': unit_type,
