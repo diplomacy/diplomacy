@@ -4,7 +4,7 @@
 <!-- Ancient Mediterranean																		-->
 <!--   																							-->
 <!-- ========================================================================================== -->
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:jdipNS="svg.dtd" version="1.0" width="1030px" height="660px" viewBox="0 0 1030 660" color-rendering="optimizeQuality" text-rendering="optimizeLegibility" preserveAspectRatio="xMinYMin" image-rendering="optimizeQuality" shape-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:jdipNS="svg.dtd" version="1.0" width="1030px" height="700px" viewBox="0 0 1030 700" color-rendering="optimizeQuality" text-rendering="optimizeLegibility" preserveAspectRatio="xMinYMin" image-rendering="optimizeQuality" shape-rendering="geometricPrecision">
 
 	<jdipNS:DISPLAY>
 		<jdipNS:ZOOM min="5" max="250" factor="1.2" />
@@ -365,6 +365,7 @@
 		
 		/* text */
 		.smalllabeltext	{text-anchor:middle;stroke-width:0.1;stroke:black;fill:black;font-family:serif;font-style:italic;font-size:14px;}
+		.currentnoterect {fill:#c5dfea; stroke-width:0; stroke:black;}
 		.currentnotetext {font-family:serif,sans-serif; font-size:12px; fill:black; stroke:black;}
 		.currentphasetext {font-family:serif,sans-serif; font-size:18px; fill:black; stroke:black;}
 
@@ -1071,9 +1072,10 @@
 	<g id="FullLabelLayer" visibility="hidden" />
 
 	<!-- Current phase -->
-	<text x="20" y="25" class="currentnotetext" id="CurrentNote"> </text>
-	<text x="20" y="40" class="currentnotetext" id="CurrentNote2"> </text>
-	<text x="930" y="640" class="currentphasetext" id="CurrentPhase">S1901M</text>
+	<rect x="0" y="660" height="40" width="1030" class="currentnoterect" />
+	<text x="10" y="676" class="currentnotetext" id="CurrentNote"> </text>
+	<text x="10" y="692" class="currentnotetext" id="CurrentNote2"> </text>
+	<text x="930" y="682" class="currentphasetext" id="CurrentPhase">S1901M</text>
 	
 	
 	<!-- 	MouseLayer: for determining the mouse map for clickability 
