@@ -378,7 +378,7 @@ export class ContentGame extends React.Component {
                 if (this.networkGameIsDisplayed(networkGame)) {
                     this.__store_orders(null);
                     this.reloadDeadlineTimer(networkGame);
-                    return this.setState({orders: null, messageHighlights: {}})
+                    return this.setState({orders: null, messageHighlights: {}, orderBuildingPath: []})
                         .then(() => this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`));
                 }
@@ -600,10 +600,12 @@ export class ContentGame extends React.Component {
      * Reset local orders and replace them with current server orders for current selected power.
      */
     reloadServerOrders() {
-        const currentPowerName = this.getCurrentPowerName();
-        if (currentPowerName) {
-            this.reloadPowerServerOrders(currentPowerName);
-        }
+        this.setState({orderBuildingPath: []}).then(() => {
+            const currentPowerName = this.getCurrentPowerName();
+            if (currentPowerName) {
+                this.reloadPowerServerOrders(currentPowerName);
+            }
+        });
     }
 
     /**
