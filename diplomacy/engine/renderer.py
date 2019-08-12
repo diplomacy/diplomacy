@@ -378,20 +378,30 @@ class Renderer():
         loc = loc.upper()[:3]
         if loc in self.game.map.scs and not has_supply_center:
             return xml_map
-        if self.game.map.area_type(loc) not in ['LAND', 'COAST']:
+        if self.game.map.area_type(loc) == 'WATER':
             return xml_map
+
+        class_name = power_name.lower() if power_name else 'nopower'
 
         # Inserting
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'MapLayer':
                 for map_node in child_node.childNodes:
-                    if map_node.nodeName in ('path', 'polygon') and _attr(map_node, 'id') == '_{}'.format(loc.lower()):
-                        if power_name:
-                            map_node.setAttribute('class', power_name.lower())
+                    if (map_node.nodeName in ('g', 'path', 'polygon')
+                            and map_node.getAttribute('id') == '_{}'.format(loc.lower())):
+                        if map_node.nodeName in ('path', 'polygon'):
+                            map_node.setAttribute('class', class_name)
+                            return xml_map
                         else:
-                            map_node.setAttribute('class', 'nopower')
-                        return xml_map
-
+                            # map node is a 'g' node.
+                            node_edited = False
+                            for sub_node in map_node.childNodes:
+                                if (sub_node.nodeName in ('path', 'polygon')
+                                        and sub_node.getAttribute('class') != 'water'):
+                                    node_edited = True
+                                    sub_node.setAttribute('class', class_name)
+                            if node_edited:
+                                return xml_map
         # Returning
         return xml_map
 
