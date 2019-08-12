@@ -32,7 +32,7 @@
 		<jdipNS:SYMBOLSIZE name="RemoveUnit" width="30" height="30"/>
 		<jdipNS:SYMBOLSIZE name="WaivedBuild" width="25" height="25"/>
 		<jdipNS:SYMBOLSIZE name="HoldUnit" width="40" height="40"/>
-		<jdipNS:SYMBOLSIZE name="SupportHoldUnit" width="50" height="50"/>
+		<jdipNS:SYMBOLSIZE name="SupportHoldUnit" width="46" height="46"/>
 		<jdipNS:SYMBOLSIZE name="ConvoyTriangle" width="50" height="43.2"/>
 		<!-- Special symbol size to contain stroke width for plain (in "height") and power-colored lines (in "width") -->
 		<jdipNS:SYMBOLSIZE name="Stroke" width="3" height="5"/>
