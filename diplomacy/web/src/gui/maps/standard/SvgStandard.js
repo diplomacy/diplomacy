@@ -57,7 +57,7 @@ export class SvgStandard extends React.Component {
             return this.props.onError('No orderable locations.');
         const province = this.props.mapData.getProvince(id);
         if (!province)
-            return;
+            throw new Error(`Cannot find a province named ${id}`);
 
         const stepLength = orderBuilding.builder.steps.length;
         if (orderBuilding.path.length >= stepLength)

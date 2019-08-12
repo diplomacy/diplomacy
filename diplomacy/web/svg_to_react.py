@@ -299,6 +299,8 @@ def main():
     root = minidom.parse(args.input).documentElement
     class_name = args.name
     output_folder = args.output
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
     assert os.path.isdir(output_folder), 'Not a directory: %s' % output_folder
     extra_class_name = '%sExtra' % class_name
     lines = []
@@ -383,7 +385,7 @@ export class %(classname)s extends React.Component {
             return this.props.onError('No orderable locations.');
         const province = this.props.mapData.getProvince(id);
         if (!province)
-            return;
+            throw new Error(`Cannot find a province named ${id}`);
 
         const stepLength = orderBuilding.builder.steps.length;
         if (orderBuilding.path.length >= stepLength)
