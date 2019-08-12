@@ -18,11 +18,9 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 **/
 /* text */
 		.SvgAncMed .smalllabeltext	{text-anchor:middle;stroke-width:0.1;stroke:black;fill:black;font-family:serif;font-style:italic;font-size:14px;}
-		.SvgAncMed .brieflabeltext	{text-anchor:middle;stroke-width:0.1;stroke:black;fill:black;font-family:serif;font-style:italic;font-size:14px;}
-		.SvgAncMed .fulllabeltext	{font-family:serif;font-style:italic;font-size:24;fill:black;stroke:black;}
+		.SvgAncMed .currentnoterect {fill:#c5dfea; stroke-width:0; stroke:black;}
 		.SvgAncMed .currentnotetext {font-family:serif,sans-serif; font-size:12px; fill:black; stroke:black;}
-        .SvgAncMed .currentnoterect {opacity:0;}
-        .SvgAncMed .currentphasetext {font-family:serif,sans-serif; font-size:18px; fill:black; stroke:black;}
+		.SvgAncMed .currentphasetext {font-family:serif,sans-serif; font-size:18px; fill:black; stroke:black;}
 
 		/* style class for invisible regions */
 		
@@ -30,60 +28,53 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 		
 		/* default region coloring, by power (nopower if region not owned) */
 
-        .SvgAncMed .provinceRed {fill:url(#patternRed)}
-        .SvgAncMed .provinceBrown {fill:url(#patternBrown)}
-        .SvgAncMed .provinceGreen {fill:url(#patternGreen)}
-        .SvgAncMed .provinceBlack {fill:url(#patternBlack)}
-        .SvgAncMed .provinceBlue {fill:url(#patternBlue)}
+		.SvgAncMed .provinceRed {fill:url(#patternRed)}
+		.SvgAncMed .provinceBrown {fill:url(#patternBrown)}
+		.SvgAncMed .provinceGreen {fill:url(#patternGreen)}
+		.SvgAncMed .provinceBlack {fill:url(#patternBlack)}
+		.SvgAncMed .provinceBlue {fill:url(#patternBlue)}
 		
 		.SvgAncMed .nopower 	{fill:none;stroke:black;stroke-width:1}
 		.SvgAncMed .water		{fill:lightblue;stroke:black;stroke-width:1}
 		
-		.SvgAncMed .rome    	{fill:red;stroke:black;stroke-width:1}
-		.SvgAncMed .carthage 	{fill:blue;stroke:black;stroke-width:1}
+		.SvgAncMed .rome    	{fill:#c48f85;stroke:black;stroke-width:1}
+		.SvgAncMed .carthage 	{fill:royalblue;stroke:black;stroke-width:1}
 		.SvgAncMed .persia 	{fill:gray;stroke:black;stroke-width:1}
 		.SvgAncMed .greece 	{fill:forestgreen;stroke:black;stroke-width:1}
-		.SvgAncMed .egypt  	{fill:yellow;stroke:black;stroke-width:1}
+		.SvgAncMed .egypt  	{fill:#b9a61c;stroke:black;stroke-width:1}
 		
 		/* unit colors fills, by power (units always have a power) */
 		
-		.SvgAncMed .unordered 		{fill:red; stroke:black; stroke-width:1;fill-opacity:0.80;}
 		.SvgAncMed .unitrome    	{fill:red;}
-		.SvgAncMed .unitcarthage 	{fill:blue;}
-		.SvgAncMed .unitpersia 	{fill:gray;}
-		.SvgAncMed .unitgreece 	{fill:forestgreen;}
+		.SvgAncMed .unitcarthage 	{fill:deepskyblue;}
+		.SvgAncMed .unitpersia 	{fill:white;}
+		.SvgAncMed .unitgreece 	{fill:#8db600;}
 		.SvgAncMed .unitegypt  	{fill:yellow;}
 		
 		/* map accents */
 		.SvgAncMed .thickdash	{fill:none;stroke:black;stroke-width:6;stroke-dasharray:2,1.5;}
 
-        /* order drawing styles, stroke and fill colors should not be specified */
+		/* order drawing styles, stroke and fill colors should not be specified */
 
-        .SvgAncMed .defaultorder {stroke-width:6; fill:none;}
-        .SvgAncMed .supportorder {stroke-width:6; fill:none; stroke-dasharray:5,5;}
-        .SvgAncMed .convoyorder  {stroke-dasharray:15,5; stroke-width:6; fill:none;}
+		.SvgAncMed .supportorder {stroke-width:3; fill:none; stroke-dasharray:5,5;}
+		.SvgAncMed .convoyorder  {stroke-dasharray:15,5; stroke-width:3; fill:none;}
+		.SvgAncMed .shadowdash   {stroke-width:5; fill:none; stroke:black; opacity:0.45;}
+		.SvgAncMed .varwidthorder  {fill:none;}
+		.SvgAncMed .varwidthshadow {fill:none; stroke:black;}
 
-        .SvgAncMed .shadoworder  {stroke-width:10; fill:none; stroke:black;}
-        .SvgAncMed .shadowdash   {stroke-width:10; fill:none; stroke:black; opacity:0.45;}
+		/* Symbol private styles. Always start with "sym" to avoid name collisions! */
 
-        .SvgAncMed .varwidthorder  {fill:none;}
-        .SvgAncMed .varwidthshadow {fill:none; stroke:black;}
+		.symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
+		.symBuild       {stroke:yellow;stroke-width:7;fill:none;}
+		.symRemove      {stroke:red;stroke-width:1;fill:none;}
 
-        /* Symbol private styles. Always start with "sym" to avoid name collisions! */
+		.symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
+		.symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
+		.symDislodgedBorder {stroke:red;stroke-width:3%;}
 
-        .symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
-        .symBuild       {stroke:yellow;stroke-width:7;fill:none;}
-        .symRemove      {stroke:red;stroke-width:1;fill:none;}
+		.symBorder          {stroke:black;stroke-width:3%;}
+		.symThinBorder      {stroke:black;stroke-width:0.4;}
+		.symSilhouette      {stroke:black;fill:black;stroke-width:1;}
 
-        .symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
-        .symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
-        .symDislodgedBorder {stroke:red;stroke-width:3%;}
-
-        .symDarkener        {fill:black;opacity:0.45;fill-opacity:0.45;}
-        .symCenterHub       {fill:black; stroke:black; opacity:0.60; stroke-width:0.5px;}
-        .symBorder          {stroke:black;stroke-width:3%;}
-        .symThinBorder      {stroke:black;stroke-width:0.4;}
-        .symSilhouette      {stroke:black;fill:black;stroke-width:1;}
-
-        .SvgAncMed .style1 {fill:none;stroke:#17A1F8;stroke-width:5;}
-        .SvgAncMed .style2 {fill:none;stroke:black;stroke-width:2}
+		.SvgAncMed .style1 {fill:none;stroke:#17A1F8;stroke-width:5;}
+		.SvgAncMed .style2 {fill:none;stroke:black;stroke-width:2}

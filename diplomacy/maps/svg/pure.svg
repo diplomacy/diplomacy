@@ -202,8 +202,8 @@
 
 		<symbol id="HoldUnit" viewBox="-5 -5 76.6 76.6" overflow="visible">
 			<g>
-				<polygon stroke-width="10" class="varwidthshadow" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0"/>
-				<polygon stroke-width="6" class="varwidthorder" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0"/>
+				<polygon stroke-width="10" fill="none" stroke="black" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0"/>
+				<polygon stroke-width="6" fill="none" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0"/>
 			</g>
 		</symbol>
 

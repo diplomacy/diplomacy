@@ -116,137 +116,107 @@ export const SvgPureExtra = {
                 "name":"WaivedBuild",
                 "width":"40",
                 "height":"40"
+            },
+            {
+                "name":"HoldUnit",
+                "width":"66.6",
+                "height":"66.6"
+            },
+            {
+                "name":"SupportHoldUnit",
+                "width":"76.6",
+                "height":"76.6"
+            },
+            {
+                "name":"ConvoyTriangle",
+                "width":"66.4",
+                "height":"57.4"
+            },
+            {
+                "name":"Stroke",
+                "width":"6",
+                "height":"10"
             }
-        ],
-        "jdipNS:BUILD":{
-            "deltaRadius":"0"
-        },
-        "jdipNS:REMOVE":{
-            "deltaRadius":"5"
-        },
-        "jdipNS:DISBAND":{
-            "deltaRadius":"5"
-        },
-        "jdipNS:WAIVE":{
-            "deltaRadius":"0"
-        },
-        "jdipNS:HOLD":{
-            "deltaRadius":"5",
-            "strokeCSSStyle":"varwidthorder",
-            "highlightOffset":"0",
-            "highlightCSSClass":"varwidthshadow",
-            "widths":"5,8,11,14",
-            "shadowWidths":"9,12,15,18"
-        },
-        "jdipNS:MOVE":{
-            "deltaRadius":"5",
-            "strokeCSSStyle":"varwidthorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"varwidthshadow",
-            "widths":"5,8,11,14",
-            "shadowWidths":"9,12,15,18"
-        },
-        "jdipNS:RETREAT":{
-            "deltaRadius":"5",
-            "strokeCSSStyle":"defaultorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"shadoworder"
-        },
-        "jdipNS:SUPPORT":{
-            "deltaRadius":"10",
-            "strokeCSSStyle":"supportorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"shadowdash"
-        },
-        "jdipNS:CONVOY":{
-            "deltaRadius":"10",
-            "strokeCSSStyle":"convoyorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"shadowdash"
-        }
+        ]
     },
     "jdipNS:PROVINCE_DATA":{
         "jdipNS:PROVINCE":[
             {
                 "jdipNS:UNIT":{
-                    "x":"762",
-                    "y":"205"
+                    "x":"362.5",
+                    "y":"864.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"777",
-                    "y":"190"
-                },
-                "name":"vie"
-            },
-            {
-                "jdipNS:UNIT":{
-                    "x":"890",
-                    "y":"524"
-                },
-                "jdipNS:DISLODGED_UNIT":{
-                    "x":"905",
-                    "y":"509"
-                },
-                "name":"lon"
-            },
-            {
-                "jdipNS:UNIT":{
-                    "x":"719",
-                    "y":"825"
-                },
-                "jdipNS:DISLODGED_UNIT":{
-                    "x":"734",
-                    "y":"810"
-                },
-                "name":"par"
-            },
-            {
-                "jdipNS:UNIT":{
-                    "x":"374",
-                    "y":"874"
-                },
-                "jdipNS:DISLODGED_UNIT":{
-                    "x":"389",
-                    "y":"859"
+                    "x":"374.5",
+                    "y":"852.0"
                 },
                 "name":"ber"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"128",
-                    "y":"638"
+                    "x":"412.5",
+                    "y":"98.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"143",
-                    "y":"623"
+                    "x":"424.5",
+                    "y":"86.0"
                 },
-                "name":"rom"
+                "name":"con"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"152",
-                    "y":"299"
+                    "x":"878.5",
+                    "y":"514.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"167",
-                    "y":"384"
+                    "x":"890.5",
+                    "y":"502.0"
+                },
+                "name":"lon"
+            },
+            {
+                "jdipNS:UNIT":{
+                    "x":"140.5",
+                    "y":"289.0"
+                },
+                "jdipNS:DISLODGED_UNIT":{
+                    "x":"152.5",
+                    "y":"277.0"
                 },
                 "name":"mos"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"424",
-                    "y":"108"
+                    "x":"707.5",
+                    "y":"815.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"439",
-                    "y":"93"
+                    "x":"719.5",
+                    "y":"803.0"
                 },
-                "name":"con"
+                "name":"par"
+            },
+            {
+                "jdipNS:UNIT":{
+                    "x":"116.5",
+                    "y":"628.0"
+                },
+                "jdipNS:DISLODGED_UNIT":{
+                    "x":"128.5",
+                    "y":"616.0"
+                },
+                "name":"rom"
+            },
+            {
+                "jdipNS:UNIT":{
+                    "x":"750.5",
+                    "y":"195.0"
+                },
+                "jdipNS:DISLODGED_UNIT":{
+                    "x":"762.5",
+                    "y":"183.0"
+                },
+                "name":"vie"
             }
         ]
     }

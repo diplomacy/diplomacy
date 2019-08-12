@@ -200,7 +200,7 @@ export class SvgAncMed extends React.Component {
         const renderedOrders = [];
         const renderedOrders2 = [];
         const renderedHighestOrders = [];
-        for (let power of Object.values(game.powers)) {
+        for (let power of Object.values(game.powers)) if (!power.isEliminated()) {
             for (let unit of power.units) {
                 renderedUnits.push(
                     <Unit key={unit}
@@ -224,11 +224,9 @@ export class SvgAncMed extends React.Component {
             for (let center of power.centers) {
                 setInfluence(classes, mapData, center, power.name);
             }
-            if (!power.isEliminated()) {
-                for (let loc of power.influence) {
-                    if (!mapData.supplyCenters.has(loc))
-                        setInfluence(classes, mapData, loc, power.name);
-                }
+            for (let loc of power.influence) {
+                if (!mapData.supplyCenters.has(loc))
+                    setInfluence(classes, mapData, loc, power.name);
             }
 
             if (orders) {
@@ -237,24 +235,29 @@ export class SvgAncMed extends React.Component {
                     const tokens = order.split(/ +/);
                     if (!tokens || tokens.length < 3)
                         continue;
+                    const unit_type = tokens[0];
                     const unit_loc = tokens[1];
                     if (tokens[2] === 'H') {
                         renderedOrders.push(
                             <Hold key={order}
+                                  type={unit_type}
                                   loc={unit_loc}
                                   powerName={power.name}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === '-') {
                         const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === 'VIA' ? 2 : 1)];
                         renderedOrders.push(
                             <Move key={order}
+                                  type={unit_type}
                                   srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === 'S') {
@@ -268,15 +271,20 @@ export class SvgAncMed extends React.Component {
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         } else {
+                            const dest_type = tokens[tokens.length - 2];
                             renderedOrders2.push(
                                 <SupportHold key={order}
+                                             type={unit_type}
                                              loc={unit_loc}
+                                             destType={dest_type}
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         }
@@ -290,7 +298,8 @@ export class SvgAncMed extends React.Component {
                                         srcLoc={srcLoc}
                                         dstLoc={destLoc}
                                         powerName={power.name}
-                                        coordinates={Coordinates} colors={Colors}/>
+                                        coordinates={Coordinates} colors={Colors}
+                                        symbolSizes={SymbolSizes}/>
                             );
                         }
                     } else if (tokens[2] === 'B') {
@@ -305,21 +314,23 @@ export class SvgAncMed extends React.Component {
                     } else if (tokens[2] === 'D') {
                         renderedHighestOrders.push(
                             <Disband key={order}
+                                     type={unit_type}
                                      loc={unit_loc}
                                      phaseType={game.getPhaseType()}
                                      coordinates={Coordinates}
                                      symbolSizes={SymbolSizes}/>
                         );
                     } else if (tokens[2] === 'R') {
-                        const srcLoc = tokens[1];
                         const destLoc = tokens[3];
                         renderedOrders.push(
                             <Move key={order}
-                                  srcLoc={srcLoc}
+                                  type={unit_type}
+                                  srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else {
@@ -353,7 +364,7 @@ export class SvgAncMed extends React.Component {
         }
 
         return (
-            <svg className="SvgAncMed" colorRendering="optimizeQuality" height="660px" imageRendering="optimizeQuality" preserveAspectRatio="xMinYMin" shapeRendering="geometricPrecision" textRendering="optimizeLegibility" viewBox="0 0 1030 660" width="1030px" xmlns="http://www.w3.org/2000/svg">
+            <svg className="SvgAncMed" colorRendering="optimizeQuality" height="700px" imageRendering="optimizeQuality" preserveAspectRatio="xMinYMin" shapeRendering="geometricPrecision" textRendering="optimizeLegibility" viewBox="0 0 1030 700" width="1030px" xmlns="http://www.w3.org/2000/svg">
                 <title>Ancient Med Map</title>
                 <defs>
                     <symbol id="WaivedBuild" overflow="visible" viewBox="0 0 100 100">
@@ -370,7 +381,7 @@ export class SvgAncMed extends React.Component {
                             <polygon fill="url(#symWBGradient)" points="40,100 100,35 90,20 40,85 13,65 10,70" stroke="black" strokeWidth="0.5"/>
                         </g>
                     </symbol>
-                    <symbol id="BuildUnit" overflow="visible" viewBox="0 0 100 100">
+                    <symbol id="BuildUnit" overflow="visible" viewBox="-23.5 -23.5 153 153">
                         <g>
                             <g className="symBuildShadow" transform="translate(6 6)">
                                 <circle cx="50" cy="50" r="10"/>
@@ -386,7 +397,7 @@ export class SvgAncMed extends React.Component {
                             </g>
                         </g>
                     </symbol>
-                    <symbol id="RemoveUnit" overflow="visible" viewBox="0 0 10 10">
+                    <symbol id="RemoveUnit" overflow="visible" viewBox="-2.5 -2.5 15.5 15.5">
                         <g className="symRemove">
                             <circle cx="5" cy="5" r="7"/>
                             <line x1="-2" x2="12" y1="-2" y2="12"/>
@@ -399,10 +410,28 @@ export class SvgAncMed extends React.Component {
                             <polygon fill="red" fillOpacity="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17" stroke="black" strokeWidth="3%"/>
                         </g>
                     </symbol>
-                    <symbol id="SupplyCenter" overflow="visible" viewBox="0 0 10 10">
+                    <symbol id="SupplyCenter" overflow="visible" viewBox="-0.375 -0.375 10.75 10.75">
                         <g>
                             <circle className="symThinBorder" cx="5" cy="5" r="3"/>
                             <circle cx="5" cy="5" fill="none" r="5" stroke="black" strokeWidth="0.75"/>
+                        </g>
+                    </symbol>
+                    <symbol id="HoldUnit" overflow="visible" viewBox="-5 -5 76.6 76.6">
+                        <g>
+                            <polygon fill="none" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0" strokeWidth="6"/>
+                        </g>
+                    </symbol>
+                    <symbol id="SupportHoldUnit" overflow="visible" viewBox="-5 -5 86.6 86.6">
+                        <g>
+                            <polygon fill="none" opacity="0.45" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0" strokeDasharray="5,5" strokeWidth="6"/>
+                        </g>
+                    </symbol>
+                    <symbol id="ConvoyTriangle" overflow="visible" viewBox="-9 -10 84.4 72.4">
+                        <g>
+                            <polygon fill="none" opacity="0.45" points="33.2,0.0 66.4,57.4 0.0,57.4" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="33.2,0.0 66.4,57.4 0.0,57.4" strokeDasharray="15,5" strokeWidth="6"/>
                         </g>
                     </symbol>
                     <symbol id="Army" overflow="visible" viewBox="0 0 23 15">
@@ -712,9 +741,10 @@ export class SvgAncMed extends React.Component {
                     <text x="417" y="60">vin</text>
                 </g>
                 <g id="FullLabelLayer" visibility="hidden"/>
-                <text className={classes['CurrentNote']} id="CurrentNote" x="20" y="25">{nb_centers_per_power ? nb_centers_per_power : ''}</text>
-                <text className={classes['CurrentNote2']} id="CurrentNote2" x="20" y="40">{note ? note : ''}</text>
-                <text className={classes['CurrentPhase']} id="CurrentPhase" x="930" y="640">{current_phase}</text>
+                <rect className="currentnoterect" height="40" width="1030" x="0" y="660"/>
+                <text className={classes['CurrentNote']} id="CurrentNote" x="10" y="676">{nb_centers_per_power ? nb_centers_per_power : ''}</text>
+                <text className={classes['CurrentNote2']} id="CurrentNote2" x="10" y="692">{note ? note : ''}</text>
+                <text className={classes['CurrentPhase']} id="CurrentPhase" x="930" y="682">{current_phase}</text>
                 <g className={classes['MouseLayer']} id="MouseLayer">
                     <polygon id="adr" onClick={this.onClick} onMouseOver={this.onHover} points="530,249 529,255 523,252 509,252 504,253 500,250 490,245 484,244 460,227 460,222 464,219 465,216 461,214 452,214 446,215 438,213 432,208 425,198 419,184 417,179 414,176 410,170 397,162 389,154 383,140 384,137 388,135 388,131 384,127 385,121 393,115 399,111 406,110 415,111 419,115 419,118 415,118 412,120 413,129 420,139 422,138 425,133 427,130 430,129 433,130 436,135 437,140 441,145 443,148 441,149 439,149 437,151 439,154 445,159 450,161 454,163 454,167 456,169 459,168 463,168 467,171 472,176 476,180 481,182 482,184 480,185 476,184 474,185 476,186 479,187 482,189 485,192 488,193 488,190 491,189 493,192 498,196 501,199 502,201 506,203 511,204 513,203 516,204 515,206 513,206 513,208 515,210 518,214 520,217 523,218 527,219 529,220 530,224 531,232 530,241 530,249"/>
                     <polygon id="aeg" onClick={this.onClick} onMouseOver={this.onHover} points="623,365 628,373 637,381 646,385 652,386 655,388 656,389 659,390 670,387 674,388 683,386 690,379 698,367 703,355 704,342 705,339 709,338 715,335 719,334 720,332 714,332 702,332 699,328 704,327 703,324 694,322 690,316 690,312 692,310 691,305 686,302 684,303 683,305 680,305 679,304 676,304 675,301 678,299 676,296 676,292 678,292 678,294 679,296 682,298 683,294 683,292 682,289 682,283 683,276 680,275 669,277 668,272 668,266 666,265 664,259 665,255 669,253 676,251 677,248 667,249 663,250 658,248 651,249 643,249 635,253 630,256 625,255 625,258 628,259 630,261 637,270 637,272 635,272 628,265 625,265 625,268 630,273 630,274 627,275 622,269 619,269 618,272 625,278 620,279 610,268 613,265 610,262 607,264 604,268 604,275 605,281 611,284 615,287 616,292 612,290 608,291 608,296 614,295 617,299 622,304 628,304 634,309 635,314 639,317 643,318 643,322 641,323 639,321 636,320 634,321 637,331 633,332 629,328 621,326 618,328 616,331 620,337 623,341 623,344 620,345 616,342 614,341 612,343 616,351 619,355 622,360 623,365"/>

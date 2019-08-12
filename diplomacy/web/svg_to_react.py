@@ -160,7 +160,7 @@ def extract_extra(node, extra):
             text = child.data.strip()
             if text:
                 extra_dictionary['children'].append(text)
-        else:
+        elif child.nodeType != Node.COMMENT_NODE:
             # Child is a normal node. We still consider it as an extra node.
             extract_extra(child, extra_dictionary)
     # Save extra node data into list field extra['children'].
@@ -528,7 +528,7 @@ export class %(classname)s extends React.Component {
         const renderedOrders = [];
         const renderedOrders2 = [];
         const renderedHighestOrders = [];
-        for (let power of Object.values(game.powers)) {
+        for (let power of Object.values(game.powers)) if (!power.isEliminated()) {
             for (let unit of power.units) {
                 renderedUnits.push(
                     <Unit key={unit}
@@ -552,11 +552,9 @@ export class %(classname)s extends React.Component {
             for (let center of power.centers) {
                 setInfluence(classes, mapData, center, power.name);
             }
-            if (!power.isEliminated()) {
-                for (let loc of power.influence) {
-                    if (!mapData.supplyCenters.has(loc))
-                        setInfluence(classes, mapData, loc, power.name);
-                }
+            for (let loc of power.influence) {
+                if (!mapData.supplyCenters.has(loc))
+                    setInfluence(classes, mapData, loc, power.name);
             }
 
             if (orders) {
@@ -565,24 +563,29 @@ export class %(classname)s extends React.Component {
                     const tokens = order.split(/ +/);
                     if (!tokens || tokens.length < 3)
                         continue;
+                    const unit_type = tokens[0];
                     const unit_loc = tokens[1];
                     if (tokens[2] === 'H') {
                         renderedOrders.push(
                             <Hold key={order}
+                                  type={unit_type}
                                   loc={unit_loc}
                                   powerName={power.name}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === '-') {
                         const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === 'VIA' ? 2 : 1)];
                         renderedOrders.push(
                             <Move key={order}
+                                  type={unit_type}
                                   srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === 'S') {
@@ -596,15 +599,20 @@ export class %(classname)s extends React.Component {
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         } else {
+                            const dest_type = tokens[tokens.length - 2];
                             renderedOrders2.push(
                                 <SupportHold key={order}
+                                             type={unit_type}
                                              loc={unit_loc}
+                                             destType={dest_type}
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         }
@@ -618,7 +626,8 @@ export class %(classname)s extends React.Component {
                                         srcLoc={srcLoc}
                                         dstLoc={destLoc}
                                         powerName={power.name}
-                                        coordinates={Coordinates} colors={Colors}/>
+                                        coordinates={Coordinates} colors={Colors}
+                                        symbolSizes={SymbolSizes}/>
                             );
                         }
                     } else if (tokens[2] === 'B') {
@@ -633,21 +642,23 @@ export class %(classname)s extends React.Component {
                     } else if (tokens[2] === 'D') {
                         renderedHighestOrders.push(
                             <Disband key={order}
+                                     type={unit_type}
                                      loc={unit_loc}
                                      phaseType={game.getPhaseType()}
                                      coordinates={Coordinates}
                                      symbolSizes={SymbolSizes}/>
                         );
                     } else if (tokens[2] === 'R') {
-                        const srcLoc = tokens[1];
                         const destLoc = tokens[3];
                         renderedOrders.push(
                             <Move key={order}
-                                  srcLoc={srcLoc}
+                                  type={unit_type}
+                                  srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else {

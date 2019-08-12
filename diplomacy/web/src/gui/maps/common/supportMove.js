@@ -15,29 +15,28 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {offset} from "./common";
+import {ARMY, getUnitCenter, coloredStrokeWidth} from "./common";
 import PropTypes from "prop-types";
 
 export class SupportMove extends React.Component {
     render() {
         const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
         const loc = this.props.loc;
         const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
-        const loc_x = offset(Coordinates[loc].unit[0], 10);
-        const loc_y = offset(Coordinates[loc].unit[1], 10);
-        const src_loc_x = offset(Coordinates[src_loc].unit[0], 10);
-        const src_loc_y = offset(Coordinates[src_loc].unit[1], 10);
-        let dest_loc_x = offset(Coordinates[dest_loc].unit[0], 10);
-        let dest_loc_y = offset(Coordinates[dest_loc].unit[1], 10);
+        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', loc, false);
+        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', src_loc, false);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', dest_loc, false);
 
         // Adjusting destination
-        const delta_x = parseFloat(dest_loc_x) - parseFloat(src_loc_x);
-        const delta_y = parseFloat(dest_loc_y) - parseFloat(src_loc_y);
+        const delta_x = dest_loc_x - src_loc_x;
+        const delta_y = dest_loc_y - src_loc_y;
         const vector_length = Math.sqrt(delta_x * delta_x + delta_y * delta_y);
-        dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (vector_length - 30.) / vector_length * delta_x) * 100.) / 100.;
-        dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (vector_length - 30.) / vector_length * delta_y) * 100.) / 100.;
+        const delta_dec = parseFloat(SymbolSizes[ARMY].width) / 2 + 2 * coloredStrokeWidth(SymbolSizes);
+        dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (vector_length - delta_dec) / vector_length * delta_x) * 100.) / 100.;
+        dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (vector_length - delta_dec) / vector_length * delta_y) * 100.) / 100.;
         return (
             <g>
                 <path className={'shadowdash'}
@@ -57,5 +56,6 @@ SupportMove.propTypes = {
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired,
     colors: PropTypes.object.isRequired
 };

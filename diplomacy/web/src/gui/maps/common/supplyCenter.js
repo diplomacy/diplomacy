@@ -18,6 +18,8 @@ import React from "react";
 import {offset} from "./common";
 import PropTypes from "prop-types";
 
+/** Currently unused. **/
+
 export class SupplyCenter extends React.Component {
     render() {
         const Coordinates = this.props.coordinates;

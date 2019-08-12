@@ -33,15 +33,15 @@ export const SvgAncMedExtra = {
             "jdipNS:POWERCOLOR":[
                 {
                     "power":"rome",
-                    "color":"red"
+                    "color":"#c48f85"
                 },
                 {
                     "power":"carthage",
-                    "color":"blue"
+                    "color":"royalblue"
                 },
                 {
                     "power":"persia",
-                    "color":"black"
+                    "color":"gray"
                 },
                 {
                     "power":"greece",
@@ -49,7 +49,7 @@ export const SvgAncMedExtra = {
                 },
                 {
                     "power":"egypt",
-                    "color":"yellow"
+                    "color":"#b9a61c"
                 }
             ]
         },
@@ -108,927 +108,897 @@ export const SvgAncMedExtra = {
                 "name":"WaivedBuild",
                 "width":"25",
                 "height":"25"
+            },
+            {
+                "name":"HoldUnit",
+                "width":"40",
+                "height":"40"
+            },
+            {
+                "name":"SupportHoldUnit",
+                "width":"46",
+                "height":"46"
+            },
+            {
+                "name":"ConvoyTriangle",
+                "width":"50",
+                "height":"43.2"
+            },
+            {
+                "name":"Stroke",
+                "width":"3",
+                "height":"5"
             }
-        ],
-        "jdipNS:BUILD":{
-            "deltaRadius":"0"
-        },
-        "jdipNS:REMOVE":{
-            "deltaRadius":"5"
-        },
-        "jdipNS:DISBAND":{
-            "deltaRadius":"5"
-        },
-        "jdipNS:WAIVE":{
-            "deltaRadius":"0"
-        },
-        "jdipNS:HOLD":{
-            "deltaRadius":"5",
-            "strokeCSSStyle":"varwidthorder",
-            "highlightOffset":"0",
-            "highlightCSSClass":"varwidthshadow",
-            "widths":"6,9,12,18",
-            "shadowWidths":"10,15,20,25"
-        },
-        "jdipNS:MOVE":{
-            "deltaRadius":"5",
-            "strokeCSSStyle":"varwidthorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"varwidthshadow",
-            "widths":"6,9,12,18",
-            "shadowWidths":"10,15,20,25"
-        },
-        "jdipNS:RETREAT":{
-            "deltaRadius":"5",
-            "strokeCSSStyle":"defaultorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"shadoworder"
-        },
-        "jdipNS:SUPPORT":{
-            "deltaRadius":"10",
-            "strokeCSSStyle":"supportorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"shadowdash"
-        },
-        "jdipNS:CONVOY":{
-            "deltaRadius":"10",
-            "strokeCSSStyle":"convoyorder",
-            "markerID":"arrow",
-            "highlightOffset":"0",
-            "highlightCSSClass":"shadowdash"
-        }
+        ]
     },
     "jdipNS:PROVINCE_DATA":{
         "jdipNS:PROVINCE":[
             {
                 "jdipNS:UNIT":{
-                    "x":"484",
-                    "y":"211"
+                    "x":"472.5",
+                    "y":"201.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"489",
-                    "y":"206"
+                    "x":"479.5",
+                    "y":"194.0"
                 },
                 "name":"adr"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"669",
-                    "y":"345"
+                    "x":"657.5",
+                    "y":"335.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"674",
-                    "y":"340"
+                    "x":"664.5",
+                    "y":"328.0"
                 },
                 "name":"aeg"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"717",
-                    "y":"514"
+                    "x":"705.5",
+                    "y":"504.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"722",
-                    "y":"509"
+                    "x":"712.5",
+                    "y":"497.0"
                 },
                 "name":"ale"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"923",
-                    "y":"314"
+                    "x":"911.5",
+                    "y":"304.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"928",
-                    "y":"309"
+                    "x":"918.5",
+                    "y":"297.0"
                 },
                 "name":"ant"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"455",
-                    "y":"232"
+                    "x":"443.5",
+                    "y":"222.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"460",
-                    "y":"227"
+                    "x":"450.5",
+                    "y":"215.0"
                 },
                 "name":"apu"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"983",
-                    "y":"426"
+                    "x":"971.5",
+                    "y":"416.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"988",
-                    "y":"421"
+                    "x":"978.5",
+                    "y":"409.0"
                 },
                 "name":"ara"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"989",
-                    "y":"224"
+                    "x":"977.5",
+                    "y":"214.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"994",
-                    "y":"219"
+                    "x":"984.5",
+                    "y":"207.0"
                 },
                 "name":"arm"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"593",
-                    "y":"310"
+                    "x":"581.5",
+                    "y":"300.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"598",
-                    "y":"305"
+                    "x":"588.5",
+                    "y":"293.0"
                 },
                 "name":"ath"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"497",
-                    "y":"392"
+                    "x":"485.5",
+                    "y":"382.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"502",
-                    "y":"387"
+                    "x":"492.5",
+                    "y":"375.0"
                 },
                 "name":"aus"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"165",
-                    "y":"250"
+                    "x":"153.5",
+                    "y":"240.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"170",
-                    "y":"245"
+                    "x":"160.5",
+                    "y":"233.0"
                 },
                 "name":"bal"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"694",
-                    "y":"627"
+                    "x":"682.5",
+                    "y":"617.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"699",
-                    "y":"622"
+                    "x":"689.5",
+                    "y":"610.0"
                 },
                 "name":"bay"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"217",
-                    "y":"325"
+                    "x":"205.5",
+                    "y":"315.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"222",
-                    "y":"320"
+                    "x":"212.5",
+                    "y":"308.0"
                 },
                 "name":"ber"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"771",
-                    "y":"219"
+                    "x":"759.5",
+                    "y":"209.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"776",
-                    "y":"214"
+                    "x":"766.5",
+                    "y":"202.0"
                 },
                 "name":"bit"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"782",
-                    "y":"153"
+                    "x":"770.5",
+                    "y":"143.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"787",
-                    "y":"148"
+                    "x":"777.5",
+                    "y":"136.0"
                 },
                 "name":"bla"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"694",
-                    "y":"252"
+                    "x":"682.5",
+                    "y":"242.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"699",
-                    "y":"247"
+                    "x":"689.5",
+                    "y":"235.0"
                 },
                 "name":"byz"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"877",
-                    "y":"279"
+                    "x":"865.5",
+                    "y":"269.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"882",
-                    "y":"274"
+                    "x":"872.5",
+                    "y":"262.0"
                 },
                 "name":"cap"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"315",
-                    "y":"382"
+                    "x":"303.5",
+                    "y":"372.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"320",
-                    "y":"377"
+                    "x":"310.5",
+                    "y":"365.0"
                 },
                 "name":"car"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"893",
-                    "y":"69"
+                    "x":"881.5",
+                    "y":"59.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"898",
-                    "y":"64"
+                    "x":"888.5",
+                    "y":"52.0"
                 },
                 "name":"che"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"797",
-                    "y":"363"
+                    "x":"785.5",
+                    "y":"353.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"802",
-                    "y":"358"
+                    "x":"792.5",
+                    "y":"346.0"
                 },
                 "name":"cil"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"248",
-                    "y":"452"
+                    "x":"236.5",
+                    "y":"442.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"253",
-                    "y":"447"
+                    "x":"243.5",
+                    "y":"435.0"
                 },
                 "name":"cir"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"319",
-                    "y":"225"
+                    "x":"307.5",
+                    "y":"215.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"324",
-                    "y":"220"
+                    "x":"314.5",
+                    "y":"208.0"
                 },
                 "name":"cor"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"662",
-                    "y":"392"
+                    "x":"650.5",
+                    "y":"382.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"667",
-                    "y":"387"
+                    "x":"657.5",
+                    "y":"375.0"
                 },
                 "name":"cre"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"842",
-                    "y":"378"
+                    "x":"816.5",
+                    "y":"374.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"847",
-                    "y":"373"
+                    "x":"823.5",
+                    "y":"367.0"
                 },
                 "name":"cyp"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"637",
-                    "y":"518"
+                    "x":"625.5",
+                    "y":"508.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"642",
-                    "y":"513"
+                    "x":"632.5",
+                    "y":"501.0"
                 },
                 "name":"cyr"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"633",
-                    "y":"148"
+                    "x":"621.5",
+                    "y":"138.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"638",
-                    "y":"143"
+                    "x":"628.5",
+                    "y":"131.0"
                 },
                 "name":"dac"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"514",
-                    "y":"188"
+                    "x":"502.5",
+                    "y":"178.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"519",
-                    "y":"183"
+                    "x":"509.5",
+                    "y":"171.0"
                 },
                 "name":"dal"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"985",
-                    "y":"318"
+                    "x":"973.5",
+                    "y":"308.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"990",
-                    "y":"313"
+                    "x":"980.5",
+                    "y":"301.0"
                 },
                 "name":"dam"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"740",
-                    "y":"451"
+                    "x":"728.5",
+                    "y":"441.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"745",
-                    "y":"446"
+                    "x":"735.5",
+                    "y":"434.0"
                 },
                 "name":"egy"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"556",
-                    "y":"277"
+                    "x":"544.5",
+                    "y":"267.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"561",
-                    "y":"272"
+                    "x":"551.5",
+                    "y":"260.0"
                 },
                 "name":"epi"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"325",
-                    "y":"139"
+                    "x":"313.5",
+                    "y":"129.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"330",
-                    "y":"134"
+                    "x":"320.5",
+                    "y":"122.0"
                 },
                 "name":"etr"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"786",
-                    "y":"274"
+                    "x":"774.5",
+                    "y":"264.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"791",
-                    "y":"269"
+                    "x":"781.5",
+                    "y":"257.0"
                 },
                 "name":"gal"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"209",
-                    "y":"93"
+                    "x":"197.5",
+                    "y":"83.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"214",
-                    "y":"88"
+                    "x":"204.5",
+                    "y":"76.0"
                 },
                 "name":"gau"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"855",
-                    "y":"456"
+                    "x":"843.5",
+                    "y":"446.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"860",
-                    "y":"451"
+                    "x":"850.5",
+                    "y":"439.0"
                 },
                 "name":"gop"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"521",
-                    "y":"508"
+                    "x":"509.5",
+                    "y":"498.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"526",
-                    "y":"503"
+                    "x":"516.5",
+                    "y":"491.0"
                 },
                 "name":"gos"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"487",
-                    "y":"438"
+                    "x":"475.5",
+                    "y":"428.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"492",
-                    "y":"433"
+                    "x":"482.5",
+                    "y":"421.0"
                 },
                 "name":"got"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"94",
-                    "y":"366"
+                    "x":"82.5",
+                    "y":"356.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"99",
-                    "y":"361"
+                    "x":"89.5",
+                    "y":"349.0"
                 },
                 "name":"ibe"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"548",
-                    "y":"167"
+                    "x":"536.5",
+                    "y":"157.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"553",
-                    "y":"162"
+                    "x":"543.5",
+                    "y":"150.0"
                 },
                 "name":"ill"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"520",
-                    "y":"316"
+                    "x":"508.5",
+                    "y":"306.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"525",
-                    "y":"311"
+                    "x":"515.5",
+                    "y":"299.0"
                 },
                 "name":"ion"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"818",
-                    "y":"323"
+                    "x":"806.5",
+                    "y":"313.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"823",
-                    "y":"318"
+                    "x":"813.5",
+                    "y":"306.0"
                 },
                 "name":"isa"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"911",
-                    "y":"461"
+                    "x":"899.5",
+                    "y":"451.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"916",
-                    "y":"456"
+                    "x":"906.5",
+                    "y":"444.0"
                 },
                 "name":"jer"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"480",
-                    "y":"543"
+                    "x":"468.5",
+                    "y":"533.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"485",
-                    "y":"538"
+                    "x":"475.5",
+                    "y":"526.0"
                 },
                 "name":"lep"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"556",
-                    "y":"438"
+                    "x":"544.5",
+                    "y":"428.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"561",
-                    "y":"433"
+                    "x":"551.5",
+                    "y":"421.0"
                 },
                 "name":"lib"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"268",
-                    "y":"225"
+                    "x":"256.5",
+                    "y":"215.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"273",
-                    "y":"220"
+                    "x":"263.5",
+                    "y":"208.0"
                 },
                 "name":"lig"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"30",
-                    "y":"237"
+                    "x":"18.5",
+                    "y":"227.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"35",
-                    "y":"232"
+                    "x":"25.5",
+                    "y":"220.0"
                 },
                 "name":"lus"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"623",
-                    "y":"241"
+                    "x":"611.5",
+                    "y":"231.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"628",
-                    "y":"236"
+                    "x":"618.5",
+                    "y":"224.0"
                 },
                 "name":"mac"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"613",
-                    "y":"571"
+                    "x":"601.5",
+                    "y":"561.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"618",
-                    "y":"566"
+                    "x":"608.5",
+                    "y":"554.0"
                 },
                 "name":"mar"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"265",
-                    "y":"137"
+                    "x":"253.5",
+                    "y":"127.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"270",
-                    "y":"132"
+                    "x":"260.5",
+                    "y":"120.0"
                 },
                 "name":"mas"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"124",
-                    "y":"420"
+                    "x":"112.5",
+                    "y":"410.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"129",
-                    "y":"415"
+                    "x":"119.5",
+                    "y":"403.0"
                 },
                 "name":"mau"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"795",
-                    "y":"564"
+                    "x":"783.5",
+                    "y":"554.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"800",
-                    "y":"559"
+                    "x":"790.5",
+                    "y":"547.0"
                 },
                 "name":"mem"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"547",
-                    "y":"388"
+                    "x":"535.5",
+                    "y":"378.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"552",
-                    "y":"383"
+                    "x":"542.5",
+                    "y":"371.0"
                 },
                 "name":"mes"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"742",
-                    "y":"323"
+                    "x":"730.5",
+                    "y":"313.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"747",
-                    "y":"318"
+                    "x":"737.5",
+                    "y":"306.0"
                 },
                 "name":"mil"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"721",
-                    "y":"380"
+                    "x":"709.5",
+                    "y":"370.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"726",
-                    "y":"375"
+                    "x":"716.5",
+                    "y":"363.0"
                 },
                 "name":"min"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"988",
-                    "y":"538"
+                    "x":"976.5",
+                    "y":"528.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"993",
-                    "y":"533"
+                    "x":"983.5",
+                    "y":"521.0"
                 },
                 "name":"nab"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"469",
-                    "y":"284"
+                    "x":"457.5",
+                    "y":"274.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"474",
-                    "y":"279"
+                    "x":"464.5",
+                    "y":"267.0"
                 },
                 "name":"nea"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"355",
-                    "y":"481"
+                    "x":"343.5",
+                    "y":"471.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"360",
-                    "y":"476"
+                    "x":"350.5",
+                    "y":"464.0"
                 },
                 "name":"num"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"929",
-                    "y":"518"
+                    "x":"917.5",
+                    "y":"508.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"934",
-                    "y":"513"
+                    "x":"924.5",
+                    "y":"501.0"
                 },
                 "name":"pet"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"412",
-                    "y":"563"
+                    "x":"400.5",
+                    "y":"553.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"417",
-                    "y":"558"
+                    "x":"407.5",
+                    "y":"546.0"
                 },
                 "name":"pha"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"370",
-                    "y":"348"
+                    "x":"358.5",
+                    "y":"338.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"375",
-                    "y":"343"
+                    "x":"365.5",
+                    "y":"331.0"
                 },
                 "name":"pun"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"403",
-                    "y":"179"
+                    "x":"391.5",
+                    "y":"169.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"408",
-                    "y":"174"
+                    "x":"398.5",
+                    "y":"162.0"
                 },
                 "name":"rav"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"962",
-                    "y":"604"
+                    "x":"950.5",
+                    "y":"594.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"967",
-                    "y":"599"
+                    "x":"957.5",
+                    "y":"587.0"
                 },
                 "name":"ree"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"351",
-                    "y":"69"
+                    "x":"339.5",
+                    "y":"59.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"356",
-                    "y":"64"
+                    "x":"346.5",
+                    "y":"52.0"
                 },
                 "name":"rha"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"380",
-                    "y":"198"
+                    "x":"368.5",
+                    "y":"188.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"385",
-                    "y":"193"
+                    "x":"375.5",
+                    "y":"181.0"
                 },
                 "name":"rom"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"70",
-                    "y":"312"
+                    "x":"304.5",
+                    "y":"264.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"75",
-                    "y":"307"
-                },
-                "name":"sag"
-            },
-            {
-                "jdipNS:UNIT":{
-                    "x":"281",
-                    "y":"598"
-                },
-                "jdipNS:DISLODGED_UNIT":{
-                    "x":"286",
-                    "y":"593"
-                },
-                "name":"sah"
-            },
-            {
-                "jdipNS:UNIT":{
-                    "x":"316",
-                    "y":"274"
-                },
-                "jdipNS:DISLODGED_UNIT":{
-                    "x":"321",
-                    "y":"269"
+                    "x":"311.5",
+                    "y":"257.0"
                 },
                 "name":"sad"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"529",
-                    "y":"66"
+                    "x":"58.5",
+                    "y":"302.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"534",
-                    "y":"61"
+                    "x":"65.5",
+                    "y":"295.0"
+                },
+                "name":"sag"
+            },
+            {
+                "jdipNS:UNIT":{
+                    "x":"269.5",
+                    "y":"588.0"
+                },
+                "jdipNS:DISLODGED_UNIT":{
+                    "x":"276.5",
+                    "y":"581.0"
+                },
+                "name":"sah"
+            },
+            {
+                "jdipNS:UNIT":{
+                    "x":"517.5",
+                    "y":"56.0"
+                },
+                "jdipNS:DISLODGED_UNIT":{
+                    "x":"524.5",
+                    "y":"49.0"
                 },
                 "name":"sam"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"433",
-                    "y":"343"
+                    "x":"421.5",
+                    "y":"333.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"438",
-                    "y":"338"
+                    "x":"428.5",
+                    "y":"326.0"
                 },
                 "name":"sic"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"931",
-                    "y":"365"
+                    "x":"919.5",
+                    "y":"355.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"936",
-                    "y":"360"
+                    "x":"926.5",
+                    "y":"348.0"
                 },
                 "name":"sid"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"883",
-                    "y":"500"
+                    "x":"871.5",
+                    "y":"490.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"888",
-                    "y":"495"
+                    "x":"878.5",
+                    "y":"483.0"
                 },
                 "name":"sin"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"877",
-                    "y":"206"
+                    "x":"865.5",
+                    "y":"196.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"882",
-                    "y":"201"
+                    "x":"872.5",
+                    "y":"189.0"
                 },
                 "name":"sip"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"595",
-                    "y":"332"
+                    "x":"583.5",
+                    "y":"322.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"600",
-                    "y":"327"
+                    "x":"590.5",
+                    "y":"315.0"
                 },
                 "name":"spa"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"876",
-                    "y":"412"
+                    "x":"864.5",
+                    "y":"402.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"881",
-                    "y":"407"
+                    "x":"871.5",
+                    "y":"395.0"
                 },
                 "name":"syr"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"140",
-                    "y":"231"
+                    "x":"128.5",
+                    "y":"221.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"145",
-                    "y":"226"
+                    "x":"135.5",
+                    "y":"214.0"
                 },
                 "name":"tar"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"319",
-                    "y":"429"
+                    "x":"307.5",
+                    "y":"419.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"324",
-                    "y":"424"
+                    "x":"314.5",
+                    "y":"412.0"
                 },
                 "name":"tha"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"891",
-                    "y":"601"
+                    "x":"879.5",
+                    "y":"591.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"896",
-                    "y":"596"
+                    "x":"886.5",
+                    "y":"584.0"
                 },
                 "name":"thb"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"926",
-                    "y":"393"
+                    "x":"914.5",
+                    "y":"383.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"931",
-                    "y":"388"
+                    "x":"921.5",
+                    "y":"376.0"
                 },
                 "name":"tye"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"407",
-                    "y":"278"
+                    "x":"395.5",
+                    "y":"268.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"412",
-                    "y":"273"
+                    "x":"402.5",
+                    "y":"261.0"
                 },
                 "name":"tyn"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"358",
-                    "y":"110"
+                    "x":"346.5",
+                    "y":"100.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"363",
-                    "y":"105"
+                    "x":"353.5",
+                    "y":"93.0"
                 },
                 "name":"ven"
             },
             {
                 "jdipNS:UNIT":{
-                    "x":"422",
-                    "y":"81"
+                    "x":"410.5",
+                    "y":"71.0"
                 },
                 "jdipNS:DISLODGED_UNIT":{
-                    "x":"427",
-                    "y":"76"
+                    "x":"417.5",
+                    "y":"64.0"
                 },
                 "name":"vin"
             }

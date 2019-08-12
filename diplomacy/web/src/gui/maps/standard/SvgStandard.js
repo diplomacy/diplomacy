@@ -200,7 +200,7 @@ export class SvgStandard extends React.Component {
         const renderedOrders = [];
         const renderedOrders2 = [];
         const renderedHighestOrders = [];
-        for (let power of Object.values(game.powers)) {
+        for (let power of Object.values(game.powers)) if (!power.isEliminated()) {
             for (let unit of power.units) {
                 renderedUnits.push(
                     <Unit key={unit}
@@ -224,11 +224,9 @@ export class SvgStandard extends React.Component {
             for (let center of power.centers) {
                 setInfluence(classes, mapData, center, power.name);
             }
-            if (!power.isEliminated()) {
-                for (let loc of power.influence) {
-                    if (!mapData.supplyCenters.has(loc))
-                        setInfluence(classes, mapData, loc, power.name);
-                }
+            for (let loc of power.influence) {
+                if (!mapData.supplyCenters.has(loc))
+                    setInfluence(classes, mapData, loc, power.name);
             }
 
             if (orders) {
@@ -237,24 +235,29 @@ export class SvgStandard extends React.Component {
                     const tokens = order.split(/ +/);
                     if (!tokens || tokens.length < 3)
                         continue;
+                    const unit_type = tokens[0];
                     const unit_loc = tokens[1];
                     if (tokens[2] === 'H') {
                         renderedOrders.push(
                             <Hold key={order}
+                                  type={unit_type}
                                   loc={unit_loc}
                                   powerName={power.name}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === '-') {
                         const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === 'VIA' ? 2 : 1)];
                         renderedOrders.push(
                             <Move key={order}
+                                  type={unit_type}
                                   srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === 'S') {
@@ -268,15 +271,20 @@ export class SvgStandard extends React.Component {
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         } else {
+                            const dest_type = tokens[tokens.length - 2];
                             renderedOrders2.push(
                                 <SupportHold key={order}
+                                             type={unit_type}
                                              loc={unit_loc}
+                                             destType={dest_type}
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         }
@@ -290,7 +298,8 @@ export class SvgStandard extends React.Component {
                                         srcLoc={srcLoc}
                                         dstLoc={destLoc}
                                         powerName={power.name}
-                                        coordinates={Coordinates} colors={Colors}/>
+                                        coordinates={Coordinates} colors={Colors}
+                                        symbolSizes={SymbolSizes}/>
                             );
                         }
                     } else if (tokens[2] === 'B') {
@@ -305,21 +314,23 @@ export class SvgStandard extends React.Component {
                     } else if (tokens[2] === 'D') {
                         renderedHighestOrders.push(
                             <Disband key={order}
+                                     type={unit_type}
                                      loc={unit_loc}
                                      phaseType={game.getPhaseType()}
                                      coordinates={Coordinates}
                                      symbolSizes={SymbolSizes}/>
                         );
                     } else if (tokens[2] === 'R') {
-                        const srcLoc = tokens[1];
                         const destLoc = tokens[3];
                         renderedOrders.push(
                             <Move key={order}
-                                  srcLoc={srcLoc}
+                                  type={unit_type}
+                                  srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else {
@@ -369,7 +380,7 @@ export class SvgStandard extends React.Component {
                             <polygon fill="url(#symWBGradient)" points="40,100 100,35 90,20 40,85 13,65 10,70" stroke="black" strokeWidth="0.5"/>
                         </g>
                     </symbol>
-                    <symbol id="BuildUnit" overflow="visible" viewBox="0 0 100 100">
+                    <symbol id="BuildUnit" overflow="visible" viewBox="-23.5 -23.5 153 153">
                         <g>
                             <g className="symBuildShadow" transform="translate(6 6)">
                                 <circle cx="50" cy="50" r="10"/>
@@ -385,7 +396,7 @@ export class SvgStandard extends React.Component {
                             </g>
                         </g>
                     </symbol>
-                    <symbol id="RemoveUnit" overflow="visible" viewBox="0 0 10 10">
+                    <symbol id="RemoveUnit" overflow="visible" viewBox="-2.5 -2.5 15.5 15.5">
                         <g className="symRemove">
                             <circle cx="5" cy="5" r="7"/>
                             <line x1="-2" x2="12" y1="-2" y2="12"/>
@@ -398,10 +409,28 @@ export class SvgStandard extends React.Component {
                             <polygon fill="red" fillOpacity="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17" stroke="black" strokeWidth="3%"/>
                         </g>
                     </symbol>
-                    <symbol id="SupplyCenter" overflow="visible" viewBox="0 0 10 10">
+                    <symbol id="SupplyCenter" overflow="visible" viewBox="-0.375 -0.375 10.75 10.75">
                         <g>
                             <circle className="symThinBorder" cx="5" cy="5" r="3"/>
                             <circle cx="5" cy="5" fill="none" r="5" stroke="black" strokeWidth="0.75"/>
+                        </g>
+                    </symbol>
+                    <symbol id="HoldUnit" overflow="visible" viewBox="-5 -5 76.6 76.6">
+                        <g>
+                            <polygon fill="none" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0" strokeWidth="6"/>
+                        </g>
+                    </symbol>
+                    <symbol id="SupportHoldUnit" overflow="visible" viewBox="-5 -5 86.6 86.6">
+                        <g>
+                            <polygon fill="none" opacity="0.45" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0" strokeDasharray="5,5" strokeWidth="6"/>
+                        </g>
+                    </symbol>
+                    <symbol id="ConvoyTriangle" overflow="visible" viewBox="-9 -10 84.4 72.4">
+                        <g>
+                            <polygon fill="none" opacity="0.45" points="33.2,0.0 66.4,57.4 0.0,57.4" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="33.2,0.0 66.4,57.4 0.0,57.4" strokeDasharray="15,5" strokeWidth="6"/>
                         </g>
                     </symbol>
                     <symbol id="Army" overflow="visible" viewBox="0 0 23 15">

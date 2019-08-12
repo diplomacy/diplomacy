@@ -15,50 +15,48 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {offset} from "./common";
+import {ARMY, centerSymbolAroundUnit, getUnitCenter, coloredStrokeWidth} from "./common";
+import {EquilateralTriangle} from "./equilateralTriangle";
 import PropTypes from "prop-types";
 
 export class Convoy extends React.Component {
     render() {
         const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes
         const Colors = this.props.colors;
         const loc = this.props.loc;
         const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
-        const loc_x = offset(Coordinates[loc].unit[0], 10);
-        const loc_y = offset(Coordinates[loc].unit[1], 10);
-        const src_loc_x = offset(Coordinates[src_loc].unit[0], 10);
-        const src_loc_y = offset(Coordinates[src_loc].unit[1], 10);
-        let dest_loc_x = offset(Coordinates[dest_loc].unit[0], 10);
-        let dest_loc_y = offset(Coordinates[dest_loc].unit[1], 10);
 
-        const src_delta_x = parseFloat(src_loc_x) - parseFloat(loc_x);
-        const src_delta_y = parseFloat(src_loc_y) - parseFloat(loc_y);
-        const src_vector_length = Math.sqrt(src_delta_x * src_delta_x + src_delta_y * src_delta_y);
-        const src_loc_x_1 = '' + Math.round((parseFloat(loc_x) + (src_vector_length - 30.) / src_vector_length * src_delta_x) * 100.) / 100.;
-        const src_loc_y_1 = '' + Math.round((parseFloat(loc_y) + (src_vector_length - 30.) / src_vector_length * src_delta_y) * 100.) / 100.;
+        const symbol = 'ConvoyTriangle';
+        let [symbol_loc_x, symbol_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, 'A', src_loc, false, symbol);
+        const symbol_height = parseFloat(SymbolSizes[symbol].height);
+        const symbol_width = parseFloat(SymbolSizes[symbol].width);
+        const triangle = new EquilateralTriangle(
+            parseFloat(symbol_loc_x) + symbol_width / 2,
+            parseFloat(symbol_loc_y),
+            parseFloat(symbol_loc_x) + symbol_width,
+            parseFloat(symbol_loc_y) + symbol_height,
+            parseFloat(symbol_loc_x),
+            parseFloat(symbol_loc_y) + symbol_height
+        );
+        symbol_loc_y = '' + (parseFloat(symbol_loc_y) - symbol_height / 6);
+        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', loc, false);
+        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', src_loc, false);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', dest_loc, false);
 
-        let dest_delta_x = parseFloat(src_loc_x) - parseFloat(dest_loc_x);
-        let dest_delta_y = parseFloat(src_loc_y) - parseFloat(dest_loc_y);
-        let dest_vector_length = Math.sqrt(dest_delta_x * dest_delta_x + dest_delta_y * dest_delta_y);
-        const src_loc_x_2 = '' + Math.round((parseFloat(dest_loc_x) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_x) * 100.) / 100.;
-        const src_loc_y_2 = '' + Math.round((parseFloat(dest_loc_y) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_y) * 100.) / 100.;
+        const [src_loc_x_1, src_loc_y_1] = triangle.intersection(loc_x, loc_y);
+        const [src_loc_x_2, src_loc_y_2] = triangle.intersection(dest_loc_x, dest_loc_y);
 
-        dest_delta_x = parseFloat(dest_loc_x) - parseFloat(src_loc_x);
-        dest_delta_y = parseFloat(dest_loc_y) - parseFloat(src_loc_y);
-        dest_vector_length = Math.sqrt(dest_delta_x * dest_delta_x + dest_delta_y * dest_delta_y);
-        dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_x) * 100.) / 100.;
-        dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (dest_vector_length - 30.) / dest_vector_length * dest_delta_y) * 100.) / 100.;
-
-        const triangle_coord = [];
-        const triangle_loc_x = offset(Coordinates[src_loc].unit[0], 10);
-        const triangle_loc_y = offset(Coordinates[src_loc].unit[1], 10);
-        for (let ofs of [[0, -38.3], [33.2, 19.1], [-33.2, 19.1]]) {
-            triangle_coord.push(offset(triangle_loc_x, ofs[0]) + ',' + offset(triangle_loc_y, ofs[1]));
-        }
+        const dest_delta_x = dest_loc_x - src_loc_x;
+        const dest_delta_y = dest_loc_y - src_loc_y;
+        const dest_vector_length = Math.sqrt(dest_delta_x * dest_delta_x + dest_delta_y * dest_delta_y);
+        const delta_dec = parseFloat(SymbolSizes[ARMY].width) / 2 + 2 * coloredStrokeWidth(SymbolSizes);
+        dest_loc_x = '' + Math.round((parseFloat(src_loc_x) + (dest_vector_length - delta_dec) / dest_vector_length * dest_delta_x) * 100.) / 100.;
+        dest_loc_y = '' + Math.round((parseFloat(src_loc_y) + (dest_vector_length - delta_dec) / dest_vector_length * dest_delta_y) * 100.) / 100.;
 
         return (
-            <g>
+            <g stroke={Colors[this.props.powerName]}>
                 <line x1={loc_x}
                       y1={loc_y}
                       x2={src_loc_x_1}
@@ -82,11 +80,13 @@ export class Convoy extends React.Component {
                       className={'convoyorder'}
                       markerEnd={'url(#arrow)'}
                       stroke={Colors[this.props.powerName]}/>
-                <polygon className={'shadowdash'}
-                         points={triangle_coord.join(' ')}/>
-                <polygon className={'convoyorder'}
-                         points={triangle_coord.join(' ')}
-                         stroke={Colors[this.props.powerName]}/>
+                <use
+                    x={symbol_loc_x}
+                    y={symbol_loc_y}
+                    width={'' + symbol_width}
+                    height={'' + symbol_height}
+                    href={`#${symbol}`}
+                />
             </g>
         );
     }
@@ -98,5 +98,6 @@ Convoy.propTypes = {
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired,
     colors: PropTypes.object.isRequired
 };

@@ -15,37 +15,30 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {offset} from "./common";
+import {centerSymbolAroundUnit, getUnitCenter} from "./common";
 import PropTypes from "prop-types";
 
 export class SupportHold extends React.Component {
     render() {
         const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
         const loc = this.props.loc;
         const dest_loc = this.props.dstLoc;
-        const loc_x = offset(Coordinates[loc].unit[0], 10);
-        const loc_y = offset(Coordinates[loc].unit[1], 10);
-        let dest_loc_x = offset(Coordinates[dest_loc].unit[0], 10);
-        let dest_loc_y = offset(Coordinates[dest_loc].unit[1], 10);
+        const symbol = 'SupportHoldUnit';
+        const [symbol_loc_x, symbol_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.destType, dest_loc, false, symbol);
+        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, this.props.type, loc, false);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, this.props.destType, dest_loc, false);
 
-        const delta_x = parseFloat(dest_loc_x) - parseFloat(loc_x);
-        const delta_y = parseFloat(dest_loc_y) - parseFloat(loc_y);
+        const delta_x = dest_loc_x - loc_x;
+        const delta_y = dest_loc_y - loc_y;
         const vector_length = Math.sqrt(delta_x * delta_x + delta_y * delta_y);
-        dest_loc_x = '' + Math.round((parseFloat(loc_x) + (vector_length - 35.) / vector_length * delta_x) * 100.) / 100.;
-        dest_loc_y = '' + Math.round((parseFloat(loc_y) + (vector_length - 35.) / vector_length * delta_y) * 100.) / 100.;
+        const delta_dec = parseFloat(SymbolSizes[symbol].height) / 2;
+        dest_loc_x = '' + Math.round((parseFloat(loc_x) + (vector_length - delta_dec) / vector_length * delta_x) * 100.) / 100.;
+        dest_loc_y = '' + Math.round((parseFloat(loc_y) + (vector_length - delta_dec) / vector_length * delta_y) * 100.) / 100.;
 
-        const polygon_coord = [];
-        const poly_loc_x = offset(Coordinates[dest_loc].unit[0], 8.5);
-        const poly_loc_y = offset(Coordinates[dest_loc].unit[1], 9.5);
-        for (let ofs of [
-            [15.9, -38.3], [38.3, -15.9], [38.3, 15.9], [15.9, 38.3], [-15.9, 38.3], [-38.3, 15.9],
-            [-38.3, -15.9], [-15.9, -38.3]
-        ]) {
-            polygon_coord.push(offset(poly_loc_x, ofs[0]) + ',' + offset(poly_loc_y, ofs[1]));
-        }
         return (
-            <g>
+            <g stroke={Colors[this.props.powerName]}>
                 <line x1={loc_x}
                       y1={loc_y}
                       x2={dest_loc_x}
@@ -57,11 +50,12 @@ export class SupportHold extends React.Component {
                       y2={dest_loc_y}
                       className={'supportorder'}
                       stroke={Colors[this.props.powerName]}/>
-                <polygon className={'shadowdash'}
-                         points={polygon_coord.join(' ')}/>
-                <polygon className={'supportorder'}
-                         points={polygon_coord.join(' ')}
-                         stroke={Colors[this.props.powerName]}
+                <use
+                    x={symbol_loc_x}
+                    y={symbol_loc_y}
+                    width={SymbolSizes[symbol].width}
+                    height={SymbolSizes[symbol].height}
+                    href={`#${symbol}`}
                 />
             </g>
         );
@@ -69,9 +63,12 @@ export class SupportHold extends React.Component {
 }
 
 SupportHold.propTypes = {
+    type: PropTypes.oneOf(['A', 'F']),
+    destType: PropTypes.oneOf(['A', 'F']),
     loc: PropTypes.string.isRequired,
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired,
     colors: PropTypes.object.isRequired
 };

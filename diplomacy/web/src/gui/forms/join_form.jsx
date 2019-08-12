@@ -16,7 +16,6 @@
 // ==============================================================================
 import React from 'react';
 import {Forms} from "../components/forms";
-import {STRINGS} from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
 
 export class JoinForm extends React.Component {

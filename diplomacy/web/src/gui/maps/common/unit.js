@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, FLEET, offset} from "./common";
+import {ARMY, FLEET} from "./common";
 import PropTypes from "prop-types";
 
 export class Unit extends React.Component {
@@ -33,6 +33,7 @@ export class Unit extends React.Component {
             <use href={`#${this.props.isDislodged ? 'Dislodged' : ''}${symbol}`}
                  x={loc_x}
                  y={loc_y}
+                 id={`${this.props.isDislodged ? 'dislodged_' : ''}unit_${loc}`}
                  width={SymbolSizes[symbol].width}
                  height={SymbolSizes[symbol].height}
                  className={`unit${this.props.powerName.toLowerCase()}`}/>

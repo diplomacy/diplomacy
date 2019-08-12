@@ -94,3 +94,37 @@ export function parseLocation(txt) {
         return txt.substr(2);
     return txt;
 }
+
+export function centerSymbolAroundUnit(coordinates, symbolSizes, unitType, loc, isDislodged, symbol) {
+    const key = isDislodged ? 'disl' : 'unit';
+    const unitKey = unitType ===  'F' ? FLEET : ARMY;
+    const [unit_x, unit_y] = coordinates[loc][key];
+    const unit_height = symbolSizes[unitKey].height;
+    const unit_width = symbolSizes[unitKey].width;
+    const symbol_height = symbolSizes[symbol].height;
+    const symbol_width = symbolSizes[symbol].width;
+    return [
+        `${(parseFloat(unit_x) + parseFloat(unit_width) / 2 - parseFloat(symbol_width) / 2)}`,
+        `${(parseFloat(unit_y) + parseFloat(unit_height) / 2 - parseFloat(symbol_height) / 2)}`
+    ];
+}
+
+export function getUnitCenter(coordinates, symbolSizes, unitType, loc, isDislodged) {
+    const key = isDislodged ? 'disl' : 'unit';
+    const unitKey = unitType ===  'F' ? FLEET : ARMY;
+    const [unit_x, unit_y] = coordinates[loc][key];
+    const unit_height = symbolSizes[unitKey].height;
+    const unit_width = symbolSizes[unitKey].width;
+    return [
+        `${parseFloat(unit_x) + parseFloat(unit_width) / 2}`,
+        `${parseFloat(unit_y) + parseFloat(unit_height) / 2}`
+    ];
+}
+
+export function plainStrokeWidth(symbolSizes) {
+    return parseFloat(symbolSizes.Stroke.height);
+}
+
+export function coloredStrokeWidth(symbolSizes) {
+    return parseFloat(symbolSizes.Stroke.width);
+}

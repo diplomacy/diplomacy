@@ -17,97 +17,72 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 ==============================================================================
 **/
 /* text */
-        .SvgStandard svg { font-size: 100% }
-        .SvgStandard .titletext {text-anchor:middle; stroke-width:0.3; font-family:sans-serif; font-size:0.7em; stroke:black; fill:black;}
-        .SvgStandard .provtext  {text-anchor:middle; stroke-width:0.3; font-family:sans-serif; font-size:0.7em; stroke:black; fill:black;}
-        .SvgStandard .labeltext {stroke-width:0.1; stroke:black; fill:black;}
-        .SvgStandard .unordered {fill:red; stroke:black; stroke-width:1; fill-opacity:0.90;}
-        .SvgStandard .labeltext24 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.4em;}
-        .SvgStandard .labeltext18 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.1em;}
-        .SvgStandard .fulllabeltext {font-family:serif,sans-serif; font-style:italic; font-size:1.2em; fill:black; stroke:black;}
-        .SvgStandard .currentnotetext {font-family:serif,sans-serif; font-size:1.5em; fill:black; stroke:black;}
-        .SvgStandard .currentnoterect {fill:#c5dfea;}
-        .SvgStandard .currentphasetext {font-family:serif,sans-serif; font-size:2.5em; fill:black; stroke:black;}
+		.SvgStandard svg { font-size: 100% }
+		.SvgStandard .labeltext24 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.4em;}
+		.SvgStandard .labeltext18 {text-anchor:middle; stroke-width:0.1; stroke:black; fill:black; font-family:serif,sans-serif; font-style:italic; font-size:1.1em;}
+		.SvgStandard .currentnotetext {font-family:serif,sans-serif; font-size:1.5em; fill:black; stroke:black;}
+		.SvgStandard .currentnoterect {fill:#c5dfea;}
+		.SvgStandard .currentphasetext {font-family:serif,sans-serif; font-size:2.5em; fill:black; stroke:black;}
 
-        .SvgStandard .labeltext24 text {cursor:default;}
+		.SvgStandard .labeltext24 text {cursor:default;}
 
-        /* NB: this style is not yet used. */
-        .SvgStandard .labeltext24 text.allowed {
-            font-weight:bold;
-            fill:blue;
-            font-size: 1.5em;
-            stroke: red;
-            stroke-width:2;
-            text-decoration: underline;
-            background-color: green;
-        }
+		/* map and object features */
 
-        /* map and object features */
+		.SvgStandard .impassable {fill:#353433; stroke:#000000; stroke-width:1}
 
-        .SvgStandard .seapoly {stroke:#000000; stroke-width:1; fill:#B5DEF8}
-        .SvgStandard .dashline  {stroke:darkslateblue; stroke-width:3; stroke-linecap:round; stroke-dasharray:5,6;}
-        .SvgStandard .impassable {fill:#353433; stroke:#000000; stroke-width:1}
-        .SvgStandard .sealine {stroke:#B5DEFF; stroke-width:3;}
+		/* invisible click rects fill:none does not work */
 
-        /* invisible click rects fill:none does not work */
+		.SvgStandard .invisibleContent {stroke:#000000; fill:#000000; fill-opacity:0.0; opacity:0.0}
 
-        .SvgStandard .invisibleContent {stroke:#000000; fill:#000000; fill-opacity:0.0; opacity:0.0}
+		/* default region coloring, by power */
 
-        /* default region coloring, by power */
+		.SvgStandard .provinceRed {fill:url(#patternRed)}
+		.SvgStandard .provinceBrown {fill:url(#patternBrown)}
+		.SvgStandard .provinceGreen {fill:url(#patternGreen)}
+		.SvgStandard .provinceBlack {fill:url(#patternBlack)}
+		.SvgStandard .provinceBlue {fill:url(#patternBlue)}
 
-        .SvgStandard .provinceRed {fill:url(#patternRed)}
-        .SvgStandard .provinceBrown {fill:url(#patternBrown)}
-        .SvgStandard .provinceGreen {fill:url(#patternGreen)}
-        .SvgStandard .provinceBlack {fill:url(#patternBlack)}
-        .SvgStandard .provinceBlue {fill:url(#patternBlue)}
+		.SvgStandard .nopower {fill:antiquewhite;    stroke:#000000; stroke-width:1}
+		.SvgStandard .water {fill:#c5dfea; stroke:#000000; stroke-width:1}
 
-        .SvgStandard .nopower {fill:antiquewhite;    stroke:#000000; stroke-width:1}
-        .SvgStandard .water {fill:#c5dfea; stroke:#000000; stroke-width:1}
+		.SvgStandard .neutral {fill:lightgray; stroke:#000000; stroke-width:1}
 
-        .SvgStandard .neutral {fill:lightgray; stroke:#000000; stroke-width:1}
+		.SvgStandard .austria {fill:#c48f85; stroke:#000000; stroke-width:1}
+		.SvgStandard .england {fill:darkviolet; stroke:#000000; stroke-width:1}
+		.SvgStandard .france {fill:royalblue; stroke:#000000; stroke-width:1}
+		.SvgStandard .germany {fill:#a08a75; stroke:#000000; stroke-width:1}
+		.SvgStandard .italy {fill:forestgreen; stroke:#000000; stroke-width:1}
+		.SvgStandard .russia {fill:#757d91; stroke:#000000; stroke-width:1}
+		.SvgStandard .turkey {fill:#b9a61c; stroke:#000000; stroke-width:1}
 
-        .SvgStandard .austria {fill:#c48f85; stroke:#000000; stroke-width:1}
-        .SvgStandard .england {fill:darkviolet; stroke:#000000; stroke-width:1}
-        .SvgStandard .france {fill:royalblue; stroke:#000000; stroke-width:1}
-        .SvgStandard .germany {fill:#a08a75; stroke:#000000; stroke-width:1}
-        .SvgStandard .italy {fill:forestgreen; stroke:#000000; stroke-width:1}
-        .SvgStandard .russia {fill:#757d91; stroke:#000000; stroke-width:1}
-        .SvgStandard .turkey {fill:#b9a61c; stroke:#000000; stroke-width:1}
+		/* unit colors, by power note that underscores are not supported */
 
-        /* unit colors, by power note that underscores are not supported */
+		.SvgStandard .unitaustria {fill:red; fill-opacity:0.85}
+		.SvgStandard .unitengland {fill:mediumpurple; fill-opacity:0.85}
+		.SvgStandard .unitfrance  {fill:deepskyblue; fill-opacity:0.85}
+		.SvgStandard .unitgermany {fill:dimgray; fill-opacity:0.85}
+		.SvgStandard .unititaly   {fill:olive; fill-opacity:0.85}
+		.SvgStandard .unitrussia  {fill:white; fill-opacity:1.0}
+		.SvgStandard .unitturkey  {fill:yellow; fill-opacity:0.85}
 
-        .SvgStandard .unitaustria {fill:red; fill-opacity:0.85}
-        .SvgStandard .unitengland {fill:mediumpurple; fill-opacity:0.85}
-        .SvgStandard .unitfrance  {fill:deepskyblue; fill-opacity:0.85}
-        .SvgStandard .unitgermany {fill:dimgray; fill-opacity:0.85}
-        .SvgStandard .unititaly   {fill:olive; fill-opacity:0.85}
-        .SvgStandard .unitrussia  {fill:white; fill-opacity:1.0}
-        .SvgStandard .unitturkey  {fill:yellow; fill-opacity:0.85}
+		/* order drawing styles, stroke and fill colors should not be specified */
 
-        /* order drawing styles, stroke and fill colors should not be specified */
+		.SvgStandard .supportorder {stroke-width:6; fill:none; stroke-dasharray:5,5;}
+		.SvgStandard .convoyorder  {stroke-dasharray:15,5; stroke-width:6; fill:none;}
+		.SvgStandard .shadowdash   {stroke-width:10; fill:none; stroke:black; opacity:0.45;}
+		.SvgStandard .varwidthorder  {fill:none;}
+		.SvgStandard .varwidthshadow {fill:none; stroke:black;}
 
-        .SvgStandard .defaultorder {stroke-width:6; fill:none;}
-        .SvgStandard .supportorder {stroke-width:6; fill:none; stroke-dasharray:5,5;}
-        .SvgStandard .convoyorder  {stroke-dasharray:15,5; stroke-width:6; fill:none;}
+		/* Symbol private styles. Always start with "sym" to avoid name collisions! */
 
-        .SvgStandard .shadoworder  {stroke-width:10; fill:none; stroke:black;}
-        .SvgStandard .shadowdash   {stroke-width:10; fill:none; stroke:black; opacity:0.45;}
+		.symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
+		.symBuild       {stroke:yellow;stroke-width:7;fill:none;}
+		.symRemove      {stroke:red;stroke-width:1;fill:none;}
 
-        .SvgStandard .varwidthorder  {fill:none;}
-        .SvgStandard .varwidthshadow {fill:none; stroke:black;}
+		.symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
+		.symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
+		.symDislodgedBorder {stroke:red;stroke-width:3%;}
 
-        /* Symbol private styles. Always start with "sym" to avoid name collisions! */
-
-        .symBuildShadow {fill:none;stroke:black;opacity:0.5;stroke-width:7;}
-        .symBuild       {stroke:yellow;stroke-width:7;fill:none;}
-        .symRemove      {stroke:red;stroke-width:1;fill:none;}
-
-        .symShadow          {stroke:black;fill:black;stroke-width:1;opacity:0.40;}
-        .symDislodgedShadow {stroke:red;fill:red;stroke-width:1;opacity:0.50;}
-        .symDislodgedBorder {stroke:red;stroke-width:3%;}
-
-        .symDarkener        {fill:black;opacity:0.45;fill-opacity:0.45;}
-        .symCenterHub       {fill:black; stroke:black; opacity:0.60; stroke-width:0.5px;}
-        .symBorder          {stroke:black;stroke-width:3%;}
-        .symThinBorder      {stroke:black;stroke-width:0.4;}
-        .symSilhouette      {stroke:black;fill:black;stroke-width:1;}
+		.symBorder          {stroke:black;stroke-width:3%;}
+		.symThinBorder      {stroke:black;stroke-width:0.4;}
+		.symSilhouette      {stroke:black;fill:black;stroke-width:1;}

@@ -200,7 +200,7 @@ export class SvgModern extends React.Component {
         const renderedOrders = [];
         const renderedOrders2 = [];
         const renderedHighestOrders = [];
-        for (let power of Object.values(game.powers)) {
+        for (let power of Object.values(game.powers)) if (!power.isEliminated()) {
             for (let unit of power.units) {
                 renderedUnits.push(
                     <Unit key={unit}
@@ -224,11 +224,9 @@ export class SvgModern extends React.Component {
             for (let center of power.centers) {
                 setInfluence(classes, mapData, center, power.name);
             }
-            if (!power.isEliminated()) {
-                for (let loc of power.influence) {
-                    if (!mapData.supplyCenters.has(loc))
-                        setInfluence(classes, mapData, loc, power.name);
-                }
+            for (let loc of power.influence) {
+                if (!mapData.supplyCenters.has(loc))
+                    setInfluence(classes, mapData, loc, power.name);
             }
 
             if (orders) {
@@ -237,24 +235,29 @@ export class SvgModern extends React.Component {
                     const tokens = order.split(/ +/);
                     if (!tokens || tokens.length < 3)
                         continue;
+                    const unit_type = tokens[0];
                     const unit_loc = tokens[1];
                     if (tokens[2] === 'H') {
                         renderedOrders.push(
                             <Hold key={order}
+                                  type={unit_type}
                                   loc={unit_loc}
                                   powerName={power.name}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === '-') {
                         const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === 'VIA' ? 2 : 1)];
                         renderedOrders.push(
                             <Move key={order}
+                                  type={unit_type}
                                   srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else if (tokens[2] === 'S') {
@@ -268,15 +271,20 @@ export class SvgModern extends React.Component {
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         } else {
+                            const dest_type = tokens[tokens.length - 2];
                             renderedOrders2.push(
                                 <SupportHold key={order}
+                                             type={unit_type}
                                              loc={unit_loc}
+                                             destType={dest_type}
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
+                                             symbolSizes={SymbolSizes}
                                              colors={Colors}/>
                             );
                         }
@@ -290,7 +298,8 @@ export class SvgModern extends React.Component {
                                         srcLoc={srcLoc}
                                         dstLoc={destLoc}
                                         powerName={power.name}
-                                        coordinates={Coordinates} colors={Colors}/>
+                                        coordinates={Coordinates} colors={Colors}
+                                        symbolSizes={SymbolSizes}/>
                             );
                         }
                     } else if (tokens[2] === 'B') {
@@ -305,21 +314,23 @@ export class SvgModern extends React.Component {
                     } else if (tokens[2] === 'D') {
                         renderedHighestOrders.push(
                             <Disband key={order}
+                                     type={unit_type}
                                      loc={unit_loc}
                                      phaseType={game.getPhaseType()}
                                      coordinates={Coordinates}
                                      symbolSizes={SymbolSizes}/>
                         );
                     } else if (tokens[2] === 'R') {
-                        const srcLoc = tokens[1];
                         const destLoc = tokens[3];
                         renderedOrders.push(
                             <Move key={order}
-                                  srcLoc={srcLoc}
+                                  type={unit_type}
+                                  srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
                                   phaseType={game.getPhaseType()}
                                   coordinates={Coordinates}
+                                  symbolSizes={SymbolSizes}
                                   colors={Colors}/>
                         );
                     } else {
@@ -353,7 +364,7 @@ export class SvgModern extends React.Component {
         }
 
         return (
-            <svg className="SvgModern" colorRendering="optimizeQuality" height="560px" imageRendering="optimizeQuality" preserveAspectRatio="xMinYMin" shapeRendering="geometricPrecision" textRendering="optimizeLegibility" viewBox="0 0 716 560" width="716px" xmlns="http://www.w3.org/2000/svg">
+            <svg className="SvgModern" colorRendering="optimizeQuality" height="600px" imageRendering="optimizeQuality" preserveAspectRatio="xMinYMin" shapeRendering="geometricPrecision" textRendering="optimizeLegibility" viewBox="0 0 716 600" width="716px" xmlns="http://www.w3.org/2000/svg">
                 <title>MODERN</title>
                 <defs>
                     <symbol id="WaivedBuild" overflow="visible" viewBox="0 0 100 100">
@@ -370,7 +381,7 @@ export class SvgModern extends React.Component {
                             <polygon fill="url(#symWBGradient)" points="40,100 100,35 90,20 40,85 13,65 10,70" stroke="black" strokeWidth="0.5"/>
                         </g>
                     </symbol>
-                    <symbol id="BuildUnit" overflow="visible" viewBox="0 0 100 100">
+                    <symbol id="BuildUnit" overflow="visible" viewBox="-23.5 -23.5 153 153">
                         <g>
                             <g className="symBuildShadow" transform="translate(6 6)">
                                 <circle cx="50" cy="50" r="10"/>
@@ -386,7 +397,7 @@ export class SvgModern extends React.Component {
                             </g>
                         </g>
                     </symbol>
-                    <symbol id="RemoveUnit" overflow="visible" viewBox="0 0 10 10">
+                    <symbol id="RemoveUnit" overflow="visible" viewBox="-2.5 -2.5 15.5 15.5">
                         <g className="symRemove">
                             <circle cx="5" cy="5" r="7"/>
                             <line x1="-2" x2="12" y1="-2" y2="12"/>
@@ -399,10 +410,28 @@ export class SvgModern extends React.Component {
                             <polygon fill="red" fillOpacity="1" points="0,0 12,0 17,6 22,0 35,0 22,17 32,34 19,34 15,27 9,34 -4,34 10,17" stroke="black" strokeWidth="3%"/>
                         </g>
                     </symbol>
-                    <symbol id="SupplyCenter" overflow="visible" viewBox="0 0 10 10">
+                    <symbol id="SupplyCenter" overflow="visible" viewBox="-0.375 -0.375 10.75 10.75">
                         <g>
                             <circle className="symThinBorder" cx="5" cy="5" r="3"/>
                             <circle cx="5" cy="5" fill="none" r="5" stroke="black" strokeWidth="0.75"/>
+                        </g>
+                    </symbol>
+                    <symbol id="HoldUnit" overflow="visible" viewBox="-5 -5 76.6 76.6">
+                        <g>
+                            <polygon fill="none" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="47.1,0.0 66.6,19.5 66.6, 47.1 47.1,66.6 19.5,66.6 0.0,47.1 0.0,19.5 19.5,0.0" strokeWidth="6"/>
+                        </g>
+                    </symbol>
+                    <symbol id="SupportHoldUnit" overflow="visible" viewBox="-5 -5 86.6 86.6">
+                        <g>
+                            <polygon fill="none" opacity="0.45" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="54.2,0.0 76.6,22.4 76.6,54.2 54.2,76.6 22.4,76.6 0.0,54.2 0.0,22.4 22.4,0.0" strokeDasharray="5,5" strokeWidth="6"/>
+                        </g>
+                    </symbol>
+                    <symbol id="ConvoyTriangle" overflow="visible" viewBox="-9 -10 84.4 72.4">
+                        <g>
+                            <polygon fill="none" opacity="0.45" points="33.2,0.0 66.4,57.4 0.0,57.4" stroke="black" strokeWidth="10"/>
+                            <polygon fill="none" points="33.2,0.0 66.4,57.4 0.0,57.4" strokeDasharray="15,5" strokeWidth="6"/>
                         </g>
                     </symbol>
                     <symbol id="Army" overflow="visible" viewBox="0 0 23 15">
@@ -656,70 +685,70 @@ export class SvgModern extends React.Component {
                     <text className="labeltext" x="653" y="452">sc</text>
                 </g>
                 <g id="SupplyCenterLayer">
-                    <use height="10" href="#SupplyCenter" id="sc_LON" transform="translate(-6,-4)" width="10" x="162.8" y="204.60001"/>
-                    <use height="10" href="#SupplyCenter" id="sc_LIV" transform="translate(-5.3588517,-6.0287081)" width="10" x="150.7" y="170.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_EDI" transform="translate(-6.6985646,-6.6985646)" width="10" x="159.89999" y="141.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_GIB" width="10" x="56.7" y="378.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_CAI" transform="translate(-6,-4)" width="10" x="471.10001" y="469.79999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ALE" width="10" x="441.4" y="472.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ASW" width="10" x="482.5" y="542.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_PAR" width="10" x="169.1" y="243.5"/>
-                    <use height="10" href="#SupplyCenter" id="sc_BOR" width="10" x="136.6" y="279.6"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MAR" width="10" x="193.0" y="287.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_LYO" width="10" x="188.2" y="273.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_HAM" width="10" x="243.4" y="192.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_BER" transform="translate(-3.3492823,-6.0287081)" width="10" x="277.60001" y="208"/>
-                    <use height="10" href="#SupplyCenter" id="sc_FRA" transform="translate(-2.6794258,-4.6889952)" width="10" x="232.2" y="242.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MUN" transform="translate(-4.6889952,-4.0191388)" width="10" x="255.2" y="267.60001"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MIL" transform="translate(-4.6889952,-6.0287081)" width="10" x="238.10001" y="308.79999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_VEN" transform="translate(-8.708134,-5.3588517)" width="10" x="261.70001" y="295.29999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ROM" width="10" x="251.1" y="344.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_NAP" width="10" x="273.5" y="364.8"/>
-                    <use height="10" href="#SupplyCenter" id="sc_WAR" transform="translate(2.0095694,-10.047847)" width="10" x="335.29999" y="214.5"/>
-                    <use height="10" href="#SupplyCenter" id="sc_GDA" width="10" x="324.7" y="188.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_KRA" transform="translate(-1.3397129,-6.6985646)" width="10" x="324.10001" y="245.8"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MOS" width="10" x="475.0" y="160.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_GOR" width="10" x="491.7" y="103.5"/>
-                    <use height="10" href="#SupplyCenter" id="sc_STP" width="10" x="397.6" y="107.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MUR" width="10" x="393.3" y="24.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ROS" width="10" x="522.0" y="273.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_BAR" transform="translate(0,-4)" width="10" x="139.39999" y="331.89999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MAD" width="10" x="87.1" y="327.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_SVE" transform="translate(-4.6889952,-4.6889952)" width="10" x="49.599998" y="363.79999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ADA" transform="translate(-4.0191388,-5.3588517)" width="10" x="488.79999" y="400.5"/>
-                    <use height="10" href="#SupplyCenter" id="sc_IZM" width="10" x="410.3" y="406.9"/>
-                    <use height="10" href="#SupplyCenter" id="sc_IST" width="10" x="405.4" y="356.7"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ANK" transform="translate(-2.0095694,-4.0191388)" width="10" x="461.20001" y="365.89999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_SEV" transform="translate(-4,-4)" width="10" x="458.39999" y="300.79999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_KHA" width="10" x="472.6" y="230.8"/>
-                    <use height="10" href="#SupplyCenter" id="sc_KIE" width="10" x="417.4" y="227.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ODE" transform="translate(-4.0191388,-7.3684211)" width="10" x="430.10001" y="276"/>
-                    <use height="10" href="#SupplyCenter" id="sc_IRE" width="10" x="111.1" y="161.5"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MOR" width="10" x="34.0" y="416.8"/>
-                    <use height="10" href="#SupplyCenter" id="sc_NWY" width="10" x="262.3" y="109.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_ISR" transform="translate(-4.0191388,-6.6985646)" width="10" x="506.5" y="454.29999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_LIB" width="10" x="238.4" y="465.6"/>
-                    <use height="10" href="#SupplyCenter" id="sc_BEL" transform="translate(-17.416268,0.66985648)" width="10" x="204" y="215"/>
-                    <use height="10" href="#SupplyCenter" id="sc_MON" transform="translate(-12,12)" width="10" x="205" y="298"/>
-                    <use height="10" href="#SupplyCenter" id="sc_SWI" transform="translate(-4)" width="10" x="225" y="271"/>
-                    <use height="10" href="#SupplyCenter" id="sc_AUS" width="10" x="287.0" y="266.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_DEN" transform="translate(-6.6985841,-6.6985841)" width="10" x="265.79999" y="168.5"/>
-                    <use height="10" href="#SupplyCenter" id="sc_HOL" width="10" x="212.0" y="193.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_CRO" width="10" x="279.4" y="298.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_SER" width="10" x="331.1" y="309.3"/>
-                    <use height="10" href="#SupplyCenter" id="sc_TUN" width="10" x="215.8" y="429.5"/>
-                    <use height="10" href="#SupplyCenter" id="sc_BIE" width="10" x="405.0" y="189.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_CZE" transform="translate(-11.387593,-2.6794337)" width="10" x="293" y="238"/>
-                    <use height="10" href="#SupplyCenter" id="sc_LIT" transform="translate(-8.038301,-4.6890089)" width="10" x="375.89999" y="172.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_SWE" transform="translate(-2,-4)" width="10" x="309.39999" y="124.3"/>
-                    <use height="10" href="#SupplyCenter" id="sc_POR" width="10" x="34.7" y="332.6"/>
-                    <use height="10" href="#SupplyCenter" id="sc_BUL" width="10" x="360.8" y="343.2"/>
-                    <use height="10" href="#SupplyCenter" id="sc_GEO" transform="translate(-4.0191505,-4.6890089)" width="10" x="567" y="310.79999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_GRE" width="10" x="360.8" y="403.4"/>
-                    <use height="10" href="#SupplyCenter" id="sc_IRN" width="10" x="663.5" y="370.1"/>
-                    <use height="10" href="#SupplyCenter" id="sc_RUM" transform="translate(1.3397168,-6.0287257)" width="10" x="391.20001" y="311.39999"/>
-                    <use height="10" href="#SupplyCenter" id="sc_HUN" width="10" x="332.0" y="273.0"/>
-                    <use height="10" href="#SupplyCenter" id="sc_SAU" width="10" x="607.7" y="492.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_LON" transform="translate(-6,-4)" width="7" x="162.8" y="204.60001"/>
+                    <use height="7" href="#SupplyCenter" id="sc_LIV" transform="translate(-5.3588517,-6.0287081)" width="7" x="150.7" y="170.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_EDI" transform="translate(-6.6985646,-6.6985646)" width="7" x="159.89999" y="141.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_GIB" width="7" x="56.7" y="378.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_CAI" transform="translate(-6,-4)" width="7" x="471.10001" y="469.79999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ALE" width="7" x="441.4" y="472.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ASW" width="7" x="482.5" y="542.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_PAR" width="7" x="169.1" y="243.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_BOR" width="7" x="136.6" y="279.6"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MAR" width="7" x="193.0" y="287.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_LYO" width="7" x="188.2" y="273.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_HAM" width="7" x="243.4" y="192.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_BER" transform="translate(-3.3492823,-6.0287081)" width="7" x="277.60001" y="208"/>
+                    <use height="7" href="#SupplyCenter" id="sc_FRA" transform="translate(-2.6794258,-4.6889952)" width="7" x="232.2" y="242.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MUN" transform="translate(-4.6889952,-4.0191388)" width="7" x="255.2" y="267.60001"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MIL" transform="translate(-4.6889952,-6.0287081)" width="7" x="238.10001" y="308.79999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_VEN" transform="translate(-8.708134,-5.3588517)" width="7" x="261.70001" y="295.29999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ROM" width="7" x="251.1" y="344.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_NAP" width="7" x="273.5" y="364.8"/>
+                    <use height="7" href="#SupplyCenter" id="sc_WAR" transform="translate(2.0095694,-10.047847)" width="7" x="335.29999" y="214.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_GDA" width="7" x="324.7" y="188.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_KRA" transform="translate(-1.3397129,-6.6985646)" width="7" x="324.10001" y="245.8"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MOS" width="7" x="475.0" y="160.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_GOR" width="7" x="491.7" y="103.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_STP" width="7" x="397.6" y="107.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MUR" width="7" x="393.3" y="24.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ROS" width="7" x="522.0" y="273.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_BAR" transform="translate(0,-4)" width="7" x="139.39999" y="331.89999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MAD" width="7" x="87.1" y="327.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_SVE" transform="translate(-4.6889952,-4.6889952)" width="7" x="49.599998" y="363.79999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ADA" transform="translate(-4.0191388,-5.3588517)" width="7" x="488.79999" y="400.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_IZM" width="7" x="410.3" y="406.9"/>
+                    <use height="7" href="#SupplyCenter" id="sc_IST" width="7" x="405.4" y="356.7"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ANK" transform="translate(-2.0095694,-4.0191388)" width="7" x="461.20001" y="365.89999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_SEV" transform="translate(-4,-4)" width="7" x="458.39999" y="300.79999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_KHA" width="7" x="472.6" y="230.8"/>
+                    <use height="7" href="#SupplyCenter" id="sc_KIE" width="7" x="417.4" y="227.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ODE" transform="translate(-4.0191388,-7.3684211)" width="7" x="430.10001" y="276"/>
+                    <use height="7" href="#SupplyCenter" id="sc_IRE" width="7" x="111.1" y="161.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MOR" width="7" x="34.0" y="416.8"/>
+                    <use height="7" href="#SupplyCenter" id="sc_NWY" width="7" x="262.3" y="109.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_ISR" transform="translate(-4.0191388,-6.6985646)" width="7" x="506.5" y="454.29999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_LIB" width="7" x="238.4" y="465.6"/>
+                    <use height="7" href="#SupplyCenter" id="sc_BEL" transform="translate(-17.416268,0.66985648)" width="7" x="204" y="215"/>
+                    <use height="7" href="#SupplyCenter" id="sc_MON" transform="translate(-10,6)" width="7" x="205" y="298"/>
+                    <use height="7" href="#SupplyCenter" id="sc_SWI" transform="translate(-4)" width="7" x="225" y="271"/>
+                    <use height="7" href="#SupplyCenter" id="sc_AUS" width="7" x="287.0" y="266.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_DEN" transform="translate(-6.6985841,-6.6985841)" width="7" x="265.79999" y="168.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_HOL" width="7" x="212.0" y="193.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_CRO" width="7" x="279.4" y="298.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_SER" width="7" x="331.1" y="309.3"/>
+                    <use height="7" href="#SupplyCenter" id="sc_TUN" width="7" x="215.8" y="429.5"/>
+                    <use height="7" href="#SupplyCenter" id="sc_BIE" width="7" x="405.0" y="189.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_CZE" transform="translate(-11.387593,-2.6794337)" width="7" x="293" y="238"/>
+                    <use height="7" href="#SupplyCenter" id="sc_LIT" transform="translate(-8.038301,-4.6890089)" width="7" x="375.89999" y="172.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_SWE" transform="translate(-2,-4)" width="7" x="309.39999" y="124.3"/>
+                    <use height="7" href="#SupplyCenter" id="sc_POR" width="7" x="34.7" y="332.6"/>
+                    <use height="7" href="#SupplyCenter" id="sc_BUL" width="7" x="360.8" y="343.2"/>
+                    <use height="7" href="#SupplyCenter" id="sc_GEO" transform="translate(-4.0191505,-4.6890089)" width="7" x="567" y="310.79999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_GRE" width="7" x="360.8" y="403.4"/>
+                    <use height="7" href="#SupplyCenter" id="sc_IRN" width="7" x="663.5" y="370.1"/>
+                    <use height="7" href="#SupplyCenter" id="sc_RUM" transform="translate(1.3397168,-6.0287257)" width="7" x="391.20001" y="311.39999"/>
+                    <use height="7" href="#SupplyCenter" id="sc_HUN" width="7" x="332.0" y="273.0"/>
+                    <use height="7" href="#SupplyCenter" id="sc_SAU" width="7" x="607.7" y="492.5"/>
                 </g>
                 <g id="OrderLayer">
                     <g id="Layer2">{renderedOrders2}</g>
@@ -728,153 +757,154 @@ export class SvgModern extends React.Component {
                 <g id="UnitLayer">{renderedUnits}</g>
                 <g id="DislodgedUnitLayer">{renderedDislodgedUnits}</g>
                 <g id="HighestOrderLayer">{renderedHighestOrders}</g>
-                <g className={classes['BriefLabelLayer']} id="BriefLabelLayer" transform="translate(-7,10)" visibility="hidden">
-                    <text x="515" y="376">Ada</text>
-                    <text x="299" y="348">ADR</text>
-                    <text x="384" y="408">AEG</text>
-                    <text x="328" y="365">Alb</text>
-                    <text x="429" y="492">Ale</text>
-                    <text x="139" y="475">Alg</text>
-                    <text x="205" y="256">Als</text>
-                    <text x="463" y="399">Ana</text>
-                    <text x="90" y="369">Adl</text>
-                    <text x="481" y="354">Ank</text>
-                    <text x="291" y="361">Apu</text>
-                    <text x="689" y="537">ARA</text>
-                    <text x="50" y="17">ARC</text>
-                    <text x="572" y="328">Arm</text>
-                    <text x="442" y="542">Asw</text>
-                    <text x="280" y="273">Aus</text>
-                    <text x="160" y="304">Auv</text>
-                    <text x="595" y="321">Aze</text>
-                    <text x="317" y="153">BAL</text>
-                    <text x="119" y="340">Bar</text>
-                    <text x="197" y="222">Bel</text>
-                    <text x="269" y="195">Ber</text>
-                    <text x="288" y="174">BHM</text>
-                    <text x="398" y="196">Bie</text>
-                    <text x="97" y="261">BIS</text>
-                    <text x="137" y="291">Bor</text>
-                    <text x="310" y="323">Bos</text>
-                    <text x="140" y="250">Bri</text>
-                    <text x="310" y="8">BRN</text>
-                    <text x="380" y="338">Bul</text>
-                    <text x="475" y="493">Cai</text>
-                    <text x="620" y="290">CAS</text>
-                    <text x="561" y="286">Cau</text>
-                    <text x="463" y="203">Crp</text>
-                    <text x="149" y="110">Cly</text>
-                    <text x="290" y="298">Cro</text>
-                    <text x="286" y="245">Cze</text>
-                    <text x="250" y="152">Den</text>
-                    <text x="476" y="257">Don</text>
-                    <text x="493" y="316">EBS</text>
-                    <text x="163" y="120">Edi</text>
-                    <text x="444" y="439">EME</text>
-                    <text x="108" y="215">ENG</text>
-                    <text x="371" y="505">Esa</text>
-                    <text x="367" y="124">Est</text>
-                    <text x="365" y="80">Fin</text>
-                    <text x="238" y="226">Fra</text>
-                    <text x="336" y="186">Gda</text>
-                    <text x="548" y="311">Geo</text>
-                    <text x="62" y="372">Gib</text>
-                    <text x="330" y="117">GOB</text>
-                    <text x="167" y="351">GOL</text>
-                    <text x="510" y="110">Gor</text>
-                    <text x="343" y="385">Gre</text>
-                    <text x="235" y="199">Ham</text>
-                    <text x="224" y="173">HEL</text>
-                    <text x="205" y="200">Hol</text>
-                    <text x="325" y="280">Hun</text>
-                    <text x="122" y="38">Ice</text>
-                    <text x="319" y="416">ION</text>
-                    <text x="103" y="150">Ire</text>
-                    <text x="96" y="187">IRI</text>
-                    <text x="581" y="416">Irk</text>
-                    <text x="668" y="402">Irn</text>
-                    <text x="510" y="436">Isr</text>
-                    <text x="422" y="371">Ist</text>
-                    <text x="423" y="397">Izm</text>
-                    <text x="522" y="457">Jor</text>
-                    <text x="675" y="220">Kaz</text>
-                    <text x="479" y="235">Kha</text>
-                    <text x="439" y="228">Kie</text>
-                    <text x="343" y="239">Kra</text>
-                    <text x="344" y="16">Lap</text>
-                    <text x="371" y="147">Lat</text>
-                    <text x="321" y="457">LBN</text>
-                    <text x="276" y="500">Lib</text>
-                    <text x="206" y="333">LIG</text>
-                    <text x="356" y="167">Lit</text>
-                    <text x="155" y="150">Lpl</text>
-                    <text x="166" y="190">Lon</text>
-                    <text x="176" y="274">Lyo</text>
-                    <text x="346" y="351">Mac</text>
-                    <text x="90" y="335">Mad</text>
-                    <text x="258" y="431">MAL</text>
-                    <text x="186" y="294">Mar</text>
-                    <text x="20" y="244">MAT</text>
-                    <text x="238" y="295">Mil</text>
-                    <text x="407" y="272">Mol</text>
-                    <text x="198" y="305">Mon</text>
-                    <text x="30" y="429">Mor</text>
-                    <text x="468" y="167">Mos</text>
-                    <text x="236" y="258">Mun</text>
-                    <text x="460" y="70">Mur</text>
-                    <text x="290" y="384">Nap</text>
-                    <text x="60" y="90">NAT</text>
-                    <text x="81" y="296">Nav</text>
-                    <text x="256" y="93">Nwy</text>
-                    <text x="196" y="150">NTH</text>
-                    <text x="205" y="60">NWG</text>
-                    <text x="421" y="256">Ode</text>
-                    <text x="163" y="248">Par</text>
-                    <text x="645" y="463">PER</text>
-                    <text x="171" y="226">Pic</text>
-                    <text x="217" y="300">Pie</text>
-                    <text x="380" y="242">Pod</text>
-                    <text x="50" y="320">Por</text>
-                    <text x="301" y="192">Pru</text>
-                    <text x="520" y="511">RED</text>
-                    <text x="258" y="345">Rom</text>
-                    <text x="515" y="280">Ros</text>
-                    <text x="217" y="227">Ruh</text>
-                    <text x="371" y="295">Rum</text>
-                    <text x="15" y="375">SAT</text>
-                    <text x="575" y="490">Sau</text>
-                    <text x="264" y="225">Sax</text>
-                    <text x="335" y="328">Ser</text>
-                    <text x="457" y="287">Sev</text>
-                    <text x="650" y="65">Sib</text>
-                    <text x="305" y="224">Sil</text>
-                    <text x="500" y="475">Sin</text>
-                    <text x="248" y="131">SKA</text>
-                    <text x="322" y="260">Slk</text>
-                    <text x="419" y="110">Stp</text>
-                    <text x="70" y="391">SOG</text>
-                    <text x="62" y="349">Svl</text>
-                    <text x="295" y="105">Swe</text>
-                    <text x="218" y="278">Swi</text>
-                    <text x="530" y="406">Syr</text>
-                    <text x="212" y="437">Tun</text>
-                    <text x="243" y="325">Tus</text>
-                    <text x="242" y="377">TYR</text>
-                    <text x="535" y="40">Ura</text>
-                    <text x="253" y="301">Ven</text>
-                    <text x="540" y="180">Vol</text>
-                    <text x="140" y="182">Wal</text>
-                    <text x="320" y="209">War</text>
-                    <text x="435" y="320">WBS</text>
-                    <text x="160" y="385">WME</text>
-                    <text x="90" y="515">Wsa</text>
-                    <text x="438" y="19">WHI</text>
-                    <text x="164" y="171">Yor</text>
+                <g className={classes['BriefLabelLayer']} id="BriefLabelLayer" transform="translate(-7,10)">
+                    <text x="515" y="376">ada</text>
+                    <text x="299" y="348">adr</text>
+                    <text x="384" y="408">aeg</text>
+                    <text x="328" y="365">alb</text>
+                    <text x="429" y="478">ale</text>
+                    <text x="139" y="475">alg</text>
+                    <text x="205" y="256">als</text>
+                    <text x="463" y="399">ana</text>
+                    <text x="90" y="369">adl</text>
+                    <text x="481" y="354">ank</text>
+                    <text x="299" y="361">apu</text>
+                    <text x="625" y="541">ara</text>
+                    <text x="50" y="17">arc</text>
+                    <text x="578" y="332">arm</text>
+                    <text x="428" y="542">asw</text>
+                    <text x="272" y="277">aus</text>
+                    <text x="156" y="308">auv</text>
+                    <text x="595" y="321">aze</text>
+                    <text x="317" y="153">bal</text>
+                    <text x="119" y="340">bar</text>
+                    <text x="199" y="220">bel</text>
+                    <text x="267" y="201">ber</text>
+                    <text x="288" y="174">bhm</text>
+                    <text x="398" y="196">bie</text>
+                    <text x="97" y="261">bis</text>
+                    <text x="137" y="291">bor</text>
+                    <text x="310" y="323">bos</text>
+                    <text x="140" y="250">bri</text>
+                    <text x="310" y="8">brn</text>
+                    <text x="380" y="338">bul</text>
+                    <text x="475" y="493">cai</text>
+                    <text x="620" y="290">cas</text>
+                    <text x="561" y="286">cau</text>
+                    <text x="463" y="203">crp</text>
+                    <text x="149" y="106">cly</text>
+                    <text x="292" y="296">cro</text>
+                    <text x="300" y="247">cze</text>
+                    <text x="250" y="156">den</text>
+                    <text x="472" y="255">don</text>
+                    <text x="493" y="316">ebs</text>
+                    <text x="161" y="120">edi</text>
+                    <text x="444" y="439">eme</text>
+                    <text x="108" y="215">eng</text>
+                    <text x="371" y="505">esa</text>
+                    <text x="367" y="124">est</text>
+                    <text x="365" y="80">fin</text>
+                    <text x="238" y="226">fra</text>
+                    <text x="336" y="186">gda</text>
+                    <text x="548" y="311">geo</text>
+                    <text x="66" y="374">gib</text>
+                    <text x="330" y="117">gob</text>
+                    <text x="167" y="351">gol</text>
+                    <text x="510" y="110">gor</text>
+                    <text x="343" y="385">gre</text>
+                    <text x="235" y="199">ham</text>
+                    <text x="224" y="173">hel</text>
+                    <text x="205" y="200">hol</text>
+                    <text x="325" y="280">hun</text>
+                    <text x="122" y="38">ice</text>
+                    <text x="319" y="416">ion</text>
+                    <text x="103" y="150">ire</text>
+                    <text x="96" y="187">iri</text>
+                    <text x="581" y="416">irk</text>
+                    <text x="668" y="402">irn</text>
+                    <text x="510" y="434">isr</text>
+                    <text x="426" y="367">ist</text>
+                    <text x="423" y="397">izm</text>
+                    <text x="520" y="463">jor</text>
+                    <text x="675" y="220">kaz</text>
+                    <text x="471" y="235">kha</text>
+                    <text x="439" y="228">kie</text>
+                    <text x="343" y="239">kra</text>
+                    <text x="344" y="16">lap</text>
+                    <text x="371" y="147">lat</text>
+                    <text x="317" y="463">lbn</text>
+                    <text x="276" y="500">lib</text>
+                    <text x="206" y="333">lig</text>
+                    <text x="360" y="173">lit</text>
+                    <text x="153" y="148">lpl</text>
+                    <text x="166" y="190">lon</text>
+                    <text x="176" y="274">lyo</text>
+                    <text x="346" y="351">mac</text>
+                    <text x="90" y="335">mad</text>
+                    <text x="248" y="425">mal</text>
+                    <text x="180" y="302">mar</text>
+                    <text x="20" y="244">mat</text>
+                    <text x="238" y="293">mil</text>
+                    <text x="407" y="272">mol</text>
+                    <text x="198" y="309">mon</text>
+                    <text x="30" y="429">mor</text>
+                    <text x="468" y="167">mos</text>
+                    <text x="236" y="258">mun</text>
+                    <text x="460" y="70">mur</text>
+                    <text x="290" y="384">nap</text>
+                    <text x="60" y="90">nat</text>
+                    <text x="81" y="296">nav</text>
+                    <text x="260" y="81">nwy</text>
+                    <text x="196" y="150">nth</text>
+                    <text x="205" y="58">nwg</text>
+                    <text x="425" y="256">ode</text>
+                    <text x="161" y="254">par</text>
+                    <text x="645" y="463">per</text>
+                    <text x="183" y="226">pic</text>
+                    <text x="219" y="300">pie</text>
+                    <text x="380" y="242">pod</text>
+                    <text x="38" y="338">por</text>
+                    <text x="297" y="192">pru</text>
+                    <text x="518" y="509">red</text>
+                    <text x="258" y="345">rom</text>
+                    <text x="515" y="280">ros</text>
+                    <text x="217" y="227">ruh</text>
+                    <text x="371" y="295">rum</text>
+                    <text x="15" y="371">sat</text>
+                    <text x="575" y="486">sau</text>
+                    <text x="270" y="219">sax</text>
+                    <text x="335" y="328">ser</text>
+                    <text x="457" y="287">sev</text>
+                    <text x="650" y="65">sib</text>
+                    <text x="305" y="224">sil</text>
+                    <text x="500" y="477">sin</text>
+                    <text x="248" y="131">ska</text>
+                    <text x="322" y="260">slk</text>
+                    <text x="419" y="110">stp</text>
+                    <text x="76" y="395">sog</text>
+                    <text x="62" y="349">svl</text>
+                    <text x="295" y="105">swe</text>
+                    <text x="218" y="278">swi</text>
+                    <text x="530" y="406">syr</text>
+                    <text x="208" y="429">tun</text>
+                    <text x="243" y="325">tus</text>
+                    <text x="242" y="387">tyr</text>
+                    <text x="535" y="40">ura</text>
+                    <text x="255" y="293">ven</text>
+                    <text x="542" y="178">vol</text>
+                    <text x="140" y="174">wal</text>
+                    <text x="324" y="213">war</text>
+                    <text x="435" y="320">wbs</text>
+                    <text x="170" y="389">wme</text>
+                    <text x="90" y="515">wsa</text>
+                    <text x="438" y="19">whi</text>
+                    <text x="164" y="171">yor</text>
                 </g>
                 <g id="FullLabelLayer" visibility="hidden"/>
-                <text className={classes['CurrentNote']} id="CurrentNote" x="8" y="10">{nb_centers_per_power ? nb_centers_per_power : ''}</text>
-                <text className={classes['CurrentNote2']} id="CurrentNote2" x="8" y="22">{note ? note : ''}</text>
-                <text className={classes['CurrentPhase']} id="CurrentPhase" x="645" y="550">{current_phase}</text>
+                <rect className="currentnoterect" height="40" width="716" x="0" y="560"/>
+                <text className={classes['CurrentNote']} id="CurrentNote" x="10" y="576">{nb_centers_per_power ? nb_centers_per_power : ''}</text>
+                <text className={classes['CurrentNote2']} id="CurrentNote2" x="10" y="592">{note ? note : ''}</text>
+                <text className={classes['CurrentPhase']} id="CurrentPhase" x="645" y="578">{current_phase}</text>
                 <g className={classes['MouseLayer']} id="MouseLayer">
                     <polygon id="ada" onClick={this.onClick} onMouseOver={this.onHover} points="483,407 491,409 499,400 502,403 506,396,516,393,520,389,530,390,546,378,552,380,558,373 563,374 568,369 585,369 581,362 575,360 571,343 569,340 563,339 560,337 555,341,543,345,539,352,515,359,502,357 480,376 482,383 478,393"/>
                     <polygon id="adr" onClick={this.onClick} onMouseOver={this.onHover} points="309,374 308,372 288,354 291,350 281,351 275,348 271,342 266,325 258,319 258,305 266,300 269,302 268,305 271,311 274,305 279,306 281,319 298,337 310,346 319,352 321,354 319,371 321,374"/>
