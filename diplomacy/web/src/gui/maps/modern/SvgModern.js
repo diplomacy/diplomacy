@@ -383,13 +383,13 @@ export class SvgModern extends React.Component {
                     </symbol>
                     <symbol id="BuildUnit" overflow="visible" viewBox="-23.5 -23.5 153 153">
                         <g>
-                            <g className="symBuildShadow" transform="translate(6 6)">
+                            <g fill="none" opacity="0.5" stroke="black" strokeWidth="7" transform="translate(6 6)">
                                 <circle cx="50" cy="50" r="10"/>
                                 <circle cx="50" cy="50" r="30"/>
                                 <circle cx="50" cy="50" r="50"/>
                                 <circle cx="50" cy="50" r="70"/>
                             </g>
-                            <g className="symBuild">
+                            <g fill="none" stroke="yellow" strokeWidth="7">
                                 <circle cx="50" cy="50" r="10"/>
                                 <circle cx="50" cy="50" r="30"/>
                                 <circle cx="50" cy="50" r="50"/>
@@ -398,7 +398,7 @@ export class SvgModern extends React.Component {
                         </g>
                     </symbol>
                     <symbol id="RemoveUnit" overflow="visible" viewBox="-2.5 -2.5 15.5 15.5">
-                        <g className="symRemove">
+                        <g fill="none" stroke="red" strokeWidth="1">
                             <circle cx="5" cy="5" r="7"/>
                             <line x1="-2" x2="12" y1="-2" y2="12"/>
                             <line x1="-2" x2="12" y1="12" y2="-2"/>
@@ -412,7 +412,7 @@ export class SvgModern extends React.Component {
                     </symbol>
                     <symbol id="SupplyCenter" overflow="visible" viewBox="-0.375 -0.375 10.75 10.75">
                         <g>
-                            <circle className="symThinBorder" cx="5" cy="5" r="3"/>
+                            <circle cx="5" cy="5" r="3" stroke="black" strokeWidth="0.4"/>
                             <circle cx="5" cy="5" fill="none" r="5" stroke="black" strokeWidth="0.75"/>
                         </g>
                     </symbol>
@@ -436,9 +436,9 @@ export class SvgModern extends React.Component {
                     </symbol>
                     <symbol id="Army" overflow="visible" viewBox="0 0 23 15">
                         <g>
-                            <rect className="symShadow" height="13" rx="4" strokeWidth="1" width="23" x="2" y="2"/>
-                            <rect className="symBorder" height="13" rx="4" width="23" x="0" y="0"/>
-                            <g className="symSilhouette">
+                            <rect fill="black" height="13" opacity="0.40" rx="4" stroke="black" strokeWidth="1" width="23" x="2" y="2"/>
+                            <rect height="13" rx="4" stroke="black" strokeWidth="3%" width="23" x="0" y="0"/>
+                            <g fill="black" stroke="black" strokeWidth="1">
                                 <rect height="1" width="13" x="6" y="6"/>
                                 <rect height="1" width="14" x="5" y="7"/>
                                 <rect height="1" width="12" x="6" y="8"/>
@@ -451,9 +451,9 @@ export class SvgModern extends React.Component {
                     </symbol>
                     <symbol id="Fleet" overflow="visible" viewBox="0 0 23 15">
                         <g>
-                            <rect className="symShadow" height="13" rx="4" strokeWidth="1" width="23" x="2" y="2"/>
-                            <rect className="symBorder" height="13" rx="4" width="23" x="0" y="0"/>
-                            <g className="symSilhouette">
+                            <rect fill="black" height="13" opacity="0.40" rx="4" stroke="black" strokeWidth="1" width="23" x="2" y="2"/>
+                            <rect height="13" rx="4" stroke="black" strokeWidth="3%" width="23" x="0" y="0"/>
+                            <g fill="black" stroke="black" strokeWidth="1">
                                 <rect height="1" width="16.5" x="3" y="7"/>
                                 <rect height="1" width="15" x="4" y="8"/>
                                 <rect height="1" width="13.5" x="5" y="9"/>
@@ -466,9 +466,9 @@ export class SvgModern extends React.Component {
                     </symbol>
                     <symbol id="DislodgedArmy" overflow="visible" viewBox="0 0 23 15">
                         <g>
-                            <rect className="symDislodgedShadow" height="13" rx="4" strokeWidth="1" width="23" x="3" y="3"/>
-                            <rect className="symDislodgedBorder" height="13" rx="4" width="23" x="0" y="0"/>
-                            <g className="symSilhouette">
+                            <rect fill="red" height="13" opacity="0.50" rx="4" stroke="red" strokeWidth="1" width="23" x="3" y="3"/>
+                            <rect height="13" rx="4" stroke="red" strokeWidth="3%" width="23" x="0" y="0"/>
+                            <g fill="black" stroke="black" strokeWidth="1">
                                 <rect height="1" width="13" x="6" y="6"/>
                                 <rect height="1" width="14" x="5" y="7"/>
                                 <rect height="1" width="12" x="6" y="8"/>
@@ -481,9 +481,9 @@ export class SvgModern extends React.Component {
                     </symbol>
                     <symbol id="DislodgedFleet" overflow="visible" viewBox="0 0 23 15">
                         <g>
-                            <rect className="symDislodgedShadow" height="13" rx="4" strokeWidth="1" width="23" x="3" y="3"/>
-                            <rect className="symDislodgedBorder" height="13" rx="4" width="23" x="0" y="0"/>
-                            <g className="symSilhouette">
+                            <rect fill="red" height="13" opacity="0.50" rx="4" stroke="red" strokeWidth="1" width="23" x="3" y="3"/>
+                            <rect height="13" rx="4" stroke="red" strokeWidth="3%" width="23" x="0" y="0"/>
+                            <g fill="black" stroke="black" strokeWidth="1">
                                 <rect height="1" width="16.5" x="3" y="7"/>
                                 <rect height="1" width="15" x="4" y="8"/>
                                 <rect height="1" width="13.5" x="5" y="9"/>

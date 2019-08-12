@@ -49,8 +49,6 @@ SELECTOR_REGEX = re.compile(r'([\r\n][ \t]*)([^{\r\n]+){')
 
 def prepend_css_selectors(prefix, css_text):
     def repl(match):
-        if match.group(2).startswith('.sym'):
-            return match.group(0)
         return '%s%s %s{' % (match.group(1), prefix, match.group(2))
 
     return SELECTOR_REGEX.sub(repl, css_text)
