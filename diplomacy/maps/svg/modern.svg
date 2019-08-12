@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "svg.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:jdipNS="svg.dtd" version="1.0" width="716px" height="560px" viewBox="0 0 716 560" color-rendering="optimizeQuality" text-rendering="optimizeLegibility" preserveAspectRatio="xMinYMin" image-rendering="optimizeQuality" shape-rendering="geometricPrecision">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:jdipNS="svg.dtd" version="1.0" width="716px" height="600px" viewBox="0 0 716 600" color-rendering="optimizeQuality" text-rendering="optimizeLegibility" preserveAspectRatio="xMinYMin" image-rendering="optimizeQuality" shape-rendering="geometricPrecision">
 
 	<jdipNS:DISPLAY>
 		<jdipNS:ZOOM min="5" max="2200" factor="1.2"/>
@@ -634,7 +634,8 @@
 		/* .credits     	{font-size:8pt;font-family:Arial;} */
 		/* .titletext   	{font-size:14px;font-weight:bolder;font-family:Arial;} */
 		.labeltext		{font-size:12px;fill:black;font-family:Arial;}
-		.currentnotetext {font-family:serif,sans-serif; font-size:8px; fill:black; stroke:black;}
+		.currentnoterect {fill:#c5dfea; stroke-width:0; stroke:black;}
+		.currentnotetext {font-family:serif,sans-serif; font-size:12px; fill:black; stroke:black;}
 		.currentphasetext {font-family:serif,sans-serif; font-size:14px; fill:black; stroke:black;}
 
 		/* Mouse Layer */
@@ -1280,9 +1281,10 @@
 	<g id="FullLabelLayer" visibility="hidden" />
 
 	<!-- Current phase -->
-	<text x="8" y="10" class="currentnotetext" id="CurrentNote"> </text>
-	<text x="8" y="22" class="currentnotetext" id="CurrentNote2"> </text>
-	<text x="645" y="550" class="currentphasetext" id="CurrentPhase">S1901M</text>
+	<rect x="0" y="560" height="40" width="716" class="currentnoterect" />
+	<text x="10" y="576" class="currentnotetext" id="CurrentNote"> </text>
+	<text x="10" y="592" class="currentnotetext" id="CurrentNote2"> </text>
+	<text x="645" y="578" class="currentphasetext" id="CurrentPhase">S1901M</text>
 	
 	<g id="MouseLayer" class="invisibleContent">
 		<polygon id="ada" points="483,407 491,409 499,400 502,403 506,396,516,393,520,389,530,390,546,378,552,380,558,373 563,374 568,369 585,369 581,362 575,360 571,343 569,340 563,339 560,337 555,341,543,345,539,352,515,359,502,357 480,376 482,383 478,393"/>

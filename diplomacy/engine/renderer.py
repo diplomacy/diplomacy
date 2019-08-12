@@ -402,7 +402,7 @@ class Renderer():
             :param current_phase: The current phase (e.g. 'S1901M)
             :return: Nothing
         """
-        current_phase = 'FINAL' if current_phase[0] == '?' else current_phase
+        current_phase = 'FINAL' if current_phase[0] == '?' or current_phase == 'COMPLETED' else current_phase
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'text' and _attr(child_node, 'id') == 'CurrentPhase':
                 child_node.childNodes[0].nodeValue = current_phase
