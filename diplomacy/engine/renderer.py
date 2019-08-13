@@ -20,6 +20,7 @@
 """
 import os
 from xml.dom import minidom
+from typing import Tuple
 
 from diplomacy import settings
 
@@ -35,11 +36,6 @@ FLEET = 'Fleet'
 def _attr(node_element, attr_name):
     """ Shorthand method to retrieve an XML attribute """
     return node_element.attributes[attr_name].value
-
-def _offset(str_float, offset):
-    """ Shorthand to add a offset to an attribute """
-    return str(float(str_float) + offset)
-
 
 class Renderer():
     """ Renderer object responsible for rendering a game state to svg """
@@ -292,24 +288,26 @@ class Renderer():
         class_name = power_name.lower() if power_name else 'nopower'
 
         # Inserting
+        map_layer = None
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
             if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'MapLayer':
-                for map_node in child_node.childNodes:
-                    if (map_node.nodeName in ('g', 'path', 'polygon')
-                            and map_node.getAttribute('id') == '_{}'.format(loc.lower())):
-                        if map_node.nodeName in ('path', 'polygon'):
-                            map_node.setAttribute('class', class_name)
-                            return xml_map
-                        else:
-                            # map node is a 'g' node.
-                            node_edited = False
-                            for sub_node in map_node.childNodes:
-                                if (sub_node.nodeName in ('path', 'polygon')
-                                        and sub_node.getAttribute('class') != 'water'):
-                                    node_edited = True
-                                    sub_node.setAttribute('class', class_name)
-                            if node_edited:
-                                return xml_map
+                map_layer = child_node
+                break
+        if map_layer:
+            for map_node in map_layer.childNodes:
+                if (map_node.nodeName in ('g', 'path', 'polygon')
+                        and map_node.getAttribute('id') == '_{}'.format(loc.lower())):
+                    if map_node.nodeName in ('path', 'polygon'):
+                        map_node.setAttribute('class', class_name)
+                        return xml_map
+                    # Otherwise, map node is a 'g' node.
+                    node_edited = False
+                    for sub_node in map_node.childNodes:
+                        if sub_node.nodeName in ('path', 'polygon') and sub_node.getAttribute('class') != 'water':
+                            node_edited = True
+                            sub_node.setAttribute('class', class_name)
+                    if node_edited:
+                        return xml_map
         # Returning
         return xml_map
 
@@ -347,6 +345,7 @@ class Renderer():
     def _issue_hold_order(self, xml_map, loc_type, loc, power_name):
         """ Adds a hold order to the map
             :param xml_map: The xml map being generated
+            :param loc_type: type of ordered unit ('A' or 'F')
             :param loc: The province where the unit is holding (e.g. 'PAR')
             :param power_name: The name of the power owning the unit
             :return: Nothing
@@ -381,7 +380,9 @@ class Renderer():
     def _issue_support_hold_order(self, xml_map, loc_type, loc, dest_type, dest_loc, power_name):
         """ Issues a support hold order
             :param xml_map: The xml map being generated
+            :param loc_type: type of unit sending support ('A' or 'F')
             :param loc: The location of the unit sending support (e.g. 'BER')
+            :param dest_type: type of supported unit ('A' or 'F')
             :param dest_loc: The location where the unit is holding from (e.g. 'PAR')
             :param power_name: The power name issuing the move order
             :return: Nothing
@@ -443,6 +444,7 @@ class Renderer():
     def _issue_move_order(self, xml_map, src_type, src_loc, dest_loc, power_name):
         """ Issues a move order
             :param xml_map: The xml map being generated
+            :param src_type: The type of ordered unit ('A' or 'F')
             :param src_loc: The location where the unit is moving from (e.g. 'PAR')
             :param dest_loc: The location where the unit is moving to (e.g. 'MAR')
             :param power_name: The power name issuing the move order
@@ -741,6 +743,14 @@ class Renderer():
         return xml_map
 
     def _center_symbol_around_unit(self, unit_type, loc, is_dislodged, symbol):
+        # type: (str, str, bool, str) -> Tuple[str, str]
+        """ Compute top-left coordinates of a symbol to be centered around a unit.
+            :param unit_type: unit type ('A' or 'F')
+            :param loc: unit location (e.g. 'PAR')
+            :param is_dislodged: boolean to tell if unit is dislodged
+            :param symbol: symbol identifier (e.g. 'HoldUnit')
+            :return: a couple of coordinates (x, y) as string values
+        """
         key = 'disl' if is_dislodged else 'unit'
         unit_x, unit_y = self.metadata['coord'][loc][key]
         unit_height, unit_width = self.metadata['symbol_size'][FLEET if unit_type == 'F' else ARMY]
@@ -751,6 +761,13 @@ class Renderer():
         )
 
     def _get_unit_center(self, unit_type, loc, is_dislodged):
+        # type: (str, str, bool) -> Tuple[float, float]
+        """ Compute coordinates of unit center.
+            :param unit_type: unit type
+            :param loc: unit location
+            :param is_dislodged: boolean to tell if unit is dislodged
+            :return: a couple of coordinates (x, y) as floating values
+        """
         unit_x, unit_y = self.metadata['coord'][loc]['disl' if is_dislodged else 'unit']
         unit_height, unit_width = self.metadata['symbol_size'][FLEET if unit_type == 'F' else ARMY]
         return (
@@ -759,7 +776,15 @@ class Renderer():
         )
 
     def _plain_stroke_width(self):
+        # type: () -> float
+        """ Return generic stroke width for plain lines.
+            :return: stroke width as floating value.
+        """
         return float(self.metadata['symbol_size']['Stroke'][0])
 
     def _colored_stroke_width(self):
+        # type: () -> float
+        """ Return generic stroke width for colored or textured lines.
+            :return: stroke width as floating value.
+        """
         return float(self.metadata['symbol_size']['Stroke'][1])
