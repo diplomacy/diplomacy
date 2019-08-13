@@ -63,10 +63,10 @@ export class PanelChoosePlayers extends React.Component {
                 </div>
                 <div className="row">
                     <div className="col">
-                    <button type="button" className="btn btn-secondary btn-sm px-3"
-                            onClick={() => this.props.backward()}>
-                        <Octicon icon={ArrowLeft}/>
-                    </button>
+                        <button type="button" className="btn btn-secondary btn-sm px-3"
+                                onClick={() => this.props.backward()}>
+                            <Octicon icon={ArrowLeft}/>
+                        </button>
                     </div>
                 </div>
             </FancyBox>

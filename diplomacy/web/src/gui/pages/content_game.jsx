@@ -1288,14 +1288,14 @@ export class ContentGame extends React.Component {
             <form className="form-inline form-current-power">
                 {(controllablePowers.length === 1 &&
                     <span className="power-name">{controllablePowers[0]}</span>) || (
-                        <div className="custom-control custom-control-inline">
-                            <label className="sr-only" htmlFor="current-power">power</label>
-                            <select className="form-control custom-select custom-control-inline" id="current-power"
-                                    value={currentPowerName} onChange={this.onChangeCurrentPower}>
-                                {controllablePowers.map(
-                                    powerName => <option key={powerName} value={powerName}>{powerName}</option>)}
-                            </select>
-                        </div>
+                    <div className="custom-control custom-control-inline">
+                        <label className="sr-only" htmlFor="current-power">power</label>
+                        <select className="form-control custom-select custom-control-inline" id="current-power"
+                                value={currentPowerName} onChange={this.onChangeCurrentPower}>
+                            {controllablePowers.map(
+                                powerName => <option key={powerName} value={powerName}>{powerName}</option>)}
+                        </select>
+                    </div>
                 )}
                 <div className="custom-control custom-control-inline custom-checkbox">
                     <input className="custom-control-input" id="show-abbreviations" type="checkbox"
