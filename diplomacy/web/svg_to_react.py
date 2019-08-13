@@ -58,7 +58,13 @@ LINES_REGEX = re.compile(r'[\r\n]+')
 SPACES_REGEX = re.compile(r'[\t ]+')
 STRING_REGEX = re.compile(r'[`\'"] {0,1}\+ {0,1}[`\'"]')
 
+
 def prepend_css_selectors(prefix, css_text):
+    """ Prepend all CSS selector with given prefix (e.g. ID selector) followed by a space.
+        :param prefix: prefix to prepend
+        :param css_text: CSS text to parse
+        :rtype: str
+    """
     def repl(match):
         return '%s%s %s{' % (match.group(1), prefix, match.group(2))
 
@@ -66,28 +72,51 @@ def prepend_css_selectors(prefix, css_text):
 
 
 class ExtractedData:
+    """ Helper class to store extra data collected while parsing SVG file. Properties:
+        - name: class name of parsed SVG component
+        - extra: data parsed from invalid tags found in SVG content
+        - style_lines: string lines parsed from <style> tag if found in SVG content
+        - id_to_class: dictionary mapping and ID to corresponding class name
+            for each tag found with both ID and class name in SVG content.
+    """
     __slots__ = ('name', 'extra', 'style_lines', 'id_to_class')
 
     def __init__(self, name):
+        """ Initialize extracted data object.
+            :param name: class name of parsed SVG content
+        """
         self.name = name
         self.extra = {}
         self.style_lines = []
         self.id_to_class = {}
 
     def get_coordinates(self):
+        """ Parse and return unit coordinates from extra field.
+            :return: a dictionary mapping a province name to coordinates [x, y] (as string values)
+                for unit ('unit'), dislodged unit ('disl'), and supply center ('sc', if available).
+            :rtype: dict
+        """
         coordinates = {}
         for province_definition in self.extra[TAG_PROVINCE_DATA][TAG_PROVINCE]:
             name = province_definition['name'].upper().replace('-', '/')
             coordinates[name] = {}
             if TAG_UNIT in province_definition:
-                coordinates[name]['unit'] = [province_definition[TAG_UNIT]['x'], province_definition[TAG_UNIT]['y']]
+                coordinates[name]['unit'] = [
+                    province_definition[TAG_UNIT]['x'], province_definition[TAG_UNIT]['y']]
             if TAG_DISLODGED_UNIT in province_definition:
-                coordinates[name]['disl'] = [province_definition[TAG_DISLODGED_UNIT]['x'], province_definition[TAG_DISLODGED_UNIT]['y']]
+                coordinates[name]['disl'] = [province_definition[TAG_DISLODGED_UNIT]['x'],
+                                             province_definition[TAG_DISLODGED_UNIT]['y']]
             if TAG_SUPPLY_CENTER in province_definition:
-                coordinates[name]['sc'] = [province_definition[TAG_SUPPLY_CENTER]['x'], province_definition[TAG_SUPPLY_CENTER]['y']]
+                coordinates[name]['sc'] = [province_definition[TAG_SUPPLY_CENTER]['x'],
+                                           province_definition[TAG_SUPPLY_CENTER]['y']]
         return coordinates
 
     def get_symbol_sizes(self):
+        """ Parse and return symbol sizes from extra field.
+            :return: a dictionary mapping a symbol name to sizes
+                ('width' and 'height' as floating values).
+            :rtype: dict
+        """
         sizes = {}
         for definition in self.extra[TAG_ORDERDRAWING][TAG_SYMBOLSIZE]:
             sizes[definition['name']] = {
@@ -97,6 +126,10 @@ class ExtractedData:
         return sizes
 
     def get_colors(self):
+        """ Parse and return power colors from extra field.
+            :return: a dictionary mapping a power name to a HTML color.
+            :rtype: dict
+        """
         colors = {}
         for definition in self.extra[TAG_ORDERDRAWING][TAG_POWERCOLORS][TAG_POWERCOLOR]:
             colors[definition['power'].upper()] = definition['color']
@@ -131,6 +164,7 @@ def compact_extra(extra):
         :param extra: dictionary of extra data
         :type extra: dict
     """
+    # pylint:disable=too-many-branches
     if 'children' in extra:
         names = set()
         text_found = False
@@ -140,7 +174,8 @@ def compact_extra(extra):
             else:
                 names.add(child['name'])
         if len(names) == len(extra['children']):
-            # Each child has a different name, so they cannot be confused, and extra dictionary can be merged with them.
+            # Each child has a different name, so they cannot be confused,
+            # and extra dictionary can be merged with them.
             children_dict = {}
             for child in extra['children']:
                 child_name = child.pop('name')
@@ -163,7 +198,8 @@ def compact_extra(extra):
                     compact_extra(child)
                     extra[name] = child
                 else:
-                    # We found many children with same name. Merge them as a list into extra dictionary.
+                    # We found many children with same name.
+                    # Merge them as a list into extra dictionary.
                     values = []
                     for child in children:
                         child.pop('name')
@@ -224,19 +260,21 @@ def attributes_to_string(attributes):
 def extract_dom(node, nb_indentation, lines, data):
     """ Parse given node.
         :param node: (input) node to parse
-        :param nb_indentation: (input) number of indentation to use for current node content into output lines
-            1 indentation is converted to 4 spaces.
-        :param lines: (output) lines to collect output lines of text corresponding to parsed content
-        :param data: ExtractedData object to collect extracted data (extra, style lines, ID-to-class mapping).
+        :param nb_indentation: (input) number of indentation to use for current node content
+            into output lines. 1 indentation is converted to 4 spaces.
+        :param lines: (output) collector for  output lines of text corresponding to parsed content
+        :param data: ExtractedData object to collect extracted data
+            (extra, style lines, ID-to-class mapping).
         :type nb_indentation: int
         :type lines: List[str]
         :type data: ExtractedData
     """
+    # pylint: disable=too-many-branches, too-many-statements
     if node.nodeType != Node.ELEMENT_NODE:
         return
-    tag_name = node.tagName
-    if ':' in tag_name:
-        # Found unhandled tag (example: `<jdipNS:DISPLAY>`). Collect it (and all its descendants) into extra.
+    if ':' in node.tagName:
+        # Found unhandled tag (example: `<jdipNS:DISPLAY>`).
+        # Collect it (and all its descendants) into extra.
         extract_extra(node, data.extra)
     else:
         # Found valid tag.
@@ -274,11 +312,11 @@ def extract_dom(node, nb_indentation, lines, data):
             else:
                 # Found an element node.
                 extract_dom(child, nb_indentation + 1, child_lines, data)
-        if tag_name == 'style':
+        if node.tagName == 'style':
             # Found 'style' tag. Save its children lines into style lines and return immediately,
             data.style_lines.extend(child_lines)
             return
-        if tag_name == 'svg':
+        if node.tagName == 'svg':
             if node_class:
                 attributes['className'] += ' %s' % data.name
             else:
@@ -299,34 +337,41 @@ def extract_dom(node, nb_indentation, lines, data):
                     child_lines.append("{nb_centers_per_power ? nb_centers_per_power : ''}")
                 elif node_id == 'CurrentNote2':
                     child_lines.append("{note ? note : ''}")
-            if node_id == 'CurrentPhase' and len(child_lines) == 1 and isinstance(child_lines[0], str):
+            if (node_id == 'CurrentPhase'
+                    and len(child_lines) == 1
+                    and isinstance(child_lines[0], str)):
                 child_lines = ['{current_phase}']
         # We have a normal element node (not style node). Convert it to output lines.
         indentation = ' ' * (4 * nb_indentation)
-        attributes_string = attributes_to_string(attributes)
+        attr_string = attributes_to_string(attributes)
         if child_lines:
             # Node must be written as an open tag.
             if len(child_lines) == 1:
                 # If we just have 1 child line, write a compact line.
                 lines.append(
                     '%s<%s%s>%s</%s>' % (
-                        indentation, tag_name, (' %s' % attributes_string) if attributes_string else '',
+                        indentation, node.tagName,
+                        (' %s' % attr_string) if attr_string else '',
                         child_lines[0].lstrip(),
-                        tag_name))
+                        node.tagName))
             else:
                 # Otherwise, write node normally.
                 lines.append(
-                    '%s<%s%s>' % (indentation, tag_name, (' %s' % attributes_string) if attributes_string else ''))
+                    '%s<%s%s>' % (indentation, node.tagName,
+                                  (' %s' % attr_string) if attr_string else ''))
                 lines.extend(child_lines)
-                lines.append('%s</%s>' % (indentation, tag_name))
+                lines.append('%s</%s>' % (indentation, node.tagName))
         else:
             # Node can be written as a close tag.
             lines.append(
-                '%s<%s%s/>' % (indentation, tag_name, (' %s' % attributes_string) if attributes_string else ''))
+                '%s<%s%s/>' % (
+                    indentation, node.tagName, (' %s' % attr_string) if attr_string else ''))
+
 
 def to_json_string(dictionary):
     """ Converts to a JSON string, without escaping the '/' characters """
     return json.dumps(dictionary).replace(r'\/', r'/')
+
 
 def minify(code):
     """ Minifyies a Javascript / CSS file """
@@ -334,6 +379,7 @@ def minify(code):
     code = SPACES_REGEX.sub(' ', code)
     code = STRING_REGEX.sub(' ', code)
     return code
+
 
 def main():
     """ Main script function. """
@@ -366,7 +412,8 @@ def main():
         with open(style_file_name, 'w') as style_file:
             style_file.write(LICENSE_TEXT)
             style_file.write('\n')
-            style_file.writelines(minify(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines))))
+            style_file.writelines(
+                minify(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines))))
 
     # Metadata
     if data.extra:
@@ -757,6 +804,7 @@ export class %(classname)s extends React.Component {
     # Writing to disk
     with open(output_file_name, 'w') as file:
         file.write(map_js_code)
+
 
 if __name__ == '__main__':
     main()
