@@ -44,6 +44,16 @@ Copyright (C) 2019 - Philip Paquette, Steven Bocco
 ==============================================================================
 **/"""
 
+TAG_ORDERDRAWING = 'jdipNS:ORDERDRAWING'
+TAG_POWERCOLORS = 'jdipNS:POWERCOLORS'
+TAG_POWERCOLOR = 'jdipNS:POWERCOLOR'
+TAG_SYMBOLSIZE = 'jdipNS:SYMBOLSIZE'
+TAG_PROVINCE_DATA = 'jdipNS:PROVINCE_DATA'
+TAG_PROVINCE = 'jdipNS:PROVINCE'
+TAG_UNIT = 'jdipNS:UNIT'
+TAG_DISLODGED_UNIT = 'jdipNS:DISLODGED_UNIT'
+TAG_SUPPLY_CENTER = 'jdipNS:SUPPLY_CENTER'
+
 SELECTOR_REGEX = re.compile(r'([\r\n][ \t]*)([^{\r\n]+){')
 
 
@@ -62,6 +72,34 @@ class ExtractedData:
         self.extra = {}
         self.style_lines = []
         self.id_to_class = {}
+
+    def get_coordinates(self):
+        coordinates = {}
+        for province_definition in self.extra[TAG_PROVINCE_DATA][TAG_PROVINCE]:
+            name = province_definition['name'].upper().replace('-', '/')
+            coordinates[name] = {}
+            if TAG_UNIT in province_definition:
+                coordinates[name]['unit'] = [province_definition[TAG_UNIT]['x'], province_definition[TAG_UNIT]['y']]
+            if TAG_DISLODGED_UNIT in province_definition:
+                coordinates[name]['disl'] = [province_definition[TAG_DISLODGED_UNIT]['x'], province_definition[TAG_DISLODGED_UNIT]['y']]
+            if TAG_SUPPLY_CENTER in province_definition:
+                coordinates[name]['sc'] = [province_definition[TAG_SUPPLY_CENTER]['x'], province_definition[TAG_SUPPLY_CENTER]['y']]
+        return coordinates
+
+    def get_symbol_sizes(self):
+        sizes = {}
+        for definition in self.extra[TAG_ORDERDRAWING][TAG_SYMBOLSIZE]:
+            sizes[definition['name']] = {
+                'width': float(definition['width']),
+                'height': float(definition['height'])
+            }
+        return sizes
+
+    def get_colors(self):
+        colors = {}
+        for definition in self.extra[TAG_ORDERDRAWING][TAG_POWERCOLORS][TAG_POWERCOLOR]:
+            colors[definition['power'].upper()] = definition['color']
+        return colors
 
 
 def safe_react_attribute_name(name):
@@ -302,7 +340,7 @@ def main():
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     assert os.path.isdir(output_folder), 'Not a directory: %s' % output_folder
-    extra_class_name = '%sExtra' % class_name
+    extra_class_name = '%sMetadata' % class_name
     lines = []
     data = ExtractedData(class_name)
     extract_dom(root, 3, lines, data)
@@ -310,8 +348,7 @@ def main():
 
     output_file_name = os.path.join(output_folder, '%s.js' % class_name)
     style_file_name = os.path.join(output_folder, '%s.css' % class_name)
-    extra_file_name = os.path.join(output_folder, '%s.js' % extra_class_name)
-    extra_parsed_file_name = os.path.join(output_folder, '%sParsed.js' % extra_class_name)
+    extra_parsed_file_name = os.path.join(output_folder, '%s.js' % extra_class_name)
 
     if data.style_lines:
         with open(style_file_name, 'w') as style_file:
@@ -320,26 +357,17 @@ def main():
             style_file.writelines(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines)))
 
     if data.extra:
-        with open(extra_file_name, 'w') as extra_file:
-            extra_file.write("""%(license_text)s
-export const %(extra_class_name)s = %(extra_content)s;
-            """ % {
-                'extra_class_name': extra_class_name,
-                'extra_content': json.dumps(data.extra, indent=4),
-                'license_text': LICENSE_TEXT
-            })
-
         with open(extra_parsed_file_name, 'w') as extra_parsed_file:
             extra_parsed_file.write("""%(license_text)s
-import {%(extra_class_name)s} from "./%(extra_class_name)s";
-import {getColors, getCoordinates, getSymbolSizes} from "../common/common";
 
-export const Coordinates = getCoordinates(%(extra_class_name)s);
-export const SymbolSizes = getSymbolSizes(%(extra_class_name)s);
-export const Colors = getColors(%(extra_class_name)s);
+export const Coordinates = %(coordinates)s;
+export const SymbolSizes = %(symbol_sizes)s;
+export const Colors = %(colors)s;
 """ % {
                 'license_text': LICENSE_TEXT,
-                'extra_class_name': extra_class_name
+                'coordinates': json.dumps(data.get_coordinates(), indent=4),
+                'symbol_sizes': json.dumps(data.get_symbol_sizes(), indent=4),
+                'colors': json.dumps(data.get_colors(), indent=4)
             })
 
     with open(output_file_name, 'w') as file:
@@ -710,7 +738,7 @@ export class %(classname)s extends React.Component {
 };
 """ % {
             'style_content': "import './%s.css';" % class_name if data.style_lines else '',
-            'extra_content': 'import {Coordinates, SymbolSizes, Colors} from "./%sParsed";' % (
+            'extra_content': 'import {Coordinates, SymbolSizes, Colors} from "./%s";' % (
                 extra_class_name) if data.extra else '',
             'classname': class_name,
             'classes': json.dumps(data.id_to_class),

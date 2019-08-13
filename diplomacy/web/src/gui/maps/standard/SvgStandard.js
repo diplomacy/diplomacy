@@ -22,7 +22,7 @@ Namespace(input='src/diplomacy/maps/svg/standard.svg', name='SvgStandard', outpu
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgStandard.css';
-import {Coordinates, SymbolSizes, Colors} from "./SvgStandardExtraParsed";
+import {Coordinates, SymbolSizes, Colors} from "./SvgStandardMetadata";
 import {getClickedID, parseLocation, setInfluence} from "../common/common";
 import {Game} from "../../../diplomacy/engine/game";
 import {MapData} from "../../utils/map_data";

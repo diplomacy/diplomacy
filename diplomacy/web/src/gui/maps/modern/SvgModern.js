@@ -22,7 +22,7 @@ Namespace(input='src/diplomacy/maps/svg/modern.svg', name='SvgModern', output='s
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgModern.css';
-import {Coordinates, SymbolSizes, Colors} from "./SvgModernExtraParsed";
+import {Coordinates, SymbolSizes, Colors} from "./SvgModernMetadata";
 import {getClickedID, parseLocation, setInfluence} from "../common/common";
 import {Game} from "../../../diplomacy/engine/game";
 import {MapData} from "../../utils/map_data";

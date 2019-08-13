@@ -22,7 +22,7 @@ Namespace(input='src/diplomacy/maps/svg/ancmed.svg', name='SvgAncMed', output='s
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgAncMed.css';
-import {Coordinates, SymbolSizes, Colors} from "./SvgAncMedExtraParsed";
+import {Coordinates, SymbolSizes, Colors} from "./SvgAncMedMetadata";
 import {getClickedID, parseLocation, setInfluence} from "../common/common";
 import {Game} from "../../../diplomacy/engine/game";
 import {MapData} from "../../utils/map_data";

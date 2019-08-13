@@ -22,7 +22,7 @@ Namespace(input='src/diplomacy/maps/svg/pure.svg', name='SvgPure', output='src/g
 import React from 'react';
 import PropTypes from 'prop-types';
 import './SvgPure.css';
-import {Coordinates, SymbolSizes, Colors} from "./SvgPureExtraParsed";
+import {Coordinates, SymbolSizes, Colors} from "./SvgPureMetadata";
 import {getClickedID, parseLocation, setInfluence} from "../common/common";
 import {Game} from "../../../diplomacy/engine/game";
 import {MapData} from "../../utils/map_data";
