@@ -328,12 +328,12 @@ def to_json_string(dictionary):
     """ Converts to a JSON string, without escaping the '/' characters """
     return json.dumps(dictionary).replace(r'\/', r'/')
 
-def minify(javascript_code):
-    """ Minifyies a Javascript file """
-    javascript_code = LINES_REGEX.sub(' ', javascript_code)
-    javascript_code = SPACES_REGEX.sub(' ', javascript_code)
-    javascript_code = STRING_REGEX.sub(' ', javascript_code)
-    return javascript_code
+def minify(code):
+    """ Minifyies a Javascript / CSS file """
+    code = LINES_REGEX.sub(' ', code)
+    code = SPACES_REGEX.sub(' ', code)
+    code = STRING_REGEX.sub(' ', code)
+    return code
 
 def main():
     """ Main script function. """
@@ -366,7 +366,7 @@ def main():
         with open(style_file_name, 'w') as style_file:
             style_file.write(LICENSE_TEXT)
             style_file.write('\n')
-            style_file.writelines(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines)))
+            style_file.writelines(minify(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines))))
 
     # Metadata
     if data.extra:
