@@ -21,12 +21,10 @@
 import os
 from xml.dom import minidom
 from typing import Tuple
-
 from diplomacy import settings
-
-# Constants
 from diplomacy.utils.equilateral_triangle import EquilateralTriangle
 
+# Constants
 LAYER_ORDER = 'OrderLayer'
 LAYER_UNIT = 'UnitLayer'
 LAYER_DISL = 'DislodgedUnitLayer'

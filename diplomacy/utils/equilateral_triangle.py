@@ -1,7 +1,30 @@
+# ==============================================================================
+# Copyright (C) 2019 - Philip Paquette, Steven Bocco
+#
+#  This program is free software: you can redistribute it and/or modify it under
+#  the terms of the GNU Affero General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option) any
+#  later version.
+#
+#  This program is distributed in the hope that it will be useful, but WITHOUT
+#  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+#  FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more
+#  details.
+#
+#  You should have received a copy of the GNU Affero General Public License along
+#  with this program.  If not, see <https://www.gnu.org/licenses/>.
+# ==============================================================================
 """ Helper class to compute intersection of a line (OM) with a side of an equilateral triangle,
     with O the barycenter of the equilateral triangle and M a point outside the triangle.
-"""
+           A
+         /  \     M
+        / O  \
+    C  /______\  B
 
+    A = top, B = right, C = left
+    O = center of triangle
+    M = point outside of triangle
+"""
 class EquilateralTriangle:
     """ Helper class that represent an equilateral triangle.
         Used to compute intersection of a line with a side of convoy symbol, which is an equilateral triangle.
@@ -10,6 +33,7 @@ class EquilateralTriangle:
                  'line_ab_a', 'line_ab_b', 'line_ac_a', 'line_ac_b')
 
     def __init__(self, x_top, y_top, x_right, y_right, x_left, y_left):
+        """ Constructor """
         # type: (float, float, float, float, float, float) -> None
         assert y_left == y_right > y_top
         assert x_left < x_top < x_right
@@ -28,12 +52,15 @@ class EquilateralTriangle:
         self.line_ac_b = self.y_c - self.x_c * self.line_ac_a
 
     def __line_om(self, x_m, y_m):
+        """ Returns the slope and the intersect of the line between O and M
+            :return: a, b - respectively the slope and the intercept of the line OM
+        """
         # pylint:disable=invalid-name
         a = (y_m - self.y_o) / (x_m - self.x_o)
         b = y_m - a * x_m
         return a, b
 
-    def __intersection_with_ab(self, x_m, y_m):
+    def _intersection_with_ab(self, x_m, y_m):
         # pylint:disable=invalid-name
         a, b = self.line_ab_a, self.line_ab_b
         u, v = self.__line_om(x_m, y_m)
@@ -44,7 +71,7 @@ class EquilateralTriangle:
             return x, y
         return None, None
 
-    def __intersection_with_ac(self, x_m, y_m):
+    def _intersection_with_ac(self, x_m, y_m):
         # pylint:disable=invalid-name
         a, b = self.line_ac_a, self.line_ac_b
         u, v = self.__line_om(x_m, y_m)
@@ -54,7 +81,7 @@ class EquilateralTriangle:
             return x, y
         return None, None
 
-    def __intersection_with_bc(self, x_m, y_m):
+    def _intersection_with_bc(self, x_m, y_m):
         # pylint:disable=invalid-name
         a, b = self.__line_om(x_m, y_m)
         y = self.y_c
@@ -64,8 +91,6 @@ class EquilateralTriangle:
         return None, None
 
     def intersection(self, x_m, y_m):
-        # type: (float, float) -> (float, float)
-        # pylint:disable=invalid-name
         """ Return coordinates of the intersection of (OM) with equilateral triangle,
             with M the point with coordinates (x_m, y_m). Only the intersection with
             the side of triangle near M is considered.
@@ -73,13 +98,17 @@ class EquilateralTriangle:
             :param y_m: y coordinate of M
             :return: a couple (x, y) of floating values.
         """
+        # type: (float, float) -> (float, float)
+        # pylint:disable=invalid-name
         if self.x_o == x_m and self.y_o == y_m:
             return x_m, y_m
+
         if self.x_o == x_m:
             if y_m < self.y_o:
                 return x_m, self.y_a
             # Otherwise, vertical line intersects BC
             return x_m, self.y_c
+
         if self.y_o == y_m:
             if x_m < self.x_o:
                 # horizontal line intersects AC
@@ -89,10 +118,11 @@ class EquilateralTriangle:
                 a, b = self.line_ab_a, self.line_ab_b
             x = (y_m - b) / a
             return x, y_m
+
         # Otherwise, get nearest point in intersections with AB, AC, BC
-        p1_x, p1_y = self.__intersection_with_ab(x_m, y_m)
-        p2_x, p2_y = self.__intersection_with_ac(x_m, y_m)
-        p3_x, p3_y = self.__intersection_with_bc(x_m, y_m)
+        p1_x, p1_y = self._intersection_with_ab(x_m, y_m)
+        p2_x, p2_y = self._intersection_with_ac(x_m, y_m)
+        p3_x, p3_y = self._intersection_with_bc(x_m, y_m)
         distances = []
         if p1_x is not None:
             distance_1 = ((p1_x - x_m) ** 2 + (p1_y - y_m) ** 2) ** 0.5
@@ -103,6 +133,7 @@ class EquilateralTriangle:
         if p3_x is not None:
             distance_3 = ((p3_x - x_m) ** 2 + (p3_y - y_m) ** 2) ** 0.5
             distances.append((distance_3, p3_x, p3_y))
+
         assert distances
         distances.sort()
         return distances[0][1:]

@@ -20,7 +20,6 @@
 import argparse
 import os
 import re
-import sys
 from xml.dom import minidom, Node
 
 import ujson as json
@@ -57,6 +56,7 @@ TAG_SUPPLY_CENTER = 'jdipNS:SUPPLY_CENTER'
 SELECTOR_REGEX = re.compile(r'([\r\n][ \t]*)([^{\r\n]+){')
 LINES_REGEX = re.compile(r'[\r\n]+')
 SPACES_REGEX = re.compile(r'[\t ]+')
+STRING_REGEX = re.compile(r'[`\'"] {0,1}\+ {0,1}[`\'"]')
 
 def prepend_css_selectors(prefix, css_text):
     def repl(match):
@@ -324,18 +324,19 @@ def extract_dom(node, nb_indentation, lines, data):
             lines.append(
                 '%s<%s%s/>' % (indentation, tag_name, (' %s' % attributes_string) if attributes_string else ''))
 
-
 def to_json_string(dictionary):
+    """ Converts to a JSON string, without escaping the '/' characters """
     return json.dumps(dictionary).replace(r'\/', r'/')
 
-
-def compress_string(string):
-    string = LINES_REGEX.sub(' ', string)
-    string = SPACES_REGEX.sub(' ', string)
-    return string
+def minify(javascript_code):
+    """ Minifyies a Javascript file """
+    javascript_code = LINES_REGEX.sub(' ', javascript_code)
+    javascript_code = SPACES_REGEX.sub(' ', javascript_code)
+    javascript_code = STRING_REGEX.sub(' ', javascript_code)
+    return javascript_code
 
 def main():
-    """ Main sript function. """
+    """ Main script function. """
     parser = argparse.ArgumentParser(
         prog='Convert a SVG file to a React Component.'
     )
@@ -360,34 +361,27 @@ def main():
     style_file_name = os.path.join(output_folder, '%s.css' % class_name)
     extra_parsed_file_name = os.path.join(output_folder, '%s.js' % extra_class_name)
 
+    # CSS
     if data.style_lines:
         with open(style_file_name, 'w') as style_file:
-            output_string = """%(license_text)s %(css)s""" % {
-                'license_text': LICENSE_TEXT,
-                'css': prepend_css_selectors('.%s' % class_name, ' '.join(data.style_lines))
-            }
-            style_file.write(compress_string(output_string))
+            style_file.write(LICENSE_TEXT)
+            style_file.write('\n')
+            style_file.writelines(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines)))
 
+    # Metadata
     if data.extra:
         with open(extra_parsed_file_name, 'w') as extra_parsed_file:
-            output_string = """%(license_text)s
-
+            extra_parsed_file.write("""%(license_text)s
 export const Coordinates = %(coordinates)s;
 export const SymbolSizes = %(symbol_sizes)s;
 export const Colors = %(colors)s;
-""" % {
-                'license_text': LICENSE_TEXT,
-                'coordinates': to_json_string(data.get_coordinates()),
-                'symbol_sizes': to_json_string(data.get_symbol_sizes()),
-                'colors': to_json_string(data.get_colors())
-            }
-            extra_parsed_file.write(compress_string(output_string))
+""" % {'license_text': LICENSE_TEXT,
+       'coordinates': to_json_string(data.get_coordinates()),
+       'symbol_sizes': to_json_string(data.get_symbol_sizes()),
+       'colors': to_json_string(data.get_colors())})
 
-    with open(output_file_name, 'w') as file:
-        output_string = """%(license_text)s
-/** Generated using %(program_name)s with parameters:
-%(args)s
-**/
+    # Map javacript
+    map_js_code = ("""
 import React from 'react';
 import PropTypes from 'prop-types';
 %(style_content)s
@@ -454,11 +448,11 @@ export class %(classname)s extends React.Component {
             return this.props.onError('Disallowed.');
 
         if (validLocations.length > 1 && orderBuilding.type === 'S' && orderBuilding.path.length >= 2) {
-            /* We are building a support order and we have a multiple choice for a location.
-               Let's check if next location to choose is a coast. To have a coast:
-               - all possible locations must start with same 3 characters.
-               - we expect at least province name in possible locations (e.g. 'SPA' for 'SPA/NC').
-               If we have a coast, we will remove province name from possible locations. */
+            /* We are building a support order and we have a multiple choice for a location.        */
+            /* Let's check if next location to choose is a coast. To have a coast:                  */
+            /* - all possible locations must start with same 3 characters.                          */
+            /* - we expect at least province name in possible locations (e.g. 'SPA' for 'SPA/NC').  */
+            /* If we have a coast, we will remove province name from possible locations.            */
             let isACoast = true;
             let validLocationsNoProvinceName = [];
             for (let i = 0; i < validLocations.length; ++i) {
@@ -754,19 +748,22 @@ export class %(classname)s extends React.Component {
     orderBuilding: PropTypes.object,
     showAbbreviations: PropTypes.bool
 };
-""" % {
-            'style_content': "import './%s.css';" % class_name if data.style_lines else '',
-            'extra_content': 'import {Coordinates, SymbolSizes, Colors} from "./%s";' % (
-                extra_class_name) if data.extra else '',
-            'classname': class_name,
-            'classes': to_json_string(data.id_to_class),
-            'svg': '\n'.join(lines),
-            'program_name': sys.argv[0],
-            'args': args,
-            'license_text': LICENSE_TEXT
-        }
-        file.write(compress_string(output_string))
+""" % {'style_content': "import './%s.css';" % class_name if data.style_lines else '',
+       'extra_content': 'import {Coordinates, SymbolSizes, Colors} from "./%s";' %
+                        (extra_class_name) if data.extra else '',
+       'classname': class_name,
+       'classes': to_json_string(data.id_to_class),
+       'svg': '\n'.join(lines)})
 
+    # Adding license and minifying
+    map_js_code = LICENSE_TEXT \
+                  + '\n/** Generated with parameters: %s **/\n' % args \
+                  + minify(map_js_code) \
+                  + '// eslint-disable-line semi'
+
+    # Writing to disk
+    with open(output_file_name, 'w') as file:
+        file.write(map_js_code)
 
 if __name__ == '__main__':
     main()
