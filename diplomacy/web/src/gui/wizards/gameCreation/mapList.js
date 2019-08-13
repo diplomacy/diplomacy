@@ -46,12 +46,6 @@ class MapInfo {
 }
 
 export const Maps = [
-    new MapInfo('ancmed', 'Ancient Mediterranean', [
-        new VariantInfo('ancmed', 'Default'),
-        new VariantInfo('ancmed_age_of_empires', 'Age of empires')
-    ]),
-    new MapInfo('modern', 'Modern'),
-    new MapInfo('pure', 'Pure'),
     new MapInfo('standard', 'Standard', [
         new VariantInfo('standard', 'Default'),
         new VariantInfo('standard_age_of_empires', 'Age of empires'),
@@ -60,4 +54,10 @@ export const Maps = [
         new VariantInfo('standard_france_austria', 'France VS Austria'),
         new VariantInfo('standard_germany_italy', 'Germany VS Italy')
     ]),
+    new MapInfo('ancmed', 'Ancient Mediterranean', [
+        new VariantInfo('ancmed', 'Default'),
+        new VariantInfo('ancmed_age_of_empires', 'Age of empires')
+    ]),
+    new MapInfo('modern', 'Modern'),
+    new MapInfo('pure', 'Pure'),
 ];
