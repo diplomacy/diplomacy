@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, getUnitCenter, plainStrokeWidth, coloredStrokeWidth} from "./common";
+import {ARMY, coloredStrokeWidth, getUnitCenter, plainStrokeWidth} from "./common";
 import PropTypes from "prop-types";
 
 export class Move extends React.Component {
@@ -26,8 +26,8 @@ export class Move extends React.Component {
         const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
         const is_dislodged = this.props.phaseType === 'R';
-        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, this.props.type, src_loc, is_dislodged);
-        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', dest_loc, is_dislodged);
+        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, src_loc, is_dislodged);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, is_dislodged);
         // Adjusting destination
         const delta_x = dest_loc_x - src_loc_x;
         const delta_y = dest_loc_y - src_loc_y;
@@ -57,7 +57,6 @@ export class Move extends React.Component {
 }
 
 Move.propTypes = {
-    type: PropTypes.oneOf(['A', 'F']),
     srcLoc: PropTypes.string.isRequired,
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,

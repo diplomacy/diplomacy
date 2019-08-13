@@ -24,7 +24,7 @@ export class Hold extends React.Component {
         const Colors = this.props.colors;
         const SymbolSizes = this.props.symbolSizes;
         const symbol = 'HoldUnit';
-        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.type, this.props.loc, false, symbol);
+        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.loc, false, symbol);
         return (
             <g stroke={Colors[this.props.powerName]}>
                 <use
@@ -39,7 +39,6 @@ export class Hold extends React.Component {
 }
 
 Hold.propTypes = {
-    type: PropTypes.oneOf(['A', 'F']),
     loc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,

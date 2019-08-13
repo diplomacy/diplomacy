@@ -598,12 +598,10 @@ export class %(classname)s extends React.Component {
                     const tokens = order.split(/ +/);
                     if (!tokens || tokens.length < 3)
                         continue;
-                    const unit_type = tokens[0];
                     const unit_loc = tokens[1];
                     if (tokens[2] === 'H') {
                         renderedOrders.push(
                             <Hold key={order}
-                                  type={unit_type}
                                   loc={unit_loc}
                                   powerName={power.name}
                                   coordinates={Coordinates}
@@ -614,7 +612,6 @@ export class %(classname)s extends React.Component {
                         const destLoc = tokens[tokens.length - (tokens[tokens.length - 1] === 'VIA' ? 2 : 1)];
                         renderedOrders.push(
                             <Move key={order}
-                                  type={unit_type}
                                   srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}
@@ -641,9 +638,7 @@ export class %(classname)s extends React.Component {
                             const dest_type = tokens[tokens.length - 2];
                             renderedOrders2.push(
                                 <SupportHold key={order}
-                                             type={unit_type}
                                              loc={unit_loc}
-                                             destType={dest_type}
                                              dstLoc={destLoc}
                                              powerName={power.name}
                                              coordinates={Coordinates}
@@ -677,7 +672,6 @@ export class %(classname)s extends React.Component {
                     } else if (tokens[2] === 'D') {
                         renderedHighestOrders.push(
                             <Disband key={order}
-                                     type={unit_type}
                                      loc={unit_loc}
                                      phaseType={game.getPhaseType()}
                                      coordinates={Coordinates}
@@ -687,7 +681,6 @@ export class %(classname)s extends React.Component {
                         const destLoc = tokens[3];
                         renderedOrders.push(
                             <Move key={order}
-                                  type={unit_type}
                                   srcLoc={unit_loc}
                                   dstLoc={destLoc}
                                   powerName={power.name}

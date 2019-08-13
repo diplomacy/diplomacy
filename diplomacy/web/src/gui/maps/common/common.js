@@ -48,9 +48,9 @@ export function parseLocation(txt) {
     return txt;
 }
 
-export function centerSymbolAroundUnit(coordinates, symbolSizes, unitType, loc, isDislodged, symbol) {
+export function centerSymbolAroundUnit(coordinates, symbolSizes, loc, isDislodged, symbol) {
     const key = isDislodged ? 'disl' : 'unit';
-    const unitKey = unitType ===  'F' ? FLEET : ARMY;
+    const unitKey = ARMY;
     const [unit_x, unit_y] = coordinates[loc][key];
     const unit_height = symbolSizes[unitKey].height;
     const unit_width = symbolSizes[unitKey].width;
@@ -62,9 +62,9 @@ export function centerSymbolAroundUnit(coordinates, symbolSizes, unitType, loc, 
     ];
 }
 
-export function getUnitCenter(coordinates, symbolSizes, unitType, loc, isDislodged) {
+export function getUnitCenter(coordinates, symbolSizes, loc, isDislodged) {
     const key = isDislodged ? 'disl' : 'unit';
-    const unitKey = unitType ===  'F' ? FLEET : ARMY;
+    const unitKey = ARMY;
     const [unit_x, unit_y] = coordinates[loc][key];
     const unit_height = symbolSizes[unitKey].height;
     const unit_width = symbolSizes[unitKey].width;

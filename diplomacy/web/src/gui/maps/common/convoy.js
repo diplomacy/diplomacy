@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, centerSymbolAroundUnit, getUnitCenter, coloredStrokeWidth} from "./common";
+import {ARMY, centerSymbolAroundUnit, coloredStrokeWidth, getUnitCenter} from "./common";
 import {EquilateralTriangle} from "./equilateralTriangle";
 import PropTypes from "prop-types";
 
@@ -29,7 +29,7 @@ export class Convoy extends React.Component {
         const dest_loc = this.props.dstLoc;
 
         const symbol = 'ConvoyTriangle';
-        let [symbol_loc_x, symbol_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, 'A', src_loc, false, symbol);
+        let [symbol_loc_x, symbol_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, src_loc, false, symbol);
         const symbol_height = parseFloat(SymbolSizes[symbol].height);
         const symbol_width = parseFloat(SymbolSizes[symbol].width);
         const triangle = new EquilateralTriangle(
@@ -41,9 +41,9 @@ export class Convoy extends React.Component {
             parseFloat(symbol_loc_y) + symbol_height
         );
         symbol_loc_y = '' + (parseFloat(symbol_loc_y) - symbol_height / 6);
-        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', loc, false);
-        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', src_loc, false);
-        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', dest_loc, false);
+        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, loc, false);
+        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, src_loc, false);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, false);
 
         const [src_loc_x_1, src_loc_y_1] = triangle.intersection(loc_x, loc_y);
         const [src_loc_x_2, src_loc_y_2] = triangle.intersection(dest_loc_x, dest_loc_y);

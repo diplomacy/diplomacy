@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, FLEET, centerSymbolAroundUnit} from "./common";
+import {ARMY, centerSymbolAroundUnit, FLEET} from "./common";
 import PropTypes from "prop-types";
 
 export class Build extends React.Component {
@@ -27,7 +27,7 @@ export class Build extends React.Component {
         const build_symbol = 'BuildUnit';
         const loc_x = Coordinates[loc].unit[0];
         const loc_y = Coordinates[loc].unit[1];
-        const [build_loc_x, build_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, unit_type, loc, false, build_symbol);
+        const [build_loc_x, build_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, false, build_symbol);
 
         const symbol = unit_type === 'A' ? ARMY : FLEET;
         return (

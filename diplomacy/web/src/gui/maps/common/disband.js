@@ -25,7 +25,7 @@ export class Disband extends React.Component {
         const loc = this.props.loc;
         const phaseType = this.props.phaseType;
         const symbol = 'RemoveUnit';
-        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.type, loc, phaseType === 'R', symbol);
+        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, phaseType === 'R', symbol);
         return (
             <g>
                 <use x={loc_x}
@@ -40,7 +40,6 @@ export class Disband extends React.Component {
 }
 
 Disband.propTypes = {
-    type: PropTypes.oneOf(['A', 'F']),
     loc: PropTypes.string.isRequired,
     phaseType: PropTypes.string.isRequired,
     coordinates: PropTypes.object.isRequired,

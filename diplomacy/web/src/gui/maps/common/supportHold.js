@@ -26,9 +26,9 @@ export class SupportHold extends React.Component {
         const loc = this.props.loc;
         const dest_loc = this.props.dstLoc;
         const symbol = 'SupportHoldUnit';
-        const [symbol_loc_x, symbol_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.destType, dest_loc, false, symbol);
-        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, this.props.type, loc, false);
-        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, this.props.destType, dest_loc, false);
+        const [symbol_loc_x, symbol_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, dest_loc, false, symbol);
+        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, loc, false);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, false);
 
         const delta_x = dest_loc_x - loc_x;
         const delta_y = dest_loc_y - loc_y;
@@ -63,8 +63,6 @@ export class SupportHold extends React.Component {
 }
 
 SupportHold.propTypes = {
-    type: PropTypes.oneOf(['A', 'F']),
-    destType: PropTypes.oneOf(['A', 'F']),
     loc: PropTypes.string.isRequired,
     dstLoc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,

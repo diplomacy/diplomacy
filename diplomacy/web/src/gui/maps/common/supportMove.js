@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, getUnitCenter, coloredStrokeWidth} from "./common";
+import {ARMY, coloredStrokeWidth, getUnitCenter} from "./common";
 import PropTypes from "prop-types";
 
 export class SupportMove extends React.Component {
@@ -26,9 +26,9 @@ export class SupportMove extends React.Component {
         const loc = this.props.loc;
         const src_loc = this.props.srcLoc;
         const dest_loc = this.props.dstLoc;
-        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', loc, false);
-        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', src_loc, false);
-        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, 'A', dest_loc, false);
+        const [loc_x, loc_y] = getUnitCenter(Coordinates, SymbolSizes, loc, false);
+        const [src_loc_x, src_loc_y] = getUnitCenter(Coordinates, SymbolSizes, src_loc, false);
+        let [dest_loc_x, dest_loc_y] = getUnitCenter(Coordinates, SymbolSizes, dest_loc, false);
 
         // Adjusting destination
         const delta_x = dest_loc_x - src_loc_x;
