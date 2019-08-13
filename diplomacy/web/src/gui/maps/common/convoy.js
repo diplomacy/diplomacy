@@ -22,7 +22,7 @@ import PropTypes from "prop-types";
 export class Convoy extends React.Component {
     render() {
         const Coordinates = this.props.coordinates;
-        const SymbolSizes = this.props.symbolSizes
+        const SymbolSizes = this.props.symbolSizes;
         const Colors = this.props.colors;
         const loc = this.props.loc;
         const src_loc = this.props.srcLoc;

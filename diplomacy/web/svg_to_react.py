@@ -55,7 +55,8 @@ TAG_DISLODGED_UNIT = 'jdipNS:DISLODGED_UNIT'
 TAG_SUPPLY_CENTER = 'jdipNS:SUPPLY_CENTER'
 
 SELECTOR_REGEX = re.compile(r'([\r\n][ \t]*)([^{\r\n]+){')
-
+LINES_REGEX = re.compile(r'[\r\n]+')
+SPACES_REGEX = re.compile(r'[\t ]+')
 
 def prepend_css_selectors(prefix, css_text):
     def repl(match):
@@ -324,8 +325,17 @@ def extract_dom(node, nb_indentation, lines, data):
                 '%s<%s%s/>' % (indentation, tag_name, (' %s' % attributes_string) if attributes_string else ''))
 
 
+def to_json_string(dictionary):
+    return json.dumps(dictionary).replace(r'\/', r'/')
+
+
+def compress_string(string):
+    string = LINES_REGEX.sub(' ', string)
+    string = SPACES_REGEX.sub(' ', string)
+    return string
+
 def main():
-    """ Main script function. """
+    """ Main sript function. """
     parser = argparse.ArgumentParser(
         prog='Convert a SVG file to a React Component.'
     )
@@ -352,26 +362,29 @@ def main():
 
     if data.style_lines:
         with open(style_file_name, 'w') as style_file:
-            style_file.write(LICENSE_TEXT)
-            style_file.write('\n')
-            style_file.writelines(prepend_css_selectors('.%s' % class_name, '\n'.join(data.style_lines)))
+            output_string = """%(license_text)s %(css)s""" % {
+                'license_text': LICENSE_TEXT,
+                'css': prepend_css_selectors('.%s' % class_name, ' '.join(data.style_lines))
+            }
+            style_file.write(compress_string(output_string))
 
     if data.extra:
         with open(extra_parsed_file_name, 'w') as extra_parsed_file:
-            extra_parsed_file.write("""%(license_text)s
+            output_string = """%(license_text)s
 
 export const Coordinates = %(coordinates)s;
 export const SymbolSizes = %(symbol_sizes)s;
 export const Colors = %(colors)s;
 """ % {
                 'license_text': LICENSE_TEXT,
-                'coordinates': json.dumps(data.get_coordinates(), indent=4),
-                'symbol_sizes': json.dumps(data.get_symbol_sizes(), indent=4),
-                'colors': json.dumps(data.get_colors(), indent=4)
-            })
+                'coordinates': to_json_string(data.get_coordinates()),
+                'symbol_sizes': to_json_string(data.get_symbol_sizes()),
+                'colors': to_json_string(data.get_colors())
+            }
+            extra_parsed_file.write(compress_string(output_string))
 
     with open(output_file_name, 'w') as file:
-        file.write("""%(license_text)s
+        output_string = """%(license_text)s
 /** Generated using %(program_name)s with parameters:
 %(args)s
 **/
@@ -441,19 +454,19 @@ export class %(classname)s extends React.Component {
             return this.props.onError('Disallowed.');
 
         if (validLocations.length > 1 && orderBuilding.type === 'S' && orderBuilding.path.length >= 2) {
-            // We are building a support order and we have a multiple choice for a location.
-            // Let's check if next location to choose is a coast. To have a coast:
-            // - all possible locations must start with same 3 characters.
-            // - we expect at least province name in possible locations (e.g. 'SPA' for 'SPA/NC').
-            // If we have a coast, we will remove province name from possible locations.
+            /* We are building a support order and we have a multiple choice for a location.
+               Let's check if next location to choose is a coast. To have a coast:
+               - all possible locations must start with same 3 characters.
+               - we expect at least province name in possible locations (e.g. 'SPA' for 'SPA/NC').
+               If we have a coast, we will remove province name from possible locations. */
             let isACoast = true;
             let validLocationsNoProvinceName = [];
             for (let i = 0; i < validLocations.length; ++i) {
                 let location = validLocations[i];
                 if (i > 0) {
-                    // Compare 3 first letters with previous location.
+                    /* Compare 3 first letters with previous location. */
                     if (validLocations[i - 1].substring(0, 3).toUpperCase() !== validLocations[i].substring(0, 3).toUpperCase()) {
-                        // No same prefix with previous location. We does not have a coast.
+                        /* No same prefix with previous location. We does not have a coast. */
                         isACoast = false;
                         break;
                     }
@@ -462,11 +475,11 @@ export class %(classname)s extends React.Component {
                     validLocationsNoProvinceName.push(location);
             }
             if (validLocations.length === validLocationsNoProvinceName.length) {
-                // We have not found province name.
+                /* We have not found province name. */
                 isACoast = false;
             }
             if (isACoast) {
-                // We want to choose location in a coastal province. Let's remove province name.
+                /* We want to choose location in a coastal province. Let's remove province name. */
                 validLocations = validLocationsNoProvinceName;
             }
         }
@@ -485,7 +498,7 @@ export class %(classname)s extends React.Component {
             const moveTypes = UTILS.javascript.getTreeValue(this.props.game.ordersTree, moveOrderPath);
             if (moveTypes !== null) {
                 if (moveTypes.length === 2 && this.props.onSelectVia) {
-                    // This move can be done either regularly or VIA a fleet. Let user choose.
+                    /* This move can be done either regularly or VIA a fleet. Let user choose. */
                     return this.props.onSelectVia(validLocations[0], orderBuilding.power, orderBuilding.path);
                 } else {
                     orderBuildingType = moveTypes[0];
@@ -534,23 +547,23 @@ export class %(classname)s extends React.Component {
         const mapData = this.props.mapData;
         const orders = this.props.orders;
 
-        //// Current phase.
+        /* Current phase. */
         const current_phase = (game.phase[0] === '?' || game.phase === 'COMPLETED') ? 'FINAL' : game.phase;
 
-        //// Notes.
+        /* Notes. */
         const nb_centers = [];
         for (let power of Object.values(game.powers)) {
             if (!power.isEliminated())
                 nb_centers.push([power.name.substr(0, 3), power.centers.length]);
         }
-        // Sort nb_centers by descending number of centers.
+        /* Sort nb_centers by descending number of centers. */
         nb_centers.sort((a, b) => {
             return -(a[1] - b[1]) || a[0].localeCompare(b[0]);
         });
         const nb_centers_per_power = nb_centers.map((couple) => (couple[0] + ': ' + couple[1])).join(' ');
         const note = game.note;
 
-        //// Adding units, influence and orders.
+        /* Adding units, influence and orders. */
         const renderedUnits = [];
         const renderedDislodgedUnits = [];
         const renderedOrders = [];
@@ -746,12 +759,13 @@ export class %(classname)s extends React.Component {
             'extra_content': 'import {Coordinates, SymbolSizes, Colors} from "./%s";' % (
                 extra_class_name) if data.extra else '',
             'classname': class_name,
-            'classes': json.dumps(data.id_to_class),
+            'classes': to_json_string(data.id_to_class),
             'svg': '\n'.join(lines),
             'program_name': sys.argv[0],
             'args': args,
             'license_text': LICENSE_TEXT
-        })
+        }
+        file.write(compress_string(output_string))
 
 
 if __name__ == '__main__':
