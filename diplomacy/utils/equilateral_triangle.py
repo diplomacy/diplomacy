@@ -14,6 +14,7 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
+# pylint: disable=anomalous-backslash-in-string
 """ Helper class to compute intersection of a line (OM) with a side of an equilateral triangle,
     with O the barycenter of the equilateral triangle and M a point outside the triangle.
            A
@@ -34,7 +35,6 @@ class EquilateralTriangle:
 
     def __init__(self, x_top, y_top, x_right, y_right, x_left, y_left):
         """ Constructor """
-        # type: (float, float, float, float, float, float) -> None
         assert y_left == y_right > y_top
         assert x_left < x_top < x_right
         self.x_a = x_top
@@ -61,31 +61,66 @@ class EquilateralTriangle:
         return a, b
 
     def _intersection_with_ab(self, x_m, y_m):
+        """ Return coordinates of intersection of line (OM) with line (AB).
+            :param x_m: x coordinate of M
+            :param y_m: y coordinate of M
+            :return: coordinates (x, y) of intersection, or (None, None) if either
+                (OM) and (AB) don't intersect, or intersection point is not in segment AB.
+        """
         # pylint:disable=invalid-name
         a, b = self.line_ab_a, self.line_ab_b
-        u, v = self.__line_om(x_m, y_m)
-        assert a != u
-        x = (v - b) / (a - u)
+        if x_m == self.x_o:
+            # (OM) is a vertical line
+            x = x_m
+        else:
+            u, v = self.__line_om(x_m, y_m)
+            if a == u:
+                # (OM) and (AB) are parallel. No intersection.
+                return None, None
+            x = (v - b) / (a - u)
         y = a * x + b
         if self.x_a <= x <= self.x_b and self.y_a <= y <= self.y_b:
             return x, y
         return None, None
 
     def _intersection_with_ac(self, x_m, y_m):
+        """ Return coordinates of intersection of line (OM) with line (AC).
+            :param x_m: x coordinate of M
+            :param y_m: y coordinate of M
+            :return: coordinates (x, y) of intersection, or (None, None) if either
+                (OM) and (AC) don't intersect, or intersection point is not in segment AC.
+        """
         # pylint:disable=invalid-name
         a, b = self.line_ac_a, self.line_ac_b
-        u, v = self.__line_om(x_m, y_m)
-        x = (v - b) / (a - u)
+        if x_m == self.x_o:
+            x = x_m
+        else:
+            u, v = self.__line_om(x_m, y_m)
+            if a == u:
+                return None, None
+            x = (v - b) / (a - u)
         y = a * x + b
         if self.x_c <= x <= self.x_a and self.y_a <= y <= self.y_c:
             return x, y
         return None, None
 
     def _intersection_with_bc(self, x_m, y_m):
+        """ Return coordinates of intersection of line (OM) with line (BC).
+            NB: (BC) is an horizontal line.
+            :param x_m: x coordinate of M
+            :param y_m: y coordinate of M
+            :return: coordinates (x, y) of intersection, or (None, None) if either
+                (OM) and (BC) don't intersect, or intersection point is not in segment BC.
+        """
         # pylint:disable=invalid-name
-        a, b = self.__line_om(x_m, y_m)
         y = self.y_c
-        x = (y - b) / a
+        if x_m == self.x_o:
+            x = x_m
+        else:
+            a, b = self.__line_om(x_m, y_m)
+            if a == 0:
+                return None, None
+            x = (y - b) / a
         if self.x_c <= x <= self.x_a:
             return x, y
         return None, None
@@ -98,7 +133,6 @@ class EquilateralTriangle:
             :param y_m: y coordinate of M
             :return: a couple (x, y) of floating values.
         """
-        # type: (float, float) -> (float, float)
         # pylint:disable=invalid-name
         if self.x_o == x_m and self.y_o == y_m:
             return x_m, y_m

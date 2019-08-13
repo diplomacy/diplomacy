@@ -25,8 +25,15 @@ export class EquilateralTriangle {
 
     __intersection_with_AB(x_M, y_M) {
         const [a, b] = [this.line_AB_a, this.line_AB_b];
-        const [u, v] = this.__line_OM(x_M, y_M);
-        const x = (v - b) / (a - u);
+        let x = null;
+        if (x_M === this.x_O) {
+            x = x_M;
+        } else {
+            const [u, v] = this.__line_OM(x_M, y_M);
+            if (a === u)
+                return [null, null];
+            x = (v - b) / (a - u);
+        }
         const y = a * x + b;
         if (this.x_A <= x && x <= this.x_B && this.y_A <= y && y <= this.y_B)
             return [x, y];
@@ -35,8 +42,15 @@ export class EquilateralTriangle {
 
     __intersection_with_AC(x_M, y_M) {
         const [a, b] = [this.line_AC_a, this.line_AC_b];
-        const [u, v] = this.__line_OM(x_M, y_M);
-        const x = (v - b) / (a - u);
+        let x = null;
+        if (x_M === this.x_O) {
+            x = x_M;
+        } else {
+            const [u, v] = this.__line_OM(x_M, y_M);
+            if (a === u)
+                return [null, null];
+            x = (v - b) / (a - u);
+        }
         const y = a * x + b;
         if (this.x_C <= x && x <= this.x_A && this.y_A <= y && y <= this.y_C)
             return [x, y];
@@ -44,9 +58,16 @@ export class EquilateralTriangle {
     }
 
     __intersection_with_BC(x_M, y_M) {
-        const [a, b] = this.__line_OM(x_M, y_M);
         const y = this.y_C;
-        const x = (y - b) / a;
+        let x = null;
+        if (x_M === this.x_O) {
+            x = x_M;
+        } else {
+            const [a, b] = this.__line_OM(x_M, y_M);
+            if (a === 0)
+                return [null, null];
+            x = (y - b) / a;
+        }
         if (this.x_C <= x && x <= this.x_A)
             return [x, y];
         return [null, null];
