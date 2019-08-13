@@ -124,26 +124,23 @@ class Renderer():
 
                     # Normalizing and splitting in tokens
                     tokens = self.norm_order(order)
-                    unit_type = tokens[0]
                     unit_loc = tokens[1]
 
                     # Parsing based on order type
                     if not tokens or len(tokens) < 3:
                         continue
                     elif tokens[2] == 'H':
-                        xml_map = self._issue_hold_order(xml_map, unit_type, unit_loc, power.name)
+                        xml_map = self._issue_hold_order(xml_map, unit_loc, power.name)
                     elif tokens[2] == '-':
                         dest_loc = tokens[-1] if tokens[-1] != 'VIA' else tokens[-2]
-                        xml_map = self._issue_move_order(xml_map, unit_type, unit_loc, dest_loc, power.name)
+                        xml_map = self._issue_move_order(xml_map, unit_loc, dest_loc, power.name)
                     elif tokens[2] == 'S':
                         dest_loc = tokens[-1]
                         if '-' in tokens:
                             src_loc = tokens[4] if tokens[3] == 'A' or tokens[3] == 'F' else tokens[3]
                             xml_map = self._issue_support_move_order(xml_map, unit_loc, src_loc, dest_loc, power.name)
                         else:
-                            dest_type = tokens[-2]
-                            xml_map = self._issue_support_hold_order(xml_map, unit_type, unit_loc, dest_type, dest_loc,
-                                                                     power.name)
+                            xml_map = self._issue_support_hold_order(xml_map, unit_loc, dest_loc, power.name)
                     elif tokens[2] == 'C':
                         src_loc = tokens[4] if tokens[3] == 'A' or tokens[3] == 'F' else tokens[3]
                         dest_loc = tokens[-1]
@@ -167,12 +164,11 @@ class Renderer():
                             continue
                         xml_map = self._issue_build_order(xml_map, tokens[0], tokens[1], power.name)
                     elif tokens[-1] == 'D':
-                        xml_map = self._issue_disband_order(xml_map, tokens[1], tokens[0])
+                        xml_map = self._issue_disband_order(xml_map, tokens[1])
                     elif tokens[-2] == 'R':
                         src_loc = tokens[1] if tokens[0] == 'A' or tokens[0] == 'F' else tokens[0]
                         dest_loc = tokens[-1]
-                        xml_map = self._issue_move_order(xml_map, tokens[0] if tokens[0] in 'AF' else 'A', src_loc,
-                                                         dest_loc, power.name)
+                        xml_map = self._issue_move_order(xml_map, src_loc, dest_loc, power.name)
                     else:
                         raise RuntimeError('Unknown order: {}'.format(order))
 
@@ -340,10 +336,9 @@ class Renderer():
                 child_node.childNodes[0].nodeValue = note_2
         return xml_map
 
-    def _issue_hold_order(self, xml_map, loc_type, loc, power_name):
+    def _issue_hold_order(self, xml_map, loc, power_name):
         """ Adds a hold order to the map
             :param xml_map: The xml map being generated
-            :param loc_type: type of ordered unit ('A' or 'F')
             :param loc: The province where the unit is holding (e.g. 'PAR')
             :param power_name: The name of the power owning the unit
             :return: Nothing
@@ -351,7 +346,7 @@ class Renderer():
         ####
         # Symbols
         symbol = 'HoldUnit'
-        loc_x, loc_y = self._center_symbol_around_unit(loc_type, loc, False, symbol)
+        loc_x, loc_y = self._center_symbol_around_unit(loc, False, symbol)
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -375,19 +370,17 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _issue_support_hold_order(self, xml_map, loc_type, loc, dest_type, dest_loc, power_name):
+    def _issue_support_hold_order(self, xml_map, loc, dest_loc, power_name):
         """ Issues a support hold order
             :param xml_map: The xml map being generated
-            :param loc_type: type of unit sending support ('A' or 'F')
             :param loc: The location of the unit sending support (e.g. 'BER')
-            :param dest_type: type of supported unit ('A' or 'F')
             :param dest_loc: The location where the unit is holding from (e.g. 'PAR')
             :param power_name: The power name issuing the move order
             :return: Nothing
         """
         # Symbols
         symbol = 'SupportHoldUnit'
-        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit(dest_type, dest_loc, False, symbol)
+        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit(dest_loc, False, symbol)
         symbol_node = xml_map.createElement('use')
         symbol_node.setAttribute('x', symbol_loc_x)
         symbol_node.setAttribute('y', symbol_loc_y)
@@ -395,8 +388,8 @@ class Renderer():
         symbol_node.setAttribute('width', self.metadata['symbol_size'][symbol][1])
         symbol_node.setAttribute('xlink:href', '#{}'.format(symbol))
 
-        loc_x, loc_y = self._get_unit_center(loc_type, loc, False)
-        dest_loc_x, dest_loc_y = self._get_unit_center(dest_type, dest_loc, False)
+        loc_x, loc_y = self._get_unit_center(loc, False)
+        dest_loc_x, dest_loc_y = self._get_unit_center(dest_loc, False)
 
         # Adjusting destination
         delta_x = dest_loc_x - loc_x
@@ -439,18 +432,17 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _issue_move_order(self, xml_map, src_type, src_loc, dest_loc, power_name):
+    def _issue_move_order(self, xml_map, src_loc, dest_loc, power_name):
         """ Issues a move order
             :param xml_map: The xml map being generated
-            :param src_type: The type of ordered unit ('A' or 'F')
             :param src_loc: The location where the unit is moving from (e.g. 'PAR')
             :param dest_loc: The location where the unit is moving to (e.g. 'MAR')
             :param power_name: The power name issuing the move order
             :return: Nothing
         """
         is_dislodged = self.game.get_current_phase()[-1] == 'R'
-        src_loc_x, src_loc_y = self._get_unit_center(src_type, src_loc, is_dislodged)
-        dest_loc_x, dest_loc_y = self._get_unit_center('A', dest_loc, is_dislodged)
+        src_loc_x, src_loc_y = self._get_unit_center(src_loc, is_dislodged)
+        dest_loc_x, dest_loc_y = self._get_unit_center(dest_loc, is_dislodged)
 
         # Adjusting destination
         delta_x = dest_loc_x - src_loc_x
@@ -508,9 +500,9 @@ class Renderer():
             :param power_name: The power name issuing the move order
             :return: Nothing
         """
-        loc_x, loc_y = self._get_unit_center('A', loc, False)
-        src_loc_x, src_loc_y = self._get_unit_center('A', src_loc, False)
-        dest_loc_x, dest_loc_y = self._get_unit_center('A', dest_loc, False)
+        loc_x, loc_y = self._get_unit_center(loc, False)
+        src_loc_x, src_loc_y = self._get_unit_center(src_loc, False)
+        dest_loc_x, dest_loc_y = self._get_unit_center(dest_loc, False)
 
         # Adjusting destination
         delta_x = dest_loc_x - src_loc_x
@@ -568,7 +560,7 @@ class Renderer():
             :return: Nothing
         """
         symbol = 'ConvoyTriangle'
-        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit('A', src_loc, False, symbol)
+        symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit(src_loc, False, symbol)
         symbol_height = float(self.metadata['symbol_size'][symbol][0])
         symbol_width = float(self.metadata['symbol_size'][symbol][1])
         triangle = EquilateralTriangle(
@@ -581,9 +573,9 @@ class Renderer():
         )
         symbol_loc_y = str(float(symbol_loc_y) - float(self.metadata['symbol_size'][symbol][0]) / 6)
 
-        loc_x, loc_y = self._get_unit_center('A', loc, False)
-        src_loc_x, src_loc_y = self._get_unit_center('A', src_loc, False)
-        dest_loc_x, dest_loc_y = self._get_unit_center('A', dest_loc, False)
+        loc_x, loc_y = self._get_unit_center(loc, False)
+        src_loc_x, src_loc_y = self._get_unit_center(src_loc, False)
+        dest_loc_x, dest_loc_y = self._get_unit_center(dest_loc, False)
 
         # Adjusting starting arrow (from convoy to start location)
         # This is to avoid the end of the arrow conflicting with the convoy triangle
@@ -680,7 +672,7 @@ class Renderer():
 
         loc_x = self.metadata['coord'][loc]['unit'][0]
         loc_y = self.metadata['coord'][loc]['unit'][1]
-        build_loc_x, build_loc_y = self._center_symbol_around_unit(unit_type, loc, False, build_symbol)
+        build_loc_x, build_loc_y = self._center_symbol_around_unit(loc, False, build_symbol)
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -711,7 +703,7 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _issue_disband_order(self, xml_map, loc, unit_type):
+    def _issue_disband_order(self, xml_map, loc):
         """ Adds a disband order to the map
             :param xml_map: The xml map being generated
             :param loc: The province where the unit is disbanded (e.g. 'PAR')
@@ -719,7 +711,7 @@ class Renderer():
         """
         # Symbols
         symbol = 'RemoveUnit'
-        loc_x, loc_y = self._center_symbol_around_unit(unit_type, loc, self.game.get_current_phase()[-1] == 'R', symbol)
+        loc_x, loc_y = self._center_symbol_around_unit(loc, self.game.get_current_phase()[-1] == 'R', symbol)
 
         # Creating nodes
         g_node = xml_map.createElement('g')
@@ -740,10 +732,9 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _center_symbol_around_unit(self, unit_type, loc, is_dislodged, symbol):
-        # type: (str, str, bool, str) -> Tuple[str, str]
+    def _center_symbol_around_unit(self, loc, is_dislodged, symbol):
+        # type: (str, bool, str) -> Tuple[str, str]
         """ Compute top-left coordinates of a symbol to be centered around a unit.
-            :param unit_type: unit type ('A' or 'F')
             :param loc: unit location (e.g. 'PAR')
             :param is_dislodged: boolean to tell if unit is dislodged
             :param symbol: symbol identifier (e.g. 'HoldUnit')
@@ -751,23 +742,22 @@ class Renderer():
         """
         key = 'disl' if is_dislodged else 'unit'
         unit_x, unit_y = self.metadata['coord'][loc][key]
-        unit_height, unit_width = self.metadata['symbol_size'][FLEET if unit_type == 'F' else ARMY]
+        unit_height, unit_width = self.metadata['symbol_size'][ARMY]
         symbol_height, symbol_width = self.metadata['symbol_size'][symbol]
         return (
             str(float(unit_x) + float(unit_width) / 2 - float(symbol_width) / 2),
             str(float(unit_y) + float(unit_height) / 2 - float(symbol_height) / 2)
         )
 
-    def _get_unit_center(self, unit_type, loc, is_dislodged):
-        # type: (str, str, bool) -> Tuple[float, float]
+    def _get_unit_center(self, loc, is_dislodged):
+        # type: (str, bool) -> Tuple[float, float]
         """ Compute coordinates of unit center.
-            :param unit_type: unit type
             :param loc: unit location
             :param is_dislodged: boolean to tell if unit is dislodged
             :return: a couple of coordinates (x, y) as floating values
         """
         unit_x, unit_y = self.metadata['coord'][loc]['disl' if is_dislodged else 'unit']
-        unit_height, unit_width = self.metadata['symbol_size'][FLEET if unit_type == 'F' else ARMY]
+        unit_height, unit_width = self.metadata['symbol_size'][ARMY]
         return (
             float(unit_x) + float(unit_width) / 2,
             float(unit_y) + float(unit_height) / 2
