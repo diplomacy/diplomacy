@@ -764,7 +764,7 @@
 	<g id="HighestOrderLayer"/>
 
 	<!-- Location abbreviations -->
-	<g class="labeltext24" id="BriefLabelLayer">
+	<g id="BriefLabelLayer" class="labeltext24">
 		<text x="649.4" y="924.2">SWI</text>
 		<text class="labeltext18" x="849.4" y="1100.6">ADR</text>
 		<text x="1085.7" y="1296.4">AEG</text>

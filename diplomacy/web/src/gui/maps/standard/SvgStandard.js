@@ -363,6 +363,10 @@ export class SvgStandard extends React.Component {
             }
         }
 
+        if (this.props.showAbbreviations === false) {
+            classes['BriefLabelLayer'] = 'visibilityHidden';
+        }
+
         return (
             <svg className="SvgStandard" colorRendering="optimizeQuality" height="680px" preserveAspectRatio="xMinYMin" viewBox="0 0 1835 1360" width="918px" xmlns="http://www.w3.org/2000/svg">
                 <defs>
@@ -827,5 +831,6 @@ SvgStandard.propTypes = {
     onSelectVia: PropTypes.func,
     onOrderBuilding: PropTypes.func,
     onOrderBuilt: PropTypes.func,
-    orderBuilding: PropTypes.object
+    orderBuilding: PropTypes.object,
+    showAbbreviations: PropTypes.bool
 };

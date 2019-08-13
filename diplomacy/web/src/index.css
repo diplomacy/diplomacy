@@ -425,6 +425,9 @@ button.collapsed .roll {
     white-space: nowrap;
 }
 
+.visibilityHidden {
+    visibility: hidden;
+}
 
 /** Page login. **/
 /** Page games. **/

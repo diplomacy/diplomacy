@@ -363,6 +363,10 @@ export class SvgPure extends React.Component {
             }
         }
 
+        if (this.props.showAbbreviations === false) {
+            classes['BriefLabelLayer'] = 'visibilityHidden';
+        }
+
         return (
             <svg className="SvgPure" height="500px" preserveAspectRatio="xMinYMin" textRendering="optimizeLegibility" viewBox="0 0 1000 1000" width="500px" xmlns="http://www.w3.org/2000/svg">
                 <title>Pure</title>
@@ -604,7 +608,7 @@ export class SvgPure extends React.Component {
                 <g id="UnitLayer">{renderedUnits}</g>
                 <g id="DislodgedUnitLayer">{renderedDislodgedUnits}</g>
                 <g id="HighestOrderLayer">{renderedHighestOrders}</g>
-                <g className={classes['BriefLabelLayer']} id="BriefLabelLayer" visibility="hidden"/>
+                <g className={classes['BriefLabelLayer']} id="BriefLabelLayer"/>
                 <g className={classes['FullLabelLayer']} id="FullLabelLayer" visibility="hidden"/>
                 <g className={classes['MouseLayer']} id="MouseLayer">
                     <path d="M497.619 142.283 L650.619 176.571 L774.287 275.519 L866.51 207.835 L497.619 30.1868 z" id="vie" onClick={this.onClick} onMouseOver={this.onHover}/>
@@ -629,5 +633,6 @@ SvgPure.propTypes = {
     onSelectVia: PropTypes.func,
     onOrderBuilding: PropTypes.func,
     onOrderBuilt: PropTypes.func,
-    orderBuilding: PropTypes.object
+    orderBuilding: PropTypes.object,
+    showAbbreviations: PropTypes.bool
 };

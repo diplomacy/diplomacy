@@ -719,6 +719,10 @@ export class %(classname)s extends React.Component {
             }
         }
 
+        if (this.props.showAbbreviations === false) {
+            classes['BriefLabelLayer'] = 'visibilityHidden';
+        }
+
         return (
 %(svg)s
         );
@@ -734,7 +738,8 @@ export class %(classname)s extends React.Component {
     onSelectVia: PropTypes.func,
     onOrderBuilding: PropTypes.func,
     onOrderBuilt: PropTypes.func,
-    orderBuilding: PropTypes.object
+    orderBuilding: PropTypes.object,
+    showAbbreviations: PropTypes.bool
 };
 """ % {
             'style_content': "import './%s.css';" % class_name if data.style_lines else '',

@@ -422,7 +422,7 @@
 	<g id="HighestOrderLayer"/>
 
 	<!-- abbreviated name layer (not used) -->
-	<g id="BriefLabelLayer" class="labeltext" visibility="hidden"/>
+	<g id="BriefLabelLayer" class="labeltext"/>
 
 	<!-- full name layer (not used) -->
 	<g id="FullLabelLayer" class="labeltext" visibility="hidden"/>

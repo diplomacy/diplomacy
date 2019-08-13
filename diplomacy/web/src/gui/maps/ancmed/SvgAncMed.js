@@ -363,6 +363,10 @@ export class SvgAncMed extends React.Component {
             }
         }
 
+        if (this.props.showAbbreviations === false) {
+            classes['BriefLabelLayer'] = 'visibilityHidden';
+        }
+
         return (
             <svg className="SvgAncMed" colorRendering="optimizeQuality" height="700px" imageRendering="optimizeQuality" preserveAspectRatio="xMinYMin" shapeRendering="geometricPrecision" textRendering="optimizeLegibility" viewBox="0 0 1030 700" width="1030px" xmlns="http://www.w3.org/2000/svg">
                 <title>Ancient Med Map</title>
@@ -840,5 +844,6 @@ SvgAncMed.propTypes = {
     onSelectVia: PropTypes.func,
     onOrderBuilding: PropTypes.func,
     onOrderBuilt: PropTypes.func,
-    orderBuilding: PropTypes.object
+    orderBuilding: PropTypes.object,
+    showAbbreviations: PropTypes.bool
 };

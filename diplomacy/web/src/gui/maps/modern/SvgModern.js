@@ -363,6 +363,10 @@ export class SvgModern extends React.Component {
             }
         }
 
+        if (this.props.showAbbreviations === false) {
+            classes['BriefLabelLayer'] = 'visibilityHidden';
+        }
+
         return (
             <svg className="SvgModern" colorRendering="optimizeQuality" height="600px" imageRendering="optimizeQuality" preserveAspectRatio="xMinYMin" shapeRendering="geometricPrecision" textRendering="optimizeLegibility" viewBox="0 0 716 600" width="716px" xmlns="http://www.w3.org/2000/svg">
                 <title>MODERN</title>
@@ -1085,5 +1089,6 @@ SvgModern.propTypes = {
     onSelectVia: PropTypes.func,
     onOrderBuilding: PropTypes.func,
     onOrderBuilt: PropTypes.func,
-    orderBuilding: PropTypes.object
+    orderBuilding: PropTypes.object,
+    showAbbreviations: PropTypes.bool
 };
