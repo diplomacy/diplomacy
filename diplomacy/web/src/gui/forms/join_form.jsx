@@ -16,7 +16,6 @@
 // ==============================================================================
 import React from 'react';
 import {Forms} from "../components/forms";
-import {STRINGS} from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
 
 export class JoinForm extends React.Component {
@@ -53,7 +52,7 @@ export class JoinForm extends React.Component {
                     {Forms.createLabel(this.getPowerNameID(), 'Power:')}
                     <select id={this.getPowerNameID()} className={'from-control custom-select ml-2'}
                             value={Forms.getValue(this.state, this.getPowerNameID())} onChange={onChange}>
-                        {Forms.createSelectOptions(STRINGS.ALL_POWER_NAMES, true)}
+                        {Forms.createSelectOptions(this.props.availablePowers, true)}
                     </select>
                 </div>
                 {this.props.password_required ? (
@@ -75,6 +74,7 @@ JoinForm.propTypes = {
     game_id: PropTypes.string.isRequired,
     password_required: PropTypes.bool.isRequired,
     powers: PropTypes.arrayOf(PropTypes.string),
+    availablePowers: PropTypes.arrayOf(PropTypes.string),
     onChange: PropTypes.func,
     onSubmit: PropTypes.func
 };

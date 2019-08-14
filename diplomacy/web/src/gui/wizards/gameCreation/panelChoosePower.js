@@ -41,29 +41,35 @@ export class PanelChoosePower extends React.Component {
                         </button>
                     </div>
                 </div>
-                <div className="d-flex flex-row justify-content-center my-2">
-                    {(() => {
-                        const choice = [];
-                        for (let i = 0; i < this.props.powers.length; ++i) {
-                            choice.push(
-                                <button key={i} type="button"
-                                        className={`btn btn-secondary btn-sm flex-grow-1 ${i === 0 ? '' : 'ml-sm-1'}`}
-                                        onClick={() => {
-                                            this.props.onUpdateParams({power_name: this.props.powers[i]});
-                                            this.props.forward();
-                                        }}>
-                                    {this.props.powers[i]}
-                                </button>
-                            );
-                        }
-                        return choice;
-                    })()}
+                <div className="row">
+                    <div className="col">
+                        <div className="d-flex flex-row justify-content-center my-2">
+                            {(() => {
+                                const choice = [];
+                                for (let i = 0; i < this.props.powers.length; ++i) {
+                                    choice.push(
+                                        <button key={i} type="button"
+                                                className={`btn btn-secondary btn-sm flex-grow-1 ${i === 0 ? '' : 'ml-sm-1'}`}
+                                                onClick={() => {
+                                                    this.props.onUpdateParams({power_name: this.props.powers[i]});
+                                                    this.props.forward();
+                                                }}>
+                                            {this.props.powers[i]}
+                                        </button>
+                                    );
+                                }
+                                return choice;
+                            })()}
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <button type="button" className="btn btn-secondary btn-sm px-3"
-                            onClick={() => this.props.backward()}>
-                        <Octicon icon={ArrowLeft}/>
-                    </button>
+                <div className="row">
+                    <div className="col">
+                        <button type="button" className="btn btn-secondary btn-sm px-3"
+                                onClick={() => this.props.backward()}>
+                            <Octicon icon={ArrowLeft}/>
+                        </button>
+                    </div>
                 </div>
             </FancyBox>
         );

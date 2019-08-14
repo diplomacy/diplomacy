@@ -23,6 +23,7 @@ import {PanelChoosePower} from "./panelChoosePower";
 import {PanelChooseSettings} from "./panelChooseSettings";
 import {Maps} from "./mapList";
 import {UTILS} from "../../../diplomacy/utils/utils";
+import './gameCreationWizard.css';
 
 export class GameCreationWizard extends React.Component {
     constructor(props) {

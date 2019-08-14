@@ -15,31 +15,33 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Colors, Coordinates, offset} from "./common";
+import {centerSymbolAroundUnit} from "./common";
 import PropTypes from "prop-types";
 
-export class Hold extends React.Component {
+export class Disband extends React.Component {
     render() {
-        const polygon_coord = [];
-        const loc_x = offset(Coordinates[this.props.loc].unit[0], 8.5);
-        const loc_y = offset(Coordinates[this.props.loc].unit[1], 9.5);
-        for (let ofs of [
-            [13.8, -33.3], [33.3, -13.8], [33.3, 13.8], [13.8, 33.3], [-13.8, 33.3],
-            [-33.3, 13.8], [-33.3, -13.8], [-13.8, -33.3]]
-            ) {
-            polygon_coord.push(offset(loc_x, ofs[0]) + ',' + offset(loc_y, ofs[1]));
-        }
+        const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
+        const loc = this.props.loc;
+        const phaseType = this.props.phaseType;
+        const symbol = 'RemoveUnit';
+        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, phaseType === 'R', symbol);
         return (
             <g>
-                <polygon strokeWidth={10} className={'varwidthshadow'} points={polygon_coord.join(' ')}/>
-                <polygon strokeWidth={6} className={'varwidthorder'} points={polygon_coord.join(' ')}
-                         stroke={Colors[this.props.powerName]}/>
+                <use x={loc_x}
+                     y={loc_y}
+                     height={SymbolSizes[symbol].height}
+                     width={SymbolSizes[symbol].width}
+                     href={`#${symbol}`}
+                />
             </g>
         );
     }
 }
 
-Hold.propTypes = {
+Disband.propTypes = {
     loc: PropTypes.string.isRequired,
-    powerName: PropTypes.string.isRequired
+    phaseType: PropTypes.string.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired
 };

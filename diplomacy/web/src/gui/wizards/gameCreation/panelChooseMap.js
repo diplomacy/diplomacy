@@ -28,12 +28,15 @@ export class PanelChooseMap extends React.Component {
             ++count;
             if (!mapInfo.variants) {
                 mapEntries.push(
-                    <div key={count} className="mb-1">
+                    <div key={count} className="mb-1 d-flex flex-row">
                         <button type="button"
-                                className="btn btn-secondary btn-sm btn-block"
+                                className="btn btn-secondary btn-sm flex-grow-1 mr-1"
                                 onMouseOver={() => this.props.onUpdateParams({map: mapInfo})}
                                 onClick={() => this.props.forward()}>
                             {mapInfo.title}
+                        </button>
+                        <button type="button" className="btn btn-outline-secondary btn-sm" disabled={true}>
+                            <strong>+</strong>
                         </button>
                     </div>
                 );
@@ -43,7 +46,7 @@ export class PanelChooseMap extends React.Component {
                 const defaultVariant = variants[0];
                 mapEntries.push(
                     <div key={count}>
-                        <div className="mb-1 d-flex flex-row justify-content-center">
+                        <div className="mb-1 d-flex flex-row">
                             <button type="button"
                                     className="btn btn-secondary btn-sm flex-grow-1 mr-1"
                                     onMouseOver={() => this.props.onUpdateParams({map: defaultVariant})}
