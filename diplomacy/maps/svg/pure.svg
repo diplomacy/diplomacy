@@ -83,22 +83,22 @@
 
         /* default region coloring, by power */
 
-        .provinceRed {fill:url(#patternRed)}
-        .provinceBrown {fill:url(#patternBrown)}
-        .provinceGreen {fill:url(#patternGreen)}
-        .provinceBlack {fill:url(#patternBlack)}
-        .provinceBlue {fill:url(#patternBlue)}
+        .provinceRed {fill:url(#patternRed); stroke: black; stroke-width: 2}
+        .provinceBrown {fill:url(#patternBrown); stroke: black; stroke-width: 2}
+        .provinceGreen {fill:url(#patternGreen); stroke: black; stroke-width: 2}
+        .provinceBlack {fill:url(#patternBlack); stroke: black; stroke-width: 2}
+        .provinceBlue {fill:url(#patternBlue); stroke: black; stroke-width: 2}
 
-        .nopower {fill:antiquewhite;    stroke:#000000; stroke-width:1}
-        .water {fill:#c5dfea; stroke:#000000; stroke-width:1}
+        .nopower {fill:antiquewhite;    stroke:#000000; stroke-width:2}
+        .water {fill:#c5dfea; stroke:#000000; stroke-width:2}
 
-        .austria {fill:#c48f85; stroke:#000000; stroke-width:1}
-        .england {fill:darkviolet; stroke:#000000; stroke-width:1}
-        .france {fill:royalblue; stroke:#000000; stroke-width:1}
-        .germany {fill:#a08a75; stroke:#000000; stroke-width:1}
-        .italy {fill:forestgreen; stroke:#000000; stroke-width:1}
-        .russia {fill:#757d91; stroke:#000000; stroke-width:1}
-        .turkey {fill:#b9a61c; stroke:#000000; stroke-width:1}
+        .austria {fill:#c48f85; stroke:#000000; stroke-width:2}
+        .england {fill:darkviolet; stroke:#000000; stroke-width:2}
+        .france {fill:royalblue; stroke:#000000; stroke-width:2}
+        .germany {fill:#a08a75; stroke:#000000; stroke-width:2}
+        .italy {fill:forestgreen; stroke:#000000; stroke-width:2}
+        .russia {fill:#757d91; stroke:#000000; stroke-width:2}
+        .turkey {fill:#b9a61c; stroke:#000000; stroke-width:2}
 
         /* unit colors, by power note that underscores are not supported */
 

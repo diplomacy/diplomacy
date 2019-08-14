@@ -375,20 +375,20 @@
 
         /* default region coloring, by power (nopower if region not owned) */
 
-        .provinceRed {fill:url(#patternRed)}
-        .provinceBrown {fill:url(#patternBrown)}
-        .provinceGreen {fill:url(#patternGreen)}
-        .provinceBlack {fill:url(#patternBlack)}
-        .provinceBlue {fill:url(#patternBlue)}
+        .provinceRed {fill:url(#patternRed); stroke: black; stroke-width:2}
+        .provinceBrown {fill:url(#patternBrown); stroke: black; stroke-width:2}
+        .provinceGreen {fill:url(#patternGreen); stroke: black; stroke-width:2}
+        .provinceBlack {fill:url(#patternBlack); stroke: black; stroke-width:2}
+        .provinceBlue {fill:url(#patternBlue); stroke: black; stroke-width:2}
 
-        .nopower {fill:none;stroke:black;stroke-width:1}
-        .water {fill:lightblue;stroke:black;stroke-width:1}
+        .nopower {fill:none;stroke:black;stroke-width:2}
+        .water {fill:lightblue;stroke:black;stroke-width:2}
 
-        .rome {fill:#c48f85;stroke:black;stroke-width:1}
-        .carthage {fill:royalblue;stroke:black;stroke-width:1}
-        .persia {fill:gray;stroke:black;stroke-width:1}
-        .greece {fill:forestgreen;stroke:black;stroke-width:1}
-        .egypt {fill:#b9a61c;stroke:black;stroke-width:1}
+        .rome {fill:#c48f85;stroke:black;stroke-width:2}
+        .carthage {fill:royalblue;stroke:black;stroke-width:2}
+        .persia {fill:gray;stroke:black;stroke-width:2}
+        .greece {fill:forestgreen;stroke:black;stroke-width:2}
+        .egypt {fill:#b9a61c;stroke:black;stroke-width:2}
 
         /* unit colors fills, by power (units always have a power) */
 

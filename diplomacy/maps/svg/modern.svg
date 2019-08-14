@@ -641,26 +641,26 @@
         /* Mouse Layer */
         .invisibleContent {stroke:#000000;fill:#000000;fill-opacity:0.0;opacity:0.0}
 
-        .provinceRed {fill:url(#patternRed)}
-        .provinceBrown {fill:url(#patternBrown)}
-        .provinceGreen {fill:url(#patternGreen)}
-        .provinceBlack {fill:url(#patternBlack)}
-        .provinceBlue {fill:url(#patternBlue)}
+        .provinceRed {fill:url(#patternRed); stroke:black; stroke-width: 2}
+        .provinceBrown {fill:url(#patternBrown); stroke:black; stroke-width: 2}
+        .provinceGreen {fill:url(#patternGreen); stroke:black; stroke-width: 2}
+        .provinceBlack {fill:url(#patternBlack); stroke:black; stroke-width: 2}
+        .provinceBlue {fill:url(#patternBlue); stroke:black; stroke-width: 2}
 
         /* Nations */
-        .nopower {fill:#FFEEEE; stroke:black; stroke-linejoin:round}
-        .water {fill:#DDDDFF; stroke:black; stroke-linejoin:round}
+        .nopower {fill:#FFEEEE; stroke:black; stroke-linejoin:round; stroke-width: 2}
+        .water {fill:#DDDDFF; stroke:black; stroke-linejoin:round; stroke-width: 2}
 
-        .britain {fill:royalblue;stroke:black;}
-        .egypt {fill:#808000;stroke:black;}
-        .france {fill:#00FFFF;stroke:black;}
-        .germany {fill:darkgrey;stroke:black;}
-        .italy {fill:#80FF80;stroke:black;}
-        .poland {fill:#FF0000;stroke:black;}
-        .russia {fill:#008000;stroke:black;}
-        .spain {fill:#FF8080;stroke:black;}
-        .turkey {fill:#FFFF00;stroke:black;}
-        .ukraine {fill:#FF00FF;stroke:black;}
+        .britain {fill:royalblue;stroke:black;; stroke-width: 2}
+        .egypt {fill:#808000;stroke:black;; stroke-width: 2}
+        .france {fill:#00FFFF;stroke:black;; stroke-width: 2}
+        .germany {fill:darkgrey;stroke:black;; stroke-width: 2}
+        .italy {fill:#80FF80;stroke:black;; stroke-width: 2}
+        .poland {fill:#FF0000;stroke:black;; stroke-width: 2}
+        .russia {fill:#008000;stroke:black;; stroke-width: 2}
+        .spain {fill:#FF8080;stroke:black;; stroke-width: 2}
+        .turkey {fill:#FFFF00;stroke:black;; stroke-width: 2}
+        .ukraine {fill:#FF00FF;stroke:black;; stroke-width: 2}
 
         /* Unit Colors */
         .unitbritain {fill:deepskyblue;stroke:black;fill-opacity:0.90;}
