@@ -835,23 +835,23 @@
             <path d="M 0 0 L 10 5 L 0 10 z"/>
         </marker>
 
-        <pattern id="patternRed" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <pattern id="patternRed" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="scale(0.39 1)">
             <rect x="0" y="0" width="10" height="10" fill="red"/>
             <rect x="5" y="0" width="10" height="10" fill="pink"/>
         </pattern>
-        <pattern id="patternBrown" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <pattern id="patternBrown" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="scale(0.39 1)">
             <rect x="0" y="0" width="10" height="10" fill="peru"/>
             <rect x="5" y="0" width="10" height="10" fill="antiquewhite"/>
         </pattern>
-        <pattern id="patternGreen" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <pattern id="patternGreen" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="scale(0.39 1)">
             <rect x="0" y="0" width="10" height="10" fill="seagreen"/>
             <rect x="5" y="0" width="10" height="10" fill="yellowgreen"/>
         </pattern>
-        <pattern id="patternBlue" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <pattern id="patternBlue" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="scale(0.39 1)">
             <rect x="0" y="0" width="10" height="10" fill="CornflowerBlue"/>
             <rect x="5" y="0" width="10" height="10" fill="cyan"/>
         </pattern>
-        <pattern id="patternBlack" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse">
+        <pattern id="patternBlack" x="0" y="0" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="scale(0.39 1)">
             <rect x="0" y="0" width="10" height="10" fill="black"/>
             <rect x="0" y="5" width="10" height="10" fill="gray"/>
         </pattern>
