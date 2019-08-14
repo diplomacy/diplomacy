@@ -287,13 +287,17 @@ class Renderer():
             if child_node.nodeName == 'g' and _attr(child_node, 'id') == 'MapLayer':
                 map_layer = child_node
                 break
+
         if map_layer:
             for map_node in map_layer.childNodes:
                 if (map_node.nodeName in ('g', 'path', 'polygon')
                         and map_node.getAttribute('id') == '_{}'.format(loc.lower())):
+
+                    # Province is a polygon - Setting influence directly
                     if map_node.nodeName in ('path', 'polygon'):
                         map_node.setAttribute('class', class_name)
                         return xml_map
+
                     # Otherwise, map node is a 'g' node.
                     node_edited = False
                     for sub_node in map_node.childNodes:
@@ -302,6 +306,7 @@ class Renderer():
                             sub_node.setAttribute('class', class_name)
                     if node_edited:
                         return xml_map
+
         # Returning
         return xml_map
 
@@ -343,7 +348,6 @@ class Renderer():
             :param power_name: The name of the power owning the unit
             :return: Nothing
         """
-        ####
         # Symbols
         symbol = 'HoldUnit'
         loc_x, loc_y = self._center_symbol_around_unit(loc, False, symbol)
@@ -563,14 +567,12 @@ class Renderer():
         symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit(src_loc, False, symbol)
         symbol_height = float(self.metadata['symbol_size'][symbol][0])
         symbol_width = float(self.metadata['symbol_size'][symbol][1])
-        triangle = EquilateralTriangle(
-            float(symbol_loc_x) + symbol_width / 2,
-            float(symbol_loc_y),
-            float(symbol_loc_x) + symbol_width,
-            float(symbol_loc_y) + symbol_height,
-            float(symbol_loc_x),
-            float(symbol_loc_y) + symbol_height
-        )
+        triangle = EquilateralTriangle(x_top=float(symbol_loc_x) + symbol_width / 2,
+                                       y_top=float(symbol_loc_y),
+                                       x_right=float(symbol_loc_x) + symbol_width,
+                                       y_right=float(symbol_loc_y) + symbol_height,
+                                       x_left=float(symbol_loc_x),
+                                       y_left=float(symbol_loc_y) + symbol_height)
         symbol_loc_y = str(float(symbol_loc_y) - float(self.metadata['symbol_size'][symbol][0]) / 6)
 
         loc_x, loc_y = self._get_unit_center(loc, False)
@@ -732,8 +734,7 @@ class Renderer():
         # Returning
         return xml_map
 
-    def _center_symbol_around_unit(self, loc, is_dislodged, symbol):
-        # type: (str, bool, str) -> Tuple[str, str]
+    def _center_symbol_around_unit(self, loc, is_dislodged, symbol):        # type: (str, bool, str) -> Tuple[str, str]
         """ Compute top-left coordinates of a symbol to be centered around a unit.
             :param loc: unit location (e.g. 'PAR')
             :param is_dislodged: boolean to tell if unit is dislodged
@@ -749,8 +750,7 @@ class Renderer():
             str(float(unit_y) + float(unit_height) / 2 - float(symbol_height) / 2)
         )
 
-    def _get_unit_center(self, loc, is_dislodged):
-        # type: (str, bool) -> Tuple[float, float]
+    def _get_unit_center(self, loc, is_dislodged):                          # type: (str, bool) -> Tuple[float, float]
         """ Compute coordinates of unit center.
             :param loc: unit location
             :param is_dislodged: boolean to tell if unit is dislodged
@@ -763,15 +763,13 @@ class Renderer():
             float(unit_y) + float(unit_height) / 2
         )
 
-    def _plain_stroke_width(self):
-        # type: () -> float
+    def _plain_stroke_width(self):                                          # type: () -> float
         """ Return generic stroke width for plain lines.
             :return: stroke width as floating value.
         """
         return float(self.metadata['symbol_size']['Stroke'][0])
 
-    def _colored_stroke_width(self):
-        # type: () -> float
+    def _colored_stroke_width(self):                                        # type: () -> float
         """ Return generic stroke width for colored or textured lines.
             :return: stroke width as floating value.
         """

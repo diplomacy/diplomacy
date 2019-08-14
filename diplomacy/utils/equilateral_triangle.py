@@ -17,10 +17,10 @@
 # pylint: disable=anomalous-backslash-in-string
 """ Helper class to compute intersection of a line (OM) with a side of an equilateral triangle,
     with O the barycenter of the equilateral triangle and M a point outside the triangle.
-           A
-         /  \     M
-        / O  \
-    C  /______\  B
+             A
+           /  |     M
+         /  O |
+    C  /______|  B
 
     A = top, B = right, C = left
     O = center of triangle
