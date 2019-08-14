@@ -15,26 +15,36 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Coordinates, offset, SymbolSizes} from "./common";
+import {ARMY, FLEET} from "./common";
 import PropTypes from "prop-types";
 
-export class SupplyCenter extends React.Component {
+export class Unit extends React.Component {
     render() {
-        const symbol = 'SupplyCenter';
-        const loc_x = offset(Coordinates[this.props.loc].sc[0], -8.5);
-        const loc_y = offset(Coordinates[this.props.loc].sc[1], -11.0);
+        const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
+        const split_unit = this.props.unit.split(/ +/);
+        const unit_type = split_unit[0];
+        const loc = split_unit[1];
+        const dislogged_type = this.props.isDislodged ? 'disl' : 'unit';
+        const symbol = unit_type === 'F' ? FLEET : ARMY;
+        const loc_x = Coordinates[loc][dislogged_type][0];
+        const loc_y = Coordinates[loc][dislogged_type][1];
         return (
-            <use href={`#${symbol}`}
+            <use href={`#${this.props.isDislodged ? 'Dislodged' : ''}${symbol}`}
                  x={loc_x}
                  y={loc_y}
+                 id={`${this.props.isDislodged ? 'dislodged_' : ''}unit_${loc}`}
                  width={SymbolSizes[symbol].width}
                  height={SymbolSizes[symbol].height}
-                 className={`${this.props.powerName ? `sc${this.props.powerName.toLowerCase()}` : 'scnopower'}`}/>
+                 className={`unit${this.props.powerName.toLowerCase()}`}/>
         );
     }
 }
 
-SupplyCenter.propTypes = {
-    loc: PropTypes.string.isRequired,
-    powerName: PropTypes.string
+Unit.propTypes = {
+    unit: PropTypes.string.isRequired,
+    powerName: PropTypes.string.isRequired,
+    isDislodged: PropTypes.bool.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired
 };

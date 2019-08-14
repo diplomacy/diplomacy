@@ -44,6 +44,9 @@ import {saveGameToDisk} from "../utils/saveGameToDisk";
 import {Game} from '../../diplomacy/engine/game';
 import {PowerOrdersActionBar} from "../components/power_orders_actions_bar";
 import {SvgStandard} from "../maps/standard/SvgStandard";
+import {SvgAncMed} from "../maps/ancmed/SvgAncMed";
+import {SvgModern} from "../maps/modern/SvgModern";
+import {SvgPure} from "../maps/pure/SvgPure";
 import {MapData} from "../utils/map_data";
 import {Queue} from "../../diplomacy/utils/queue";
 
@@ -76,6 +79,21 @@ const PRETTY_ROLES = {
     [STRINGS.OMNISCIENT_TYPE]: 'Omnicient',
     [STRINGS.OBSERVER_TYPE]: 'Observer'
 };
+
+const MAP_COMPONENTS = {
+    ancmed: SvgAncMed,
+    standard: SvgStandard,
+    modern: SvgModern,
+    pure: SvgPure
+};
+
+function getMapComponent(mapName) {
+    for (let rootMap of Object.keys(MAP_COMPONENTS)) {
+        if (mapName.indexOf(rootMap) === 0)
+            return MAP_COMPONENTS[rootMap];
+    }
+    throw new Error(`Un-implemented map: ${mapName}`);
+}
 
 function noPromise() {
     return new Promise(resolve => resolve());
@@ -120,7 +138,8 @@ export class ContentGame extends React.Component {
             orders: orders, // {power name => {loc => {local: bool, order: str}}}
             power: null,
             orderBuildingType: null,
-            orderBuildingPath: []
+            orderBuildingPath: [],
+            showAbbreviations: true
         };
 
         // Bind some class methods to this instance.
@@ -140,6 +159,7 @@ export class ContentGame extends React.Component {
         this.onChangePastPhase = this.onChangePastPhase.bind(this);
         this.onChangePastPhaseIndex = this.onChangePastPhaseIndex.bind(this);
         this.onChangeShowPastOrders = this.onChangeShowPastOrders.bind(this);
+        this.onChangeShowAbbreviations = this.onChangeShowAbbreviations.bind(this);
         this.onChangeTabCurrentMessages = this.onChangeTabCurrentMessages.bind(this);
         this.onChangeTabPastMessages = this.onChangeTabPastMessages.bind(this);
         this.onClickMessage = this.onClickMessage.bind(this);
@@ -360,7 +380,7 @@ export class ContentGame extends React.Component {
                 if (this.networkGameIsDisplayed(networkGame)) {
                     this.__store_orders(null);
                     this.reloadDeadlineTimer(networkGame);
-                    return this.setState({orders: null, messageHighlights: {}})
+                    return this.setState({orders: null, messageHighlights: {}, orderBuildingPath: []})
                         .then(() => this.getPage().info(
                             `Game update (${notification.name}) to ${networkGame.local.phase}.`));
                 }
@@ -582,10 +602,12 @@ export class ContentGame extends React.Component {
      * Reset local orders and replace them with current server orders for current selected power.
      */
     reloadServerOrders() {
-        const currentPowerName = this.getCurrentPowerName();
-        if (currentPowerName) {
-            this.reloadPowerServerOrders(currentPowerName);
-        }
+        this.setState({orderBuildingPath: []}).then(() => {
+            const currentPowerName = this.getCurrentPowerName();
+            if (currentPowerName) {
+                this.reloadPowerServerOrders(currentPowerName);
+            }
+        });
     }
 
     /**
@@ -818,6 +840,10 @@ export class ContentGame extends React.Component {
         return this.setState({historyShowOrders: event.target.checked});
     }
 
+    onChangeShowAbbreviations(event) {
+        return this.setState({showAbbreviations: event.target.checked});
+    }
+
     onClickMessage(message) {
         if (!message.read) {
             message.read = true;
@@ -943,32 +969,37 @@ export class ContentGame extends React.Component {
     }
 
     renderMapForResults(gameEngine, showOrders) {
+        const Map = getMapComponent(gameEngine.map_name);
         return (
             <div id="past-map" key="past-map">
-                <SvgStandard game={gameEngine}
-                             mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
-                             onError={this.getPage().error}
-                             orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
-                             onHover={showOrders ? this.displayLocationOrders : null}
-                             onSelectVia={this.onSelectVia}/>
+                <Map game={gameEngine}
+                     showAbbreviations={this.state.showAbbreviations}
+                     mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
+                     onError={this.getPage().error}
+                     orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
+                     onHover={showOrders ? this.displayLocationOrders : null}
+                     onSelectVia={this.onSelectVia}/>
             </div>
         );
     }
 
     renderMapForMessages(gameEngine, showOrders) {
+        const Map = getMapComponent(gameEngine.map_name);
         return (
             <div id="messages-map" key="messages-map">
-                <SvgStandard game={gameEngine}
-                             mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
-                             onError={this.getPage().error}
-                             orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
-                             onHover={showOrders ? this.displayLocationOrders : null}
-                             onSelectVia={this.onSelectVia}/>
+                <Map game={gameEngine}
+                     showAbbreviations={this.state.showAbbreviations}
+                     mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
+                     onError={this.getPage().error}
+                     orders={(showOrders && gameEngine.order_history.contains(gameEngine.phase) && gameEngine.order_history.get(gameEngine.phase)) || null}
+                     onHover={showOrders ? this.displayLocationOrders : null}
+                     onSelectVia={this.onSelectVia}/>
             </div>
         );
     }
 
     renderMapForCurrent(gameEngine, powerName, orderType, orderPath) {
+        const Map = getMapComponent(gameEngine.map_name);
         const rawOrders = this.__get_orders(gameEngine);
         const orders = {};
         for (let entry of Object.entries(rawOrders)) {
@@ -980,15 +1011,16 @@ export class ContentGame extends React.Component {
         }
         return (
             <div id="current-map" key="current-map">
-                <SvgStandard game={gameEngine}
-                             mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
-                             onError={this.getPage().error}
-                             orderBuilding={ContentGame.getOrderBuilding(powerName, orderType, orderPath)}
-                             onOrderBuilding={this.onOrderBuilding}
-                             onOrderBuilt={this.onOrderBuilt}
-                             orders={orders}
-                             onSelectLocation={this.onSelectLocation}
-                             onSelectVia={this.onSelectVia}/>
+                <Map game={gameEngine}
+                     showAbbreviations={this.state.showAbbreviations}
+                     mapData={new MapData(this.getMapInfo(gameEngine.map_name), gameEngine)}
+                     onError={this.getPage().error}
+                     orderBuilding={ContentGame.getOrderBuilding(powerName, orderType, orderPath)}
+                     onOrderBuilding={this.onOrderBuilding}
+                     onOrderBuilt={this.onOrderBuilt}
+                     orders={orders}
+                     onSelectLocation={this.onSelectLocation}
+                     onSelectVia={this.onSelectVia}/>
             </div>
         );
     }
@@ -1015,23 +1047,27 @@ export class ContentGame extends React.Component {
 
     __form_phases(pastPhases, phaseIndex) {
         return (
-            <form key={1} className={'form-inline mb-4'}>
-                <Button title={UTILS.html.UNICODE_LEFT_ARROW} onClick={this.onDecrementPastPhase} pickEvent={true}
-                        disabled={phaseIndex === 0}/>
-                <div className="form-group mx-1">
-                    <select className={'form-control custom-select'}
-                            id={'select-past-phase'}
+            <form key={1} className="form-inline mb-4">
+                <div className="custom-control-inline">
+                    <Button title={UTILS.html.UNICODE_LEFT_ARROW} onClick={this.onDecrementPastPhase} pickEvent={true}
+                            disabled={phaseIndex === 0}/>
+                </div>
+                <div className="custom-control-inline">
+                    <select className="custom-select"
+                            id="select-past-phase"
                             value={phaseIndex}
                             onChange={this.onChangePastPhase}>
                         {pastPhases.map((phaseName, index) => <option key={index} value={index}>{phaseName}</option>)}
                     </select>
                 </div>
-                <Button title={UTILS.html.UNICODE_RIGHT_ARROW} onClick={this.onIncrementPastPhase} pickEvent={true}
-                        disabled={phaseIndex === pastPhases.length - 1}/>
-                <div className="form-group mx-1">
-                    <input className={'form-check-input'} id={'show-orders'} type={'checkbox'}
+                <div className="custom-control-inline">
+                    <Button title={UTILS.html.UNICODE_RIGHT_ARROW} onClick={this.onIncrementPastPhase} pickEvent={true}
+                            disabled={phaseIndex === pastPhases.length - 1}/>
+                </div>
+                <div className="custom-control custom-control-inline custom-checkbox">
+                    <input className="custom-control-input" id="show-orders" type="checkbox"
                            checked={this.state.historyShowOrders} onChange={this.onChangeShowPastOrders}/>
-                    <label className={'form-check-label'} htmlFor={'show-orders'}>Show orders</label>
+                    <label className="custom-control-label" htmlFor="show-orders">Show orders</label>
                 </div>
             </form>
         );
@@ -1249,16 +1285,24 @@ export class ContentGame extends React.Component {
         }
 
         const navAfterTitle = (
-            (controllablePowers.length === 1 &&
-                <span className="power-name">{controllablePowers[0]}</span>) || (
-                <form className="form-inline form-current-power">
-                    <select className="form-control custom-select custom-control-inline" id="current-power"
-                            value={currentPowerName} onChange={this.onChangeCurrentPower}>
-                        {controllablePowers.map(
-                            powerName => <option key={powerName} value={powerName}>{powerName}</option>)}
-                    </select>
-                </form>
-            )
+            <form className="form-inline form-current-power">
+                {(controllablePowers.length === 1 &&
+                    <span className="power-name">{controllablePowers[0]}</span>) || (
+                    <div className="custom-control custom-control-inline">
+                        <label className="sr-only" htmlFor="current-power">power</label>
+                        <select className="form-control custom-select custom-control-inline" id="current-power"
+                                value={currentPowerName} onChange={this.onChangeCurrentPower}>
+                            {controllablePowers.map(
+                                powerName => <option key={powerName} value={powerName}>{powerName}</option>)}
+                        </select>
+                    </div>
+                )}
+                <div className="custom-control custom-control-inline custom-checkbox">
+                    <input className="custom-control-input" id="show-abbreviations" type="checkbox"
+                           checked={this.state.showAbbreviations} onChange={this.onChangeShowAbbreviations}/>
+                    <label className="custom-control-label" htmlFor="show-abbreviations">Show abbreviations</label>
+                </div>
+            </form>
         );
 
         const currentTabOrderCreation = hasTabCurrentPhase && (

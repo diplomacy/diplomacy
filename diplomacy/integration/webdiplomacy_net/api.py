@@ -18,9 +18,9 @@
 import logging
 import os
 from urllib.parse import urlencode
-import ujson as json
 from tornado import gen
 from tornado.httpclient import HTTPRequest
+import ujson as json
 from diplomacy.integration.base_api import BaseAPI
 from diplomacy.integration.webdiplomacy_net.game import state_dict_to_game_and_power
 from diplomacy.integration.webdiplomacy_net.orders import Order

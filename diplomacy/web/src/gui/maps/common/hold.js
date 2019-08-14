@@ -15,31 +15,33 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {ARMY, Coordinates, FLEET, offset, SymbolSizes} from "./common";
+import {centerSymbolAroundUnit} from "./common";
 import PropTypes from "prop-types";
 
-export class Unit extends React.Component {
+export class Hold extends React.Component {
     render() {
-        const split_unit = this.props.unit.split(/ +/);
-        const unit_type = split_unit[0];
-        const loc = split_unit[1];
-        const dislogged_type = this.props.isDislodged ? 'disl' : 'unit';
-        const symbol = unit_type === 'F' ? FLEET : ARMY;
-        const loc_x = offset(Coordinates[loc][dislogged_type][0], -11.5);
-        const loc_y = offset(Coordinates[loc][dislogged_type][1], -10.0);
+        const Coordinates = this.props.coordinates;
+        const Colors = this.props.colors;
+        const SymbolSizes = this.props.symbolSizes;
+        const symbol = 'HoldUnit';
+        const [loc_x, loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, this.props.loc, false, symbol);
         return (
-            <use href={`#${this.props.isDislodged ? 'Dislodged' : ''}${symbol}`}
-                 x={loc_x}
-                 y={loc_y}
-                 width={SymbolSizes[symbol].width}
-                 height={SymbolSizes[symbol].height}
-                 className={`unit${this.props.powerName.toLowerCase()}`}/>
+            <g stroke={Colors[this.props.powerName]}>
+                <use
+                    x={loc_x}
+                    y={loc_y}
+                    width={SymbolSizes[symbol].width}
+                    height={SymbolSizes[symbol].height}
+                    href={`#${symbol}`}/>
+            </g>
         );
     }
 }
 
-Unit.propTypes = {
-    unit: PropTypes.string.isRequired,
+Hold.propTypes = {
+    loc: PropTypes.string.isRequired,
     powerName: PropTypes.string.isRequired,
-    isDislodged: PropTypes.bool.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired,
+    colors: PropTypes.object.isRequired
 };

@@ -22,9 +22,10 @@ import {Button} from "../components/button";
 import {DeleteButton} from "../components/delete_button";
 
 export class InlineGameView {
-    constructor(page, gameData) {
+    constructor(page, gameData, maps) {
         this.page = page;
         this.game = gameData;
+        this.maps = maps;
         this.get = this.get.bind(this);
         this.joinGame = this.joinGame.bind(this);
         this.showGame = this.showGame.bind(this);
@@ -75,7 +76,10 @@ export class InlineGameView {
             );
         } else {
             // Game not yet joined.
-            return <JoinForm key={this.game.game_id} game_id={this.game.game_id} powers={this.game.controlled_powers}
+            return <JoinForm key={this.game.game_id}
+                             game_id={this.game.game_id}
+                             powers={this.game.controlled_powers}
+                             availablePowers={this.maps[this.game.map_name].powers}
                              password_required={this.game.registration_password}
                              onSubmit={this.joinGame}/>;
         }
@@ -151,6 +155,7 @@ export class InlineGameView {
             return <div>
                 <div><strong>{this.game.game_id}</strong></div>
                 <div>({dateString})</div>
+                <div><em>{this.game.map_name}</em></div>
             </div>;
         }
         return this.game[name];

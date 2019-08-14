@@ -530,6 +530,9 @@ class Server():
             :param server_game: server game to check
             :type server_game: ServerGame
         """
+        if server_game.map.root_map != 'standard':
+            # Bot does not currently support other maps.
+            return
         dummy_power_names = []
         if server_game.is_game_active or server_game.is_game_paused:
             dummy_power_names = server_game.get_dummy_unordered_power_names()

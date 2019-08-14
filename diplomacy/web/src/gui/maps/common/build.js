@@ -15,37 +15,43 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import {Coordinates, offset, SymbolSizes} from "./common";
+import {ARMY, centerSymbolAroundUnit, FLEET} from "./common";
 import PropTypes from "prop-types";
 
-export class Disband extends React.Component {
+export class Build extends React.Component {
     render() {
+        const Coordinates = this.props.coordinates;
+        const SymbolSizes = this.props.symbolSizes;
         const loc = this.props.loc;
-        const phaseType = this.props.phaseType;
-        let loc_x = 0;
-        let loc_y = 0;
-        if (phaseType === 'R') {
-            loc_x = offset(Coordinates[loc].unit[0], -29.);
-            loc_y = offset(Coordinates[loc].unit[1], -27.5);
-        } else {
-            loc_x = offset(Coordinates[loc].unit[0], -16.5);
-            loc_y = offset(Coordinates[loc].unit[1], -15.);
-        }
-        const symbol = 'RemoveUnit';
+        const unit_type = this.props.unitType;
+        const build_symbol = 'BuildUnit';
+        const loc_x = Coordinates[loc].unit[0];
+        const loc_y = Coordinates[loc].unit[1];
+        const [build_loc_x, build_loc_y] = centerSymbolAroundUnit(Coordinates, SymbolSizes, loc, false, build_symbol);
+
+        const symbol = unit_type === 'A' ? ARMY : FLEET;
         return (
             <g>
+                <use x={build_loc_x}
+                     y={build_loc_y}
+                     height={SymbolSizes[build_symbol].height}
+                     width={SymbolSizes[build_symbol].width}
+                     href={`#${build_symbol}`}/>
                 <use x={loc_x}
                      y={loc_y}
                      height={SymbolSizes[symbol].height}
                      width={SymbolSizes[symbol].width}
                      href={`#${symbol}`}
-                />
+                     className={`unit${this.props.powerName.toLowerCase()}`}/>
             </g>
         );
     }
 }
 
-Disband.propTypes = {
+Build.propTypes = {
+    unitType: PropTypes.string.isRequired,
     loc: PropTypes.string.isRequired,
-    phaseType: PropTypes.string.isRequired
+    powerName: PropTypes.string.isRequired,
+    coordinates: PropTypes.object.isRequired,
+    symbolSizes: PropTypes.object.isRequired
 };

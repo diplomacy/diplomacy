@@ -246,16 +246,6 @@ span.power-name {
     content: ', ';
 }
 
-.fancy-wrapper {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    padding-top: 10%;
-    background-color: rgba(100, 100, 110, 0.5);
-}
-
 .fancy-box {
     border: 1px solid silver;
     position: relative;
@@ -267,12 +257,7 @@ span.power-name {
     border-bottom: 1px solid silver;
 }
 
-.fancy-box .fancy-button {
-}
-
 .fancy-box .fancy-content {
-    padding-top: 10px;
-    padding-bottom: 10px;
     background-color: white;
 }
 
@@ -436,20 +421,13 @@ button.collapsed .roll {
     display: none;
 }
 
-.panel-choose-map .map-list {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    overflow: auto;
-    border: 1px solid gray;
-}
-
 .inline {
     white-space: nowrap;
 }
 
+.visibilityHidden {
+    visibility: hidden;
+}
 
 /** Page login. **/
 /** Page games. **/
