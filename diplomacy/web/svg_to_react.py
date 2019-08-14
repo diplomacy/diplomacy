@@ -682,7 +682,6 @@ export class %(classname)s extends React.Component {
                                              colors={Colors}/>
                             );
                         } else {
-                            const dest_type = tokens[tokens.length - 2];
                             renderedOrders2.push(
                                 <SupportHold key={order}
                                              loc={unit_loc}
