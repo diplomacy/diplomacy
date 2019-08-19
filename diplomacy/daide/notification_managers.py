@@ -28,11 +28,12 @@ from diplomacy.utils import strings, splitter
 
 def _build_active_notifications(current_phase, powers, map_name, deadline):
     """ Build the list of notifications corresponding to an active game state
-        :param current_phase: the current phase
-        :param powers: the list of game's powers
-        :param map_name: the map name
-        :param deadline: the deadline of the game
-        :return: list of notifications
+
+    :param current_phase: the current phase
+    :param powers: the list of game's powers
+    :param map_name: the map name
+    :param deadline: the deadline of the game
+    :return: list of notifications
     """
     notifs = []
 
@@ -52,11 +53,12 @@ def _build_active_notifications(current_phase, powers, map_name, deadline):
 
 def _build_completed_notifications(server_users, has_draw_vote, powers, state_history):
     """ Build the list of notifications corresponding to a completed game state
-        :param server_users: the instance of `diplomacy.server.users` of the game's server
-        :param has_draw_vote: true if the game has completed due to a draw vote
-        :param powers: the list of game's powers
-        :param state_history: the states history of the game
-        :return: list of notifications
+
+    :param server_users: the instance of `diplomacy.server.users` of the game's server
+    :param has_draw_vote: true if the game has completed due to a draw vote
+    :param powers: the list of game's powers
+    :param state_history: the states history of the game
+    :return: list of notifications
     """
     notifs = []
 
@@ -88,11 +90,12 @@ def _build_completed_notifications(server_users, has_draw_vote, powers, state_hi
 
 def on_processed_notification(server, notification, connection_handler, game):
     """ Build the list of notifications for a game processed event
-        :param server: server which receives the request
-        :param notification: internal notification
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: list of notifications
+
+    :param server: server which receives the request
+    :param notification: internal notification
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: list of notifications
     """
     _, _, _, power_name = utils.get_user_connection(server.users, game, connection_handler)
     previous_phase_data = notification.previous_phase_data
@@ -130,11 +133,12 @@ def on_processed_notification(server, notification, connection_handler, game):
 
 def on_status_update_notification(server, notification, connection_handler, game):
     """ Build the list of notificaitons for a status update event
-        :param server: server which receives the request
-        :param notification: internal notification
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: list of notifications
+
+    :param server: server which receives the request
+    :param notification: internal notification
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: list of notifications
     """
     _, daide_user, _, power_name = utils.get_user_connection(server.users, game, connection_handler)
     powers = [game.powers[power_name] for power_name in sorted(game.powers)]
@@ -159,11 +163,12 @@ def on_status_update_notification(server, notification, connection_handler, game
 
 def on_message_received_notification(server, notification, connection_handler, game):
     """ Build the list of notificaitons for a message received event
-        :param server: server which receives the request
-        :param notification: internal notification
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: list of notificaitons
+
+    :param server: server which receives the request
+    :param notification: internal notification
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: list of notificaitons
     """
     del server, connection_handler, game                # Unused args
     notifs = []
@@ -173,12 +178,13 @@ def on_message_received_notification(server, notification, connection_handler, g
 
 def translate_notification(server, notification, connection_handler):
     """ Find notification handler function for associated notification, run it and return its result.
-        :param server: a Server object to pass to handler function.
-        :param notification: a notification object to pass to handler function.
-            See diplomacy.communication.notifications for possible notifications.
-        :param connection_handler: a ConnectionHandler object to pass to handler function.
-        :return: either None or an array of daide notifications.
-            See module diplomacy.daide.notifications for possible daide notifications.
+
+    :param server: a Server object to pass to handler function.
+    :param notification: a notification object to pass to handler function.
+        See diplomacy.communication.notifications for possible notifications.
+    :param connection_handler: a ConnectionHandler object to pass to handler function.
+    :return: either None or an array of daide notifications.
+        See module diplomacy.daide.notifications for possible daide notifications.
     """
     notification_handler_fn = MAPPING.get(type(notification), None)
     game = server.get_game(notification.game_id)

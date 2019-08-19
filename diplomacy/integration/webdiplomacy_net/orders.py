@@ -18,11 +18,12 @@ LOGGER = logging.getLogger(__name__)
 
 def is_adjacent_for_convoy(loc_1, loc_2, map_object):
     """ Checks if two locations are adjacent (for convoy purposes)
-            - If loc_1 and loc_2 are water, loc_1 and loc_2 must be adjacent
-            - If loc_1 or loc_2 is land, then they are not adjacent
-            - If loc_1 or loc_2 are coast, then the other locations needs to be a water loc at most 1 loc away
 
-        :type map_object: diplomacy.Map
+    - If loc_1 and loc_2 are water, loc_1 and loc_2 must be adjacent
+    - If loc_1 or loc_2 is land, then they are not adjacent
+    - If loc_1 or loc_2 are coast, then the other locations needs to be a water loc at most 1 loc away
+
+    :type map_object: diplomacy.Map
     """
     area_1 = map_object.area_type(loc_1)
     area_2 = map_object.area_type(loc_2)
@@ -48,16 +49,17 @@ def is_adjacent_for_convoy(loc_1, loc_2, map_object):
 
 def find_convoy_path(src, dest, map_object, game=None, including=None, excluding=None):
     """ Finds a convoy path from src to dest
-        :param src: The source location (e.g. 'BRE')
-        :param dest: The destination location (e.g. 'LON')
-        :param map_object: A diplomacy.Map object representation of the current map
-        :param game: Optional. The current game object to retrieve the list of fleets.
-        :param including: Optional. A single province (e.g. 'NAO') or a list of provinces that must be in the path.
-        :param excluding: Optional. A single province (e.g. 'NAO') or a list of provinces that must NOT be in the path.
-        :return: Either an empty list if a convoy is not possible between src and dest
-                 or a list of [src, fleet1, fleet2, ..., fleet_n, dest] to use to convoy A `src` - `dest`.
-        :type map_object: diplomacy.Map
-        :type game: diplomacy.Game
+
+    :param src: The source location (e.g. 'BRE')
+    :param dest: The destination location (e.g. 'LON')
+    :param map_object: A diplomacy.Map object representation of the current map
+    :param game: Optional. The current game object to retrieve the list of fleets.
+    :param including: Optional. A single province (e.g. 'NAO') or a list of provinces that must be in the path.
+    :param excluding: Optional. A single province (e.g. 'NAO') or a list of provinces that must NOT be in the path.
+    :return: Either an empty list if a convoy is not possible between src and dest
+         or a list of [src, fleet1, fleet2, ..., fleet_n, dest] to use to convoy A `src` - `dest`.
+    :type map_object: diplomacy.Map
+    :type game: diplomacy.Game
     """
     if map_object.area_type(src) != 'COAST' or map_object.area_type(dest) != 'COAST':
         return []
@@ -127,11 +129,12 @@ class Order():
 
     def __init__(self, order, map_id=None, map_name=None, phase_type=None, game=None):
         """ Constructor
-            :param order: An order (either as a string 'A PAR H' or as a dictionary)
-            :param map_id: Optional. The map id of the map where orders are submitted (webdiplomacy format)
-            :param map_name: Optional. The map name of the map where orders are submitted.
-            :param phase_type: Optional. The phase type ('M', 'R', 'A') to disambiguate orders to send.
-            :param game: Optional. The diplomacy.Game object to build the correct convoy path.
+
+        :param order: An order (either as a string 'A PAR H' or as a dictionary)
+        :param map_id: Optional. The map id of the map where orders are submitted (webdiplomacy format)
+        :param map_name: Optional. The map name of the map where orders are submitted.
+        :param phase_type: Optional. The phase type ('M', 'R', 'A') to disambiguate orders to send.
+        :param game: Optional. The diplomacy.Game object to build the correct convoy path.
         """
         self.map_name = 'standard'
         self.phase_type = 'M'
@@ -444,7 +447,8 @@ class Order():
 
     def _build_from_dict(self, order):
         """ Builds this object from a dictionary
-            :type order: dict
+
+        :type order: dict
         """
         # pylint: disable=too-many-return-statements
         terr_id = order.get('terrID', None)

@@ -32,7 +32,8 @@ class GameInstancesSet():
 
     def __init__(self, game_id):
         """ Initialize a game instances set.
-            :param game_id: game ID of game instances to store.
+
+        :param game_id: game ID of game instances to store.
         """
         self.game_id = game_id
         self.games = weakref.WeakValueDictionary()  # {power name => NetworkGame}
@@ -60,8 +61,9 @@ class GameInstancesSet():
 
     def add(self, game):
         """ Add given game.
-            :param game: a NetworkGame object.
-            :type game: diplomacy.client.network_game.NetworkGame
+
+        :param game: a NetworkGame object.
+        :type game: diplomacy.client.network_game.NetworkGame
         """
         assert self.game_id == game.game_id
         if Game.is_player_game(game):

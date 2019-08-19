@@ -15,10 +15,11 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Aliases and keywords
-    - Contains aliases and keywords
-    - Keywords are always single words
-    - Aliases are only converted in a second pass, so if they contain a keyword, you should replace
-      the keyword with its abbreviation.
+
+- Contains aliases and keywords
+- Keywords are always single words
+- Aliases are only converted in a second pass, so if they contain a keyword, you should replace
+  the keyword with its abbreviation.
 """
 
 KEYWORDS = {'>': '', '-': '-', 'ARMY': 'A', 'FLEET': 'F', 'WING': 'W', 'THE': '', 'NC': '/NC', 'SC': '/SC',

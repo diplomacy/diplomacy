@@ -27,9 +27,10 @@ class Token:
 
     def __init__(self, from_str=None, from_int=None, from_bytes=None):
         """ Initialize a token from its string representation, or from its bytes representation
-            :param from_str: The string representation of the token
-            :param from_int: The integer representation of the token
-            :param from_bytes: The byte representation of the token
+
+        :param from_str: The string representation of the token
+        :param from_int: The integer representation of the token
+        :param from_bytes: The byte representation of the token
         """
         self.repr_str = ''
         self.repr_int = None
@@ -139,25 +140,28 @@ class Token:
 
 def is_ascii_token(token):
     """ Check if the token is an ascii token
-        :param token: An instance of Token
-        :return: True if `token` is an acsii token. False otherwise
+
+    :param token: An instance of Token
+    :return: True if `token` is an acsii token. False otherwise
     """
     return isinstance(token, Token) and \
            len(token.repr_bytes) == 2 and token.repr_bytes[0] == ASCII_BYTE
 
 def is_integer_token(token):
     """ Check if the token is an integer token
-        :param token: An instance of Token
-        :return: True if `token` is an integer token. False otherwise
+
+    :param token: An instance of Token
+    :return: True if `token` is an integer token. False otherwise
     """
     return isinstance(token, Token) and \
            len(token.repr_bytes) == 2 and token.repr_bytes[0] < 64
 
 def register_token(str_repr, bytes_repr):
     """ Registers a token in the registry
-        :param str_repr: The DAIDE string representation of the token (e.g. 'ECS')
-        :param bytes_repr: The bytes representation of the token (i.e. bytes of length 2)
-        :return: The token that has been registered
+
+    :param str_repr: The DAIDE string representation of the token (e.g. 'ECS')
+    :param bytes_repr: The bytes representation of the token (i.e. bytes of length 2)
+    :return: The token that has been registered
     """
     if str_repr in STR_TO_BYTES:
         raise ValueError('String %s has already been registered.' % str_repr)

@@ -33,7 +33,8 @@ LOGGER = logging.getLogger(__name__)
 
 class ConnectionHandler(WebSocketHandler):
     """ ConnectionHandler class. Properties:
-        - server: server object representing running server.
+
+    - server: server object representing running server.
     """
     # pylint: disable=abstract-method
 
@@ -43,8 +44,9 @@ class ConnectionHandler(WebSocketHandler):
 
     def initialize(self, server=None):
         """ Initialize the connection handler.
-            :param server: a Server object.
-            :type server: diplomacy.Server
+
+        :param server: a Server object.
+        :type server: diplomacy.Server
         """
         # pylint: disable=arguments-differ
         if self.server is None:
@@ -52,14 +54,15 @@ class ConnectionHandler(WebSocketHandler):
 
     def get_compression_options(self):
         """ Return compression options for the connection (see parent method).
-            Non-None enables compression with default options.
+        Non-None enables compression with default options.
         """
         return {}
 
     def check_origin(self, origin):
         """ Return True if we should accept connexion from given origin (str). """
 
-        # It seems origin may be 'null', e.g. if client is a web page loaded from disk (`file:///my_test_file.html`).
+        # It seems origin may be 'null', e.g. if client is a web page loaded
+        # from disk (`file:///my_test_file.html`).
         # Accept it.
         if origin == 'null':
             return True
@@ -75,10 +78,11 @@ class ConnectionHandler(WebSocketHandler):
 
     def on_close(self):
         """ Invoked when the socket is closed (see parent method).
-            Detach this connection handler from server users.
+        Detach this connection handler from server users.
         """
         self.server.users.remove_connection(self, remove_tokens=False)
-        LOGGER.info("Removed connection. Remaining %d connection(s).", self.server.users.count_connections())
+        LOGGER.info("Removed connection. Remaining %d connection(s).",
+                    self.server.users.count_connections())
 
     def write_message(self, message, binary=False):
         """ Sends the given message to the client of this Web Socket. """
@@ -89,22 +93,27 @@ class ConnectionHandler(WebSocketHandler):
     @staticmethod
     def translate_notification(notification):
         """ Translate a notification to an array of notifications.
-            :param notification: a notification object to pass to handler function.
-                See diplomacy.communication.notifications for possible notifications.
-            :return: An array of notifications containing a single notification.
+
+        :param notification: a notification object to pass to handler function.
+            See diplomacy.communication.notifications for possible notifications.
+        :return: An array of notifications containing a single notification.
         """
         return [notification]
 
     @gen.coroutine
     def on_message(self, message):
-        """ Parse given message and manage parsed data (expected a string representation of a request). """
+        """ Parse given message and manage parsed data
+        (expected a string representation of a request).
+        """
         try:
             json_request = json.loads(message)
             if not isinstance(json_request, dict):
                 raise ValueError("Unable to convert a JSON string to a dictionary.")
         except ValueError as exc:
-            # Error occurred because either message is not a JSON string or parsed JSON object is not a dict.
-            response = responses.Error(message='%s/%s' % (type(exc).__name__, str(exc)))
+            # Error occurred because either message is not a JSON string
+            # or parsed JSON object is not a dict.
+            response = responses.Error(error_type=exceptions.ResponseException.__name__,
+                                       message=str(exc))
         else:
             try:
                 request = requests.parse_dict(json_request)
@@ -118,7 +127,8 @@ class ConnectionHandler(WebSocketHandler):
                     response = responses.Ok(request_id=request.request_id)
 
             except exceptions.ResponseException as exc:
-                response = responses.Error(message='%s/%s' % (type(exc).__name__, exc.message),
+                response = responses.Error(error_type=type(exc).__name__,
+                                           message=exc.message,
                                            request_id=json_request.get(strings.REQUEST_ID, None))
 
         if response:

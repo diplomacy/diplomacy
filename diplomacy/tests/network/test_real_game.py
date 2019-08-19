@@ -19,6 +19,7 @@
 import logging
 import os
 import random
+from typing import Dict
 
 from tornado import gen
 from tornado.concurrent import Future
@@ -45,7 +46,9 @@ class ExpectedPhase():
 
     def __init__(self, json_phase):
         """ Initialize expected phase.
-            :param json_phase: JSON dict representing a phase. Expected fields: name, state, orders, messages.
+
+        :param json_phase: JSON dict representing a phase. Expected fields:
+            name, state, orders, messages.
         """
         self.name = json_phase['name']
         self.state = json_phase['state']
@@ -69,8 +72,9 @@ class ExpectedMessages():
 
     def __init__(self, power_name, messages):
         """  Initialize the expected messages.
-            :param power_name: power name which exchanges these messages
-            :param messages: messages exchanged
+
+        :param power_name: power name which exchanges these messages
+        :param messages: messages exchanged
         """
         self.power_name = power_name
         self.messages = messages  # type: [EngineMessage]
@@ -85,7 +89,9 @@ class ExpectedMessages():
         return any(message.sender == self.power_name for message in self.messages)
 
     def move_forward(self):
-        """ Move next messages to send from messages list to sending queue (self.next_messages_to_send). """
+        """ Move next messages to send from messages list to sending queue
+            (self.next_messages_to_send).
+        """
         self.next_messages_to_send.clear()
         if self.messages:
             if self.messages[0].sender != self.power_name:
@@ -107,12 +113,13 @@ class ExpectedData():
 
     def __init__(self, power_name, phases, phase_index):
         """ Initialize expected data for a game power.
-            :param power_name: name of power for which those data are expected.
-            :param phases: list of expected phases.
-            :param phase_index: index of current expected phase in given phases.
-            :type power_name: str
-            :type phases: list[ExpectedPhase]
-            :type phase_index: int
+
+        :param power_name: name of power for which those data are expected.
+        :param phases: list of expected phases.
+        :param phase_index: index of current expected phase in given phases.
+        :type power_name: str
+        :type phases: list[ExpectedPhase]
+        :type phase_index: int
         """
         self.messages = ExpectedMessages(power_name, phases[phase_index].get_power_related_messages(power_name))
         self.phases = phases
@@ -136,10 +143,11 @@ class CaseData():
 
     def __init__(self, case_file_name, hostname=DEFAULT_HOSTNAME, port=DEFAULT_PORT):
         """ Initialize game test.
-            :param case_file_name: File name of JSON file containing expected game data.
-                JSON file must be located in folder FILE_FOLDER_NAME.
-            :param hostname: hostname to use to load server.
-            :param port: port to use to load server.
+
+        :param case_file_name: File name of JSON file containing expected game data.
+            JSON file must be located in folder FILE_FOLDER_NAME.
+        :param hostname: hostname to use to load server.
+        :param port: port to use to load server.
         """
         full_file_path = os.path.join(self.FILE_FOLDER_NAME, case_file_name)
         with open(full_file_path, 'rb') as file:
@@ -157,7 +165,7 @@ class CaseData():
         self.admin_channel = None
         self.admin_game = None
         self.user_games = {}
-        self.future_games_ended = {}  # type: dict{str, Future}
+        self.future_games_ended = {}  # type: Dict[str, Future]
 
         self.hostname = hostname
         self.port = port
@@ -169,10 +177,11 @@ class CaseData():
     @gen.coroutine
     def on_power_phase_update(self, game, notification=None):
         """ User game notification callback for game phase updated.
-            :param game: game
-            :param notification: notification
-            :type game: NetworkGame
-            :type notification: diplomacy.communication.notifications.GameProcessed | None
+
+        :param game: game
+        :param notification: notification
+        :type game: NetworkGame
+        :type notification: diplomacy.communication.notifications.GameProcessed | None
         """
         print('We changed phase for power', game.power.name)
         expected_data = game.data  # type: ExpectedData
@@ -187,10 +196,11 @@ class CaseData():
     @gen.coroutine
     def on_power_state_update(self, game, notification):
         """ User game notification callback for game state update.
-            :param game: game
-            :param notification: notification
-            :type game: NetworkGame
-            :type notification: diplomacy.communication.notifications.GamePhaseUpdate
+
+        :param game: game
+        :param notification: notification
+        :type game: NetworkGame
+        :type notification: diplomacy.communication.notifications.GamePhaseUpdate
         """
         if notification.phase_data_type == strings.PHASE:
             yield self.on_power_phase_update(game, None)
@@ -198,10 +208,11 @@ class CaseData():
 @gen.coroutine
 def send_messages_if_needed(game, expected_messages):
     """ Take messages to send in top of given messages list and send them.
-        :param game: a NetworkGame object.
-        :param expected_messages: an instance of ExpectedMessages.
-        :type game: NetworkGame
-        :type expected_messages: ExpectedMessages
+
+    :param game: a NetworkGame object.
+    :param expected_messages: an instance of ExpectedMessages.
+    :type game: NetworkGame
+    :type expected_messages: ExpectedMessages
     """
     power_name = game.power.name
 
@@ -222,8 +233,9 @@ def send_messages_if_needed(game, expected_messages):
 @gen.coroutine
 def send_current_orders(game):
     """ Send expected orders for current phase.
-        :param game: a Network game object.
-        :type game: NetworkGame
+
+    :param game: a Network game object.
+    :type game: NetworkGame
     """
     expected_data = game.data  # type: ExpectedData
     orders_to_send = expected_data.expected_phase.get_power_orders(expected_data.power_name)
@@ -242,10 +254,11 @@ def send_current_orders(game):
 
 def on_message_received(game, notification):
     """ User game notification callback for messages received.
-        :param game: a NetworkGame object,
-        :param notification: a notification received by this game.
-        :type game: NetworkGame
-        :type notification: diplomacy.communication.notifications.GameMessageReceived
+
+    :param game: a NetworkGame object,
+    :param notification: a notification received by this game.
+    :type game: NetworkGame
+    :type notification: diplomacy.communication.notifications.GameMessageReceived
     """
     power_name = game.power.name
     messages = game.data.messages  # type: ExpectedMessages
@@ -286,10 +299,11 @@ def on_message_received(game, notification):
 
 def on_admin_game_phase_update(admin_game, notification=None):
     """ Admin game notification callback for game phase update.
-        :param admin_game: admin game
-        :param notification: notification
-        :type admin_game: NetworkGame
-        :type notification: diplomacy.communication.notifications.GameProcessed | None
+
+    :param admin_game: admin game
+    :param notification: notification
+    :type admin_game: NetworkGame
+    :type notification: diplomacy.communication.notifications.GameProcessed | None
     """
     assert admin_game.is_omniscient_game()
     expected_data = admin_game.data  # type: ExpectedData
@@ -370,42 +384,47 @@ def on_admin_game_phase_update(admin_game, notification=None):
 
 def on_admin_game_state_update(admin_game, notification):
     """ Admin game notification callback for game state update.
-        :param admin_game: admin game
-        :param notification: notification
-        :type admin_game: NetworkGame
-        :type notification: diplomacy.communication.notifications.GamePhaseUpdate
+
+    :param admin_game: admin game
+    :param notification: notification
+    :type admin_game: NetworkGame
+    :type notification: diplomacy.communication.notifications.GamePhaseUpdate
     """
     if notification.phase_data_type == strings.PHASE:
         on_admin_game_phase_update(admin_game, None)
 
 def on_admin_powers_controllers(admin_game, notification):
     """  Admin game notification callback for powers controllers received (unexpected).
-        :param admin_game: game
-        :param notification: notification
-        :type admin_game: NetworkGame
-        :type notification: diplomacy.communication.notifications.PowersControllers
+
+    :param admin_game: game
+    :param notification: notification
+    :type admin_game: NetworkGame
+    :type notification: diplomacy.communication.notifications.PowersControllers
     """
     LOGGER.warning('%d dummy power(s).',
                    len([controller for controller in notification.powers.values() if controller == strings.DUMMY]))
 
 def on_admin_game_status_update(admin_game, notification):
     """ Admin game notification callback for game status update.
-        :param admin_game: admin game
-        :param notification: notification
-        :type admin_game: NetworkGame
+
+    :param admin_game: admin game
+    :param notification: notification
+    :type admin_game: NetworkGame
     """
     print('(admin game) game status of %s updated to %s' % (admin_game.role, admin_game.status))
 
 @gen.coroutine
 def play_phase(game, expected_messages):
     """ Play a phase for a user game:
-        1) Send messages
-        2) wait for messages to receive
-        3) send current orders.
-        :param game: user game
-        :param expected_messages: expected messages
-        :type game: NetworkGame
-        :type expected_messages: ExpectedMessages
+
+    #. Send messages
+    #. wait for messages to receive
+    #. send current orders.
+
+    :param game: user game
+    :param expected_messages: expected messages
+    :type game: NetworkGame
+    :type expected_messages: ExpectedMessages
     """
     while expected_messages.has_messages_to_send():
         yield gen.sleep(10e-6)
@@ -418,10 +437,11 @@ def play_phase(game, expected_messages):
 def on_game_status_update(game, notification):
     """ User game notification callback for game status update.
         Used to start the game locally when game started on server.
-        :param game: game
-        :param notification: notification
-        :type game: NetworkGame
-        :type notification: diplomacy.communication.notifications.GameStatusUpdate
+
+    :param game: game
+    :param notification: notification
+    :type game: NetworkGame
+    :type notification: diplomacy.communication.notifications.GameStatusUpdate
     """
     LOGGER.warning('Game status of %s updated to %s', game.role, game.status)
     expected_data = game.data  # type: ExpectedData
@@ -434,8 +454,9 @@ def on_game_status_update(game, notification):
 @gen.coroutine
 def verify_current_phase(game):
     """ Check and play current phase.
-        :param game: a NetWork game object.
-        :type game: NetworkGame
+
+    :param game: a NetWork game object.
+    :type game: NetworkGame
     """
     expected_data = game.data  # type: ExpectedData
 
@@ -455,10 +476,11 @@ def verify_current_phase(game):
 
 def get_user_game_fn(case_data, power_name):
     """ Return a coroutine procedure that loads and play a user game for given power name.
-        :param case_data: case data
-        :param power_name: str
-        :return: a procedure.
-        :type case_data: CaseData
+
+    :param case_data: case data
+    :param power_name: str
+    :return: a procedure.
+    :type case_data: CaseData
     """
 
     @gen.coroutine
@@ -471,8 +493,9 @@ def get_user_game_fn(case_data, power_name):
 def get_future_game_done_fn(power_name):
     """ Return a callback to call when a power game is finished.
         Callback currently just prints a message to tell that power game is terminated.
-        :param power_name: power name of associated game.
-        :return: a callable that receives the future done when game is finished.
+
+    :param power_name: power name of associated game.
+    :return: a callable that receives the future done when game is finished.
     """
 
     def game_done_fn(future):
@@ -484,7 +507,8 @@ def get_future_game_done_fn(power_name):
 @gen.coroutine
 def load_power_game(case_data, power_name):
     """ Load and play a power game from admin game for given power name.
-        :type case_data: CaseData
+
+    :type case_data: CaseData
     """
     print('Loading game for power', power_name)
 
@@ -519,8 +543,9 @@ def load_power_game(case_data, power_name):
 def main(case_data):
     """ Test real game environment with one game and all power controlled (no dummy powers).
         This method may be called form a non-test code to run a real game case.
-        :param case_data: test data
-        :type case_data: CaseData
+
+    :param case_data: test data
+    :type case_data: CaseData
     """
     # ================
     # Initialize test.
@@ -564,10 +589,11 @@ def main(case_data):
 
 def run(case_data, **server_kwargs):
     """ Real test function called for a given case data.
-        Load a server (with optional given server kwargs),
-        call function main(case_data) as client code
-        and wait for main function to terminate.
-        :type case_data: CaseData
+    Load a server (with optional given server kwargs),
+    call function main(case_data) as client code
+    and wait for main function to terminate.
+
+    :type case_data: CaseData
     """
 
     print()

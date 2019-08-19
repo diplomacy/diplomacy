@@ -18,14 +18,16 @@
 import heapq
 
 # ------------------------------------------------
-# Adapted from (2018/03/14s): https://docs.python.org/3.6/library/heapq.html#priority-queue-implementation-notes
+# Adapted from (2018/03/14s):
+# https://docs.python.org/3.6/library/heapq.html#priority-queue-implementation-notes
 # Unlicensed
 class PriorityDict(dict):
     """ Priority Dictionary Implementation """
 
     def __init__(self, **kwargs):
         """ Initialize the priority queue.
-            :param kwargs: (optional) initial values for priority queue.
+
+        :param kwargs: (optional) initial values for priority queue.
         """
         self.__heap = []  # Heap for entries. An entry is a triple (priority value, key, valid entry flag (boolean)).
         # Dict itself maps key to entries. We override some dict methods (see __getitem__() below)
@@ -36,9 +38,10 @@ class PriorityDict(dict):
 
     def __setitem__(self, key, val):
         """ Sets a key with his associated priority
-            :param key: The key to set in the dictionary
-            :param val: The priority to associate with the key
-            :return: None
+
+        :param key: The key to set in the dictionary
+        :param val: The priority to associate with the key
+        :return: None
         """
         if key in self:
             del self[key]
@@ -48,7 +51,9 @@ class PriorityDict(dict):
         heapq.heappush(self.__heap, entry)
 
     def __delitem__(self, key):
-        """ Removes key from dict and marks associated heap entry as invalid (False). Raises KeyError if not found. """
+        """ Removes key from dict and marks associated heap entry as invalid (False).
+        Raises KeyError if not found.
+        """
         entry = self.pop(key)
         entry[-1] = False
 
@@ -71,7 +76,9 @@ class PriorityDict(dict):
 
     def smallest(self):
         """ Finds the smallest item in the priority dict
-            :return: A tuple of (priority, key) for the item with the smallest priority, or None if dict is empty.
+
+        :return: A tuple of (priority, key) for the item with the smallest priority,
+            or None if dict is empty.
         """
         while self.__heap and not self.__heap[0][-1]:
             heapq.heappop(self.__heap)
@@ -85,7 +92,8 @@ class PriorityDict(dict):
 
     def copy(self):
         """ Return a copy of this priority dict.
-            :rtype: PriorityDict
+
+        :rtype: PriorityDict
         """
         return PriorityDict(**{key: entry[0] for key, entry in dict.items(self)})
 
@@ -94,7 +102,9 @@ class PriorityDict(dict):
         return self.__iter__()
 
     def values(self):
-        """ Makes sure values() iterates on priority values (instead of heap entries) from smallest to highest. """
+        """ Makes sure values() iterates on priority values (instead of heap entries)
+        from smallest to highest.
+        """
         return (self[k] for k in self)
 
     def items(self):

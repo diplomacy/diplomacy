@@ -56,10 +56,11 @@ def test_item_getter_setter_deletion():
 
 def test_iterations():
     """ test iterations:
-        - for key in priority_dict
-        - priority_dict.keys()
-        - priority_dict.values()
-        - priority_dict.items()
+
+    - for key in priority_dict
+    - priority_dict.keys()
+    - priority_dict.values()
+    - priority_dict.items()
     """
     priorities = [464, 21, 43453, 211, 324, 321, 102, 1211, 14, 875, 1, 33444, 22]
 

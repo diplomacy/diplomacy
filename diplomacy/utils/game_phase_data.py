@@ -32,8 +32,10 @@ class GamePhaseData(Jsonable):
     model = {
         strings.NAME: str,
         strings.STATE: dict,
-        strings.ORDERS: parsing.DictType(str, parsing.OptionalValueType(parsing.SequenceType(str))),
-        strings.RESULTS: parsing.DictType(str, parsing.SequenceType(parsing.StringableType(common.StringableCode))),
+        strings.ORDERS: parsing.DictType(
+            str, parsing.OptionalValueType(parsing.SequenceType(str))),
+        strings.RESULTS: parsing.DictType(
+            str, parsing.SequenceType(parsing.StringableType(common.StringableCode))),
         strings.MESSAGES: MESSAGES_TYPE,
     }
 
@@ -44,4 +46,5 @@ class GamePhaseData(Jsonable):
         self.orders = {}
         self.results = {}
         self.messages = {}
-        super(GamePhaseData, self).__init__(name=name, state=state, orders=orders, results=results, messages=messages)
+        super(GamePhaseData, self).__init__(
+            name=name, state=state, orders=orders, results=results, messages=messages)

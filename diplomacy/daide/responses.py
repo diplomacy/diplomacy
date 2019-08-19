@@ -41,8 +41,10 @@ class DaideResponse(_AbstractResponse):
 
 class MapNameResponse(DaideResponse):
     """ Represents a MAP DAIDE response. Sends the name of the current map to the client.
-        Syntax:
-            MAP ('name')
+
+    Syntax: ::
+
+        MAP ('name')
     """
     def __init__(self, map_name, **kwargs):
         """ Builds the response
@@ -54,49 +56,72 @@ class MapNameResponse(DaideResponse):
 
 class MapDefinitionResponse(DaideResponse):
     """ Represents a MDF DAIDE response. Sends configuration of a map to a client
-        Syntax:
-            MDF (powers) (provinces) (adjacencies)
-        powers syntax:
-            power power ...
-        power syntax:
-            AUS                     # Austria
-            ENG                     # England
-            FRA                     # France
-            GER                     # Germany
-            ITA                     # Italy
-            RUS                     # Russia
-            TUR                     # Turkey
-        provinces syntax:
-            (supply_centres) (non_supply_centres)
-        supply_centres syntax:
-            (power centre centre ...) (power centre centre ...) ...
-        supply_centres power syntax:
-            (power power ...)       # This is currently not supported
-            AUS                     # Austria
-            ENG                     # England
-            FRA                     # France
-            GER                     # Germany
-            ITA                     # Italy
-            RUS                     # Russia
-            TUR                     # Turkey
-            UNO                     # Unknown power
-        non_supply_centres syntax:
-            province province ...   # List of provinces
-        adjacencies syntax:
-            (prov_adjacencies) (prov_adjacencies) ...
-        prov_adjacencies syntax:
-            province (unit_type adjacent_prov adjacent_prov ...) (unit_type adjacent_prov adjacent_prov ...) ...
-        unit_type syntax:
-            AMY                     # List of provinces an army can move to
-            FLT                     # List of provinces a fleet can move to
-            (FLT coast)             # List of provinces a fleet can move to from the given coast
-        adjacent_prov syntax:
-            province                # A province which can be moved to
-            (province coast)        # A coast of a province that can be moved to
+
+    Syntax: ::
+
+        MDF (powers) (provinces) (adjacencies)
+
+    powers syntax: ::
+
+        power power ...
+
+    power syntax: ::
+
+        AUS                     # Austria
+        ENG                     # England
+        FRA                     # France
+        GER                     # Germany
+        ITA                     # Italy
+        RUS                     # Russia
+        TUR                     # Turkey
+
+    provinces syntax: ::
+
+        (supply_centres) (non_supply_centres)
+
+    supply_centres syntax: ::
+
+        (power centre centre ...) (power centre centre ...) ...
+
+    supply_centres power syntax: ::
+
+        (power power ...)       # This is currently not supported
+        AUS                     # Austria
+        ENG                     # England
+        FRA                     # France
+        GER                     # Germany
+        ITA                     # Italy
+        RUS                     # Russia
+        TUR                     # Turkey
+        UNO                     # Unknown power
+
+    non_supply_centres syntax: ::
+
+        province province ...   # List of provinces
+
+    adjacencies syntax: ::
+
+        (prov_adjacencies) (prov_adjacencies) ...
+
+    prov_adjacencies syntax: ::
+
+        province (unit_type adjacent_prov adjacent_prov ...) (unit_type adjacent_prov adjacent_prov ...) ...
+
+    unit_type syntax: ::
+
+        AMY                     # List of provinces an army can move to
+        FLT                     # List of provinces a fleet can move to
+        (FLT coast)             # List of provinces a fleet can move to from the given coast
+
+    adjacent_prov syntax: ::
+
+        province                # A province which can be moved to
+        (province coast)        # A coast of a province that can be moved to
     """
     def __init__(self, map_name, **kwargs):
         """ Builds the response
-            :param map_name: The name of the map
+
+        :param map_name: The name of the map
         """
         super(MapDefinitionResponse, self).__init__(**kwargs)
         game_map = Map(map_name)
@@ -116,18 +141,24 @@ class MapDefinitionResponse(DaideResponse):
     @staticmethod
     def _build_powers_clause(game_map):
         """ Build the powers clause
-            Syntax:
-                (powers)
-            powers syntax:
-                power power ...
-            power syntax:
-                AUS                     # Austria
-                ENG                     # England
-                FRA                     # France
-                GER                     # Germany
-                ITA                     # Italy
-                RUS                     # Russia
-                TUR                     # Turkey
+
+        Syntax: ::
+
+            (powers)
+
+        powers syntax: ::
+
+            power power ...
+
+        power syntax: ::
+
+            AUS                     # Austria
+            ENG                     # England
+            FRA                     # France
+            GER                     # Germany
+            ITA                     # Italy
+            RUS                     # Russia
+            TUR                     # Turkey
         """
         power_names = game_map.powers[:]
         power_names.sort()
@@ -140,24 +171,34 @@ class MapDefinitionResponse(DaideResponse):
     @staticmethod
     def _build_provinces_clause(game_map):
         """ Build the provinces clause
-            Syntax:
-                (provinces)
-            provinces syntax:
-                (supply_centres) (non_supply_centres)
-            supply_centres syntax:
-                (power centre centre ...) (power centre centre ...) ...
-            supply_centres power syntax:
-                (power power ...)       # This is currently not supported
-                AUS                     # Austria
-                ENG                     # England
-                FRA                     # France
-                GER                     # Germany
-                ITA                     # Italy
-                RUS                     # Russia
-                TUR                     # Turkey
-                UNO                     # Unknown power
-            non_supply_centres syntax:
-                province province ...   # List of provinces
+
+        Syntax: ::
+
+            (provinces)
+
+        provinces syntax: ::
+
+            (supply_centres) (non_supply_centres)
+
+        supply_centres syntax: ::
+
+            (power centre centre ...) (power centre centre ...) ...
+
+        supply_centres power syntax: ::
+
+            (power power ...)       # This is currently not supported
+            AUS                     # Austria
+            ENG                     # England
+            FRA                     # France
+            GER                     # Germany
+            ITA                     # Italy
+            RUS                     # Russia
+            TUR                     # Turkey
+            UNO                     # Unknown power
+
+        non_supply_centres syntax: ::
+
+            province province ...   # List of provinces
         """
         unowned_scs = game_map.scs[:]
         unowned_scs.sort()
@@ -215,19 +256,29 @@ class MapDefinitionResponse(DaideResponse):
     @staticmethod
     def _build_adjacencies_clause(game_map):
         """ Build the adjacencies clause
-            Syntax:
-                (adjacencies)
-            adjacencies syntax:
-                (prov_adjacencies) (prov_adjacencies) ...
-            prov_adjacencies syntax:
-                province (unit_type adjacent_prov adjacent_prov ...) (unit_type adjacent_prov adjacent_prov ...) ...
-            unit_type syntax:
-                AMY                     # List of provinces an army can move to
-                FLT                     # List of provinces a fleet can move to
-                (FLT coast)             # List of provinces a fleet can move to from the given coast
-            adjacent_prov syntax:
-                province                # A province which can be moved to
-                (province coast)        # A coast of a province that can be moved to
+
+        Syntax: ::
+
+            (adjacencies)
+
+        adjacencies syntax: ::
+
+            (prov_adjacencies) (prov_adjacencies) ...
+
+        prov_adjacencies syntax: ::
+
+            province (unit_type adjacent_prov adjacent_prov ...) (unit_type adjacent_prov adjacent_prov ...) ...
+
+        unit_type syntax: ::
+
+            AMY                     # List of provinces an army can move to
+            FLT                     # List of provinces a fleet can move to
+            (FLT coast)             # List of provinces a fleet can move to from the given coast
+
+        adjacent_prov syntax: ::
+
+            province                # A province which can be moved to
+            (province coast)        # A coast of a province that can be moved to
         """
         adjacencies = {}                # {province: {'A': [], 'F': [], '/': []}        army abuts, fleet abuts, / abuts
 
@@ -308,30 +359,38 @@ class MapDefinitionResponse(DaideResponse):
 
 class HelloResponse(DaideResponse):
     """ Represents a HLO DAIDE response. Sends the power to be played by the client with the passcode to rejoin the
-        game and the details of the game.
-        Syntax:
-            HLO (power) (passcode) (variant) (variant) ...
-        Variant syntax:
-            LVL n           # Level of the syntax accepted
-            MTL seconds     # Movement time limit
-            RTL seconds     # Retreat time limit
-            BTL seconds     # Build time limit
-            DSD             # Disables the time limit when a client disconects
-            AOA             # Any orders accepted
-        LVL 10:
-        Variant syntax:
-            PDA             # Accept partial draws
-            NPR             # No press during retreat phases
-            NPB             # No press during build phases
-            PTL seconds     # Press time limit
+    game and the details of the game.
+
+    Syntax: ::
+
+        HLO (power) (passcode) (variant) (variant) ...
+
+    Variant syntax: ::
+
+        LVL n           # Level of the syntax accepted
+        MTL seconds     # Movement time limit
+        RTL seconds     # Retreat time limit
+        BTL seconds     # Build time limit
+        DSD             # Disables the time limit when a client disconects
+        AOA             # Any orders accepted
+
+    LVL 10:
+
+    Variant syntax: ::
+
+        PDA             # Accept partial draws
+        NPR             # No press during retreat phases
+        NPB             # No press during build phases
+        PTL seconds     # Press time limit
     """
     def __init__(self, power_name, passcode, level, deadline, rules, **kwargs):
         """ Builds the response
-            :param power_name: The name of the power being played.
-            :param passcode: Integer. A passcode to rejoin the game.
-            :param level: Integer. The daide syntax level of the game
-            :param deadline: Integer. The number of seconds per turn (0 to disable)
-            :param rules: The list of game rules.
+
+        :param power_name: The name of the power being played.
+        :param passcode: Integer. A passcode to rejoin the game.
+        :param level: Integer. The daide syntax level of the game
+        :param deadline: Integer. The number of seconds per turn (0 to disable)
+        :param rules: The list of game rules.
         """
         super(HelloResponse, self).__init__(**kwargs)
         power = parse_string(Power, power_name)
@@ -356,13 +415,16 @@ class HelloResponse(DaideResponse):
 
 class SupplyCenterResponse(DaideResponse):
     """ Represents a SCO DAIDE response. Sends the current supply centre ownership.
-        Syntax:
-            SCO (power centre centre ...) (power centre centre ...) ...
+
+    Syntax: ::
+
+        SCO (power centre centre ...) (power centre centre ...) ...
     """
     def __init__(self, powers_centers, map_name, **kwargs):
         """ Builds the response
-            :param powers_centers: A dict of {power_name: centers} objects
-            :param map_name: The name of the map
+
+        :param powers_centers: A dict of {power_name: centers} objects
+        :param map_name: The name of the map
         """
         super(SupplyCenterResponse, self).__init__(**kwargs)
         remaining_scs = Map(map_name).scs[:]
@@ -397,17 +459,22 @@ class SupplyCenterResponse(DaideResponse):
 
 class CurrentPositionResponse(DaideResponse):
     """ Represents a NOW DAIDE response. Sends the current turn, and the current unit positions.
-        Syntax:
-            NOW (turn) (unit) (unit) ...
-        Unit syntax:
-            power unit_type province
-            power unit_type province MRT (province province ...)
+
+    Syntax: ::
+
+        NOW (turn) (unit) (unit) ...
+
+    Unit syntax: ::
+
+        power unit_type province
+        power unit_type province MRT (province province ...)
     """
 
     def __init__(self, phase_name, powers_units, powers_retreats, **kwargs):
         """ Builds the response
-            :param phase_name: The name of the current phase (e.g. 'S1901M')
-            :param powers: A list of `diplomacy.engine.power.Power` objects
+
+        :param phase_name: The name of the current phase (e.g. 'S1901M')
+        :param powers: A list of `diplomacy.engine.power.Power` objects
         """
         super(CurrentPositionResponse, self).__init__(**kwargs)
         units_bytes_buffer = []
@@ -436,28 +503,32 @@ class CurrentPositionResponse(DaideResponse):
 
 class ThanksResponse(DaideResponse):
     """ Represents a THX DAIDE response. Sends the result of an order after submission.
-        Syntax:
-            THX (order) (note)
-        Note syntax:
-            MBV     # Order is OK.
-            FAR     # Not adjacent.
-            NSP     # No such province
-            NSU     # No such unit
-            NAS     # Not at sea (for a convoying fleet)
-            NSF     # No such fleet (in VIA section of CTO or the unit performing a CVY)
-            NSA     # No such army (for unit being ordered to CTO or for unit being CVYed)
-            NYU     # Not your unit
-            NRN     # No retreat needed for this unit
-            NVR     # Not a valid retreat space
-            YSC     # Not your supply centre
-            ESC     # Not an empty supply centre
-            HSC     # Not a home supply centre
-            NSC     # Not a supply centre
-            CST     # No coast specified for fleet build in StP, or an attempt
-                      to build a fleet inland, or an army at sea.
-            NMB     # No more builds allowed
-            NMR     # No more removals allowed
-            NRS     # Not the right season
+
+    Syntax: ::
+
+        THX (order) (note)
+
+    Note syntax: ::
+
+        MBV     # Order is OK.
+        FAR     # Not adjacent.
+        NSP     # No such province
+        NSU     # No such unit
+        NAS     # Not at sea (for a convoying fleet)
+        NSF     # No such fleet (in VIA section of CTO or the unit performing a CVY)
+        NSA     # No such army (for unit being ordered to CTO or for unit being CVYed)
+        NYU     # Not your unit
+        NRN     # No retreat needed for this unit
+        NVR     # Not a valid retreat space
+        YSC     # Not your supply centre
+        ESC     # Not an empty supply centre
+        HSC     # Not a home supply centre
+        NSC     # Not a supply centre
+        CST     # No coast specified for fleet build in StP, or an attempt
+                  to build a fleet inland, or an army at sea.
+        NMB     # No more builds allowed
+        NMR     # No more removals allowed
+        NRS     # Not the right season
     """
     def __init__(self, order_bytes, results, **kwargs):
         """ Builds the response
@@ -475,11 +546,13 @@ class ThanksResponse(DaideResponse):
 
 class MissingOrdersResponse(DaideResponse):
     """ Represents a MIS DAIDE response. Sends the list of unit for which an order is missing or indication about
-        required disbands or builds.
-        Syntax:
-            MIS (unit) (unit) ...
-            MIS (unit MRT (province province ...)) (unit MRT (province province ...)) ...
-            MIS (number)
+    required disbands or builds.
+
+    Syntax: ::
+
+        MIS (unit) (unit) ...
+        MIS (unit MRT (province province ...)) (unit MRT (province province ...)) ...
+        MIS (number)
     """
     def __init__(self, phase_name, power, **kwargs):
         """ Builds the response
@@ -558,22 +631,27 @@ class MissingOrdersResponse(DaideResponse):
 
 class OrderResultResponse(DaideResponse):
     """ Represents a ORD DAIDE response. Sends the result of an order after the turn has been processed.
-        Syntax:
-            ORD (turn) (order) (result)
-            ORD (turn) (order) (result RET)
-        Result syntax:
-            SUC         # Order succeeded (can apply to any order).
-            BNC         # Move bounced (only for MTO, CTO or RTO orders).
-            CUT         # Support cut (only for SUP orders).
-            DSR         # Move via convoy failed due to dislodged convoying fleet (only for CTO orders).
-            NSO         # No such order (only for SUP, CVY or CTO orders).
-            RET         # Unit was dislodged and must retreat.
+
+    Syntax: ::
+
+        ORD (turn) (order) (result)
+        ORD (turn) (order) (result RET)
+
+    Result syntax: ::
+
+        SUC         # Order succeeded (can apply to any order).
+        BNC         # Move bounced (only for MTO, CTO or RTO orders).
+        CUT         # Support cut (only for SUP orders).
+        DSR         # Move via convoy failed due to dislodged convoying fleet (only for CTO orders).
+        NSO         # No such order (only for SUP, CVY or CTO orders).
+        RET         # Unit was dislodged and must retreat.
     """
     def __init__(self, phase_name, order_bytes, results, **kwargs):
         """ Builds the response
-            :param phase_name: The name of the current phase (e.g. 'S1901M')
-            :param order_bytes: The bytes received for the order
-            :param results: An array containing the error codes.
+
+        :param phase_name: The name of the current phase (e.g. 'S1901M')
+        :param order_bytes: The bytes received for the order
+        :param results: An array containing the error codes.
         """
         super(OrderResultResponse, self).__init__(**kwargs)
         turn_clause = parse_string(Turn, phase_name)
@@ -587,8 +665,10 @@ class OrderResultResponse(DaideResponse):
 
 class TimeToDeadlineResponse(DaideResponse):
     """ Represents a TME DAIDE response. Sends the time to the next deadline.
-        Syntax:
-            TME (seconds)
+
+    Syntax: ::
+
+        TME (seconds)
     """
     def __init__(self, seconds, **kwargs):
         """ Builds the response
@@ -599,23 +679,27 @@ class TimeToDeadlineResponse(DaideResponse):
 
 class AcceptResponse(DaideResponse):
     """ Represents a YES DAIDE request.
-        Syntax:
-            YES (TME (seconds))                                 # Accepts to set the time when a
-                                                                  TME message will be sent
-            YES (NOT (TME))                                     # Accepts to cancel all requested time messages
-            YES (NOT (TME (seconds)))                           # Accepts to cancel a specific requested time message
-            YES (GOF)                                           # Accepts to wait until the deadline before processing
-                                                                  the orders for the turn
-            YES (NOT (GOF))                                     # Accepts to cancel to wait until the deadline before
-                                                                  processing the orders for the turn
-            YES (DRW)                                           # Accepts to draw
-            YES (NOT (DRW))                                     # Accepts to cancel a draw request
-        LVL 10:
-            YES (DRW (power power ...))                         # Accepts a partial draw
-            YES (NOT (DRW (power power ...)))                   # Accepts to cancel a partial draw request
-                                                                  (? not mentinned in the DAIDE doc)
-            YES (SND (power power ...) (press_message))         # Accepts a press message
-            YES (SND (turn) (power power ...) (press_message))  # Accepts a press message
+
+    Syntax: ::
+
+        YES (TME (seconds))                                 # Accepts to set the time when a
+                                                              TME message will be sent
+        YES (NOT (TME))                                     # Accepts to cancel all requested time messages
+        YES (NOT (TME (seconds)))                           # Accepts to cancel a specific requested time message
+        YES (GOF)                                           # Accepts to wait until the deadline before processing
+                                                              the orders for the turn
+        YES (NOT (GOF))                                     # Accepts to cancel to wait until the deadline before
+                                                              processing the orders for the turn
+        YES (DRW)                                           # Accepts to draw
+        YES (NOT (DRW))                                     # Accepts to cancel a draw request
+
+    LVL 10: ::
+
+        YES (DRW (power power ...))                         # Accepts a partial draw
+        YES (NOT (DRW (power power ...)))                   # Accepts to cancel a partial draw request
+                                                              (? not mentinned in the DAIDE doc)
+        YES (SND (power power ...) (press_message))         # Accepts a press message
+        YES (SND (turn) (power power ...) (press_message))  # Accepts a press message
     """
     def __init__(self, request_bytes, **kwargs):
         """ Builds the response
@@ -626,32 +710,36 @@ class AcceptResponse(DaideResponse):
 
 class RejectResponse(DaideResponse):
     """ Represents a REJ DAIDE request.
-        Syntax:
-            REJ (NME ('name') ('version'))                      # Rejects a client in the game
-            REJ (IAM (power) (passcode))                        # Rejects a client to rejoin the game
-            REJ (HLO)                                           # Rejects to send the HLO message
-            REJ (HST (turn))                                    # Rejects to send a copy of a previous
-                                                                  ORD, SCO and NOW messages
-            REJ (SUB (order) (order))                           # Rejects a submition of orders
-            REJ (SUB (turn) (order) (order))                    # Rejects a submition of orders
-            REJ (NOT (SUB (order)))                             # Rejects a cancellation of a submitted order
-            REJ (MIS)                                           # Rejects to send a copy of the current MIS message
-            REJ (GOF)                                           # Rejects to wait until the deadline before processing
-                                                                  the orders for the turn
-            REJ (NOT (GOF))                                     # Rejects to cancel to wait until the deadline before
-                                                                  processing the orders for the turn
-            REJ (TME (seconds))                                 # Rejects to set the time when a
-                                                                  TME message will be sent
-            REJ (NOT (TME))                                     # Rejects to cancel all requested time messages
-            REJ (NOT (TME (seconds)))                           # Rejects to cancel a specific requested time message
-            REJ (ADM ('name') ('message')                       # Rejects the admin message
-            REJ (DRW)                                           # Rejects to draw
-            REJ (NOT (DRW))                                     # Rejects to cancel a draw request
-        LVL 10:
-            REJ (DRW (power power ...))                         # Rejects to partially draw
-            REJ (NOT (DRW (power power ...)))                   # Rejects to cancel a partial draw request
-            REJ (SND (power power ...) (press_message))         # Rejects a press message
-            REJ (SND (turn) (power power ...) (press_message))  # Rejects a press message
+
+    Syntax: ::
+
+        REJ (NME ('name') ('version'))                      # Rejects a client in the game
+        REJ (IAM (power) (passcode))                        # Rejects a client to rejoin the game
+        REJ (HLO)                                           # Rejects to send the HLO message
+        REJ (HST (turn))                                    # Rejects to send a copy of a previous
+                                                              ORD, SCO and NOW messages
+        REJ (SUB (order) (order))                           # Rejects a submition of orders
+        REJ (SUB (turn) (order) (order))                    # Rejects a submition of orders
+        REJ (NOT (SUB (order)))                             # Rejects a cancellation of a submitted order
+        REJ (MIS)                                           # Rejects to send a copy of the current MIS message
+        REJ (GOF)                                           # Rejects to wait until the deadline before processing
+                                                              the orders for the turn
+        REJ (NOT (GOF))                                     # Rejects to cancel to wait until the deadline before
+                                                              processing the orders for the turn
+        REJ (TME (seconds))                                 # Rejects to set the time when a
+                                                              TME message will be sent
+        REJ (NOT (TME))                                     # Rejects to cancel all requested time messages
+        REJ (NOT (TME (seconds)))                           # Rejects to cancel a specific requested time message
+        REJ (ADM ('name') ('message')                       # Rejects the admin message
+        REJ (DRW)                                           # Rejects to draw
+        REJ (NOT (DRW))                                     # Rejects to cancel a draw request
+
+    LVL 10: ::
+
+        REJ (DRW (power power ...))                         # Rejects to partially draw
+        REJ (NOT (DRW (power power ...)))                   # Rejects to cancel a partial draw request
+        REJ (SND (power power ...) (press_message))         # Rejects a press message
+        REJ (SND (turn) (power power ...) (press_message))  # Rejects a press message
     """
     def __init__(self, request_bytes, **kwargs):
         """ Builds the response
@@ -662,8 +750,10 @@ class RejectResponse(DaideResponse):
 
 class NotResponse(DaideResponse):
     """ Represents a NOT DAIDE response.
-        Syntax:
-            NOT (CCD (power))
+
+    Syntax: ::
+
+        NOT (CCD (power))
     """
     def __init__(self, response_bytes, **kwargs):
         """ Builds the response
@@ -674,8 +764,10 @@ class NotResponse(DaideResponse):
 
 class PowerInCivilDisorderResponse(DaideResponse):
     """ Represents a CCD DAIDE response. Sends the name of the power in civil disorder.
-        Syntax:
-            CCD (power)
+
+    Syntax: ::
+
+        CCD (power)
     """
     def __init__(self, power_name, **kwargs):
         """ Builds the response
@@ -687,8 +779,10 @@ class PowerInCivilDisorderResponse(DaideResponse):
 
 class PowerIsEliminatedResponse(DaideResponse):
     """ Represents a OUT DAIDE response. Sends the name of the power eliminated.
-        Syntax:
-            OUT (power)
+
+    Syntax: ::
+
+        OUT (power)
     """
     def __init__(self, power_name, **kwargs):
         """ Builds the response
@@ -700,20 +794,25 @@ class PowerIsEliminatedResponse(DaideResponse):
 
 class ParenthesisErrorResponse(DaideResponse):
     """ Represents a PRN DAIDE response.
-        Syntax:
-            PRN (message)
+
+    Syntax: ::
+
+        PRN (message)
     """
     def __init__(self, request_bytes, **kwargs):
         """ Builds the response
-            :param request_bytes: The bytes received for the request
+
+        :param request_bytes: The bytes received for the request
         """
         super(ParenthesisErrorResponse, self).__init__(**kwargs)
         self._bytes = bytes(tokens.PRN) + add_parentheses(request_bytes)
 
 class SyntaxErrorResponse(DaideResponse):
     """ Represents a HUH DAIDE response.
-        Syntax:
-            HUH (message)
+
+    Syntax: ::
+
+        HUH (message)
     """
     def __init__(self, request_bytes, error_index, **kwargs):
         """ Builds the response
@@ -726,12 +825,13 @@ class SyntaxErrorResponse(DaideResponse):
 
 class TurnOffResponse(DaideResponse):
     """ Represents an OFF DAIDE response. Requests a client to exit
-        Syntax:
-            OFF
+
+    Syntax: ::
+
+        OFF
     """
     def __init__(self, **kwargs):
-        """ Builds the response
-        """
+        """ Builds the response """
         super(TurnOffResponse, self).__init__(**kwargs)
         self._bytes = bytes(tokens.OFF)
 

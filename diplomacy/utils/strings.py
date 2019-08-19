@@ -219,14 +219,22 @@ WINNERS = 'winners'
 WINTER_UNDECIDED_PLAYER_MODE = 'winter_undecided_player_mode'
 YES = 'yes'
 ZOBRIST_HASH = 'zobrist_hash'
+ERROR_TYPE = 'error_type'
 
 # Special name sets.
+
 ALL_GAME_STATUSES = (FORMING, ACTIVE, PAUSED, COMPLETED, CANCELED)
+"""Game status."""
+
+ALL_VOTE_DECISIONS = {YES, NO, NEUTRAL}
+"""Possible votes for a game draw."""
+
+ALL_ROLE_TYPES = {OBSERVER_TYPE, OMNISCIENT_TYPE, SERVER_TYPE}
+"""Game roles."""
+
 ALL_GRADE_UPDATES = {PROMOTE, DEMOTE}
 ALL_GRADES = {OMNISCIENT, ADMIN, MODERATOR}
 ALL_COMM_LEVELS = {CHANNEL, GAME}
-ALL_VOTE_DECISIONS = {YES, NO, NEUTRAL}
-ALL_ROLE_TYPES = {OBSERVER_TYPE, OMNISCIENT_TYPE, SERVER_TYPE}
 ALL_STATE_TYPES = {STATE_HISTORY, STATE, PHASE}
 
 def role_is_special(role):
@@ -235,8 +243,9 @@ def role_is_special(role):
 
 def switch_special_role(role):
     """ Return opposite special role of given special role:
-        - observer role if omniscient role is given
-        - omniscient role if observer role is given
+
+    - observer role if omniscient role is given
+    - omniscient role if observer role is given
     """
     if role == OBSERVER_TYPE:
         return OMNISCIENT_TYPE

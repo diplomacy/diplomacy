@@ -24,8 +24,9 @@ class AbstractStringSplitter(metaclass=ABCMeta):
     """ Breaks a string into its components - Generic class """
     def __init__(self, string, length):
         """ Constructor
-            :param string: the string to split
-            :param length: the maximum length of the split
+
+        :param string: the string to split
+        :param length: the maximum length of the split
         """
         self._input_str = string if isinstance(string, str) else ' '.join(string)
         self._parts = [None] * length
@@ -60,7 +61,8 @@ class OrderSplitter(AbstractStringSplitter):
     """ Splits an order into its components """
     def __init__(self, string):
         """ Constructor
-            :param string: the string to split
+
+        :param string: the string to split
         """
         self._unit_index = None
         self._order_type_index = None

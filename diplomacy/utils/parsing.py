@@ -16,16 +16,16 @@
 # ==============================================================================
 """ Provide classes and methods to parse python objects.
 
-    Useful for type checking and conversions from/to JSON dictionaries.
+Useful for type checking and conversions from/to JSON dictionaries.
 
-    This module use 2 definitions to distinguish values from/to JSON: item values and attribute values.
+This module use 2 definitions to distinguish values from/to JSON: item values and attribute values.
 
-    Item value is a value retrieved from a JSON dictionary. It's generally a basic Python type
-    (e.g. bool, int, str, float).
+Item value is a value retrieved from a JSON dictionary. It's generally a basic Python type
+(e.g. bool, int, str, float).
 
-    Attribute value is a value used in Python code and expected by type checking. It may be
-    a basic Python type, or a class instance. Note that not all classes are allowed (see
-    other type checkers below).
+Attribute value is a value used in Python code and expected by type checking. It may be
+a basic Python type, or a class instance. Note that not all classes are allowed (see
+other type checkers below).
 
 """
 import inspect
@@ -44,11 +44,12 @@ LOGGER = logging.getLogger(__name__)
 
 def update_model(model, additional_keys, allow_duplicate_keys=True):
     """ Return a copy of model updated with additional keys.
-        :param model: (Dictionary). Model to extend
-        :param additional_keys: (Dictionary). Definition of the additional keys to use to update the model.
-        :param allow_duplicate_keys: Boolean. If True, the model key will be updated if present in additional keys.
-                                     Otherwise, an error is thrown if additional_key contains a model key.
-        :return: The updated model with the additional keys.
+
+    :param model: (Dictionary). Model to extend
+    :param additional_keys: (Dictionary). Definition of the additional keys to use to update the model.
+    :param allow_duplicate_keys: Boolean. If True, the model key will be updated if present in additional keys.
+                                 Otherwise, an error is thrown if additional_key contains a model key.
+    :return: The updated model with the additional keys.
     """
     assert isinstance(model, dict)
     assert isinstance(additional_keys, dict)
@@ -60,16 +61,18 @@ def update_model(model, additional_keys, allow_duplicate_keys=True):
 
 def extend_model(model, additional_keys):
     """ Return a copy of model updated with additional model keys. Model and additional keys must no share any key.
-        :param model: (Dictionary). Model to update
-        :param additional_keys: (Dictionary). Definition of the additional keys to add to model.
-        :return: The updated model with the additional keys.
+
+    :param model: (Dictionary). Model to update
+    :param additional_keys: (Dictionary). Definition of the additional keys to add to model.
+    :return: The updated model with the additional keys.
     """
     return update_model(model, additional_keys, allow_duplicate_keys=False)
 
 def get_type(desired_type):
     """ Return a ParserType sub-class that matches given type.
-        :param desired_type: basic type or ParserType sub-class.
-        :return: ParserType sub-class instance.
+
+    :param desired_type: basic type or ParserType sub-class.
+    :return: ParserType sub-class instance.
     """
     # Already a ParserType, we return the object directly.
     if isinstance(desired_type, ParserType):
@@ -88,27 +91,29 @@ def get_type(desired_type):
     return PrimitiveType(desired_type)
 
 def to_type(json_value, parser_type):
-    """ Convert a JSON value (python built-in type) to the type
-        described by parser_type.
-        :param json_value: JSON value to convert.
-        :param parser_type: either an instance of a ParserType, or a type convertible
-            to a ParserType (see function get_type() above).
-        :return: JSON value converted to expected type.
+    """ Convert a JSON value (python built-in type) to the type described by parser_type.
+
+    :param json_value: JSON value to convert.
+    :param parser_type: either an instance of a ParserType, or a type convertible
+        to a ParserType (see function get_type() above).
+    :return: JSON value converted to expected type.
     """
     return get_type(parser_type).to_type(json_value)
 
 def to_json(raw_value, parser_type):
     """ Convert a value from the type described by parser_type to a JSON value.
-        :param raw_value: The raw value to convert to JSON.
-        :param parser_type: Either an instance of a ParserType, or a type convertible to a ParserType.
-        :return: The value converted to an equivalent JSON value.
+
+    :param raw_value: The raw value to convert to JSON.
+    :param parser_type: Either an instance of a ParserType, or a type convertible to a ParserType.
+    :return: The value converted to an equivalent JSON value.
     """
     return get_type(parser_type).to_json(raw_value)
 
 def validate_data(data, model):
     """ Validates that the data complies with the model
-        :param data: (Dictionary). A dict of values to validate against the model.
-        :param model: (Dictionary). The model to use for validation.
+
+    :param data: (Dictionary). A dict of values to validate against the model.
+    :param model: (Dictionary). The model to use for validation.
     """
     assert isinstance(data, dict)
     assert isinstance(model, dict)
@@ -125,8 +130,9 @@ def validate_data(data, model):
 
 def update_data(data, model):
     """ Modifies the data object to add default values if needed
-        :param data: (Dictionary). A dict of values to update.
-        :param model: (Dictionary). The model to use.
+
+    :param data: (Dictionary). A dict of values to update.
+    :param model: (Dictionary). The model to use.
     """
     # Updating the data types
     for model_key, model_type in model.items():
@@ -142,55 +148,61 @@ def update_data(data, model):
 class ParserType(metaclass=ABCMeta):
     """ Abstract base class to check a specific type. """
     __slots__ = []
-    # We include dict into primitive types to allow parser to accept raw untyped dict (e.g. engine game state).
+    # We include dict into primitive types to allow parser to accept raw untyped dict
+    # (e.g. engine game state).
     primitives = (bytes, int, float, bool, str, dict)
 
     @abstractmethod
     def validate(self, element):
         """ Makes sure the element is a valid element for this parser type
-            :param element: The element to validate.
-            :return: None, but raises Error if needed.
+
+        :param element: The element to validate.
+        :return: None, but raises Error if needed.
         """
         raise NotImplementedError()
 
     def update(self, element):
         """ Returns the correct value to use in the data object.
-            :param element: The element the model wants to store in the data object of this parser type.
-            :return: The updated element to store in the data object.
-                     The updated element might be a different value (e.g. if a default value is present)
+
+        :param element: The element the model wants to store in the data object of this parser type.
+        :return: The updated element to store in the data object.
+                 The updated element might be a different value (e.g. if a default value is present)
         """
         # pylint: disable=no-self-use
         return element
 
     def to_type(self, json_value):
         """ Converts a json_value to this parser type.
-            :param json_value: The JSON value to convert.
-            :return: The converted JSON value.
+
+        :param json_value: The JSON value to convert.
+        :return: The converted JSON value.
         """
         # pylint: disable=no-self-use
         return json_value
 
     def to_json(self, raw_value):
         """ Converts a raw value (of this type) to JSON.
-            :param raw_value: The raw value (of this type) to convert.
-            :return: The resulting JSON value.
+
+        :param raw_value: The raw value (of this type) to convert.
+        :return: The resulting JSON value.
         """
         # pylint: disable=no-self-use
         return raw_value
 
 class ConverterType(ParserType):
     """ Type checker that allows to use another parser type with a converter function.
-        Converter function will be used to convert any raw value to a value expected
-        by given parser type before validations and updates.
+    Converter function will be used to convert any raw value to a value expected
+    by given parser type before validations and updates.
     """
     def __init__(self, element_type, converter_function, json_converter_function=None):
         """ Initialize a converter type.
-            :param element_type: expected type
-            :param converter_function: function to be used to check and convert values to expected type.
-                converter_function(value) -> value_compatible_with_expected_type
-            :param json_converter_function: function to be used to convert a JSON value
-                to an expected JSON value for element_type. If not provided, converter_function will be used.
-                json_converter_function(json_value) -> new JSON value valid for element_type.to_type(new_json_value)
+
+        :param element_type: expected type
+        :param converter_function: function to be used to check and convert values to expected type.
+            converter_function(value) -> value_compatible_with_expected_type
+        :param json_converter_function: function to be used to convert a JSON value
+            to an expected JSON value for element_type. If not provided, converter_function will be used.
+            json_converter_function(json_value) -> new JSON value valid for element_type.to_type(new_json_value)
         """
         element_type = get_type(element_type)
         assert not isinstance(element_type, ConverterType)
@@ -217,10 +229,11 @@ class DefaultValueType(ParserType):
 
     def __init__(self, element_type, default_json_value):
         """ Initialize a default type checker with expected element type and a default value (if None is present).
-            :param element_type: The expected type for elements (except if None is provided).
-            :param default_json_value: The default value to set if element=None. Must be a JSON value
-                convertible to element_type, so that new default value is generated from this JSON value
-                each time it's needed.
+
+        :param element_type: The expected type for elements (except if None is provided).
+        :param default_json_value: The default value to set if element=None. Must be a JSON value
+            convertible to element_type, so that new default value is generated from this JSON value
+            each time it's needed.
         """
         element_type = get_type(element_type)
         assert not isinstance(element_type, (DefaultValueType, OptionalValueType))
@@ -266,9 +279,10 @@ class SequenceType(ParserType):
 
     def __init__(self, element_type, sequence_builder=None):
         """ Initialize a sequence type checker with value type and optional sequence builder.
-            :param element_type: Expected type for sequence elements.
-            :param sequence_builder: (Optional). A callable used to build the sequence type.
-                                     Expected args: Iterable
+
+        :param element_type: Expected type for sequence elements.
+        :param sequence_builder: (Optional). A callable used to build the sequence type.
+                                 Expected args: Iterable
         """
         self.element_type = get_type(element_type)
         self.sequence_builder = sequence_builder if sequence_builder is not None else lambda seq: seq
@@ -301,7 +315,8 @@ class JsonableClassType(ParserType):
 
     def __init__(self, jsonable_element_type):
         """ Initialize a sub-class of Jsonable.
-            :param jsonable_element_type: Expected type (should be a subclass of Jsonable).
+
+        :param jsonable_element_type: Expected type (should be a subclass of Jsonable).
         """
         # We import Jsonable here to prevent recursive import with module jsonable.
         from diplomacy.utils.jsonable import Jsonable
@@ -324,20 +339,21 @@ class JsonableClassType(ParserType):
 
 class StringableType(ParserType):
     """ Type checker for a class that can be converted to a string with str(obj)
-        and converted from a string with cls.from_string(str_val) or cls(str_val).
+    and converted from a string with cls.from_string(str_val) or cls(str_val).
 
-        In practice, this parser will just save object as string with str(obj),
-        and load object from string using cls(str_val) or cls.from_string(str_val).
-        So, object may have any type as long as:
-        str(obj) == str( object loaded from str(obj) )
+    In practice, this parser will just save object as string with str(obj),
+    and load object from string using cls(str_val) or cls.from_string(str_val).
+    So, object may have any type as long as:
+    str(obj) == str( object loaded from str(obj) )
 
-        Expected type: a class with compatible str(cls(string_repr)) or str(cls.from_string(string_repr)).
+    Expected type: a class with compatible str(cls(str_repr)) or str(cls.from_string(str_repr)).
     """
     __slots__ = ['element_type', 'use_from_string']
 
     def __init__(self, element_type):
         """ Initialize a parser type with a type convertible from/to string.
-            :param element_type:  Expected type. Needs to be convertible to/from String.
+
+        :param element_type:  Expected type. Needs to be convertible to/from String.
         """
         if hasattr(element_type, 'from_string'):
             assert callable(element_type.from_string)
@@ -376,9 +392,10 @@ class DictType(ParserType):
 
     def __init__(self, key_type, val_type, dict_builder=None):
         """ Initialize a dict parser type with expected key type, val type, and optional dict builder.
-            :param key_type: The expected key type. Must be string or a stringable class.
-            :param val_type: The expected value type.
-            :param dict_builder: Callable to build attribute values.
+
+        :param key_type: The expected key type. Must be string or a stringable class.
+        :param val_type: The expected value type.
+        :param dict_builder: Callable to build attribute values.
         """
         # key type muse be convertible from/to string.
         self.key_type = key_type if isinstance(key_type, StringableType) else StringableType(key_type)
@@ -412,11 +429,12 @@ class IndexedSequenceType(ParserType):
     __slots__ = ['dict_type', 'sequence_type', 'key_name']
 
     def __init__(self, dict_type, key_name):
-        """ Initializer:
-            :param dict_type: dictionary parser type to be used to manage object in memory.
-            :param key_name: name of attribute to take in sequence elements to convert sequence to a dictionary.
-                dct = {getattr(element, key_name): element for element in sequence}
-                sequence = list(dct.values())
+        """ Initializer.
+
+        :param dict_type: dictionary parser type to be used to manage object in memory.
+        :param key_name: name of attribute to take in sequence elements to convert sequence to a dictionary.
+            dct = {getattr(element, key_name): element for element in sequence}
+            sequence = list(dct.values())
         """
         assert isinstance(dict_type, DictType)
         self.dict_type = dict_type
@@ -447,7 +465,8 @@ class EnumerationType(ParserType):
 
     def __init__(self, enum_values):
         """ Initialize sequence of values type with a sequence of allowed (primitive) values.
-            :param enum_values: Sequence of allowed values.
+
+        :param enum_values: Sequence of allowed values.
         """
         enum_values = set(enum_values)
         assert enum_values and all(isinstance(value, self.primitives) for value in enum_values)
@@ -472,7 +491,8 @@ class SequenceOfPrimitivesType(ParserType):
 
     def __init__(self, seq_of_primitives):
         """ Initialize sequence of primitives type with a sequence of allowed primitives.
-            :param seq_of_primitives: Sequence of primitives.
+
+        :param seq_of_primitives: Sequence of primitives.
         """
         assert seq_of_primitives and all(primitive in self.primitives for primitive in seq_of_primitives)
         self.seq_of_primitives = seq_of_primitives if isinstance(seq_of_primitives, tuple) else tuple(seq_of_primitives)
@@ -491,7 +511,8 @@ class PrimitiveType(ParserType):
 
     def __init__(self, element_type):
         """ Initialize a primitive type.
-            :param element_type: Primitive type.
+
+        :param element_type: Primitive type.
         """
         assert element_type in self.primitives, 'Expected a primitive type, got %s.' % element_type
         self.element_type = element_type

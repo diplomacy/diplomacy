@@ -31,7 +31,8 @@ LOGGER = logging.getLogger(__name__)
 
 class ConnectionHandler():
     """ ConnectionHandler class. Properties:
-        - server: server object representing running server.
+
+    - server: server object representing running server.
     """
     _NAME_VARIANT_PREFIX = 'DAIDE'
     _NAME_VARIANTS_POOL = []
@@ -54,8 +55,9 @@ class ConnectionHandler():
 
     def initialize(self, stream, server, game_id):
         """ Initialize the connection handler.
-            :param server: a Server object.
-            :type server: diplomacy.Server
+
+        :param server: a Server object.
+        :type server: diplomacy.Server
         """
         self.stream = stream
         self.server = server
@@ -102,7 +104,7 @@ class ConnectionHandler():
 
     def on_connection_close(self):
         """ Invoked when the socket is closed (see parent method).
-            Detach this connection handler from server users.
+        Detach this connection handler from server users.
         """
         self.release_name_variant()
         self.server.users.remove_connection(self, remove_tokens=False)
@@ -152,10 +154,11 @@ class ConnectionHandler():
 
     def translate_notification(self, notification):
         """ Translate a notification to a DAIDE notification.
-            :param notification: a notification object to pass to handler function.
-                See diplomacy.communication.notifications for possible notifications.
-            :return: either None or an array of daide notifications.
-                See module diplomacy.daide.notifications for possible daide notifications.
+
+        :param notification: a notification object to pass to handler function.
+            See diplomacy.communication.notifications for possible notifications.
+        :return: either None or an array of daide notifications.
+            See module diplomacy.daide.notifications for possible daide notifications.
         """
         return translate_notification(self.server, notification, self)
 

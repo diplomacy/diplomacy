@@ -26,12 +26,13 @@ class Notifier():
 
     def __init__(self, server, ignore_tokens=None, ignore_addresses=None):
         """ Initialize a server notifier. You can specify some tokens or addresses to ignore using
-            ignore_tokens or ignore_addresses. Note that these parameters are mutually exclusive
-            (you can use either none of them or only one of them).
-            :param server: a server object.
-            :param ignore_tokens: (optional) sequence of tokens to ignore.
-            :param ignore_addresses: (optional) sequence of couples (power name, token) to ignore.
-            :type server: diplomacy.Server
+        ignore_tokens or ignore_addresses. Note that these parameters are mutually exclusive
+        (you can use either none of them or only one of them).
+
+        :param server: a server object.
+        :param ignore_tokens: (optional) sequence of tokens to ignore.
+        :param ignore_addresses: (optional) sequence of couples (power name, token) to ignore.
+        :type server: diplomacy.Server
         """
         self.server = server
         self.ignore_tokens = None
@@ -45,7 +46,8 @@ class Notifier():
             self.ignore_tokens = set(ignore_tokens)
 
         # Expect a sequence of tuples (power name, token) to ignore.
-        # Convert it to a dict {power name => {token}} (each power name with all associated ignored tokens).
+        # Convert it to a dict {power name => {token}}
+        # (each power name with all associated ignored tokens).
         elif ignore_addresses:
             self.ignore_addresses = {}
             for power_name, token in ignore_addresses:
@@ -55,14 +57,16 @@ class Notifier():
 
     def ignores(self, notification):
         """ Return True if given notification must be ignored.
-            :param notification:
-            :return: a boolean
-            :type notification: notifications._AbstractNotification | notifications._GameNotification
+
+        :param notification:
+        :return: a boolean
+        :type notification: notifications._AbstractNotification | notifications._GameNotification
         """
         if self.ignore_tokens:
             return notification.token in self.ignore_tokens
         if self.ignore_addresses and notification.level == strings.GAME:
-            # We can ignore addresses only for game requests (as other requests only have a token, not a full address).
+            # We can ignore addresses only for game requests
+            # (as other requests only have a token, not a full address).
             return (notification.game_role in self.ignore_addresses
                     and notification.token in self.ignore_addresses[notification.game_role])
         return False
@@ -70,8 +74,9 @@ class Notifier():
     @gen.coroutine
     def _notify(self, notification):
         """ Register a notification to send.
-            :param notification: a notification instance.
-            :type notification: notifications._AbstractNotification | notifications._GameNotification
+
+        :param notification: a notification instance.
+        :type notification: notifications._AbstractNotification | notifications._GameNotification
         """
         connection_handler = self.server.users.get_connection_handler(notification.token)
         if not self.ignores(notification) and connection_handler:
@@ -83,11 +88,12 @@ class Notifier():
     @gen.coroutine
     def _notify_game(self, server_game, notification_class, **kwargs):
         """ Send a game notification.
-            Game token, game ID and game role will be automatically provided to notification object.
-            :param server_game: game to notify
-            :param notification_class: class of notification to send
-            :param kwargs: (optional) other notification parameters
-            :type server_game: diplomacy.server.server_game.ServerGame
+        Game token, game ID and game role will be automatically provided to notification object.
+
+        :param server_game: game to notify
+        :param notification_class: class of notification to send
+        :param kwargs: (optional) other notification parameters
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         for game_role, token in server_game.get_reception_addresses():
             yield self._notify(notification_class(token=token,
@@ -98,12 +104,13 @@ class Notifier():
     @gen.coroutine
     def _notify_power(self, game_id, power, notification_class, **kwargs):
         """ Send a notification to all tokens of a power.
-            Automatically add token, game ID and game role to notification parameters.
-            :param game_id: power game ID.
-            :param power: power to send notification.
-            :param notification_class: class of notification to send.
-            :param kwargs: (optional) other notification parameters.
-            :type power: diplomacy.Power
+        Automatically add token, game ID and game role to notification parameters.
+
+        :param game_id: power game ID.
+        :param power: power to send notification.
+        :param notification_class: class of notification to send.
+        :param kwargs: (optional) other notification parameters.
+        :type power: diplomacy.Power
         """
         for token in power.tokens:
             yield self._notify(notification_class(token=token,
@@ -114,12 +121,13 @@ class Notifier():
     @gen.coroutine
     def notify_game_processed(self, server_game, previous_phase_data, current_phase_data):
         """ Notify all game tokens about a game phase update (game processing).
-            :param server_game: game to notify
-            :param previous_phase_data: game phase data before phase update
-            :param current_phase_data: game phase data after phase update
-            :type server_game: diplomacy.server.server_game.ServerGame
-            :type previous_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
-            :type current_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
+
+        :param server_game: game to notify
+        :param previous_phase_data: game phase data before phase update
+        :param current_phase_data: game phase data after phase update
+        :type server_game: diplomacy.server.server_game.ServerGame
+        :type previous_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
+        :type current_phase_data: diplomacy.utils.game_phase_data.GamePhaseData
         """
         # Send game updates to observers ans omniscient observers..
         for game_role, token in server_game.get_observer_addresses():
@@ -157,16 +165,18 @@ class Notifier():
     @gen.coroutine
     def notify_game_deleted(self, server_game):
         """ Notify all game tokens about game deleted.
-            :param server_game: game to notify
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: game to notify
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         yield self._notify_game(server_game, notifications.GameDeleted)
 
     @gen.coroutine
     def notify_game_powers_controllers(self, server_game):
         """ Notify all game tokens about current game powers controllers.
-            :param server_game: game to notify
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: game to notify
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         yield self._notify_game(server_game, notifications.PowersControllers,
                                 powers=server_game.get_controllers(),
@@ -175,16 +185,18 @@ class Notifier():
     @gen.coroutine
     def notify_game_status(self, server_game):
         """ Notify all game tokens about current game status.
-            :param server_game: game to notify
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: game to notify
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         yield self._notify_game(server_game, notifications.GameStatusUpdate, status=server_game.status)
 
     @gen.coroutine
     def notify_game_phase_data(self, server_game):
         """ Notify all game tokens about current game state.
-            :param server_game: game to notify
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: game to notify
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         phase_data = server_game.get_phase_data()
         state_type = strings.STATE
@@ -214,9 +226,10 @@ class Notifier():
     @gen.coroutine
     def notify_game_vote_updated(self, server_game):
         """ Notify all game tokens about current game vote.
-            Send relevant notifications to each type of tokens.
-            :param server_game: game to notify
-            :type server_game: diplomacy.server.server_game.ServerGame
+        Send relevant notifications to each type of tokens.
+
+        :param server_game: game to notify
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         # Notify observers about vote count changed.
         for game_role, token in server_game.get_observer_addresses():
@@ -242,11 +255,12 @@ class Notifier():
     @gen.coroutine
     def notify_power_orders_update(self, server_game, power, orders):
         """ Notify all power tokens and all observers about new orders for given power.
-            :param server_game: game to notify
-            :param power: power to notify
-            :param orders: new power orders
-            :type server_game: diplomacy.server.server_game.ServerGame
-            :type power: diplomacy.Power
+
+        :param server_game: game to notify
+        :param power: power to notify
+        :param orders: new power orders
+        :type server_game: diplomacy.server.server_game.ServerGame
+        :type power: diplomacy.Power
         """
         yield self._notify_power(server_game.game_id, power, notifications.PowerOrdersUpdate,
                                  power_name=power.name, orders=orders)
@@ -265,50 +279,55 @@ class Notifier():
     @gen.coroutine
     def notify_power_wait_flag(self, server_game, power, wait_flag):
         """ Notify all power tokens about new wait flag for given power.
-            :param server_game: game to notify
-            :param power: power to notify
-            :param wait_flag: new wait flag
-            :type power: diplomacy.Power
+
+        :param server_game: game to notify
+        :param power: power to notify
+        :param wait_flag: new wait flag
+        :type power: diplomacy.Power
         """
         yield self._notify_game(server_game, notifications.PowerWaitFlag, power_name=power.name, wait=wait_flag)
 
     @gen.coroutine
     def notify_cleared_orders(self, server_game, power_name):
         """ Notify all game tokens about game orders cleared for a given power name.
-            :param server_game: game to notify
-            :param power_name: name of power for which orders were cleared.
-                None means all power orders were cleared.
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: game to notify
+        :param power_name: name of power for which orders were cleared.
+            None means all power orders were cleared.
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         yield self._notify_game(server_game, notifications.ClearedOrders, power_name=power_name)
 
     @gen.coroutine
     def notify_cleared_units(self, server_game, power_name):
         """ Notify all game tokens about game units cleared for a given power name.
-            :param server_game: game to notify
-            :param power_name: name of power for which units were cleared.
-                None means all power units were cleared.
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: game to notify
+        :param power_name: name of power for which units were cleared.
+            None means all power units were cleared.
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         yield self._notify_game(server_game, notifications.ClearedUnits, power_name=power_name)
 
     @gen.coroutine
     def notify_cleared_centers(self, server_game, power_name):
         """ Notify all game tokens about game centers cleared for a given power name.
-            :param server_game: game to notify
-            :param power_name: name of power for which centers were cleared.
-                None means all power centers were cleared.
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: game to notify
+        :param power_name: name of power for which centers were cleared.
+            None means all power centers were cleared.
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         yield self._notify_game(server_game, notifications.ClearedCenters, power_name=power_name)
 
     @gen.coroutine
     def notify_game_message(self, server_game, game_message):
         """ Notify relevant users about a game message received.
-            :param server_game: Game data who handles this game message.
-            :param game_message: the game message received.
-            :return: None
-            :type server_game: diplomacy.server.server_game.ServerGame
+
+        :param server_game: Game data who handles this game message.
+        :param game_message: the game message received.
+        :return: None
+        :type server_game: diplomacy.server.server_game.ServerGame
         """
         if game_message.is_global():
             yield self._notify_game(server_game, notifications.GameMessageReceived, message=game_message)
@@ -328,12 +347,13 @@ class Notifier():
     @gen.coroutine
     def notify_game_addresses(self, game_id, addresses, notification_class, **kwargs):
         """ Notify addresses of a game with a notification.
-            Game ID is automatically provided to notification.
-            Token and game role are automatically provided to notifications from given addresses.
-            :param game_id: related game ID
-            :param addresses: addresses to notify. Sequence of couples (game role, token).
-            :param notification_class: class of notification to send
-            :param kwargs: (optional) other parameters for notification
+        Game ID is automatically provided to notification.
+        Token and game role are automatically provided to notifications from given addresses.
+
+        :param game_id: related game ID
+        :param addresses: addresses to notify. Sequence of couples (game role, token).
+        :param notification_class: class of notification to send
+        :param kwargs: (optional) other parameters for notification
         """
         for game_role, token in addresses:
             yield self._notify(notification_class(token=token, game_id=game_id, game_role=game_role, **kwargs))

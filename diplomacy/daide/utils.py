@@ -22,10 +22,11 @@ ClientConnection = namedtuple('ClientConnection', ['username', 'daide_user', 'to
 
 def get_user_connection(server_users, game, connection_handler):
     """ Get the DAIDE user connection informations
-        :param server_users: The instance of `diplomacy.server.users` of the game's server
-        :param game: The game the user has joined
-        :param connection_handler: The connection_handler of the user
-        :return: A tuple of username, daide_user, token, power_name
+
+    :param server_users: The instance of `diplomacy.server.users` of the game's server
+    :param game: The game the user has joined
+    :param connection_handler: The connection_handler of the user
+    :return: A tuple of username, daide_user, token, power_name
     """
     token = connection_handler.token
     username = server_users.get_name(token) if server_users.has_token(token) else None
@@ -38,10 +39,11 @@ def get_user_connection(server_users, game, connection_handler):
 
 def str_to_bytes(daide_str):
     """ Converts a str into its bytes representation
-        :param daide_str: A DAIDE string with tokens separated by spaces
-        :return: The bytes representation of the string
 
-        Note: Integers starts with a '#' character
+    :param daide_str: A DAIDE string with tokens separated by spaces
+    :return: The bytes representation of the string
+
+    Note: Integers starts with a '#' character
     """
     buffer = []
     str_split = daide_str.split(' ') if daide_str else []
@@ -56,10 +58,11 @@ def str_to_bytes(daide_str):
 
 def bytes_to_str(daide_bytes):
     """ Converts a bytes into its str representation
-        :param daide_bytes: A DAIDE bytes with tokens separated by spaces
-        :return: The bytes representation of the string
 
-        Note: Integers starts with a '#' character
+    :param daide_bytes: A DAIDE bytes with tokens separated by spaces
+    :return: The bytes representation of the string
+
+    Note: Integers starts with a '#' character
     """
     buffer = []
     length = len(daide_bytes) if daide_bytes else 0

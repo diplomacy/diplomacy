@@ -16,19 +16,29 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Run tests from diplomacy.tests.network.test_real_game to test games in a real environment.
-    Each test run a game and checks game messages and phases against an expected game data file.
-    Current tested gama data files are JSON files located into folder diplomacy/tests/network:
-        1.json
-        2.json
-        3.json
-    Need a local diplomacy server running. You must specify this server port using parameter --port=<server_port>.
-    To run all tests:
-        python -m diplomacy.tests.network.run_real_game --port=<server_port>
-    To run a specific test (e.g. 2.json, or 2.json and 1.json):
-        python -m diplomacy.tests.network.run_real_game --cases=20 --port=<server_port>
-        python -m diplomacy.tests.network.run_real_game --cases=15,20 --port=<server_port>
-    For help:
-        python -m diplomacy.tests.network.run_real_game --help
+Each test run a game and checks game messages and phases against an expected game data file.
+Current tested gama data files are JSON files located into folder diplomacy/tests/network:
+
+- 1.json
+- 2.json
+- 3.json
+
+Need a local diplomacy server running. You must specify
+this server port using parameter ``--port=<server_port>``.
+
+To run all tests: ::
+
+    python -m diplomacy.tests.network.run_real_game --port=<server_port>
+
+To run a specific test (e.g. 2.json, or 2.json and 1.json): ::
+
+    python -m diplomacy.tests.network.run_real_game --cases=2 --port=<server_port>
+    python -m diplomacy.tests.network.run_real_game --cases=1,2 --port=<server_port>
+
+For help: ::
+
+    python -m diplomacy.tests.network.run_real_game --help
+
 """
 import argparse
 from tornado import gen
@@ -44,8 +54,8 @@ def launch_case(case_name, port, io_loop):
 
 def main():
     """ Main function for this module. Load and run tests.
-        Each test run a game and checks game messages and phases against an expected game data file.
-        Current tested gama data files are JSON files located into folder diplomacy/tests/network.
+    Each test run a game and checks game messages and phases against an expected game data file.
+    Current tested gama data files are JSON files located into folder diplomacy/tests/network.
     """
     parser = argparse.ArgumentParser(description='Run test cases against an external server to connect.')
     parser.add_argument('--port', type=int, required=True,

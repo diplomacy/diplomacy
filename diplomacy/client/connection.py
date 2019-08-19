@@ -18,7 +18,7 @@
 import logging
 import weakref
 from datetime import timedelta
-
+from typing import Dict
 from tornado import gen, ioloop
 from tornado.concurrent import Future
 from tornado.iostream import StreamClosedError
@@ -35,13 +35,17 @@ from diplomacy.utils import exceptions, strings, constants
 LOGGER = logging.getLogger(__name__)
 
 class MessageWrittenCallback():
-    """ Helper class representing callback to call on a connection when a request is written in a websocket. """
+    """ Helper class representing callback to call on a connection
+        when a request is written in a websocket.
+    """
+
     __slots__ = ['request_context']
 
     def __init__(self, request_context):
         """ Initialize the callback object.
-            :param request_context: a request context
-            :type request_context: RequestFutureContext
+
+        :param request_context: a request context
+        :type request_context: RequestFutureContext
         """
         self.request_context = request_context
 
@@ -69,54 +73,45 @@ class MessageWrittenCallback():
 class Reconnection():
     """ Class performing reconnection work for a given connection.
 
-        Class properties:
-        =================
+    Class properties:
+    =================
 
-        - connection: Connection object to reconnect.
+    - connection: Connection object to reconnect.
+    - games_phases: dictionary mapping each game address (game ID + game role) to server game info:
+      {game ID => {game role => responses.DataGamePhase}}.
+      Server game info is a DataGamePhase response sent by server as response to a Synchronize request.
+      It contains 3 fields: game ID, current server game phase and current server game timestamp.
+      We currently use only game phase.
+    - n_expected_games: number of games registered in games_phases.
+    - n_synchronized_games: number of games already synchronized.
 
-        - games_phases: dictionary mapping each game address (game ID + game role) to server game info:
-                {game ID => {game role => responses.DataGamePhase}}
-            Server game info is a DataGamePhase response sent by server as response to a Synchronize request.
-            It contains 3 fields: game ID, current server game phase and current server game timestamp.
-            We currently use only game phase.
+    Reconnection procedure:
+    =======================
 
-        - n_expected_games: number of games registered in games_phases.
+    - Mark all waiting responses as `re-sent` (may be useful on server-side) and
+      move them back to responses_to_send.
+    - Remove all previous synchronization requests that are not yet sent. We will send new synchronization
+      requests with latest games timestamps. Future associated to removed requests will raise an exception.
+    - Initialize games_phases associating None to each game object currently opened in connection.
+    - Send synchronization request for each game object currently opened in connection. For each game:
 
-        - n_synchronized_games: number of games already synchronized.
+      - server will send a response describing current server game phase (current phase and timestamp). This info
+        will be used to check local requests to send. Note that concrete synchronization is done via notifications.
+        Thus, when server responses is received, game synchronization may not be yet terminated, but at least
+        we will now current server game phase.
+      - Server response is saved in games_phases (replacing None associated to game object).
+      - n_synchronized_games is incremented.
 
-        Reconnection procedure:
-        =======================
+    - When sync responses are received for all games registered in games_phases
+      (n_expected_games == n_synchronized_games), we can finalize reconnection:
 
-        - Mark all waiting responses as `re-sent` (may be useful on server-side) and
-          move them back to responses_to_send.
+      - Remove every phase-dependent game request not yet sent for which phase does not match
+        server game phase. Futures associated to removed request will raise an exception.
+      - Finally send all remaining requests.
 
-        - Remove all previous synchronization requests that are not yet sent. We will send new synchronization
-          requests with latest games timestamps. Future associated to removed requests will raise an exception.
-
-        - Initialize games_phases associating None to each game object currently opened in connection.
-
-        - Send synchronization request for each game object currently opened in connection. For each game:
-
-          - server will send a response describing current server game phase (current phase and timestamp). This info
-            will be used to check local requests to send. Note that concrete synchronization is done via notifications.
-            Thus, when server responses is received, game synchronization may not be yet terminated, but at least
-            we will now current server game phase.
-
-          - Server response is saved in games_phases (replacing None associated to game object).
-
-          - n_synchronized_games is incremented.
-
-        - When sync responses are received for all games registered in games_phases
-          (n_expected_games == n_synchronized_games), we can finalize reconnection:
-
-          - Remove every phase-dependent game request not yet sent for which phase does not match
-            server game phase. Futures associated to removed request will raise an exception.
-
-          - Finally send all remaining requests.
-
-            These requests may be marked as re-sent.
-            For these requests, server is (currently) responsible for checking if they don't represent
-            a duplicated query.
+    These requests may be marked as re-sent.
+    For these requests, server is (currently) responsible for checking if they don't represent
+    a duplicated query.
 
     """
 
@@ -124,8 +119,9 @@ class Reconnection():
 
     def __init__(self, connection):
         """ Initialize reconnection data/
-            :param connection: connection to reconnect.
-            :type connection: Connection
+
+        :param connection: connection to reconnect.
+        :type connection: Connection
         """
         self.connection = connection
         self.games_phases = {}
@@ -170,9 +166,10 @@ class Reconnection():
 
     def generate_sync_callback(self, game):
         """ Generate callback to call when response to sync request is received for given game.
-            :param game: game
-            :return: a callback.
-            :type game: diplomacy.client.network_game.NetworkGame
+
+        :param game: game
+        :return: a callback.
+        :type game: diplomacy.client.network_game.NetworkGame
         """
 
         def on_sync(future):
@@ -232,28 +229,29 @@ class Reconnection():
 
 class Connection():
     """ Connection class. Properties:
-        - hostname: hostname to connect (e.g. 'localhost')
-        - port: port to connect (e.g. 8888)
-        - use_ssl: boolean telling if connection should be securized (True) or not (False).
-        - url (auto): websocket url to connect (generated with hostname and port)
-        - connection: a tornado websocket connection object
-        - connection_count: number of successful connections from this Connection object.
-            Used to check if message callbacks is already launched (if count > 0).
-        - connection_lock: a tornado lock used to access tornado websocket connection object
-        - is_connecting: a tornado Event used to keep connection status.
-            No request can be sent while is_connecting.
-            If connected, Synchronize requests can be sent immediately even if is_reconnecting.
-            Other requests must wait full reconnection.
-        - is_reconnecting: a tornado Event used to keep re-connection status.
-            Non-synchronize request cannot be sent while is_reconnecting.
-            If reconnected, all requests can be sent.
-        - channels: a WeakValueDictionary mapping channel token to Channel object.
-        - requests_to_send: a dictionary mapping a request ID to the context of a request
-            **not sent**. If we are disconnected when trying to send a request, then request
-            context is added to this dictionary to be send later once reconnected.
-        - requests_waiting_responses: a dictionary mapping a request ID to the context of a
-            request **sent**. Contains requests that are waiting for a server response.
-        - unknown_tokens: a set of unknown tokens. We can safely ignore them, as the server has been notified.
+
+    - **hostname**: hostname to connect (e.g. 'localhost')
+    - **port**: port to connect (e.g. 8888)
+    - **use_ssl**: boolean telling if connection should be securized (True) or not (False).
+    - **url**: (property) websocket url to connect (generated with hostname and port)
+    - **connection**: a tornado websocket connection object
+    - **connection_count**: number of successful connections from this Connection object.
+      Used to check if message callbacks is already launched (if count > 0).
+    - connection_lock: a tornado lock used to access tornado websocket connection object
+    - **is_connecting**: a tornado Event used to keep connection status.
+      No request can be sent while is_connecting.
+      If connected, Synchronize requests can be sent immediately even if is_reconnecting.
+      Other requests must wait full reconnection.
+    - **is_reconnecting**: a tornado Event used to keep re-connection status.
+      Non-synchronize request cannot be sent while is_reconnecting.
+      If reconnected, all requests can be sent.
+    - **channels**: a WeakValueDictionary mapping channel token to Channel object.
+    - **requests_to_send**: a dictionary mapping a request ID to the context of a request
+      **not sent**. If we are disconnected when trying to send a request, then request
+      context is added to this dictionary to be send later once reconnected.
+    - **requests_waiting_responses**: a dictionary mapping a request ID to the context of a
+      request **sent**. Contains requests that are waiting for a server response.
+    - **unknown_tokens**: a set of unknown tokens. We can safely ignore them, as the server has been notified.
     """
     __slots__ = ['hostname', 'port', 'use_ssl', 'connection', 'is_connecting', 'is_reconnecting', 'connection_count',
                  'channels', 'requests_to_send', 'requests_waiting_responses', 'unknown_tokens']
@@ -271,8 +269,8 @@ class Connection():
 
         self.channels = weakref.WeakValueDictionary()  # {token => Channel}
 
-        self.requests_to_send = {}  # type: dict{str, RequestFutureContext}
-        self.requests_waiting_responses = {}  # type: dict{str, RequestFutureContext}
+        self.requests_to_send = {}  # type: Dict[str, RequestFutureContext]
+        self.requests_waiting_responses = {}  # type: Dict[str, RequestFutureContext]
         self.unknown_tokens = set()
 
         # When connection is created, we are not yet connected, but reconnection does not matter
@@ -282,11 +280,17 @@ class Connection():
     url = property(lambda self: '%s://%s:%d' % ('wss' if self.use_ssl else 'ws', self.hostname, self.port))
 
     @gen.coroutine
-    def _connect(self):
+    def connect(self, message=None):
         """ Create (force) a tornado websocket connection. Try NB_CONNECTION_ATTEMPTS attempts,
-            waiting for ATTEMPT_DELAY_SECONDS seconds between 2 attempts.
-            Raise an exception if it cannot connect.
+        waiting for ATTEMPT_DELAY_SECONDS seconds between 2 attempts.
+        Raise an exception if it cannot connect.
+
+        :param message: if provided, print this message as a logger info before starting to connect.
+        :type message: str, optional
         """
+
+        if message:
+            LOGGER.info(message)
 
         # We are connecting.
         self.is_connecting.clear()
@@ -319,30 +323,33 @@ class Connection():
     @gen.coroutine
     def _reconnect(self):
         """ Reconnect. """
-        LOGGER.info('Trying to reconnect.')
         # We are reconnecting.
         self.is_reconnecting.clear()
-        yield self._connect()
+        yield self._connect('Trying to reconnect.')
         # We will be reconnected when method Reconnection.sync_done() will finish.
         Reconnection(self).reconnect()
 
     def _register_to_send(self, request_context):
         """ Register given request context as a request to send as soon as possible.
-            :param request_context: context of request to send.
-            :type request_context: RequestFutureContext
+
+        :param request_context: context of request to send.
+        :type request_context: RequestFutureContext
         """
         self.requests_to_send[request_context.request_id] = request_context
 
     def write_request(self, request_context):
         """ Write a request into internal connection object.
-            :param request_context: context of request to send.
-            :type request_context: RequestFutureContext
+
+        :param request_context: context of request to send.
+        :type request_context: RequestFutureContext
         """
         future = Future()
         request = request_context.request
 
         def on_message_written(write_future):
-            """ 3) Writing returned, set future as done (with writing result) or with writing exception. """
+            """ 3) Writing returned, set future as done (with writing result)
+                or with writing exception.
+            """
             exception = write_future.exception()
             if exception is not None:
                 future.set_exception(exception)
@@ -378,12 +385,6 @@ class Connection():
             self.is_reconnecting.wait().add_done_callback(on_connected)
 
         return future
-
-    @gen.coroutine
-    def connect(self):
-        """ Effectively connect this object. """
-        LOGGER.info('Trying to connect.')
-        yield self._connect()
 
     @gen.coroutine
     def _on_socket_message(self, socket_message):
@@ -464,29 +465,35 @@ class Connection():
     # Public methods.
     @gen.coroutine
     def get_daide_port(self, game_id):
-        """ Send a GetDaidePort request.
-            :param game_id: game id
-            :return: int. the game DAIDE port
+        """ Send a :class:`.GetDaidePort` request.
+
+        :param game_id: game id for which to retrieve the DAIDE port.
+        :type game_id: str
+        :return: the game DAIDE port
+        :rtype: int
         """
         request = requests.GetDaidePort(game_id=game_id)
         return (yield self.send(request))
 
     @gen.coroutine
     def authenticate(self, username, password, create_user=False):
-        """ Send a SignIn request.
-            :param username: username
-            :param password: password
-            :param create_user: boolean indicating if you want to create a user or login to and existing user.
-            :return: a Channel object representing the authentication.
+        """ Send a :class:`.SignIn` request.
+
+        :param username: username
+        :param password: password
+        :param create_user: boolean indicating if you want to create a user or login
+            to an existing user.
+        :return: a :class:`.Channel` object representing the authentication.
         """
         request = requests.SignIn(username=username, password=password, create_user=create_user)
         return (yield self.send(request))
 
     def send(self, request, for_game=None):
         """ Send a request.
-            :param request: request object.
-            :param for_game: (optional) NetworkGame object (required for game requests).
-            :return: a Future that returns the response handler result of this request.
+
+        :param request: request object.
+        :param for_game: (optional) NetworkGame object (required for game requests).
+        :return: a Future that returns the response handler result of this request.
         """
         request_future = Future()
         request_context = RequestFutureContext(request=request, future=request_future, connection=self, game=for_game)
@@ -497,11 +504,12 @@ class Connection():
 @gen.coroutine
 def connect(hostname, port):
     """ Connect to given hostname and port.
-        :param hostname: a hostname
-        :param port: a port
-        :return: a Connection object connected.
-        :rtype: Connection
+
+    :param hostname: a hostname
+    :param port: a port
+    :return: a Connection object connected.
+    :rtype: Connection
     """
     connection = Connection(hostname, port)
-    yield connection.connect()
+    yield connection.connect('Trying to connect.')
     return connection

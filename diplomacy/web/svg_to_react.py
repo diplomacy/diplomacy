@@ -15,7 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Helper script to convert a SVG file into a React JS component file.
-    Type `python <script name> --help` for help.
+    Type ``python <script name> --help`` for help.
 """
 import argparse
 import os
@@ -61,9 +61,10 @@ STRING_REGEX = re.compile(r'[`\'"] {0,1}\+ {0,1}[`\'"]')
 
 def prepend_css_selectors(prefix, css_text):
     """ Prepend all CSS selector with given prefix (e.g. ID selector) followed by a space.
-        :param prefix: prefix to prepend
-        :param css_text: CSS text to parse
-        :rtype: str
+
+    :param prefix: prefix to prepend
+    :param css_text: CSS text to parse
+    :rtype: str
     """
     def repl(match):
         return '%s%s %s{' % (match.group(1), prefix, match.group(2))
@@ -73,17 +74,19 @@ def prepend_css_selectors(prefix, css_text):
 
 class ExtractedData:
     """ Helper class to store extra data collected while parsing SVG file. Properties:
-        - name: class name of parsed SVG component
-        - extra: data parsed from invalid tags found in SVG content
-        - style_lines: string lines parsed from <style> tag if found in SVG content
-        - id_to_class: dictionary mapping and ID to corresponding class name
-            for each tag found with both ID and class name in SVG content.
+
+    - name: class name of parsed SVG component
+    - extra: data parsed from invalid tags found in SVG content
+    - style_lines: string lines parsed from <style> tag if found in SVG content
+    - id_to_class: dictionary mapping and ID to corresponding class name
+        for each tag found with both ID and class name in SVG content.
     """
     __slots__ = ('name', 'extra', 'style_lines', 'id_to_class')
 
     def __init__(self, name):
         """ Initialize extracted data object.
-            :param name: class name of parsed SVG content
+
+        :param name: class name of parsed SVG content
         """
         self.name = name
         self.extra = {}
@@ -92,9 +95,10 @@ class ExtractedData:
 
     def get_coordinates(self):
         """ Parse and return unit coordinates from extra field.
-            :return: a dictionary mapping a province name to coordinates [x, y] (as string values)
-                for unit ('unit'), dislodged unit ('disl'), and supply center ('sc', if available).
-            :rtype: dict
+
+        :return: a dictionary mapping a province name to coordinates [x, y] (as string values)
+            for unit ('unit'), dislodged unit ('disl'), and supply center ('sc', if available).
+        :rtype: dict
         """
         coordinates = {}
         for province_definition in self.extra[TAG_PROVINCE_DATA][TAG_PROVINCE]:
@@ -113,9 +117,10 @@ class ExtractedData:
 
     def get_symbol_sizes(self):
         """ Parse and return symbol sizes from extra field.
-            :return: a dictionary mapping a symbol name to sizes
-                ('width' and 'height' as floating values).
-            :rtype: dict
+
+        :return: a dictionary mapping a symbol name to sizes
+            ('width' and 'height' as floating values).
+        :rtype: dict
         """
         sizes = {}
         for definition in self.extra[TAG_ORDERDRAWING][TAG_SYMBOLSIZE]:
@@ -127,8 +132,9 @@ class ExtractedData:
 
     def get_colors(self):
         """ Parse and return power colors from extra field.
-            :return: a dictionary mapping a power name to a HTML color.
-            :rtype: dict
+
+        :return: a dictionary mapping a power name to a HTML color.
+        :rtype: dict
         """
         colors = {}
         for definition in self.extra[TAG_ORDERDRAWING][TAG_POWERCOLORS][TAG_POWERCOLOR]:
@@ -138,10 +144,11 @@ class ExtractedData:
 
 def safe_react_attribute_name(name):
     """ Convert given raw attribute name into a valid React HTML tag attribute name.
-        :param name: attribute to convert
-        :return: valid attribute
-        :type name: str
-        :rtype: str
+
+    :param name: attribute to convert
+    :return: valid attribute
+    :type name: str
+    :rtype: str
     """
     # Replace 'class' with 'className'
     if name == 'class':
@@ -161,8 +168,9 @@ def safe_react_attribute_name(name):
 
 def compact_extra(extra):
     """ Compact extra dictionary so that it takes less place into final output string.
-        :param extra: dictionary of extra data
-        :type extra: dict
+
+    :param extra: dictionary of extra data
+    :type extra: dict
     """
     # pylint:disable=too-many-branches
     if 'children' in extra:
@@ -219,7 +227,8 @@ def compact_extra(extra):
 
 def extract_extra(node, extra):
     """ Collect extra information from given node into output extra.
-        :type extra: dict
+
+    :type extra: dict
     """
     extra_dictionary = {'name': node.tagName, 'attributes': {}, 'children': []}
     # Collect attributes.
@@ -242,10 +251,11 @@ def extract_extra(node, extra):
 
 def attributes_to_string(attributes):
     """ Convert given HTML attributes ton an inline string.
-        :param attributes: attributes to write
-        :return: a string representing attributes
-        :type attributes: dict
-        :rtype: str
+
+    :param attributes: attributes to write
+    :return: a string representing attributes
+    :type attributes: dict
+    :rtype: str
     """
     pieces = []
     for name in sorted(attributes):
@@ -259,15 +269,16 @@ def attributes_to_string(attributes):
 
 def extract_dom(node, nb_indentation, lines, data):
     """ Parse given node.
-        :param node: (input) node to parse
-        :param nb_indentation: (input) number of indentation to use for current node content
-            into output lines. 1 indentation is converted to 4 spaces.
-        :param lines: (output) collector for  output lines of text corresponding to parsed content
-        :param data: ExtractedData object to collect extracted data
-            (extra, style lines, ID-to-class mapping).
-        :type nb_indentation: int
-        :type lines: List[str]
-        :type data: ExtractedData
+
+    :param node: (input) node to parse
+    :param nb_indentation: (input) number of indentation to use for current node content
+        into output lines. 1 indentation is converted to 4 spaces.
+    :param lines: (output) collector for  output lines of text corresponding to parsed content
+    :param data: ExtractedData object to collect extracted data
+        (extra, style lines, ID-to-class mapping).
+    :type nb_indentation: int
+    :type lines: List[str]
+    :type data: ExtractedData
     """
     # pylint: disable=too-many-branches, too-many-statements
     if node.nodeType != Node.ELEMENT_NODE:

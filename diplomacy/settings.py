@@ -14,11 +14,18 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Settings
-    - Provides fixed diplomacy settings shared across project
+"""
+Settings
+========
+
+Provides fixed diplomacy settings shared across project.
+
+- ``DIPLOMACY_ROOT_DIR`` and ``PACKAGE_DIR``: (string) contains Diplomacy package directory.
+- ``TIME_ZONE``: (string) contains a default time zone
 """
 import os
 
 DIPLOMACY_ROOT_DIR = os.path.dirname(os.path.realpath(__file__))
 PACKAGE_DIR = DIPLOMACY_ROOT_DIR
+
 TIME_ZONE = 'America/Montreal'

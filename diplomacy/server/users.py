@@ -16,13 +16,14 @@
 # ==============================================================================
 """ Helper class to manage user accounts and connections  on server side.
 
-    A user is associated to 0 or more connected tokens,
-    and each connected token is associated to at most 1 connection handler.
+A user is associated to 0 or more connected tokens,
+and each connected token is associated to at most 1 connection handler.
 
-    When a connection handler is closed or invalidated,
-    related tokens are kept and may be further associated to new connection handlers.
+When a connection handler is closed or invalidated,
+related tokens are kept and may be further associated to new connection handlers.
 
-    Tokens are effectively deleted when they expire after TOKEN_LIFETIME_SECONDS seconds since last token usage.
+Tokens are effectively deleted when they expire
+after TOKEN_LIFETIME_SECONDS seconds since last token usage.
 """
 import logging
 
@@ -38,13 +39,14 @@ TOKEN_LIFETIME_SECONDS = 24 * 60 * 60
 
 class Users(Jsonable):
     """ Users class. Properties:
-        - users: dictionary mapping usernames to User object.s
-        - administrators: set of administrator usernames.
-        - token_timestamp: dictionary mapping each token to its creation/last confirmation timestamp.
-        - token_to_username: dictionary mapping each token to its username.
-        - username_to_tokens: dictionary mapping each username to a set of its tokens.
-        - token_to_connection_handler: (memory only) dictionary mapping each token to a connection handler
-        - connection_handler_to_tokens (memory only) dictionary mapping a connection handler to a set of its tokens
+
+    - users: dictionary mapping usernames to User object.s
+    - administrators: set of administrator usernames.
+    - token_timestamp: dictionary mapping each token to its creation/last confirmation timestamp.
+    - token_to_username: dictionary mapping each token to its username.
+    - username_to_tokens: dictionary mapping each username to a set of its tokens.
+    - token_to_connection_handler: (memory only) dictionary mapping each token to a connection handler
+    - connection_handler_to_tokens (memory only) dictionary mapping a connection handler to a set of its tokens
     """
     __slots__ = ['users', 'administrators', 'token_timestamp', 'token_to_username', 'username_to_tokens',
                  'token_to_connection_handler', 'connection_handler_to_tokens']
@@ -86,8 +88,8 @@ class Users(Jsonable):
 
     def token_is_alive(self, token):
         """ Return True if given token is known and still alive.
-            A token is alive if elapsed time since last token usage does not exceed token lifetime
-            (TOKEN_LIFETIME_SECONDS).
+        A token is alive if elapsed time since last token usage does not exceed token lifetime
+        (TOKEN_LIFETIME_SECONDS).
         """
         if self.has_token(token):
             current_time = common.timestamp_microseconds()
@@ -121,7 +123,9 @@ class Users(Jsonable):
         return self.users.get(username, None)
 
     def get_connection_handler(self, token):
-        """ Return connection handler associated to given token, or None if no handler currently associated. """
+        """ Return connection handler associated to given token,
+        or None if no handler currently associated.
+        """
         return self.token_to_connection_handler.get(token, None)
 
     def add_admin(self, username):
@@ -143,7 +147,7 @@ class Users(Jsonable):
 
     def add_user(self, username, password_hash):
         """ Add a new user with given username and hashed password.
-            See diplomacy.utils.common.hash_password() for hashing purposes.
+        See diplomacy.utils.common.hash_password() for hashing purposes.
         """
         user = User(username=username, password_hash=password_hash)
         self.users[username] = user
@@ -168,11 +172,12 @@ class Users(Jsonable):
 
     def remove_connection(self, connection_handler, remove_tokens=True):
         """ Remove given connection handler.
-            Return tokens associated to this connection handler,
-            or None if connection handler is unknown.
-            :param connection_handler: connection handler to remove.
-            :param remove_tokens: if True, tokens related to connection handler are deleted.
-            :return: either None or a set of tokens.
+        Return tokens associated to this connection handler,
+        or None if connection handler is unknown.
+
+        :param connection_handler: connection handler to remove.
+        :param remove_tokens: if True, tokens related to connection handler are deleted.
+        :return: either None or a set of tokens.
         """
         if connection_handler in self.connection_handler_to_tokens:
             tokens = self.connection_handler_to_tokens.pop(connection_handler)
@@ -188,11 +193,12 @@ class Users(Jsonable):
         return None
 
     def connect_user(self, username, connection_handler):
-        """ Connect given username to given connection handler with a new generated token, and return
-            token generated.
-            :param username: username to connect
-            :param connection_handler: connection handler to link to user
-            :return: a new token generated for connexion
+        """ Connect given username to given connection handler with a new generated token,
+         and return token generated.
+
+        :param username: username to connect
+        :param connection_handler: connection handler to link to user
+        :return: a new token generated for connexion
         """
         token = self.create_token()
         user = self.users[username]
@@ -209,17 +215,20 @@ class Users(Jsonable):
 
     def attach_connection_handler(self, token, connection_handler):
         """ Associate given token with given connection handler if token is known.
-            If there is a previous connection handler associated to given token, it should be the same
-            as given connection handler, otherwise an error is raised (meaning previous connection handler
-            was not correctly disconnected from given token. It should be a programming error).
-            :param token: token
-            :param connection_handler: connection handler
+        If there is a previous connection handler associated to given token, it should be
+        the same as given connection handler, otherwise an error is raised
+        (meaning previous connection handler was not correctly disconnected from given token.
+        It should be a programming error).
+
+        :param token: token
+        :param connection_handler: connection handler
         """
         if self.has_token(token):
             previous_connection = self.get_connection_handler(token)
             if previous_connection:
                 assert previous_connection == connection_handler, \
-                    "A new connection handler cannot be attached to a token always connected to another handler."
+                    "A new connection handler cannot be attached to a token " \
+                    "always connected to another handler."
             else:
                 LOGGER.warning('Attaching a new connection handler to a token.')
                 if connection_handler not in self.connection_handler_to_tokens:

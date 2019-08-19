@@ -15,81 +15,136 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Channel
-    - The channel object represents an authenticated connection over a socket.
-    - It has a token that it sends with every request to authenticate itself.
+
+- The channel object represents an authenticated connection over a socket.
+- It has a token that it sends with every request to authenticate itself.
 """
 import logging
 
 from tornado import gen
 
 from diplomacy.communication import requests
-from diplomacy.utils import strings
+from diplomacy.utils import strings, common
 
 LOGGER = logging.getLogger(__name__)
 
 def req_fn(request_class, local_req_fn=None, **request_args):
     """ Create channel request method that sends request with channel token.
-        :param request_class: class of request to send with channel request method.
-        :param local_req_fn: (optional) Channel method to use locally to try retrieving a data
-            instead of sending a request. If provided, local_req_fn is called with request args:
-            - if it returns anything else than None, then returned data is returned by channel request method.
-            - else, request class is still sent and channel request method follows standard path
-              (request sent, response received, response handler called and final handler result returned).
-        :param request_args: arguments to pass to request class to create the request object.
-        :return: a Channel method.
+
+    :param request_class: class of request to send with channel request method.
+    :param local_req_fn: (optional) Channel method to use locally to try retrieving a data
+        instead of sending a request. If provided, local_req_fn is called with request args:
+
+        - if it returns anything else than None, then returned data is returned by channel request method.
+        - else, request class is still sent and channel request method follows standard path
+          (request sent, response received, response handler called and final handler result returned).
+
+    :param request_args: arguments to pass to request class to create the request object.
+    :return: a Channel method.
     """
 
-    @gen.coroutine
-    def func(self, game_object=None, **kwargs):
-        """ Send an instance of request_class with given kwargs and game object.
-            :param self: Channel object who sends the request.
-            :param game_object: (optional) a NetworkGame object (required for game requests).
-            :param kwargs: request arguments.
-            :return: Data returned after response is received and handled by associated response manager.
-                See module diplomacy.client.response_managers about responses management.
-            :type game_object: diplomacy.client.network_game.NetworkGame
-        """
-        kwargs.update(request_args)
-        if request_class.level == strings.GAME:
-            assert game_object is not None
+    str_params = (', '.join(
+        '%s=%s' % (key, common.to_string(value))
+        for (key, value) in sorted(request_args.items()))) if request_args else ''
+
+    if request_class.level == strings.GAME:
+
+        @gen.coroutine
+        def func(self, game, **kwargs):
+            """ Send a game request. """
+            kwargs.update(request_args)
             kwargs[strings.TOKEN] = self.token
-            kwargs[strings.GAME_ID] = game_object.game_id
-            kwargs[strings.GAME_ROLE] = game_object.role
-            kwargs[strings.PHASE] = game_object.current_short_phase
-        else:
-            assert game_object is None
+            kwargs[strings.GAME_ID] = game.game_id
+            kwargs[strings.GAME_ROLE] = game.role
+            kwargs[strings.PHASE] = game.current_short_phase
+            if local_req_fn is not None:
+                local_ret = local_req_fn(self, **kwargs)
+                if local_ret is not None:
+                    return local_ret
+            request = request_class(**kwargs)
+            return (yield self.connection.send(request, game))
+
+        func.__doc__ = """
+        Send game request :class:`.%(request_name)s` for given ``game`` (:class:`.NetworkGame`)
+        %(with_params)s``kwargs``.
+        Return response data returned by server for this request.
+        See :class:`.%(request_name)s` about request parameters and response.
+
+        .. warning::
+
+            This method is intended to be called by an equivalent method in class 
+            :class:`.NetworkGame`. In most cases, you won't need to call this method 
+            directly. See :class:`.NetworkGame` about available public methods.
+
+            """ % {
+            'request_name': request_class.__name__,
+            'with_params': ('with forced parameters ``(%s)`` and additional request parameters '
+                           % str_params) if request_args else 'with request parameters '
+        }
+
+    else:
+
+        @gen.coroutine
+        def func(self, **kwargs):
+            """ Send a connection or channel request. """
+            kwargs.update(request_args)
             if request_class.level == strings.CHANNEL:
                 kwargs[strings.TOKEN] = self.token
-        if local_req_fn is not None:
-            local_ret = local_req_fn(self, **kwargs)
-            if local_ret is not None:
-                return local_ret
-        request = request_class(**kwargs)
-        return (yield self.connection.send(request, game_object))
+            if local_req_fn is not None:
+                local_ret = local_req_fn(self, **kwargs)
+                if local_ret is not None:
+                    return local_ret
+            request = request_class(**kwargs)
+            return (yield self.connection.send(request))
+
+        func.__doc__ = """
+        Send request :class:`.%(request_name)s`%(with_params)s``kwargs``.
+        Return response data returned by server for this request.
+        See :class:`.%(request_name)s` about request parameters and response.
+            """ % {
+            'request_name': request_class.__name__,
+            'with_params': ' with forced parameters ``(%s)`` and additional request parameters '
+                           % str_params if request_args else ' with request parameters '
+            }
+
+    func.__request_name__ = request_class.__name__
+    func.__request_params__ = str_params
 
     return func
 
-class Channel():
+class Channel:
     """ Channel - Represents an authenticated connection over a physical socket """
     __slots__ = ['connection', 'token', 'game_id_to_instances', '__weakref__']
 
     def __init__(self, connection, token):
         """ Initialize a channel.
-            :param connection: a Connection object.
-            :param token: Channel token.
-            :type connection: diplomacy.Connection
+
+        :param connection: a Connection object.
+        :param token: Channel token.
+        :type connection: diplomacy.client.connection.Connection
+        :type token: str
         """
         self.connection = connection
+        """ :class:`.Connection` object from which this channel originated. """
+
         self.token = token
+        """ Channel token, used to identify channel on server. """
+
         self.game_id_to_instances = {}  # {game id => GameInstances}
+        """ Dictionary mapping a game ID to :class:`.NetworkGame` objects loaded for this game.
+        Each network game has a specific role, which is either an observer role, an omniscient role,
+        or a power (player) role. Network games for a specific game ID are managed within a
+        :class:`.GameInstancesSet`, which makes sure that there will be at most 1 network game
+        instance per possible role.
+        """
 
     def local_join_game(self, **kwargs):
         """ Look for a local game with given kwargs intended to be used to build a JoinGame request.
             Return None if no local game found, else local game found.
-            Game is identified with game ID and power name (optional).
+            Game is identified with game ID **(required)** and power name *(optional)*.
             If power name is None, we look for a "special" game (observer or omniscient game)
-            loaded locally. Note that there is at most 1 special game per channel + game ID:
-            either observer or omniscient, not both.
+            loaded locally. Note that there is at most 1 special game per (channel + game ID)
+            couple: either observer or omniscient, not both.
         """
         game_id = kwargs[strings.GAME_ID]
         power_name = kwargs.get(strings.POWER_NAME, None)
@@ -123,9 +178,9 @@ class Channel():
     promote_moderator = req_fn(requests.SetGrade, grade=strings.MODERATOR, grade_update=strings.PROMOTE)
     demote_moderator = req_fn(requests.SetGrade, grade=strings.MODERATOR, grade_update=strings.DEMOTE)
 
-    # ================
-    # Public game API.
-    # ================
+    # ====================================================================
+    # Game API. Intended to be called by NetworkGame object, not directly.
+    # ====================================================================
 
     get_dummy_waiting_powers = req_fn(requests.GetDummyWaitingPowers)
     get_phase_history = req_fn(requests.GetPhaseHistory)

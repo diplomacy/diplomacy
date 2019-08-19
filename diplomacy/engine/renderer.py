@@ -16,7 +16,8 @@
 # ==============================================================================
 # -*- coding: utf-8 -*-
 """ Renderer
-    - Contains the renderer object which is responsible for rendering a game state to svg
+
+- Contains the renderer object which is responsible for rendering a game state to svg
 """
 import os
 from xml.dom import minidom
@@ -40,13 +41,15 @@ class Renderer():
 
     def __init__(self, game):
         """ Constructor
-            :param game: The instantiated game object to render
-            :type game: diplomacy.Game
+
+        :param game: The instantiated game object to render
+        :type game: diplomacy.Game
         """
         self.game = game
         self.metadata = {}
         self.xml_map = None
-        self.xml_map_path = os.path.join(settings.PACKAGE_DIR, 'maps', 'svg', self.game.map.name + '.svg')
+        self.xml_map_path = os.path.join(
+            settings.PACKAGE_DIR, 'maps', 'svg', self.game.map.root_map + '.svg')
 
         # Loading XML
         if os.path.exists(self.xml_map_path):
@@ -55,25 +58,28 @@ class Renderer():
 
     def norm_order(self, order):
         """ Normalizes the order format and split it into tokens
-            This is only used for **movement** orders (to make sure NO_CHECK games used the correct format)
-            Formats:
-                A PAR H
-                A PAR - BUR [VIA]
-                A PAR S BUR
-                A PAR S F BRE - PIC
-                F BRE C A PAR - LON
+        This is only used for **movement** orders (to make sure NO_CHECK games used the correct format)
 
-            :param order: The unformatted order (e.g. 'Paris - Burgundy')
-            :return: The tokens of the formatted order (e.g. ['A', 'PAR', '-', 'BUR'])
+        Formats: ::
+
+            A PAR H
+            A PAR - BUR [VIA]
+            A PAR S BUR
+            A PAR S F BRE - PIC
+            F BRE C A PAR - LON
+
+        :param order: The unformatted order (e.g. 'Paris - Burgundy')
+        :return: The tokens of the formatted order (e.g. ['A', 'PAR', '-', 'BUR'])
         """
         return self.game._add_unit_types(self.game._expand_order(order.split()))    # pylint: disable=protected-access
 
     def render(self, incl_orders=True, incl_abbrev=False, output_format='svg'):
         """ Renders the current game and returns the XML representation
-            :param incl_orders:  Optional. Flag to indicate we also want to render orders.
-            :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
-            :param output_format: The desired output format.
-            :return: The rendered image in the specified format.
+
+        :param incl_orders:  Optional. Flag to indicate we also want to render orders.
+        :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
+        :param output_format: The desired output format.
+        :return: The rendered image in the specified format.
         """
         # pylint: disable=too-many-branches
         if output_format not in ['svg']:
@@ -238,11 +244,12 @@ class Renderer():
 
     def _add_unit(self, xml_map, unit, power_name, is_dislodged):
         """ Adds a unit to the map
-            :param xml_map: The xml map being generated
-            :param unit: The unit to add (e.g. 'A PAR')
-            :param power_name: The name of the power owning the unit (e.g. 'FRANCE')
-            :param is_dislodged: Boolean. Indicates if the unit is dislodged
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param unit: The unit to add (e.g. 'A PAR')
+        :param power_name: The name of the power owning the unit (e.g. 'FRANCE')
+        :param is_dislodged: Boolean. Indicates if the unit is dislodged
+        :return: Nothing
         """
         unit_type, loc = unit.split()
         symbol = FLEET if unit_type == 'F' else ARMY
@@ -267,11 +274,12 @@ class Renderer():
 
     def _set_influence(self, xml_map, loc, power_name, has_supply_center=False):
         """ Sets the influence on the map
-            :param xml_map: The xml map being generated
-            :param loc: The province being influenced (e.g. 'PAR')
-            :param power_name: The name of the power influencing the province
-            :param has_supply_center: Boolean flag to acknowledge we are modifying a loc with a SC
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param loc: The province being influenced (e.g. 'PAR')
+        :param power_name: The name of the power influencing the province
+        :param has_supply_center: Boolean flag to acknowledge we are modifying a loc with a SC
+        :return: Nothing
         """
         loc = loc.upper()[:3]
         if loc in self.game.map.scs and not has_supply_center:
@@ -313,9 +321,10 @@ class Renderer():
     @staticmethod
     def _set_current_phase(xml_map, current_phase):
         """ Sets the phase text at the bottom right of the the map
-            :param xml_map: The xml map being generated
-            :param current_phase: The current phase (e.g. 'S1901M)
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param current_phase: The current phase (e.g. 'S1901M)
+        :return: Nothing
         """
         current_phase = 'FINAL' if current_phase[0] == '?' or current_phase == 'COMPLETED' else current_phase
         for child_node in xml_map.getElementsByTagName('svg')[0].childNodes:
@@ -327,10 +336,11 @@ class Renderer():
     @staticmethod
     def _set_note(xml_map, note_1, note_2):
         """ Sets a note at the top left of the map
-            :param xml_map: The xml map being generated
-            :param note_1: The text to display on the first line
-            :param note_2: The text to display on the second line
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param note_1: The text to display on the first line
+        :param note_2: The text to display on the second line
+        :return: Nothing
         """
         note_1 = note_1 or ' '
         note_2 = note_2 or ' '
@@ -343,10 +353,11 @@ class Renderer():
 
     def _issue_hold_order(self, xml_map, loc, power_name):
         """ Adds a hold order to the map
-            :param xml_map: The xml map being generated
-            :param loc: The province where the unit is holding (e.g. 'PAR')
-            :param power_name: The name of the power owning the unit
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param loc: The province where the unit is holding (e.g. 'PAR')
+        :param power_name: The name of the power owning the unit
+        :return: Nothing
         """
         # Symbols
         symbol = 'HoldUnit'
@@ -376,11 +387,12 @@ class Renderer():
 
     def _issue_support_hold_order(self, xml_map, loc, dest_loc, power_name):
         """ Issues a support hold order
-            :param xml_map: The xml map being generated
-            :param loc: The location of the unit sending support (e.g. 'BER')
-            :param dest_loc: The location where the unit is holding from (e.g. 'PAR')
-            :param power_name: The power name issuing the move order
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param loc: The location of the unit sending support (e.g. 'BER')
+        :param dest_loc: The location where the unit is holding from (e.g. 'PAR')
+        :param power_name: The power name issuing the move order
+        :return: Nothing
         """
         # Symbols
         symbol = 'SupportHoldUnit'
@@ -438,11 +450,12 @@ class Renderer():
 
     def _issue_move_order(self, xml_map, src_loc, dest_loc, power_name):
         """ Issues a move order
-            :param xml_map: The xml map being generated
-            :param src_loc: The location where the unit is moving from (e.g. 'PAR')
-            :param dest_loc: The location where the unit is moving to (e.g. 'MAR')
-            :param power_name: The power name issuing the move order
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param src_loc: The location where the unit is moving from (e.g. 'PAR')
+        :param dest_loc: The location where the unit is moving to (e.g. 'MAR')
+        :param power_name: The power name issuing the move order
+        :return: Nothing
         """
         is_dislodged = self.game.get_current_phase()[-1] == 'R'
         src_loc_x, src_loc_y = self._get_unit_center(src_loc, is_dislodged)
@@ -497,12 +510,13 @@ class Renderer():
 
     def _issue_support_move_order(self, xml_map, loc, src_loc, dest_loc, power_name):
         """ Issues a support move order
-            :param xml_map: The xml map being generated
-            :param loc: The location of the unit sending support (e.g. 'BER')
-            :param src_loc: The location where the unit is moving from (e.g. 'PAR')
-            :param dest_loc: The location where the unit is moving to (e.g. 'MAR')
-            :param power_name: The power name issuing the move order
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param loc: The location of the unit sending support (e.g. 'BER')
+        :param src_loc: The location where the unit is moving from (e.g. 'PAR')
+        :param dest_loc: The location where the unit is moving to (e.g. 'MAR')
+        :param power_name: The power name issuing the move order
+        :return: Nothing
         """
         loc_x, loc_y = self._get_unit_center(loc, False)
         src_loc_x, src_loc_y = self._get_unit_center(src_loc, False)
@@ -556,12 +570,13 @@ class Renderer():
 
     def _issue_convoy_order(self, xml_map, loc, src_loc, dest_loc, power_name):
         """ Issues a convoy order
-            :param xml_map: The xml map being generated
-            :param loc: The location of the unit convoying (e.g. 'BER')
-            :param src_loc: The location where the unit being convoyed is moving from (e.g. 'PAR')
-            :param dest_loc: The location where the unit being convoyed is moving to (e.g. 'MAR')
-            :param power_name: The power name issuing the convoy order
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param loc: The location of the unit convoying (e.g. 'BER')
+        :param src_loc: The location where the unit being convoyed is moving from (e.g. 'PAR')
+        :param dest_loc: The location where the unit being convoyed is moving to (e.g. 'MAR')
+        :param power_name: The power name issuing the convoy order
+        :return: Nothing
         """
         symbol = 'ConvoyTriangle'
         symbol_loc_x, symbol_loc_y = self._center_symbol_around_unit(src_loc, False, symbol)
@@ -662,11 +677,12 @@ class Renderer():
 
     def _issue_build_order(self, xml_map, unit_type, loc, power_name):
         """ Adds a build army/fleet order to the map
-            :param xml_map: The xml map being generated
-            :param unit_type: The unit type to build ('A' or 'F')
-            :param loc: The province where the army is to be built (e.g. 'PAR')
-            :param power_name: The name of the power building the unit
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param unit_type: The unit type to build ('A' or 'F')
+        :param loc: The province where the army is to be built (e.g. 'PAR')
+        :param power_name: The name of the power building the unit
+        :return: Nothing
         """
         # Symbols
         symbol = ARMY if unit_type == 'A' else FLEET
@@ -707,9 +723,10 @@ class Renderer():
 
     def _issue_disband_order(self, xml_map, loc):
         """ Adds a disband order to the map
-            :param xml_map: The xml map being generated
-            :param loc: The province where the unit is disbanded (e.g. 'PAR')
-            :return: Nothing
+
+        :param xml_map: The xml map being generated
+        :param loc: The province where the unit is disbanded (e.g. 'PAR')
+        :return: Nothing
         """
         # Symbols
         symbol = 'RemoveUnit'
@@ -736,10 +753,11 @@ class Renderer():
 
     def _center_symbol_around_unit(self, loc, is_dislodged, symbol):        # type: (str, bool, str) -> Tuple[str, str]
         """ Compute top-left coordinates of a symbol to be centered around a unit.
-            :param loc: unit location (e.g. 'PAR')
-            :param is_dislodged: boolean to tell if unit is dislodged
-            :param symbol: symbol identifier (e.g. 'HoldUnit')
-            :return: a couple of coordinates (x, y) as string values
+
+        :param loc: unit location (e.g. 'PAR')
+        :param is_dislodged: boolean to tell if unit is dislodged
+        :param symbol: symbol identifier (e.g. 'HoldUnit')
+        :return: a couple of coordinates (x, y) as string values
         """
         key = 'disl' if is_dislodged else 'unit'
         unit_x, unit_y = self.metadata['coord'][loc][key]
@@ -752,9 +770,10 @@ class Renderer():
 
     def _get_unit_center(self, loc, is_dislodged):                          # type: (str, bool) -> Tuple[float, float]
         """ Compute coordinates of unit center.
-            :param loc: unit location
-            :param is_dislodged: boolean to tell if unit is dislodged
-            :return: a couple of coordinates (x, y) as floating values
+
+        :param loc: unit location
+        :param is_dislodged: boolean to tell if unit is dislodged
+        :return: a couple of coordinates (x, y) as floating values
         """
         unit_x, unit_y = self.metadata['coord'][loc]['disl' if is_dislodged else 'unit']
         unit_height, unit_width = self.metadata['symbol_size'][ARMY]
@@ -765,12 +784,14 @@ class Renderer():
 
     def _plain_stroke_width(self):                                          # type: () -> float
         """ Return generic stroke width for plain lines.
-            :return: stroke width as floating value.
+
+        :return: stroke width as floating value.
         """
         return float(self.metadata['symbol_size']['Stroke'][0])
 
     def _colored_stroke_width(self):                                        # type: () -> float
         """ Return generic stroke width for colored or textured lines.
-            :return: stroke width as floating value.
+
+        :return: stroke width as floating value.
         """
         return float(self.metadata['symbol_size']['Stroke'][1])

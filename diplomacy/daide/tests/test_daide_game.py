@@ -66,7 +66,8 @@ class ClientCommsSimulator():
     """ Represents a client's comms """
     def __init__(self, client_id):
         """ Constructor
-            :param client_id: the id
+
+        :param client_id: the id
         """
         self._id = client_id
         self._stream = None
@@ -91,9 +92,10 @@ class ClientCommsSimulator():
     def set_comms(self, comms):
         """ Set the client's communications.
 
-            The client's comms will be sorted to have the requests of a phase
-            preceeding the responses / notifications of the phase
-            :param comms: the game's communications
+        The client's comms will be sorted to have the requests of a phase
+        preceding the responses / notifications of the phase
+
+        :param comms: the game's communications
         """
         self._comms = [comm for comm in comms if comm.client_id == self._id]
 
@@ -126,8 +128,9 @@ class ClientCommsSimulator():
 
     def pop_next_request(self, comms):
         """ Pop the next request from a DAIDE communications list
-            :return: The next request along with the updated list of communications
-                     or None and the updated list of communications
+
+        :return: The next request along with the updated list of communications
+             or None and the updated list of communications
         """
         com = next(iter(comms), None)
         request = None
@@ -148,8 +151,9 @@ class ClientCommsSimulator():
 
     def pop_next_resp_notif(self, comms):
         """ Pop the next response or notifcation from a DAIDE communications list
-            :return: The next response or notifcation along with the updated list of communications
-                     or None and the updated list of communications
+
+        :return: The next response or notifcation along with the updated list of communications
+             or None and the updated list of communications
         """
         com = next(iter(comms), None)
         resp_notif = None
@@ -159,7 +163,8 @@ class ClientCommsSimulator():
                 break
             elif com.resp_notifs:
                 resp_notif = com.resp_notifs.pop(0)
-                LOGGER.info('[%d:%d] waiting for resp_notif [%s]', self._id, self.stream.socket.fileno()+1, resp_notif)
+                LOGGER.info('[%d:%d] waiting for resp_notif [%s]',
+                            self._id, self.stream.socket.fileno()+1, resp_notif)
                 break
             else:
                 comms.pop(0)
@@ -170,7 +175,8 @@ class ClientCommsSimulator():
     @gen.coroutine
     def connect(self, game_port):
         """ Connect to the DAIDE server
-            :param game_port: the DAIDE game's port
+
+        :param game_port: the DAIDE game's port
         """
         self._stream = yield TCPClient().connect('localhost', game_port)
         LOGGER.info('Connected to %d', game_port)
@@ -181,7 +187,8 @@ class ClientCommsSimulator():
     @gen.coroutine
     def send_request(self, request):
         """ Sends a request
-            :param request: the request to send
+
+        :param request: the request to send
         """
         message = messages.DiplomacyMessage()
         message.content = str_to_bytes(request)
@@ -190,7 +197,8 @@ class ClientCommsSimulator():
     @gen.coroutine
     def validate_resp_notifs(self, expected_resp_notifs):
         """ Validate that expected response / notifications are received regardless of the order
-            :param expected_resp_notifs: the response / notifications to receive
+
+        :param expected_resp_notifs: the response / notifications to receive
         """
         while expected_resp_notifs:
             resp_notif_message = yield messages.DaideMessage.from_stream(self._stream)
@@ -211,9 +219,10 @@ class ClientCommsSimulator():
     @gen.coroutine
     def execute_phase(self, game_id, channels):
         """ Execute a single communications phase
-            :param game_id: The game id of the current game
-            :param channels: A dictionary of power name to its channel (BOT_KEYWORD for dummies)
-            :return: True if there are communications left to execute in the game
+
+        :param game_id: The game id of the current game
+        :param channels: A dictionary of power name to its channel (BOT_KEYWORD for dummies)
+        :return: True if there are communications left to execute in the game
         """
         # pylint: disable=too-many-nested-blocks
         try:
@@ -271,10 +280,11 @@ class ClientsCommsSimulator():
     """ Represents multi clients's communications """
     def __init__(self, nb_clients, csv_file, game_id, channels):
         """ Constructor
-            :param nb_clients: the number of clients
-            :param csv_file: the csv containing the communications in chronological order
-            :param game_id: The game id on the server
-            :param channels: A dictionary of power name to its channel (BOT_KEYWORD for dummies)
+
+        :param nb_clients: the number of clients
+        :param csv_file: the csv containing the communications in chronological order
+        :param game_id: The game id on the server
+        :param channels: A dictionary of power name to its channel (BOT_KEYWORD for dummies)
         """
         with open(csv_file, 'r') as file:
             content = file.read()
@@ -291,9 +301,10 @@ class ClientsCommsSimulator():
     @gen.coroutine
     def retrieve_game_port(self, host, port):
         """ Retreive and store the game's port
-            :param host: the host
-            :param port: the port
-            :param game_id: the game id
+
+        :param host: the host
+        :param port: the port
+        :param game_id: the game id
         """
         connection = yield connect(host, port)
         self._game_port = yield connection.get_daide_port(self._game_id)
@@ -347,8 +358,9 @@ class ClientsCommsSimulator():
 
 def run_game_data(nb_daide_clients, rules, csv_file):
     """ Start a server and a client to test DAIDE communications
-        :param port: The port of the DAIDE server
-        :param csv_file: the csv file containing the list of DAIDE communications
+
+    :param port: The port of the DAIDE server
+    :param csv_file: the csv file containing the list of DAIDE communications
     """
     server = Server()
     io_loop = IOLoop()

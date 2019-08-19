@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 from datetime import datetime
 
 # -- Project information -----------------------------------------------------
@@ -33,6 +33,7 @@ release = 'latest'
 # ones.
 extensions = [
     'sphinx_copybutton',
+    'sphinx.ext.autodoc'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -55,3 +56,17 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+
+# Make sure __init__ methods are documented by defining a setup method which
+# calls a skip method. It seems setup method id automatically called by sphinx.
+# Source (2019/08/19): https://stackoverflow.com/a/5599712
+
+def skip(app, what, name, obj, would_skip, options):
+    del app, what, options
+    if name == "__init__" and obj.__doc__ and obj.__doc__.strip():
+        return False
+    return would_skip
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip)

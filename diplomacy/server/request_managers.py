@@ -50,12 +50,13 @@ SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
 
 def on_clear_centers(server, request, connection_handler):
     """ Manage request ClearCenters.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.ClearCenters
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.ClearCenters
     """
     level = verify_request(server, request, connection_handler, observer_role=False)
     assert_game_not_finished(level.game)
@@ -64,12 +65,13 @@ def on_clear_centers(server, request, connection_handler):
 
 def on_clear_orders(server, request, connection_handler):
     """ Manage request ClearOrders.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.ClearOrders
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.ClearOrders
     """
     level = verify_request(server, request, connection_handler, observer_role=False)
     assert_game_not_finished(level.game)
@@ -81,12 +83,13 @@ def on_clear_orders(server, request, connection_handler):
 
 def on_clear_units(server, request, connection_handler):
     """ Manage request ClearUnits.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.ClearUnits
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.ClearUnits
     """
     level = verify_request(server, request, connection_handler, observer_role=False)
     assert_game_not_finished(level.game)
@@ -95,12 +98,13 @@ def on_clear_units(server, request, connection_handler):
 
 def on_create_game(server, request, connection_handler):
     """ Manage request CreateGame.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.CreateGame
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.CreateGame
     """
 
     # Check request token.
@@ -165,12 +169,13 @@ def on_create_game(server, request, connection_handler):
 
 def on_delete_account(server, request, connection_handler):
     """ Manage request DeleteAccount.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.DeleteAccount
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.DeleteAccount
     """
 
     # Check request token.
@@ -212,63 +217,54 @@ def on_delete_account(server, request, connection_handler):
 
 def on_delete_game(server, request, connection_handler):
     """ Manage request DeleteGame.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.DeleteGame
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.DeleteGame
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     server.delete_game(level.game)
     server.unschedule_game(level.game)
     Notifier(server, ignore_tokens=[request.token]).notify_game_deleted(level.game)
 
-def on_get_dummy_waiting_powers(server, request, connection_handler):
-    """ Manage request GetAllDummyPowerNames.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: an instance of responses.DataGamesToPowerNames
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetDummyWaitingPowers
-    """
-    verify_request(server, request, connection_handler)
-    return responses.DataGamesToPowerNames(
-        data=server.get_dummy_waiting_power_names(request.buffer_size, request.token), request_id=request.request_id)
-
 def on_get_all_possible_orders(server, request, connection_handler):
     """ Manage request GetAllPossibleOrders
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetAllPossibleOrders
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.GetAllPossibleOrders
     """
     level = verify_request(server, request, connection_handler, require_master=False)
-    return responses.DataPossibleOrders(possible_orders=level.game.get_all_possible_orders(),
-                                        orderable_locations=level.game.get_orderable_locations(),
-                                        request_id=request.request_id)
+    return responses.ComplexDataPossibleOrders(possible_orders=level.game.get_all_possible_orders(),
+                                               orderable_locations=level.game.get_orderable_locations(),
+                                               request_id=request.request_id)
 
 def on_get_available_maps(server, request, connection_handler):
     """ Manage request GetAvailableMaps.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetAvailableMaps
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.GetAvailableMaps
     """
     verify_request(server, request, connection_handler)
     return responses.DataMaps(data=server.available_maps, request_id=request.request_id)
 
 def on_get_daide_port(server, request, connection_handler):
     """ Manage request GetDaidePort.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetDaidePort
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.GetDaidePort
     """
     del connection_handler
     daide_port = server.get_daide_port(request.game_id)
@@ -277,41 +273,94 @@ def on_get_daide_port(server, request, connection_handler):
             "Invalid game id %s or game's DAIDE server is not started for that game" % request.game_id)
     return responses.DataPort(data=daide_port, request_id=request.request_id)
 
-def on_get_playable_powers(server, request, connection_handler):
-    """ Manage request GetPlayablePowers.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetPlayablePowers
+def on_get_dummy_waiting_powers(server, request, connection_handler):
+    """ Manage request GetAllDummyPowerNames.
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: an instance of responses.DataGamesToPowerNames
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.GetDummyWaitingPowers
     """
     verify_request(server, request, connection_handler)
-    return responses.DataPowerNames(
-        data=server.get_game(request.game_id).get_dummy_power_names(), request_id=request.request_id)
+    return responses.DataGamesToPowerNames(
+        data=server.get_dummy_waiting_power_names(request.buffer_size, request.token), request_id=request.request_id)
+
+def on_get_games_info(server, request, connection_handler):
+    """ Manage request GetGamesInfo.
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: an instance of responses.DataGames
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.GetGamesInfo
+    """
+    verify_request(server, request, connection_handler)
+    username = server.users.get_name(request.token)
+    games = []
+    for game_id in request.games:
+        try:
+            server_game = server.load_game(game_id)
+            games.append(responses.ComplexDataGameInfo(
+                game_id=server_game.game_id,
+                phase=server_game.current_short_phase,
+                timestamp=server_game.get_latest_timestamp(),
+                timestamp_created=server_game.timestamp_created,
+                map_name=server_game.map_name,
+                observer_level=server_game.get_observer_level(username),
+                controlled_powers=server_game.get_controlled_power_names(username),
+                rules=server_game.rules,
+                status=server_game.status,
+                n_players=server_game.count_controlled_powers(),
+                n_controls=server_game.get_expected_controls_count(),
+                deadline=server_game.deadline,
+                registration_password=bool(server_game.registration_password)
+            ))
+        except exceptions.GameIdException:
+            # Invalid game ID, just pass.
+            pass
+    return responses.DataGames(data=games, request_id=request.request_id)
 
 def on_get_phase_history(server, request, connection_handler):
     """ Manage request GetPhaseHistory.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: a DataGamePhases object.
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetPhaseHistory
-        :rtype: diplomacy.communication.responses.DataGamePhases
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: a DataGamePhases object.
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.GetPhaseHistory
+    :rtype: diplomacy.communication.responses.DataGamePhases
     """
     level = verify_request(server, request, connection_handler, require_master=False)
     game_phases = level.game.get_phase_history(request.from_phase, request.to_phase, request.game_role)
     return responses.DataGamePhases(data=game_phases, request_id=request.request_id)
 
+def on_get_playable_powers(server, request, connection_handler):
+    """ Manage request GetPlayablePowers.
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.GetPlayablePowers
+    """
+    verify_request(server, request, connection_handler)
+    return responses.DataPowerNames(
+        data=server.get_game(request.game_id).get_dummy_power_names(), request_id=request.request_id)
+
 def on_join_game(server, request, connection_handler):
     """ Manage request JoinGame.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: a Data response with client game data.
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.JoinGame
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: a Data response with client game data.
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.JoinGame
     """
 
     # Check request token.
@@ -477,14 +526,15 @@ def on_join_game(server, request, connection_handler):
 
 def on_join_powers(server, request, connection_handler):
     """ Manage request JoinPowers.
-        Current code does not care about rule POWER_CHOICE. It only
-        checks if queried powers can be joined by request sender.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None.
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.JoinPowers
+    Current code does not care about rule POWER_CHOICE. It only
+    checks if queried powers can be joined by request sender.
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None.
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.JoinPowers
     """
 
     # Check request token.
@@ -586,14 +636,15 @@ def on_join_powers(server, request, connection_handler):
 
 def on_leave_game(server, request, connection_handler):
     """ Manage request LeaveGame.
-        If user is an (omniscient) observer, stop observation.
-        Else, stop to control given power name.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.LeaveGame
+    If user is an (omniscient) observer, stop observation.
+    Else, stop to control given power name.
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.LeaveGame
     """
     level = verify_request(server, request, connection_handler, require_master=False)
     if level.is_power():
@@ -606,19 +657,21 @@ def on_leave_game(server, request, connection_handler):
 
 def on_list_games(server, request, connection_handler):
     """ Manage request ListGames.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: an instance of responses.DataGames
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.ListGames
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: an instance of responses.DataGames
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.ListGames
     """
     verify_request(server, request, connection_handler)
     if request.map_name is not None and server.get_map(request.map_name) is None:
         raise exceptions.MapIdException()
     selected_game_indices = []
     for game_id in server.get_game_indices():
-        if request.game_id and request.game_id not in game_id:
+        if request.game_id and not (game_id.lower() in request.game_id.lower()
+                                    or request.game_id.lower() in game_id.lower()):
             continue
         server_game = server.load_game(game_id)
         if request.for_omniscience and not server.token_is_omniscient(request.token, server_game):
@@ -630,7 +683,7 @@ def on_list_games(server, request, connection_handler):
         if request.map_name and server_game.map_name != request.map_name:
             continue
         username = server.users.get_name(request.token)
-        selected_game_indices.append(responses.DataGameInfo(
+        selected_game_indices.append(responses.ComplexDataGameInfo(
             game_id=server_game.game_id,
             phase=server_game.current_short_phase,
             timestamp=server_game.get_latest_timestamp(),
@@ -647,62 +700,28 @@ def on_list_games(server, request, connection_handler):
         ))
     return responses.DataGames(data=selected_game_indices, request_id=request.request_id)
 
-def on_get_games_info(server, request, connection_handler):
-    """ Manage request GetGamesInfo.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: an instance of responses.DataGames
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.GetGamesInfo
-    """
-    verify_request(server, request, connection_handler)
-    username = server.users.get_name(request.token)
-    games = []
-    for game_id in request.games:
-        try:
-            server_game = server.load_game(game_id)
-            games.append(responses.DataGameInfo(
-                game_id=server_game.game_id,
-                phase=server_game.current_short_phase,
-                timestamp=server_game.get_latest_timestamp(),
-                timestamp_created=server_game.timestamp_created,
-                map_name=server_game.map_name,
-                observer_level=server_game.get_observer_level(username),
-                controlled_powers=server_game.get_controlled_power_names(username),
-                rules=server_game.rules,
-                status=server_game.status,
-                n_players=server_game.count_controlled_powers(),
-                n_controls=server_game.get_expected_controls_count(),
-                deadline=server_game.deadline,
-                registration_password=bool(server_game.registration_password)
-            ))
-        except exceptions.GameIdException:
-            # Invalid game ID, just pass.
-            pass
-    return responses.DataGames(data=games, request_id=request.request_id)
-
 def on_logout(server, request, connection_handler):
     """ Manage request Logout.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.Logout
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.Logout
     """
     verify_request(server, request, connection_handler)
     server.remove_token(request.token)
 
 def on_process_game(server, request, connection_handler):
-    """ Manage request ProcessGame.
-        Force a game to be processed the sooner.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.ProcessGame
+    """ Manage request ProcessGame. Force a game to be processed the sooner.
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.ProcessGame
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     assert_game_not_finished(level.game)
@@ -719,19 +738,19 @@ def on_process_game(server, request, connection_handler):
 @gen.coroutine
 def on_query_schedule(server, request, connection_handler):
     """ Manage request QuerySchedule.
-        Force a game to be processed the sooner.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.QuerySchedule
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.QuerySchedule
     """
     level = verify_request(server, request, connection_handler, require_master=False)
     schedule_event = yield server.games_scheduler.get_info(level.game)
     if not schedule_event:
         raise exceptions.ResponseException('Game not scheduled.')
-    return responses.DataGameSchedule(
+    return responses.ComplexDataGameSchedule(
         game_id=level.game.game_id,
         phase=level.game.current_short_phase,
         schedule=schedule_event,
@@ -740,11 +759,12 @@ def on_query_schedule(server, request, connection_handler):
 
 def on_save_game(server, request, connection_handler):
     """ Manage request SaveGame
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SaveGame
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SaveGame
     """
     level = verify_request(server, request, connection_handler, require_master=False)
     game_json = export.to_saved_game_format(level.game)
@@ -752,12 +772,13 @@ def on_save_game(server, request, connection_handler):
 
 def on_send_game_message(server, request, connection_handler):
     """ Manage request SendGameMessage.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SendGameMessage
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SendGameMessage
     """
     level = verify_request(server, request, connection_handler, omniscient_role=False, observer_role=False)
     token, message = request.token, request.message
@@ -806,12 +827,13 @@ def on_send_game_message(server, request, connection_handler):
 
 def on_set_dummy_powers(server, request, connection_handler):
     """ Manage request SetDummyPowers.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SetDummyPowers
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SetDummyPowers
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     assert_game_not_finished(level.game)
@@ -834,12 +856,13 @@ def on_set_dummy_powers(server, request, connection_handler):
 
 def on_set_game_state(server, request, connection_handler):
     """ Manage request SetGameState.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SetGameState
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SetGameState
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     level.game.set_phase_data(GamePhaseData(
@@ -850,12 +873,13 @@ def on_set_game_state(server, request, connection_handler):
 
 def on_set_game_status(server, request, connection_handler):
     """ Manage request SetGameStatus.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SetGameStatus
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SetGameStatus
     """
     level = verify_request(server, request, connection_handler, observer_role=False, power_role=False)
     status = request.status
@@ -884,12 +908,13 @@ def on_set_game_status(server, request, connection_handler):
 
 def on_set_grade(server, request, connection_handler):
     """ Manage request SetGrade.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SetGrade
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SetGrade
     """
 
     # Check request token.
@@ -979,17 +1004,18 @@ def on_set_grade(server, request, connection_handler):
             # Check if user omniscient rights was changed.
             user_is_omniscient_after = server.user_is_omniscient(username, server_game)
             if user_is_omniscient_before != user_is_omniscient_after:
-
-                transfer_special_tokens(server_game, server, username, grade_update, user_is_omniscient_after)
+                transfer_special_tokens(
+                    server_game, server, username, grade_update, user_is_omniscient_after)
 
 def on_set_orders(server, request, connection_handler):
     """ Manage request SetOrders.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SetOrders
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SetOrders
     """
     level = verify_request(server, request, connection_handler, observer_role=False, require_power=True)
     assert_game_not_finished(level.game)
@@ -1014,12 +1040,13 @@ def on_set_orders(server, request, connection_handler):
 
 def on_set_wait_flag(server, request, connection_handler):
     """ Manage request SetWaitFlag.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SetWaitFlag
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SetWaitFlag
     """
     level = verify_request(server, request, connection_handler, observer_role=False, require_power=True)
     assert_game_not_finished(level.game)
@@ -1033,12 +1060,13 @@ def on_set_wait_flag(server, request, connection_handler):
 
 def on_sign_in(server, request, connection_handler):
     """ Manage request SignIn.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.SignIn
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.SignIn
     """
     # No channel/game request verification to do.
     username, password, create_user = request.username, request.password, request.create_user
@@ -1061,12 +1089,13 @@ def on_sign_in(server, request, connection_handler):
 
 def on_synchronize(server, request, connection_handler):
     """ Manage request Synchronize.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.Synchronize
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.Synchronize
     """
 
     level = verify_request(server, request, connection_handler, require_master=False)
@@ -1120,11 +1149,11 @@ def on_synchronize(server, request, connection_handler):
     # Send game status.
     notifier.notify_game_addresses(level.game.game_id, addresses, notifications.GameStatusUpdate,
                                    status=level.game.status)
-    return responses.DataGameInfo(game_id=level.game.game_id,
-                                  phase=level.game.current_short_phase,
-                                  timestamp=level.game.get_latest_timestamp(),
-                                  timestamp_created=level.game.timestamp_created,
-                                  request_id=request.request_id)
+    return responses.ComplexDataGameInfo(game_id=level.game.game_id,
+                                         phase=level.game.current_short_phase,
+                                         timestamp=level.game.get_latest_timestamp(),
+                                         timestamp_created=level.game.timestamp_created,
+                                         request_id=request.request_id)
 
 def on_unknown_token(server, request, connection_handler):
     """ Manage notification request UnknownToken.
@@ -1143,12 +1172,13 @@ def on_unknown_token(server, request, connection_handler):
 
 def on_vote(server, request, connection_handler):
     """ Manage request Vote.
-        :param server: server which receives the request.
-        :param request: request to manage.
-        :param connection_handler: connection handler from which the request was sent.
-        :return: None
-        :type server: diplomacy.Server
-        :type request: diplomacy.communication.requests.Vote
+
+    :param server: server which receives the request.
+    :param request: request to manage.
+    :param connection_handler: connection handler from which the request was sent.
+    :return: None
+    :type server: diplomacy.Server
+    :type request: diplomacy.communication.requests.Vote
     """
     level = verify_request(server, request, connection_handler,
                            omniscient_role=False, observer_role=False, require_power=True)
@@ -1176,17 +1206,17 @@ MAPPING = {
     requests.CreateGame: on_create_game,
     requests.DeleteAccount: on_delete_account,
     requests.DeleteGame: on_delete_game,
-    requests.GetDummyWaitingPowers: on_get_dummy_waiting_powers,
     requests.GetAllPossibleOrders: on_get_all_possible_orders,
     requests.GetAvailableMaps: on_get_available_maps,
     requests.GetDaidePort: on_get_daide_port,
-    requests.GetPlayablePowers: on_get_playable_powers,
+    requests.GetDummyWaitingPowers: on_get_dummy_waiting_powers,
+    requests.GetGamesInfo: on_get_games_info,
     requests.GetPhaseHistory: on_get_phase_history,
+    requests.GetPlayablePowers: on_get_playable_powers,
     requests.JoinGame: on_join_game,
     requests.JoinPowers: on_join_powers,
     requests.LeaveGame: on_leave_game,
     requests.ListGames: on_list_games,
-    requests.GetGamesInfo: on_get_games_info,
     requests.Logout: on_logout,
     requests.ProcessGame: on_process_game,
     requests.QuerySchedule: on_query_schedule,
@@ -1205,13 +1235,15 @@ MAPPING = {
 }
 
 def handle_request(server, request, connection_handler):
-    """ (coroutine) Find request handler function for associated request, run it and return its result.
-        :param server: a Server object to pass to handler function.
-        :param request: a request object to pass to handler function.
-            See diplomacy.communication.requests for possible requests.
-        :param connection_handler: a ConnectionHandler object to pass to handler function.
-        :return: (future) either None or a response object.
-            See module diplomacy.communication.responses for possible responses.
+    """ (coroutine) Find request handler function for associated request,
+    run it and return its result.
+
+    :param server: a Server object to pass to handler function.
+    :param request: a request object to pass to handler function.
+        See diplomacy.communication.requests for possible requests.
+    :param connection_handler: a ConnectionHandler object to pass to handler function.
+    :return: (future) either None or a response object.
+        See module diplomacy.communication.responses for possible responses.
     """
     request_handler_fn = MAPPING.get(type(request), None)
     if not request_handler_fn:

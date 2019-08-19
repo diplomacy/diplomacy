@@ -27,11 +27,12 @@ LOGGER = logging.getLogger(__name__)
 
 def _get_game_to_notify(connection, notification):
     """ Get notified game from connection using notification parameters.
-        :param connection: connection that receives the notification.
-        :param notification: notification received.
-        :return: a NetWorkGame instance, or None if no game found.
-        :type connection: diplomacy.Connection
-        :type notification: diplomacy.communication.notifications._GameNotification
+
+    :param connection: connection that receives the notification.
+    :param notification: notification received.
+    :return: a NetWorkGame instance, or None if no game found.
+    :type connection: diplomacy.Connection
+    :type notification: diplomacy.communication.notifications._GameNotification
     """
     channel = connection.channels.get(notification.token, None)
     if channel and notification.game_id in channel.game_id_to_instances:
@@ -40,46 +41,51 @@ def _get_game_to_notify(connection, notification):
 
 def on_account_deleted(channel, notification):
     """ Manage notification AccountDeleted.
-        :param channel: channel associated to received notification.
-        :param notification: received notification.
-        :type channel: diplomacy.client.channel.Channel
+
+    :param channel: channel associated to received notification.
+    :param notification: received notification.
+    :type channel: diplomacy.client.channel.Channel
     """
     # We remove channel from related connection.
     channel.connection.channels.pop(channel.token)
 
 def on_cleared_centers(game, notification):
     """ Manage notification ClearedCenters.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.ClearedCenters
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.ClearedCenters
     """
     Game.clear_centers(game, notification.power_name)
 
 def on_cleared_orders(game, notification):
     """ Manage notification ClearedOrders.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.ClearedOrders
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.ClearedOrders
     """
     Game.clear_orders(game, notification.power_name)
 
 def on_cleared_units(game, notification):
     """ Manage notification ClearedUnits.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.ClearedUnits
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.ClearedUnits
     """
     Game.clear_units(game, notification.power_name)
 
 def on_powers_controllers(game, notification):
     """ Manage notification PowersControllers.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.PowersControllers
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.PowersControllers
     """
     if Game.is_player_game(game) and notification.powers[game.power.name] != game.power.get_controller():
         # Player is now invalid. We just remove game from related channel.
@@ -90,9 +96,10 @@ def on_powers_controllers(game, notification):
 
 def on_game_deleted(game, notification):
     """ Manage notification GameDeleted.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
     """
     # We remove game from related channel.
     if Game.is_player_game(game):
@@ -101,29 +108,32 @@ def on_game_deleted(game, notification):
         game.channel.game_id_to_instances[game.game_id].remove_special()
 
 def on_game_message_received(game, notification):
-    """ Manage notification GameMessageReceived..
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.GameMessageReceived
+    """ Manage notification GameMessageReceived.
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.GameMessageReceived
     """
     Game.add_message(game, notification.message)
 
 def on_game_processed(game, notification):
     """ Manage notification GamePhaseUpdate (for omniscient and observer games).
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.GameProcessed
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.GameProcessed
     """
     game.set_phase_data([notification.previous_phase_data, notification.current_phase_data], clear_history=False)
 
 def on_game_phase_update(game, notification):
     """ Manage notification GamePhaseUpdate.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.GamePhaseUpdate
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.GamePhaseUpdate
     """
     if notification.phase_data_type == strings.STATE_HISTORY:
         Game.extend_phase_history(game, notification.phase_data)
@@ -132,19 +142,21 @@ def on_game_phase_update(game, notification):
 
 def on_game_status_update(game, notification):
     """ Manage notification GameStatusUpdate.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.GameStatusUpdate
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.GameStatusUpdate
     """
     Game.set_status(game, notification.status)
 
 def on_omniscient_updated(game, notification):
     """ Manage notification OmniscientUpdated.
-        :param game: game associated to received notification.
-        :param notification: received notification.
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: notifications.OmniscientUpdated
+
+    :param game: game associated to received notification.
+    :param notification: received notification.
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: notifications.OmniscientUpdated
     """
     assert not Game.is_player_game(game)
     if Game.is_observer_game(game):
@@ -165,19 +177,21 @@ def on_omniscient_updated(game, notification):
 
 def on_power_orders_update(game, notification):
     """ Manage notification PowerOrdersUpdate.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.PowerOrdersUpdate
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.PowerOrdersUpdate
     """
     Game.set_orders(game, notification.power_name, notification.orders)
 
 def on_power_orders_flag(game, notification):
     """ Manage notification PowerOrdersFlag.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.PowerOrdersFlag
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.PowerOrdersFlag
     """
     # A power should not receive an order flag notification for itself.
     assert game.is_player_game() and game.power.name != notification.power_name
@@ -185,37 +199,41 @@ def on_power_orders_flag(game, notification):
 
 def on_power_vote_updated(game, notification):
     """ Manage notification PowerVoteUpdated (for power game).
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.PowerVoteUpdated
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.PowerVoteUpdated
     """
     assert Game.is_player_game(game)
     game.power.vote = notification.vote
 
 def on_power_wait_flag(game, notification):
     """ Manage notification PowerWaitFlag.
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.PowerWaitFlag
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.PowerWaitFlag
     """
     Game.set_wait(game, notification.power_name, notification.wait)
 
 def on_vote_count_updated(game, notification):
     """ Manage notification VoteCountUpdated (for observer game).
-        :param game: game associated to received notification.
-        :param notification: received notification.
-        :type game: diplomacy.client.network_game.NetworkGame
+
+    :param game: game associated to received notification.
+    :param notification: received notification.
+    :type game: diplomacy.client.network_game.NetworkGame
     """
     assert Game.is_observer_game(game)
 
 def on_vote_updated(game, notification):
     """ Manage notification VoteUpdated (for omniscient game).
-        :param game: a Network game
-        :param notification: notification received
-        :type game: diplomacy.client.network_game.NetworkGame
-        :type notification: diplomacy.communication.notifications.VoteUpdated
+
+    :param game: a Network game
+    :param notification: notification received
+    :type game: diplomacy.client.network_game.NetworkGame
+    :type notification: diplomacy.communication.notifications.VoteUpdated
     """
     assert Game.is_omniscient_game(game)
     for power_name, vote in notification.vote.items():
@@ -244,10 +262,11 @@ MAPPING = {
 
 def handle_notification(connection, notification):
     """ Call appropriate handler for given notification received by given connection.
-        :param connection: recipient connection.
-        :param notification: received notification.
-        :type connection: diplomacy.Connection
-        :type notification: notifications._AbstractNotification | notifications._GameNotification
+
+    :param connection: recipient connection.
+    :param notification: received notification.
+    :type connection: diplomacy.Connection
+    :type notification: notifications._AbstractNotification | notifications._GameNotification
     """
     if notification.level == strings.CHANNEL:
         object_to_notify = connection.channels.get(notification.token, None)

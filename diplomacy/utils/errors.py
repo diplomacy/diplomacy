@@ -31,8 +31,9 @@ class MapError(Error):
     """ Represents a map error """
     def __init__(self, code, message):
         """ Build a MapError
-            :param code: int code of the error
-            :param message: human readable string message associated to the error
+
+        :param code: int code of the error
+        :param message: human readable string message associated to the error
         """
         super(MapError, self).__init__(MAP_ERROR_OFFSET + code, message)
 
@@ -40,8 +41,9 @@ class GameError(Error):
     """ Represents a game error """
     def __init__(self, code, message):
         """ Build a GameError
-            :param code: int code of the error
-            :param message: human readable string message associated to the error
+
+        :param code: int code of the error
+        :param message: human readable string message associated to the error
         """
         super(GameError, self).__init__(GAME_ERROR_OFFSET + code, message)
 
@@ -49,8 +51,9 @@ class StdError(Error):
     """ Represents a standard error """
     def __init__(self, code, message):
         """ Build a StdError
-            :param code: int code of the error
-            :param message: human readable string message associated to the error
+
+        :param code: int code of the error
+        :param message: human readable string message associated to the error
         """
         super(StdError, self).__init__(STD_ERROR_OFFSET + code, message)
 

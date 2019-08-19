@@ -15,7 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Utility classes and functions used for request management.
-    Put here to avoid having file request_managers.py with too many lines.
+Put here to avoid having file request_managers.py with too many lines.
 """
 from collections.__init__ import namedtuple
 
@@ -26,36 +26,47 @@ from diplomacy.utils import strings, exceptions
 
 class SynchronizedData(namedtuple('SynchronizedData', ('timestamp', 'order', 'type', 'data'))):
     """ Small class used to store and sort data to synchronize for a game. Properties:
-        - timestamp (int): timestamp of related data to synchronize.
-        - order (int): rank of data to synchronize.
-        - type (str): type name of data to synchronize. Possible values:
-            - 'message': data is a game message. Order is 0.
-            - 'state_history': data is a game state for history. Order is 1.
-            - 'state': data is current game state. Order is 2.
-        - data: proper data to synchronize.
-        Synchronized data are sorted using timestamp then order, meaning that:
-        - data are synchronized from former to later timestamps
-        - for a same timestamp, messages are synchronized first, then states for history, then current state.
+
+    - timestamp (int): timestamp of related data to synchronize.
+    - order (int): rank of data to synchronize.
+    - type (str): type name of data to synchronize. Possible values:
+
+        - 'message': data is a game message. Order is 0.
+        - 'state_history': data is a game state for history. Order is 1.
+        - 'state': data is current game state. Order is 2.
+
+    - data: proper data to synchronize.
+
+    Synchronized data are sorted using timestamp then order, meaning that:
+
+    - data are synchronized from former to later timestamps
+    - for a same timestamp, messages are synchronized first,
+      then states for history, then current state.
     """
 
 class GameRequestLevel():
     """ Describe a game level retrieved from a game request. Used by some game requests managers
-        to determine user rights in a game. Possible game levels: power, observer, omniscient and master.
+    to determine user rights in a game. Possible game levels:
+    power, observer, omniscient and master.
     """
     __slots__ = ['game', 'power_name', '__action_level']
 
     def __init__(self, game, action_level, power_name):
         """ Initialize a game request level.
-            :param game: related game data
-            :param action_level: action level, either:
-                - 'power'
-                - 'observer'
-                - 'omniscient'
-                - 'master'
-            :param power_name: (optional) power name specified in game request. Required if level is 'power'.
-            :type game: diplomacy.server.server_game.ServerGame
-            :type action_level: str
-            :type power_name: str
+
+        :param game: related game data
+        :param action_level: action level, either:
+
+            - 'power'
+            - 'observer'
+            - 'omniscient'
+            - 'master'
+
+        :param power_name: (optional) power name specified in game request.
+            Required if level is 'power'.
+        :type game: diplomacy.server.server_game.ServerGame
+        :type action_level: str
+        :type power_name: str
         """
         assert action_level in {'power', 'observer', 'omniscient', 'master'}
         self.game = game
@@ -99,43 +110,55 @@ class GameRequestLevel():
         return cls(game, 'master', power_name)
 
 def verify_request(server, request, connection_handler,
-                   omniscient_role=True, observer_role=True, power_role=True, require_power=False, require_master=True):
+                   omniscient_role=True, observer_role=True, power_role=True,
+                   require_power=False, require_master=True):
     """ Verify request token, and game role and rights if request is a game request.
-        Ignore connection requests (e.g. SignIn), as such requests don't have any token.
-        Verifying token:
-        - check if server knows request token
-        - check if request token is still valid.
-        - Update token lifetime. See method Server.assert_token() for more details.
-        Verifying game role and rights:
-        - check if server knows request game ID.
-        - check if request token is allowed to have request game role in associated game ID.
-        If request is a game request, return a GameRequestLevel containing:
-        - the server game object
-        - the level of rights (power, observer or master) allowed for request sender.
-        - the power name associated to request (if present), representing which power is queried by given request.
-        See class GameRequestLevel for more details.
-        :param server: server which receives the request
-        :param request: request received by server
-        :param connection_handler: connection handler which receives the request
-        :param omniscient_role: (for game requests) Indicate if omniscient role is accepted for this request.
-        :param observer_role: (for game requests) Indicate if observer role is accepted for this request.
-        :param power_role: (for game requests) Indicate if power role is accepted for this request.
-        :param require_power: (for game requests) Indicate if a power name is required for this request.
-            If true, either game role must be power role, or request must have a non-null `power_name` request.
-        :param require_master: (for game requests) Indicate if an omniscient must be a master.
-            If true and if request role is omniscient, then request token must be a master token for related game.
-        :return: a GameRequestLevel object for game requests, else None.
-        :rtype: diplomacy.server.request_manager_utils.GameRequestLevel
-        :type server: diplomacy.Server
-        :type request: requests._AbstractRequest | requests._AbstractGameRequest
-        :type connection_handler: diplomacy.server.connection_handler.ConnectionHandler
+    Ignore connection requests (e.g. SignIn), as such requests don't have any token.
+    Verifying token:
+
+    - check if server knows request token
+    - check if request token is still valid.
+    - Update token lifetime. See method Server.assert_token() for more details.
+
+    Verifying game role and rights:
+
+    - check if server knows request game ID.
+    - check if request token is allowed to have request game role in associated game ID.
+
+    If request is a game request, return a GameRequestLevel containing:
+
+    - the server game object
+    - the level of rights (power, observer or master) allowed for request sender.
+    - the power name associated to request (if present), representing which power is queried by given request.
+
+    See class GameRequestLevel for more details.
+
+    :param server: server which receives the request
+    :param request: request received by server
+    :param connection_handler: connection handler which receives the request
+    :param omniscient_role: (for game requests)
+        Indicate if omniscient role is accepted for this request.
+    :param observer_role: (for game requests)
+        Indicate if observer role is accepted for this request.
+    :param power_role: (for game requests) Indicate if power role is accepted for this request.
+    :param require_power: (for game requests) Indicate if a power name is required for this request.
+        If true, either game role must be power role,
+        or request must have a non-null `power_name` role.
+    :param require_master: (for game requests) Indicate if an omniscient must be a master.
+        If true and if request role is omniscient,
+        then request token must be a master token for related game.
+    :return: a GameRequestLevel object for game requests, else None.
+    :rtype: diplomacy.server.request_manager_utils.GameRequestLevel
+    :type server: diplomacy.Server
+    :type request: requests._AbstractRequest | requests._AbstractGameRequest
+    :type connection_handler: diplomacy.server.connection_handler.ConnectionHandler
     """
 
     # A request may be a connection request, a channel request or a game request.
     # For connection request, field level is None.
     # For channel request, field level is CHANNEL. Channel request has a `token` field.
-    # For game request, field level is GAME. Game request is a channel request with supplementary fields
-    # `game_role` and `game_id`.
+    # For game request, field level is GAME.
+    # Game request is a channel request with supplementary fields `game_role` and `game_id`.
 
     # No permissions to check for connection requests (e.g. SignIn).
     if not request.level:
@@ -222,19 +245,21 @@ def verify_request(server, request, connection_handler,
     return level
 
 def transfer_special_tokens(server_game, server, username, grade_update, from_observation=True):
-    """ Transfer tokens of given username from an observation role to the opposite in given server game,
-        and notify all user tokens about observation role update with given grade update.
-        This method is used in request manager on_set_grade().
-        :param server_game: server game in which tokens roles must be changed.
-        :param server: server from which notifications will be sent.
-        :param username: name of user whom tokens will be transferred. Only user tokens registered in
-            server games as observer tokens or omniscient tokens will be updated.
-        :param grade_update: type of upgrading. Possibles values in strings.ALL_GRADE_UPDATES (PROMOTE or DEMOTE).
-        :param from_observation: indicate transfer direction.
-            If True, we expect to transfer role from observer to omniscient.
-            If False, we expect to transfer role from omniscient to observer.
-        :type server_game: diplomacy.server.server_game.ServerGame
-        :type server: diplomacy.Server
+    """ Transfer tokens of given username from an observation role to the opposite in given
+    server game, and notify all user tokens about observation role update with given grade update.
+    This method is used in request manager on_set_grade().
+
+    :param server_game: server game in which tokens roles must be changed.
+    :param server: server from which notifications will be sent.
+    :param username: name of user whom tokens will be transferred. Only user tokens registered in
+        server games as observer tokens or omniscient tokens will be updated.
+    :param grade_update: type of upgrading.
+        Possibles values in strings.ALL_GRADE_UPDATES (PROMOTE or DEMOTE).
+    :param from_observation: indicate transfer direction.
+        If True, we expect to transfer role from observer to omniscient.
+        If False, we expect to transfer role from omniscient to observer.
+    :type server_game: diplomacy.server.server_game.ServerGame
+    :type server: diplomacy.Server
     """
     if from_observation:
         old_role = strings.OBSERVER_TYPE
@@ -245,7 +270,8 @@ def transfer_special_tokens(server_game, server, username, grade_update, from_ob
         new_role = strings.OBSERVER_TYPE
         token_filter = server_game.has_omniscient_token
 
-    connected_user_tokens = [user_token for user_token in server.users.get_tokens(username) if token_filter(user_token)]
+    connected_user_tokens = [user_token for user_token in server.users.get_tokens(username)
+                             if token_filter(user_token)]
 
     if connected_user_tokens:
 
@@ -256,12 +282,14 @@ def transfer_special_tokens(server_game, server, username, grade_update, from_ob
         addresses = [(old_role, user_token) for user_token in connected_user_tokens]
         Notifier(server).notify_game_addresses(
             server_game.game_id, addresses, notifications.OmniscientUpdated,
-            grade_update=grade_update, game=server_game.cast(new_role, username, server.users.has_admin(username)))
+            grade_update=grade_update, game=server_game.cast(new_role, username))
 
 def assert_game_not_finished(server_game):
-    """ Check if given game is not yet completed or canceled, otherwise raise a GameFinishedException.
-        :param server_game: server game to check
-        :type server_game: diplomacy.server.server_game.ServerGame
+    """ Check if given game is not yet completed or canceled,
+    otherwise raise a GameFinishedException.
+
+    :param server_game: server game to check
+    :type server_game: diplomacy.server.server_game.ServerGame
     """
     if server_game.is_game_completed or server_game.is_game_canceled:
         raise exceptions.GameFinishedException()

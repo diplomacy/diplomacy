@@ -16,19 +16,22 @@
 # ==============================================================================
 # pylint: disable=anomalous-backslash-in-string
 """ Helper class to compute intersection of a line (OM) with a side of an equilateral triangle,
-    with O the barycenter of the equilateral triangle and M a point outside the triangle.
-             A
-           /  |     M
-         /  O |
-    C  /______|  B
+    with O the barycenter of the equilateral triangle and M a point outside the triangle.::
 
-    A = top, B = right, C = left
-    O = center of triangle
-    M = point outside of triangle
+                 A
+               /  |     M
+             /  O |
+        C  /______|  B
+
+        A = top, B = right, C = left
+        O = center of triangle
+        M = point outside of triangle
+
 """
 class EquilateralTriangle:
     """ Helper class that represent an equilateral triangle.
-        Used to compute intersection of a line with a side of convoy symbol, which is an equilateral triangle.
+    Used to compute intersection of a line with a side of convoy symbol,
+    which is an equilateral triangle.
     """
     __slots__ = ('x_a', 'y_a', 'x_b', 'y_b', 'x_c', 'y_c', 'x_o', 'y_o', 'height',
                  'line_ab_a', 'line_ab_b', 'line_ac_a', 'line_ac_b')
@@ -53,7 +56,8 @@ class EquilateralTriangle:
 
     def __line_om(self, x_m, y_m):
         """ Returns the slope and the intersect of the line between O and M
-            :return: a, b - respectively the slope and the intercept of the line OM
+
+        :return: a, b - respectively the slope and the intercept of the line OM
         """
         # pylint:disable=invalid-name
         a = (y_m - self.y_o) / (x_m - self.x_o)
@@ -62,10 +66,11 @@ class EquilateralTriangle:
 
     def _intersection_with_ab(self, x_m, y_m):
         """ Return coordinates of intersection of line (OM) with line (AB).
-            :param x_m: x coordinate of M
-            :param y_m: y coordinate of M
-            :return: coordinates (x, y) of intersection, or (None, None) if either
-                (OM) and (AB) don't intersect, or intersection point is not in segment AB.
+
+        :param x_m: x coordinate of M
+        :param y_m: y coordinate of M
+        :return: coordinates (x, y) of intersection, or (None, None) if either
+            (OM) and (AB) don't intersect, or intersection point is not in segment AB.
         """
         # pylint:disable=invalid-name
         a, b = self.line_ab_a, self.line_ab_b
@@ -85,10 +90,11 @@ class EquilateralTriangle:
 
     def _intersection_with_ac(self, x_m, y_m):
         """ Return coordinates of intersection of line (OM) with line (AC).
-            :param x_m: x coordinate of M
-            :param y_m: y coordinate of M
-            :return: coordinates (x, y) of intersection, or (None, None) if either
-                (OM) and (AC) don't intersect, or intersection point is not in segment AC.
+
+        :param x_m: x coordinate of M
+        :param y_m: y coordinate of M
+        :return: coordinates (x, y) of intersection, or (None, None) if either
+            (OM) and (AC) don't intersect, or intersection point is not in segment AC.
         """
         # pylint:disable=invalid-name
         a, b = self.line_ac_a, self.line_ac_b
@@ -106,11 +112,12 @@ class EquilateralTriangle:
 
     def _intersection_with_bc(self, x_m, y_m):
         """ Return coordinates of intersection of line (OM) with line (BC).
-            NB: (BC) is an horizontal line.
-            :param x_m: x coordinate of M
-            :param y_m: y coordinate of M
-            :return: coordinates (x, y) of intersection, or (None, None) if either
-                (OM) and (BC) don't intersect, or intersection point is not in segment BC.
+        NB: (BC) is an horizontal line.
+
+        :param x_m: x coordinate of M
+        :param y_m: y coordinate of M
+        :return: coordinates (x, y) of intersection, or (None, None) if either
+            (OM) and (BC) don't intersect, or intersection point is not in segment BC.
         """
         # pylint:disable=invalid-name
         y = self.y_c
@@ -127,11 +134,12 @@ class EquilateralTriangle:
 
     def intersection(self, x_m, y_m):
         """ Return coordinates of the intersection of (OM) with equilateral triangle,
-            with M the point with coordinates (x_m, y_m). Only the intersection with
-            the side of triangle near M is considered.
-            :param x_m: x coordinate of M
-            :param y_m: y coordinate of M
-            :return: a couple (x, y) of floating values.
+        with M the point with coordinates (x_m, y_m). Only the intersection with
+        the side of triangle near M is considered.
+
+        :param x_m: x coordinate of M
+        :param y_m: y coordinate of M
+        :return: a couple (x, y) of floating values.
         """
         # pylint:disable=invalid-name
         if self.x_o == x_m and self.y_o == y_m:

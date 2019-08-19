@@ -35,11 +35,12 @@ from diplomacy.utils.order_results import OK
 @gen.coroutine
 def on_name_request(server, request, connection_handler, game):
     """ Manage NME request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     username = connection_handler.get_name_variant() + request.client_name
 
@@ -77,11 +78,12 @@ def on_name_request(server, request, connection_handler, game):
 
 def on_observer_request(server, request, connection_handler, game):
     """ Manage OBS request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, connection_handler, game            # Unused args
     return [responses.REJ(bytes(request))]          # No DAIDE observeres allowed
@@ -89,11 +91,12 @@ def on_observer_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_i_am_request(server, request, connection_handler, game):
     """ Manage IAM request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     power_name, passcode = request.power_name, request.passcode
 
@@ -137,11 +140,12 @@ def on_i_am_request(server, request, connection_handler, game):
 
 def on_hello_request(server, request, connection_handler, game):
     """ Manage HLO request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, daide_user, _, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
@@ -158,33 +162,36 @@ def on_hello_request(server, request, connection_handler, game):
 
 def on_map_request(server, request, connection_handler, game):
     """ Manage MAP request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, request, connection_handler         # Unused args
     return [responses.MAP(game.map.name)]
 
 def on_map_definition_request(server, request, connection_handler, game):
     """ Manage MDF request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, request, connection_handler         # Unused args
     return [responses.MDF(game.map_name)]
 
 def on_supply_centre_ownership_request(server, request, connection_handler, game):
     """ Manage SCO request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, request, connection_handler         # Unused args
     power_centers = {power.name: power.centers for power in game.powers.values()}
@@ -192,11 +199,12 @@ def on_supply_centre_ownership_request(server, request, connection_handler, game
 
 def on_current_position_request(server, request, connection_handler, game):
     """ Manage NOW request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, request, connection_handler         # Unused args
     units = {power.name: power.units for power in game.powers.values()}
@@ -205,11 +213,12 @@ def on_current_position_request(server, request, connection_handler, game):
 
 def on_history_request(server, request, connection_handler, game):
     """ Manage HST request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     history_responses = []
 
@@ -266,11 +275,12 @@ def on_history_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_submit_orders_request(server, request, connection_handler, game):
     """ Manage SUB request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, _, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
@@ -328,11 +338,12 @@ def on_submit_orders_request(server, request, connection_handler, game):
 
 def on_missing_orders_request(server, request, connection_handler, game):
     """ Manage MIS request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, _, _, power_name = utils.get_user_connection(server.users, game, connection_handler)
     if not power_name:
@@ -342,11 +353,12 @@ def on_missing_orders_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_go_flag_request(server, request, connection_handler, game):
     """ Manage GOF request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, _, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
@@ -371,11 +383,12 @@ def on_go_flag_request(server, request, connection_handler, game):
 
 def on_time_to_deadline_request(server, request, connection_handler, game):
     """ Manage TME request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, connection_handler, game                # Unused args
     return [responses.REJ(bytes(request))]
@@ -383,11 +396,12 @@ def on_time_to_deadline_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_draw_request(server, request, connection_handler, game):
     """ Manage DRW request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, _, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
@@ -404,11 +418,12 @@ def on_draw_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_send_message_request(server, request, connection_handler, game):
     """ Manage SND request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, _, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
@@ -433,11 +448,12 @@ def on_send_message_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_not_request(server, request, connection_handler, game):
     """ Manage NOT request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, _, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
@@ -489,11 +505,12 @@ def on_not_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_accept_request(server, request, connection_handler, game):
     """ Manage YES request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     _, daide_user, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
@@ -532,11 +549,12 @@ def on_accept_request(server, request, connection_handler, game):
 
 def on_reject_request(server, request, connection_handler, game):
     """ Manage REJ request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, connection_handler, game                # Unused args
     response = None
@@ -550,31 +568,34 @@ def on_reject_request(server, request, connection_handler, game):
 
 def on_parenthesis_error_request(server, request, connection_handler, game):
     """ Manage PAR request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, request, connection_handler, game       # Unused args
 
 def on_syntax_error_request(server, request, connection_handler, game):
     """ Manage ERR request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, request, connection_handler, game       # Unused args
 
 def on_admin_message_request(server, request, connection_handler, game):
     """ Manage ADM request
-        :param server: server which receives the request
-        :param request: request to manage
-        :param connection_handler: connection handler from which the request was sent
-        :param game: the game
-        :return: the list of responses
+
+    :param server: server which receives the request
+    :param request: request to manage
+    :param connection_handler: connection handler from which the request was sent
+    :param game: the game
+    :return: the list of responses
     """
     del server, connection_handler, game       # Unused args
     if not ADM_MESSAGE_ENABLED:
@@ -608,12 +629,13 @@ MAPPING = {
 
 def handle_request(server, request, connection_handler):
     """ (coroutine) Find request handler function for associated request, run it and return its result.
-        :param server: a Server object to pass to handler function.
-        :param request: a request object to pass to handler function.
-            See diplomacy.communication.requests for possible requests.
-        :param connection_handler: a ConnectionHandler object to pass to handler function.
-        :return: (future) either None or a response object.
-            See module diplomacy.communication.responses for possible responses.
+
+    :param server: a Server object to pass to handler function.
+    :param request: a request object to pass to handler function.
+        See diplomacy.communication.requests for possible requests.
+    :param connection_handler: a ConnectionHandler object to pass to handler function.
+    :return: (future) either None or a response object.
+        See module diplomacy.communication.responses for possible responses.
     """
     request_handler_fn = MAPPING.get(type(request), None)
     if not request_handler_fn:

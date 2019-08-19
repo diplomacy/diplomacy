@@ -55,8 +55,9 @@ class Server(TCPServer):
     @gen.coroutine
     def handle_stream(self, stream, address):
         """ Handle an open stream
-            :param stream: the stream to handle
-            :param address: the address of the client
+
+        :param stream: the stream to handle
+        :param address: the address of the client
         """
         LOGGER.info('Connection from client [%s]', str(address))
 

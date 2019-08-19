@@ -39,8 +39,10 @@ class API(BaseAPI):
 
     @gen.coroutine
     def list_games_with_players_in_cd(self):
-        """ Lists the game on the standard map where a player is in CD and the bots needs to submit orders
-            :return: List of GameIdCountryId tuples  [(game_id, country_id), (game_id, country_id)]
+        """ Lists the game on the standard map where a player is in CD
+        and the bots needs to submit orders
+
+        :return: List of GameIdCountryId tuples  [(game_id, country_id), (game_id, country_id)]
         """
         route = 'players/cd'
         url = '%s?%s' % (API_WEBDIPLOMACY_NET, urlencode({'route': route}))
@@ -69,7 +71,8 @@ class API(BaseAPI):
     @gen.coroutine
     def list_games_with_missing_orders(self):
         """ Lists of the game on the standard where the user has not submitted orders yet.
-            :return: List of GameIdCountryId tuples  [(game_id, country_id), (game_id, country_id)]
+
+        :return: List of GameIdCountryId tuples  [(game_id, country_id), (game_id, country_id)]
         """
         route = 'players/missing_orders'
         url = '%s?%s' % (API_WEBDIPLOMACY_NET, urlencode({'route': route}))
@@ -98,12 +101,14 @@ class API(BaseAPI):
     @gen.coroutine
     def get_game_and_power(self, game_id, country_id, max_phases=None):
         """ Returns the game and the power we are playing
-            :param game_id: The id of the game object (integer)
-            :param country_id: The id of the country for which we want the game state (integer)
-            :param max_phases: Optional. If set, improve speed by generating game only using the last 'x' phases.
-            :return: A tuple consisting of
-                    1) The diplomacy.Game object from the game state or None if an error occurred
-                    2) The power name (e.g. 'FRANCE') referred to by country_id
+
+        :param game_id: The id of the game object (integer)
+        :param country_id: The id of the country for which we want the game state (integer)
+        :param max_phases: Optional. If set, improve speed by generating game only using the last 'x' phases.
+        :return: A tuple consisting of
+
+            #. The diplomacy.Game object from the game state or None if an error occurred
+            #. The power name (e.g. 'FRANCE') referred to by country_id
         """
         route = 'game/status'
         url = '%s?%s' % (API_WEBDIPLOMACY_NET, urlencode({'route': route, 'gameID': game_id, 'countryID': country_id}))
@@ -132,12 +137,13 @@ class API(BaseAPI):
     @gen.coroutine
     def set_orders(self, game, power_name, orders, wait=None):
         """ Submits orders back to the server
-            :param game: A diplomacy.Game object representing the current state of the game
-            :param power_name: The name of the power submitting the orders (e.g. 'FRANCE')
-            :param orders: A list of strings representing the orders (e.g. ['A PAR H', 'F BRE - MAO'])
-            :param wait: Optional. If True, sets ready=False, if False sets ready=True.
-            :return: True for success, False for failure
-            :type game: diplomacy.Game
+
+        :param game: A diplomacy.Game object representing the current state of the game
+        :param power_name: The name of the power submitting the orders (e.g. 'FRANCE')
+        :param orders: A list of strings representing the orders (e.g. ['A PAR H', 'F BRE - MAO'])
+        :param wait: Optional. If True, sets ready=False, if False sets ready=True.
+        :return: True for success, False for failure
+        :type game: diplomacy.Game
         """
         # Logging orders
         LOGGER.info('[%s/%s/%s] - Submitting orders: %s', game.game_id, game.get_current_phase(), power_name, orders)

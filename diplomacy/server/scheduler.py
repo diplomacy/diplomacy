@@ -35,13 +35,16 @@ from diplomacy.utils import exceptions
 from diplomacy.utils.priority_dict import PriorityDict
 
 class _Deadline():
-    """ (internal) Deadline value, defined by a start time and a delay, such that deadline = start time + delay. """
+    """ (internal) Deadline value, defined by a start time and a delay,
+    such that deadline = start time + delay.
+    """
     __slots__ = ['start_time', 'delay']
 
     def __init__(self, start_time, delay):
         """ Initialize a deadline with start time and delay, so that deadline = start time + delay.
-            :param start_time: (int)
-            :param delay:  (int)
+
+        :param start_time: (int)
+        :param delay:  (int)
         """
         self.start_time = start_time
         self.delay = delay
@@ -58,19 +61,20 @@ class _Deadline():
         return self.deadline < other.deadline
 
 class _Task():
-    """ (internal) Task class used by scheduler to order scheduled data. It allows auto-rescheduling
-        of a task after it was processed, until either:
-        - task delay is 0.
-        - task manager return a True boolean value (means "data fully processed").
-        - scheduler is explicitly required to remove associated data.
+    """ (internal) Task class used by scheduler to order scheduled data.
+    It allows auto-rescheduling of a task after it was processed, until either:
+
+    - task delay is 0.
+    - task manager return a True boolean value (means "data fully processed").
+    - scheduler is explicitly required to remove associated data.
      """
     __slots__ = ['data', 'deadline', 'valid']
 
     def __init__(self, data, deadline):
         """ Initialize a task.
-            :param data: data to process.
-            :param deadline: Deadline object.
-            :type deadline: _Deadline
+        :param data: data to process.
+        :param deadline: Deadline object.
+        :type deadline: _Deadline
         """
         self.data = data
         self.deadline = deadline
@@ -85,22 +89,23 @@ class _Task():
 
 class _ImmediateTask(_Task):
     """ (internal) Represents a task intended to be processed as soon as possible the first time,
-        and then scheduled as a normal task for next times. As deadline does not matter for first
-        processing, an immediate task needs a processing validator called the first
-        time to check if it must still be processed. Note that, if validation returns False,
-        the task is not processed the first time and not even added to scheduler for next times.
+    and then scheduled as a normal task for next times. As deadline does not matter for first
+    processing, an immediate task needs a processing validator called the first
+    time to check if it must still be processed. Note that, if validation returns False,
+    the task is not processed the first time and not even added to scheduler for next times.
     """
     __slots__ = ['validator']
 
     def __init__(self, data, future_delay, processing_validator):
         """ Initialize an immediate task.
-            :param data: data to process.
-            :param future_delay: delay to use to reschedule that task after first processing.
-            :param processing_validator: either a Bool or a callable receiving the data and
-                returning a Bool: processing_validator(data) -> Bool.
-                Validator is used only for the first processing. If evaluated to True, task is
-                processed and then rescheduled for next processing with given future delay.
-                If evaluated to False, task is drop (neither processed nor rescheduled).
+
+        :param data: data to process.
+        :param future_delay: delay to use to reschedule that task after first processing.
+        :param processing_validator: either a Bool or a callable receiving the data and
+            returning a Bool: processing_validator(data) -> Bool.
+            Validator is used only for the first processing. If evaluated to True, task is
+            processed and then rescheduled for next processing with given future delay.
+            If evaluated to False, task is drop (neither processed nor rescheduled).
         """
         super(_ImmediateTask, self).__init__(data, _Deadline(-future_delay, future_delay))
         if isinstance(processing_validator, bool):
@@ -112,7 +117,7 @@ class _ImmediateTask(_Task):
 
     def can_still_process(self):
         """ Return True if this immediate task can still be processed for the first time.
-            If False is returned, task is drop and never processed (not even for a first time).
+        If False is returned, task is drop and never processed (not even for a first time).
         """
         return self.validator()
 
@@ -126,12 +131,13 @@ class Scheduler():
 
     def __init__(self, unit_in_seconds, callback_process):
         """ Initialize a scheduler.
-            :param unit_in_seconds: number of seconds to wait for each step.
-            :param callback_process: callback to call on every task.
-                Signature:
-                    task_callback(task.data) -> bool
-                If callback return True, task is considered done and is removed from scheduler.
-                Otherwise, task is rescheduled for another delay.
+
+        :param unit_in_seconds: number of seconds to wait for each step.
+        :param callback_process: callback to call on every task.
+
+            - Signature: ``task_callback(task.data) -> bool``
+            - If callback return True, task is considered done and is removed from scheduler.
+            - Otherwise, task is rescheduled for another delay.
         """
         assert isinstance(unit_in_seconds, int) and unit_in_seconds > 0
         assert callable(callback_process)
@@ -175,8 +181,9 @@ class Scheduler():
     @gen.coroutine
     def add_data(self, data, nb_units_to_wait):
         """ Add data with a non-null deadline. For null deadlines, use no_wait().
-            :param data: data to add
-            :param nb_units_to_wait: time to wait (in number of units)
+
+        :param data: data to add
+        :param nb_units_to_wait: time to wait (in number of units)
         """
         if not isinstance(nb_units_to_wait, int) or nb_units_to_wait <= 0:
             raise exceptions.NaturalIntegerNotNullException()
@@ -189,11 +196,13 @@ class Scheduler():
     @gen.coroutine
     def no_wait(self, data, nb_units_to_wait, processing_validator):
         """ Add a data to be processed the sooner.
-            :param data: data to add
-            :param nb_units_to_wait: time to wait (in number of units) for data tasks after first task is executed.
-                If null (0), data is processed once (first time) and then dropped.
-            :param processing_validator: validator used to check if data can still be processed for the first time.
-                See documentation of class _ImmediateTask for more details.
+
+        :param data: data to add
+        :param nb_units_to_wait: time to wait (in number of units)
+            for data tasks after first task is executed.
+            If null (0), data is processed once (first time) and then dropped.
+        :param processing_validator: validator used to check if data can still be processed
+            for the first time. See documentation of class _ImmediateTask for more details.
         """
         if not isinstance(nb_units_to_wait, int) or nb_units_to_wait < 0:
             raise exceptions.NaturalIntegerException()
@@ -234,7 +243,7 @@ class Scheduler():
     @gen.coroutine
     def schedule(self):
         """ Main scheduler method (callback to register in ioloop). Wait for unit seconds and
-            run tasks after each wait time.
+        run tasks after each wait time.
         """
         while True:
             yield gen.sleep(self.unit)
@@ -243,10 +252,12 @@ class Scheduler():
     @gen.coroutine
     def process_tasks(self):
         """ Main task processing method (callback to register in ioloop). Consume and process tasks in queue
-            and reschedule processed tasks when relevant.
-            A task is processed if associated data was not removed from scheduler.
-            A task is rescheduler if processing callback returns False (True meaning `task definitively done`)
-            AND if task deadline is not null.
+        and reschedule processed tasks when relevant.
+
+        A task is processed if associated data was not removed from scheduler.
+
+        A task is rescheduled if processing callback returns False
+        (True means `task definitively done`) AND if task deadline is not null.
         """
         while True:
             task = yield self.tasks_queue.get()  # type: _Task

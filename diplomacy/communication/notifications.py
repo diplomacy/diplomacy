@@ -98,8 +98,9 @@ class ClearedUnits(_GameNotification):
     __slots__ = []
 
 class VoteCountUpdated(_GameNotification):
-    """ Notification about new count of draw votes for a game (for observers)
+    """ Notification about new count of draw votes for a game (for observers).
         Properties:
+
         - count_voted: number of powers that have voted.
         - count_expected: number of powers to be expected to vote.
     """
@@ -116,7 +117,8 @@ class VoteCountUpdated(_GameNotification):
 
 class VoteUpdated(_GameNotification):
     """ Notification about votes updated for a game (for omniscient observers). Properties:
-        - vote: dictionary mapping a power name to a Vote object representing power vote.
+
+    - vote: dictionary mapping a power name to a Vote object representing power vote.
     """
     __slots__ = ['vote']
     params = {
@@ -129,7 +131,8 @@ class VoteUpdated(_GameNotification):
 
 class PowerVoteUpdated(VoteCountUpdated):
     """ Notification about a new vote for a specific game power (for player games). Properties:
-        - vote: vote object representing associated power vote.
+
+    - vote: vote object representing associated power vote.
     """
     __slots__ = ['vote']
     params = parsing.extend_model(VoteCountUpdated.params, {
@@ -242,8 +245,9 @@ class PowerWaitFlag(_GameNotification):
 
 def parse_dict(json_notification):
     """ Parse a JSON expected to represent a notification. Raise an exception if parsing failed.
-        :param json_notification: JSON dictionary.
-        :return: a notification class instance.
+
+    :param json_notification: JSON dictionary.
+    :return: a notification class instance.
     """
     assert isinstance(json_notification, dict), 'Notification parser expects a dict.'
     name = json_notification.get(strings.NAME, None)

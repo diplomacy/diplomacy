@@ -27,9 +27,10 @@ class SortedSet():
 
     def __init__(self, element_type, content=()):
         """ Initialize a typed sorted set.
-            :param element_type: Expected type for values.
-            :param content: (optional) Sequence of values to initialize sorted set with.
-            """
+
+        :param element_type: Expected type for values.
+        :param content: (optional) Sequence of values to initialize sorted set with.
+        """
         if not is_sequence(content):
             raise exceptions.TypeException('sequence', type(content))
         self.__type = element_type
@@ -40,12 +41,15 @@ class SortedSet():
     @staticmethod
     def builder(element_type):
         """ Return a function to build sorted sets from content (sequence of values).
-            :param element_type: expected type for sorted set values.
-            :return: callable
+        Returned function expects a content parameter like SortedSet initializer.
 
-            Returned function expects a content parameter like SortedSet initializer.
-                builder_fn = SortedSet.builder(str)
-                my_sorted_set = builder_fn(['c', '3', 'p', '0'])
+        .. code-block:: python
+
+            builder_fn = SortedSet.builder(str)
+            my_sorted_set = builder_fn(['c', '3', 'p', '0'])
+
+        :param element_type: expected type for sorted set values.
+        :return: callable
         """
         return lambda iterable: SortedSet(element_type, iterable)
 
@@ -104,9 +108,9 @@ class SortedSet():
         return best_position
 
     def get_next_value(self, element):
-        """ Get lowest value in sorted set greater than given element, or None if such values does not exists
-            in the sorted set. Given element may not exists in the sorted set.
-         """
+        """ Get lowest value in sorted set greater than given element, or None if such values
+        does not exists in the sorted set. Given element may not exists in the sorted set.
+        """
         assert isinstance(element, self.__type)
         if self.__list:
             best_position = bisect.bisect_right(self.__list, element)
@@ -118,8 +122,8 @@ class SortedSet():
         return None
 
     def get_previous_value(self, element):
-        """ Get greatest value in sorted set less the given element, or None if such value does not exists
-            in the sorted set. Given element may not exists in the sorted set.
+        """ Get greatest value in sorted set less the given element, or None if such value
+        does not exists in the sorted set. Given element may not exists in the sorted set.
         """
         assert isinstance(element, self.__type)
         if self.__list:

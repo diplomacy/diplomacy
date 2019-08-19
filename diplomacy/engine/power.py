@@ -15,7 +15,8 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Power
-    - Contains the power object representing a power in the game
+
+- Contains the power object representing a power in the game
 """
 from copy import deepcopy
 from diplomacy.utils import parsing, strings
@@ -29,32 +30,35 @@ class Power(Jsonable):
     """ Power Class
 
     Properties:
-        - abbrev - Contains the abbrev of the power (usually the first letter of the power name) (e.g. 'F' for FRANCE)
-        - adjust - List of pending adjustment orders
-            (e.g. ['A PAR B', 'A PAR R MAR', 'A MAR D', 'WAIVE'])
-        - centers - Contains the list of supply centers currently controlled by the power ['MOS', 'SEV', 'STP', 'WAR']
-        - civil_disorder - Boolean flag to indicate that the power has been put in CIVIL_DISORDER (e.g. True or False)
-        - controller - Sorted dictionary mapping timestamp to controller (either dummy or a user ID) who takes
-            control of power at this timestamp.
-        - game - Contains a reference to the game object
-        - goner - Boolean to indicate that this power doesn't control any SCs any more (e.g. True or False)
-        - homes - Contains a list of homes supply centers (where you can build)
-            e.g. ['PAR', 'MAR', ... ] or None if empty
-        - influence - Contains a list of locations influenced by this power
-            Note: To influence a location, the power must have visited it last.
-            e.g ['PAR', 'MAR', ... ]
-        - name - Contains the name of the power
-        - orders - Contains a dictionary of units and their orders.
-            For NO_CHECK games, unit is 'ORDER 1', 'ORDER 2', ...
-            - e.g. {'A PAR': '- MAR' } or {'ORDER 1': 'A PAR - MAR', 'ORDER 2': '...', ... }
-            - Can also be {'REORDER 1': 'A PAR - MAR', 'INVALID 1': 'A PAR - MAR', ... } after validation
-        - retreats - Contains the list of units that need to retreat with their possible retreat locations
-            (e.g. {'A PAR': ['MAR', 'BER']})
-        - role - Power type (observer, omniscient, player or server power).
-            Either the power name (for a player power) or a value in diplomacy.utils.strings.ALL_ROLE_TYPES
-        - tokens - Only for server power: set of tokens of current power controlled (if not None).
-        - units - Contains the list of units (e.g. ['A PAR', 'A MAR', ...]
-        - vote - Only for omniscient, player and server power: power vote ('yes', 'no' or 'neutral').
+
+    - abbrev - Contains the abbrev of the power (usually the first letter of the power name) (e.g. 'F' for FRANCE)
+    - adjust - List of pending adjustment orders
+      (e.g. ['A PAR B', 'A PAR R MAR', 'A MAR D', 'WAIVE'])
+    - centers - Contains the list of supply centers currently controlled by the power ['MOS', 'SEV', 'STP', 'WAR']
+    - civil_disorder - Boolean flag to indicate that the power has been put in CIVIL_DISORDER (e.g. True or False)
+    - controller - Sorted dictionary mapping timestamp to controller (either dummy or a user ID) who takes
+      control of power at this timestamp.
+    - game - Contains a reference to the game object
+    - goner - Boolean to indicate that this power doesn't control any SCs any more (e.g. True or False)
+    - homes - Contains a list of homes supply centers (where you can build)
+      e.g. ['PAR', 'MAR', ... ] or None if empty
+    - influence - Contains a list of locations influenced by this power
+      Note: To influence a location, the power must have visited it last.
+      e.g ['PAR', 'MAR', ... ]
+    - name - Contains the name of the power
+    - orders - Contains a dictionary of units and their orders.
+      For NO_CHECK games, unit is 'ORDER 1', 'ORDER 2', ...
+
+      - e.g. {'A PAR': '- MAR' } or {'ORDER 1': 'A PAR - MAR', 'ORDER 2': '...', ... }
+      - Can also be {'REORDER 1': 'A PAR - MAR', 'INVALID 1': 'A PAR - MAR', ... } after validation
+
+    - retreats - Contains the list of units that need to retreat with their possible retreat locations
+      (e.g. {'A PAR': ['MAR', 'BER']})
+    - role - Power type (observer, omniscient, player or server power).
+      Either the power name (for a player power) or a value in diplomacy.utils.strings.ALL_ROLE_TYPES
+    - tokens - Only for server power: set of tokens of current power controlled (if not None).
+    - units - Contains the list of units (e.g. ['A PAR', 'A MAR', ...]
+    - vote - Only for omniscient, player and server power: power vote ('yes', 'no' or 'neutral').
     """
     __slots__ = ['game', 'name', 'abbrev', 'adjust', 'centers', 'units', 'influence', 'homes',
                  'retreats', 'goner', 'civil_disorder', 'orders', 'role', 'controller', 'vote',
@@ -128,8 +132,7 @@ class Power(Jsonable):
         return text
 
     def __deepcopy__(self, memo):
-        """ Fast deep copy implementation
-            - (Not setting the game object)
+        """ Fast deep copy implementation (**not setting the game object**)
         """
         cls = self.__class__
         result = cls.__new__(cls)
@@ -145,9 +148,10 @@ class Power(Jsonable):
 
     def reinit(self, include_flags=6):
         """ Performs a reinitialization of some of the parameters
-            :param include_flags: Bit mask to indicate which params to reset
-                                 (bit 1 = orders, 2 = persistent, 4 = transient)
-            :return: None
+
+        :param include_flags: Bit mask to indicate which params to reset
+                             (bit 1 = orders, 2 = persistent, 4 = transient)
+        :return: None
         """
         reinit_persistent = include_flags & 2
         reinit_transient = include_flags & 4
@@ -187,9 +191,10 @@ class Power(Jsonable):
     @staticmethod
     def compare(power_1, power_2):
         """ Comparator object - Compares two Power objects
-            :param power_1: The first Power object to compare
-            :param power_2: The second Power object to compare
-            :return: 1 if self is greater, -1 if other is greater, 0 if they are equal
+
+        :param power_1: The first Power object to compare
+        :param power_2: The second Power object to compare
+        :return: 1 if self is greater, -1 if other is greater, 0 if they are equal
         """
         cmp = lambda power_1, power_2: ((power_1 > power_2) - (power_1 < power_2))
         xstr = lambda string: string or ''                      # To avoid comparing with None
@@ -199,8 +204,9 @@ class Power(Jsonable):
 
     def initialize(self, game):
         """  Initializes a game and resets home, centers and units
-            :param game: The game to use for initialization
-            :type game: diplomacy.Game
+
+        :param game: The game to use for initialization
+        :type game: diplomacy.Game
         """
 
         # Not initializing observers and monitors
@@ -233,7 +239,8 @@ class Power(Jsonable):
 
     def merge(self, other_power):
         """ Transfer all units, centers, and homes of the other_power to this power
-            :param other_power: The other power (will be empty after the merge)
+
+        :param other_power: The other power (will be empty after the merge)
         """
         # Regular units
         for unit in list(other_power.units):
@@ -297,7 +304,8 @@ class Power(Jsonable):
 
     def is_eliminated(self):
         """ Returns a flag to show if player is eliminated
-            :return: If the current power is eliminated
+
+        :return: If the current power is eliminated
         """
         # Not eliminated if has units left
         if self.units or self.centers or self.retreats:
@@ -310,7 +318,8 @@ class Power(Jsonable):
 
     def moves_submitted(self):
         """  Returns a boolean to indicate if moves has been submitted
-            :return: 1 if not in Movement phase, or orders submitted, or no more units lefts
+
+        :return: 1 if not in Movement phase, or orders submitted, or no more units lefts
         """
         if self.game.phase_type != 'M':
             return 1

@@ -28,8 +28,8 @@ def converter_to_int(val):
 
 class Version1(Jsonable):
     """ A Jsonable with fields a, b, c, d.
-        NB: To parse a dict from Version22 to Version1, modified fields a and c must be convertible in Version1.
-        using ConverterType in Version1.
+    NB: To parse a dict from Version22 to Version1, modified fields a and c must be convertible in
+    Version1. using ConverterType in Version1.
     """
     model = {
         'a': parsing.ConverterType(int, converter_to_int),
@@ -47,7 +47,8 @@ class Version1(Jsonable):
 
 class Version20(Jsonable):
     """ Version1 with removed fields b and d.
-        NB: To parse a dict from Version20 to Version1, removed fields b and d must be optional in Version1.
+    NB: To parse a dict from Version20 to Version1,
+    removed fields b and d must be optional in Version1.
     """
     model = {
         'a': int,
@@ -102,10 +103,11 @@ class Version22(Jsonable):
 
 class Version3(Jsonable):
     """ Version 1 with a modified, b removed, e added.
-        To parse a dict between Version3 and Version1:
-        - a must be convertible in both versions.
-        - b must be optional in Version1.
-        - e must be optional in Version3.
+    To parse a dict between Version3 and Version1:
+
+    - a must be convertible in both versions.
+    - b must be optional in Version1.
+    - e must be optional in Version3.
     """
     model = {
         'a': parsing.ConverterType(str, converter_function=str),

@@ -15,17 +15,21 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Abstract Jsonable class with automatic attributes checking and conversion to/from JSON dict.
-    To write a Jsonable sub-class:
-    - Define a model with expected attribute names and types. Use module `parsing` to describe expected types.
-    - Override initializer __init__(**kwargs):
-      - **first**: initialize each attribute defined in model with value None.
-      - **then** : call parent __init__() method. Attributes will be checked and filled by
-        Jsonable's __init__() method.
-      - If needed, add further initialization code after call to parent __init__() method. At this point,
-        attributes were correctly set based on defined model, and you can now work with them.
+To write a Jsonable sub-class:
 
-    Example:
-    ```
+- Define a model with expected attribute names and types. Use module `parsing` to describe expected types.
+- Override initializer ``__init__(**kwargs)``:
+
+  - **first**: initialize each attribute defined in model with value None.
+  - **then** : call parent __init__() method. Attributes will be checked and filled by
+    Jsonable's __init__() method.
+  - If needed, add further initialization code after call to parent __init__() method. At this point,
+    attributes were correctly set based on defined model, and you can now work with them.
+
+Example:
+
+.. code-block:: python
+
     class MyClass(Jsonable):
         model = {
             'my_attribute': parsing.Sequence(int),
@@ -33,8 +37,9 @@
         def __init__(**kwargs):
             self.my_attribute = None
             super(MyClass, self).__init__(**kwargs)
-            # my_attribute is now initialized based on model. You can then do any further initialization if needed.
-    ```
+            # my_attribute is now initialized based on model.
+            # You can then do any further initialization if needed.
+
 """
 import logging
 import ujson as json

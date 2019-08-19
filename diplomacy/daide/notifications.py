@@ -48,8 +48,8 @@ class DaideNotification():
 
 class MapNameNotification(DaideNotification):
     """ Represents a MAP DAIDE response. Sends the name of the current map to the client.
-        Syntax:
-            MAP ('name')
+
+    Syntax: MAP ('name')
     """
     def __init__(self, map_name, **kwargs):
         """ Builds the response
@@ -60,31 +60,39 @@ class MapNameNotification(DaideNotification):
                       + bytes(parse_string(String, map_name))
 
 class HelloNotification(DaideNotification):
-    """ Represents a HLO DAIDE response. Sends the power to be played by the client with the passcode to rejoin the
-        game and the details of the game.
-        Syntax:
-            HLO (power) (passcode) (variant) (variant) ...
-        Variant syntax:
-            LVL n           # Level of the syntax accepted
-            MTL seconds     # Movement time limit
-            RTL seconds     # Retreat time limit
-            BTL seconds     # Build time limit
-            DSD             # Disables the time limit when a client disconects
-            AOA             # Any orders accepted
-        LVL 10:
-        Variant syntax:
-            PDA             # Accept partial draws
-            NPR             # No press during retreat phases
-            NPB             # No press during build phases
-            PTL seconds     # Press time limit
+    """ Represents a HLO DAIDE response. Sends the power to be played by the client with the
+    passcode to rejoin the game and the details of the game.
+
+    Syntax: ::
+
+        HLO (power) (passcode) (variant) (variant) ...
+
+    Variant syntax: ::
+
+        LVL n           # Level of the syntax accepted
+        MTL seconds     # Movement time limit
+        RTL seconds     # Retreat time limit
+        BTL seconds     # Build time limit
+        DSD             # Disables the time limit when a client disconects
+        AOA             # Any orders accepted
+
+    LVL 10:
+
+    Variant syntax: ::
+
+        PDA             # Accept partial draws
+        NPR             # No press during retreat phases
+        NPB             # No press during build phases
+        PTL seconds     # Press time limit
     """
     def __init__(self, power_name, passcode, level, deadline, rules, **kwargs):
         """ Builds the response
-            :param power_name: The name of the power being played.
-            :param passcode: Integer. A passcode to rejoin the game.
-            :param level: Integer. The daide syntax level of the game
-            :param deadline: Integer. The number of seconds per turn (0 to disable)
-            :param rules: The list of game rules.
+
+        :param power_name: The name of the power being played.
+        :param passcode: Integer. A passcode to rejoin the game.
+        :param level: Integer. The daide syntax level of the game
+        :param deadline: Integer. The number of seconds per turn (0 to disable)
+        :param rules: The list of game rules.
         """
         super(HelloNotification, self).__init__(**kwargs)
         power = parse_string(Power, power_name)
@@ -109,8 +117,9 @@ class HelloNotification(DaideNotification):
 
 class SupplyCenterNotification(DaideNotification):
     """ Represents a SCO DAIDE notification. Sends the current supply centre ownership.
-        Syntax:
-            SCO (power centre centre ...) (power centre centre ...) ...
+    Syntax: ::
+
+        SCO (power centre centre ...) (power centre centre ...) ...
     """
     def __init__(self, powers_centers, map_name, **kwargs):
         """ Builds the notification
@@ -150,11 +159,15 @@ class SupplyCenterNotification(DaideNotification):
 
 class CurrentPositionNotification(DaideNotification):
     """ Represents a NOW DAIDE notification. Sends the current turn, and the current unit positions.
-        Syntax:
-            NOW (turn) (unit) (unit) ...
-        Unit syntax:
-            power unit_type province
-            power unit_type province MRT (province province ...)
+
+    Syntax: ::
+
+        NOW (turn) (unit) (unit) ...
+
+    Unit syntax: ::
+
+        power unit_type province
+        power unit_type province MRT (province province ...)
     """
     def __init__(self, phase_name, powers_units, powers_retreats, **kwargs):
         """ Builds the notification
@@ -187,12 +200,14 @@ class CurrentPositionNotification(DaideNotification):
         self._bytes = bytes(tokens.NOW) + bytes(turn_clause) + b''.join(units_bytes_buffer)
 
 class MissingOrdersNotification(DaideNotification):
-    """ Represents a MIS DAIDE response. Sends the list of unit for which an order is missing or indication about
-        required disbands or builds.
-        Syntax:
-            MIS (unit) (unit) ...
-            MIS (unit MRT (province province ...)) (unit MRT (province province ...)) ...
-            MIS (number)
+    """ Represents a MIS DAIDE response. Sends the list of unit for which an order is missing
+    or indication about required disbands or builds.
+
+    Syntax: ::
+
+        MIS (unit) (unit) ...
+        MIS (unit MRT (province province ...)) (unit MRT (province province ...)) ...
+        MIS (number)
     """
     def __init__(self, phase_name, power, **kwargs):
         """ Builds the response
@@ -268,16 +283,20 @@ class MissingOrdersNotification(DaideNotification):
 
 class OrderResultNotification(DaideNotification):
     """ Represents a ORD DAIDE response. Sends the result of an order after the turn has been processed.
-        Syntax:
-            ORD (turn) (order) (result)
-            ORD (turn) (order) (result RET)
-        Result syntax:
-            SUC         # Order succeeded (can apply to any order).
-            BNC         # Move bounced (only for MTO, CTO or RTO orders).
-            CUT         # Support cut (only for SUP orders).
-            DSR         # Move via convoy failed due to dislodged convoying fleet (only for CTO orders).
-            NSO         # No such order (only for SUP, CVY or CTO orders).
-            RET         # Unit was dislodged and must retreat.
+
+    Syntax: ::
+
+        ORD (turn) (order) (result)
+        ORD (turn) (order) (result RET)
+
+    Result syntax: ::
+
+        SUC         # Order succeeded (can apply to any order).
+        BNC         # Move bounced (only for MTO, CTO or RTO orders).
+        CUT         # Support cut (only for SUP orders).
+        DSR         # Move via convoy failed due to dislodged convoying fleet (only for CTO orders).
+        NSO         # No such order (only for SUP, CVY or CTO orders).
+        RET         # Unit was dislodged and must retreat.
     """
     def __init__(self, phase_name, order_bytes, results, **kwargs):
         """ Builds the response
@@ -299,8 +318,10 @@ class OrderResultNotification(DaideNotification):
 
 class TimeToDeadlineNotification(DaideNotification):
     """ Represents a TME DAIDE response. Sends the time to the next deadline.
-        Syntax:
-            TME (seconds)
+
+    Syntax: ::
+
+        TME (seconds)
     """
     def __init__(self, seconds, **kwargs):
         """ Builds the response
@@ -311,8 +332,10 @@ class TimeToDeadlineNotification(DaideNotification):
 
 class PowerInCivilDisorderNotification(DaideNotification):
     """ Represents a CCD DAIDE response. Sends the name of the power in civil disorder.
-        Syntax:
-            CCD (power)
+
+    Syntax: ::
+
+        CCD (power)
     """
     def __init__(self, power_name, **kwargs):
         """ Builds the response
@@ -324,8 +347,10 @@ class PowerInCivilDisorderNotification(DaideNotification):
 
 class PowerIsEliminatedNotification(DaideNotification):
     """ Represents a OUT DAIDE response. Sends the name of the power eliminated.
-        Syntax:
-            OUT (power)
+
+    Syntax: ::
+
+        OUT (power)
     """
     def __init__(self, power_name, **kwargs):
         """ Builds the response
@@ -337,8 +362,10 @@ class PowerIsEliminatedNotification(DaideNotification):
 
 class DrawNotification(DaideNotification):
     """ Represents a DRW DAIDE response. Indicates that the game has ended due to a draw
-        Syntax:
-            DRW
+
+    Syntax: ::
+
+        DRW
     """
     def __init__(self, **kwargs):
         """ Builds the response
@@ -348,9 +375,11 @@ class DrawNotification(DaideNotification):
 
 class MessageFromNotification(DaideNotification):
     """ Represents a FRM DAIDE response. Indicates that the game has ended due to a draw
-        Syntax:
-            FRM (power) (power power ...) (press_message)
-            FRM (power) (power power ...) (reply)
+
+    Syntax: ::
+
+        FRM (power) (power power ...) (press_message)
+        FRM (power) (power power ...) (reply)
     """
     def __init__(self, from_power_name, to_power_names, message, **kwargs):
         """ Builds the response
@@ -367,8 +396,10 @@ class MessageFromNotification(DaideNotification):
 
 class SoloNotification(DaideNotification):
     """ Represents a SLO DAIDE response. Indicates that the game has ended due to a solo by the specified power
-        Syntax:
-            SLO (power)
+
+    Syntax: ::
+
+        SLO (power)
     """
     def __init__(self, power_name, **kwargs):
         """ Builds the response
@@ -380,11 +411,15 @@ class SoloNotification(DaideNotification):
 
 class SummaryNotification(DaideNotification):
     """ Represents a SMR DAIDE response. Sends the summary for each power at the end of the game
-        Syntax:
-            SMR (turn) (power_summary) ...
-        power_summary syntax:
-            power ('name') ('version') number_of_centres
-            power ('name') ('version') number_of_centres year_of_elimination
+
+    Syntax: ::
+
+        SMR (turn) (power_summary) ...
+
+    power_summary syntax: ::
+
+        power ('name') ('version') number_of_centres
+        power ('name') ('version') number_of_centres year_of_elimination
     """
     def __init__(self, phase_name, powers, daide_users, years_of_elimination, **kwargs):
         """ Builds the Notification """
@@ -425,8 +460,10 @@ class SummaryNotification(DaideNotification):
 
 class TurnOffNotification(DaideNotification):
     """ Represents an OFF DAIDE response. Requests a client to exit
-        Syntax:
-            OFF
+
+    Syntax: ::
+
+        OFF
     """
     def __init__(self, **kwargs):
         """ Builds the response """

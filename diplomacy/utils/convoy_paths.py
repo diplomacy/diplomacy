@@ -47,8 +47,9 @@ DISK_CACHE_PATH = os.path.join(HOME_DIRECTORY, '.cache', 'diplomacy', CACHE_FILE
 
 def display_progress_bar(queue, max_loop_iters):
     """ Displays a progress bar
-        :param queue: Multiprocessing queue to display the progress bar
-        :param max_loop_iters: The expected maximum number of iterations
+
+    :param queue: Multiprocessing queue to display the progress bar
+    :param max_loop_iters: The expected maximum number of iterations
     """
     progress_bar = tqdm.tqdm(total=max_loop_iters)
     for _ in iter(queue.get, None):
@@ -57,14 +58,14 @@ def display_progress_bar(queue, max_loop_iters):
 
 def get_convoy_paths(map_object, start_location, max_convoy_length, queue):
     """ Returns a list of possible convoy destinations with the required units to get there
-        Does a breadth first search from the starting location
+    Does a breadth first search from the starting location
 
-        :param map_object: The instantiated map
-        :param start_location: The start location of the unit (e.g. 'LON')
-        :param max_convoy_length: The maximum convoy length permitted
-        :param queue: Multiprocessing queue to display the progress bar
-        :return: A list of ({req. fleets}, {reachable destinations})
-        :type map_object: diplomacy.Map
+    :param map_object: The instantiated map
+    :param start_location: The start location of the unit (e.g. 'LON')
+    :param max_convoy_length: The maximum convoy length permitted
+    :param queue: Multiprocessing queue to display the progress bar
+    :return: A list of ({req. fleets}, {reachable destinations})
+    :type map_object: diplomacy.Map
     """
     to_check = Queue()          # Items in queue have format ({fleets location}, last fleet location)
     dest_paths = {}             # Dict with dest as key and a list of all paths from start_location to dest as value
@@ -122,11 +123,13 @@ def get_convoy_paths(map_object, start_location, max_convoy_length, queue):
 
 def build_convoy_paths_cache(map_object, max_convoy_length):
     """ Builds the convoy paths cache for a map
-        :param map_object: The instantiated map object
-        :param max_convoy_length: The maximum convoy length permitted
-        :return: A dictionary where the key is the number of fleets in the path and
-                 the value is a list of convoy paths (start loc, {fleets}, {dest}) of that length for the map
-        :type map_object: diplomacy.Map
+
+    :param map_object: The instantiated map object
+    :param max_convoy_length: The maximum convoy length permitted
+    :return: A dictionary where the key is the number of fleets in the path and
+             the value is a list of convoy paths (start loc, {fleets}, {dest})
+             of that length for the map
+    :type map_object: diplomacy.Map
     """
     print('Generating convoy paths for {}'.format(map_object.name))
     coasts = [loc.upper() for loc in map_object.locs
@@ -158,8 +161,9 @@ def build_convoy_paths_cache(map_object, max_convoy_length):
 
 def get_file_md5(file_path):
     """ Calculates a file MD5 hash
-        :param file_path: The file path
-        :return: The computed md5 hash
+
+    :param file_path: The file path
+    :return: The computed md5 hash
     """
     hash_md5 = hashlib.md5()
     with open(file_path, 'rb') as file:
@@ -169,8 +173,9 @@ def get_file_md5(file_path):
 
 def add_to_cache(map_name):
     """ Lazy generates convoys paths for a map and adds it to the disk cache
-        :param map_name: The name of the map
-        :return: The convoy_paths for that map
+
+    :param map_name: The name of the map
+    :return: The convoy_paths for that map
     """
     disk_convoy_paths = {'__version__': __VERSION__}        # Uses hash as key
 

@@ -16,20 +16,29 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Small module script to quickly start a server with pretty log-printing.
-    You can stop the server with keyboard interruption (Ctrl+C). Usage:
-    python -m diplomacy.server.run  # run on port 8432.
-    python -m diplomacy.server.run --port=<given port>  # run on given port.
+
+You can stop the server with keyboard interruption (Ctrl+C). Usage:
+
+.. code-block:: bash
+
+    # run on port 8432.
+    python -m diplomacy.server.run
+
+    # run on given port.
+    python -m diplomacy.server.run --port=<given port>
+
 """
 import argparse
 from diplomacy import Server
 from diplomacy.utils import constants
 
-PARSER = argparse.ArgumentParser(description='Run server.')
-PARSER.add_argument('--port', '-p', type=int, default=constants.DEFAULT_PORT,
-                    help='run on the given port (default: %s)' % constants.DEFAULT_PORT)
-ARGS = PARSER.parse_args()
+if __name__ == '__main__':
+    PARSER = argparse.ArgumentParser(description='Run server.')
+    PARSER.add_argument('--port', '-p', type=int, default=constants.DEFAULT_PORT,
+                        help='run on the given port (default: %s)' % constants.DEFAULT_PORT)
+    ARGS = PARSER.parse_args()
 
-try:
-    Server().start(port=ARGS.port)
-except KeyboardInterrupt:
-    print('Keyboard interruption.')
+    try:
+        Server().start(port=ARGS.port)
+    except KeyboardInterrupt:
+        print('Keyboard interruption.')
