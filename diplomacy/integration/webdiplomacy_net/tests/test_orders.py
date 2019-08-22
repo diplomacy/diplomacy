@@ -251,6 +251,25 @@ def test_retreat_army_001():
     assert order_from_dict.to_string() == order_str
     assert compare_dicts(order_from_dict.to_dict(), order_dict)
 
+def test_retreat_army_002():
+    """ Tests retreat army """
+    raw_order = 'A PAR - LON'
+    order_str = 'A PAR R LON'
+    order_dict = {'terrID': 47,
+                  'unitType': 'Army',
+                  'type': 'Retreat',
+                  'toTerrID': 6,
+                  'fromTerrID': '',
+                  'viaConvoy': ''}
+    order_from_string = Order(raw_order, phase_type='R')
+    order_from_dict = Order(order_dict, phase_type='R')
+
+    # Validating
+    assert order_from_string.to_string() == order_str
+    assert compare_dicts(order_from_string.to_dict(), order_dict)
+    assert order_from_dict.to_string() == order_str
+    assert compare_dicts(order_from_dict.to_dict(), order_dict)
+
 def test_retreat_fleet_001():
     """ Tests retreat fleet """
     raw_order = 'F BRE R SPA/SC'

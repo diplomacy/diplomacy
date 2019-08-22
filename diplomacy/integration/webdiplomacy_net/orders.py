@@ -166,6 +166,11 @@ class Order():
             :type game: diplomacy.Game
         """
         # pylint: disable=too-many-return-statements,too-many-branches,too-many-statements
+        # Converting move to retreat during retreat phase
+        if self.phase_type == 'R':
+            order = order.replace(' - ', ' R ')
+
+        # Splitting into parts
         words = order.split()
 
         # --- Wait / Waive ---
