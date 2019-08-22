@@ -309,7 +309,7 @@ def test_disband_fleet_001():
     assert compare_dicts(order_from_dict.to_dict(), order_dict)
 
 def test_disband_fleet_coast_001():
-    """ Tests disband fleet """
+    """ Tests disband fleet (retreats phase) """
     raw_order = 'F SPA/NC D'
     order_str = 'F SPA/NC D'
     order_dict = {'terrID': 76,
@@ -320,6 +320,25 @@ def test_disband_fleet_coast_001():
                   'viaConvoy': ''}
     order_from_string = Order(raw_order, phase_type='R')
     order_from_dict = Order(order_dict, phase_type='R')
+
+    # Validating
+    assert order_from_string.to_string() == order_str
+    assert compare_dicts(order_from_string.to_dict(), order_dict)
+    assert order_from_dict.to_string() == order_str
+    assert compare_dicts(order_from_dict.to_dict(), order_dict)
+
+def test_disband_fleet_coast_002():
+    """ Tests disband fleet (adjustment phase)"""
+    raw_order = 'F SPA/NC D'
+    order_str = 'F SPA D'
+    order_dict = {'terrID': 8,
+                  'unitType': 'Fleet',
+                  'type': 'Destroy',
+                  'toTerrID': 8,
+                  'fromTerrID': '',
+                  'viaConvoy': ''}
+    order_from_string = Order(raw_order, phase_type='A')
+    order_from_dict = Order(order_dict, phase_type='A')
 
     # Validating
     assert order_from_string.to_string() == order_str
