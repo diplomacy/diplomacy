@@ -45,7 +45,7 @@ class API(BaseAPI):
         return_val = []
 
         # 200 - Response OK
-        if response.code == 200:
+        if response.code == 200 and response.body:
             list_games_players = json.loads(response.body.decode('utf-8'))
             for game_player in list_games_players:
                 return_val += [GameIdCountryId(game_id=game_player['gameID'], country_id=game_player['countryID'])]
@@ -68,7 +68,7 @@ class API(BaseAPI):
         return_val = []
 
         # 200 - Response OK
-        if response.code == 200:
+        if response.code == 200 and response.body:
             list_games_players = json.loads(response.body.decode('utf-8'))
             for game_player in list_games_players:
                 return_val += [GameIdCountryId(game_id=game_player['gameID'], country_id=game_player['countryID'])]
@@ -96,7 +96,7 @@ class API(BaseAPI):
         return_val = None, None
 
         # 200 - Response OK
-        if response.code == 200:
+        if response.code == 200 and response.body:
             state_dict = json.loads(response.body.decode('utf-8'))
             game, power_name = state_dict_to_game_and_power(state_dict, country_id, max_phases=max_phases)
             return_val = game, power_name
@@ -167,6 +167,11 @@ class API(BaseAPI):
         # No orders set - Was only setting the ready flag
         if not orders:
             return True
+
+        # No response received from the server - Maybe a connection timeout?
+        if not response.body:
+            LOGGER.warning('WARNING during "%s". No response body received. Is the server OK?', route)
+            return False
 
         # Otherwise, validating that received orders are the same as submitted orders
         response_body = json.loads(response.body)
