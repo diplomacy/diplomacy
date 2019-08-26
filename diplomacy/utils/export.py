@@ -32,9 +32,9 @@ def to_saved_game_format(game):
     """
 
     # Get phase history.
-    phases = game.get_phase_history()
+    phases = Game.get_phase_history(game)
     # Add current game phase.
-    phases.append(game.get_phase_data())
+    phases.append(Game.get_phase_data(game))
     # Filter rules.
     rules = [rule for rule in game.rules if rule not in RULES_TO_SKIP]
     # Extend states fields.
