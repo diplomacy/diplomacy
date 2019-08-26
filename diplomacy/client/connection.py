@@ -253,9 +253,10 @@ class Connection():
             context is added to this dictionary to be send later once reconnected.
         - requests_waiting_responses: a dictionary mapping a request ID to the context of a
             request **sent**. Contains requests that are waiting for a server response.
+        - unknown_tokens: a set of unknown tokens. We can safely ignore them, as the server has been notified.
     """
     __slots__ = ['hostname', 'port', 'use_ssl', 'connection', 'is_connecting', 'is_reconnecting', 'connection_count',
-                 'channels', 'requests_to_send', 'requests_waiting_responses']
+                 'channels', 'requests_to_send', 'requests_waiting_responses', 'unknown_tokens']
 
     def __init__(self, hostname, port, use_ssl=False):
         self.hostname = hostname
@@ -272,6 +273,7 @@ class Connection():
 
         self.requests_to_send = {}  # type: dict{str, RequestFutureContext}
         self.requests_waiting_responses = {}  # type: dict{str, RequestFutureContext}
+        self.unknown_tokens = set()
 
         # When connection is created, we are not yet connected, but reconnection does not matter
         # (we consider we are reconnected).
@@ -418,7 +420,9 @@ class Connection():
         elif notification_id:
             notification = notifications.parse_dict(json_message)
             if notification.token not in self.channels:
-                LOGGER.error('Unknown notification: %s', notification.name)
+                if notification.token not in self.unknown_tokens:
+                    LOGGER.error('Unknown notification: %s', notification.name)
+                    self._handle_unknown_token(notification.token)
                 return
             notification_managers.handle_notification(self, notification)
         else:
@@ -436,6 +440,18 @@ class Connection():
             else:
                 # Check response format and run callback (if defined).
                 self._on_socket_message(msg)
+
+    def _handle_unknown_token(self, token):
+        """ Notify server about an unknown channel token.
+            This is likely because the channel has gone out of scope.
+            :param token: token to notify server with.
+        """
+        # Send notification request without waiting any server response. Ignore errors if any.
+        try:
+            self.unknown_tokens.add(token)
+            self.connection.write_message(requests.UnknownToken(token=token).json())
+        except (WebSocketClosedError, StreamClosedError):
+            pass
 
     # Public methods.
     @gen.coroutine

@@ -304,6 +304,13 @@ class Logout(_AbstractChannelRequest):
     """
     __slots__ = []
 
+class UnknownToken(_AbstractChannelRequest):
+    """ Request to tell server that a channel token is unknown.
+        Expected response: Nothing - Client does not even wait for a server response.
+        Expected response handler result: None
+    """
+    __slots__ = []
+
 class SetGrade(_AbstractChannelRequest):
     """ SetGrade request.
         Expected response: responses.Ok
