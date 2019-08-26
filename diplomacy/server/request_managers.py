@@ -46,6 +46,8 @@ LOGGER = logging.getLogger(__name__)
 # Request managers.
 # =================
 
+SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
+
 def on_clear_centers(server, request, connection_handler):
     """ Manage request ClearCenters.
         :param server: server which receives the request.
@@ -130,7 +132,7 @@ def on_create_game(server, request, connection_handler):
     elif server.has_game_id(game_id):
         raise exceptions.GameIdException('Game ID already used (%s).' % game_id)
     server_game = ServerGame(map_name=request.map_name,
-                             rules=request.rules,
+                             rules=request.rules or SERVER_GAME_RULES,
                              game_id=game_id,
                              initial_state=state,
                              n_controls=request.n_controls,
