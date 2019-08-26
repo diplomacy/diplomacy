@@ -121,7 +121,8 @@ class ConnectionHandler(WebSocketHandler):
                 response = responses.Error(message='%s/%s' % (type(exc).__name__, exc.message),
                                            request_id=json_request.get(strings.REQUEST_ID, None))
 
-        try:
-            yield self.write_message(response.json())
-        except WebSocketClosedError:
-            LOGGER.error('Websocket is closed.')
+        if response:
+            try:
+                yield self.write_message(response.json())
+            except WebSocketClosedError:
+                LOGGER.error('Websocket is closed.')

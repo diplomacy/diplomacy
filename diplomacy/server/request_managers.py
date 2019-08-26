@@ -1126,6 +1126,21 @@ def on_synchronize(server, request, connection_handler):
                                   timestamp_created=level.game.timestamp_created,
                                   request_id=request.request_id)
 
+def on_unknown_token(server, request, connection_handler):
+    """ Manage notification request UnknownToken.
+        :param server: server which receives the request.
+        :param request: request to manage.
+        :param connection_handler: connection handler from which the request was sent.
+        :return: NoResponse. No responses are sent back to the server
+        :type server: diplomacy.Server
+        :type request: diplomacy.communication.requests.UnknownToken
+    """
+    del connection_handler                  # Unused - Not sending any responses back
+    LOGGER.debug('Removing token %s', request.token)
+    if server.users.has_token(request.token):
+        server.remove_token(request.token)
+    return responses.NoResponse()
+
 def on_vote(server, request, connection_handler):
     """ Manage request Vote.
         :param server: server which receives the request.
@@ -1185,6 +1200,7 @@ MAPPING = {
     requests.SetWaitFlag: on_set_wait_flag,
     requests.SignIn: on_sign_in,
     requests.Synchronize: on_synchronize,
+    requests.UnknownToken: on_unknown_token,
     requests.Vote: on_vote,
 }
 
