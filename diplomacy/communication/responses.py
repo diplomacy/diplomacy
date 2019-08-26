@@ -52,6 +52,14 @@ class Ok(_AbstractResponse):
     """ Ok response sent by default after handling a request. """
     __slots__ = []
 
+class NoResponse(_AbstractResponse):
+    """ Indicates that no responses are required """
+    __slots__ = []
+
+    def __bool__(self):
+        """ This response always evaluate to false """
+        return False
+
 class DataGameSchedule(_AbstractResponse):
     """ Response with info about current scheduling for a game. """
     __slots__ = ['game_id', 'phase', 'schedule']
