@@ -20,68 +20,10 @@
     and a response as parameters.
 """
 # pylint: disable=unused-argument
-from diplomacy.client.game_instances_set import GameInstancesSet
-from diplomacy.client.network_game import NetworkGame
-from diplomacy.client.channel import Channel
 from diplomacy.communication import requests, responses
 from diplomacy.engine.game import Game
 from diplomacy.utils import exceptions
 from diplomacy.utils.game_phase_data import GamePhaseData
-
-class RequestFutureContext():
-    """ Helper class to store a context around a request
-        (with future for response management, related connection and optional related game).
-    """
-    __slots__ = ['request', 'future', 'connection', 'game']
-
-    def __init__(self, request, future, connection, game=None):
-        """ Initialize a request future context.
-            :param request: a request object (see diplomacy.communication.requests about possible classes).
-            :param future: a tornado Future object.
-            :param connection: a diplomacy.Connection object.
-            :param game: (optional) a NetworkGame object (from module diplomacy.client.network_game).
-            :type request: requests._AbstractRequest | requests._AbstractGameRequest
-            :type future: tornado.concurrent.Future
-            :type connection: diplomacy.Connection
-            :type game: diplomacy.client.network_game.NetworkGame
-        """
-        self.request = request
-        self.future = future
-        self.connection = connection
-        self.game = game
-
-    request_id = property(lambda self: self.request.request_id)
-    token = property(lambda self: self.request.token)
-    channel = property(lambda self: self.connection.channels[self.request.token])
-
-    def new_channel(self, token):
-        """ Create, store (in associated connection), and return a new channel with given token. """
-        channel = Channel(self.connection, token)
-        self.connection.channels[token] = channel
-        return channel
-
-    def new_game(self, received_game):
-        """ Create, store (in associated connection) and return a new network game wrapping given game data.
-            Returned game is already in appropriate type (observer game, omniscient game or power game).
-            :param received_game: game sent by server (Game object)
-            :type received_game: Game
-        """
-        game = NetworkGame(self.channel, received_game)
-        if game.game_id not in self.channel.game_id_to_instances:
-            self.channel.game_id_to_instances[game.game_id] = GameInstancesSet(game.game_id)
-        self.channel.game_id_to_instances[game.game_id].add(game)
-        return game
-
-    def remove_channel(self):
-        """ Remove associated channel (inferred from request token) from associated connection. """
-        del self.connection.channels[self.channel.token]
-
-    def delete_game(self):
-        """ Delete local game instances corresponding to game ID in associated request. """
-        assert hasattr(self.request, 'game_id')
-        assert self.game is not None and self.game.game_id == self.request.game_id
-        if self.request.game_id in self.channel.game_id_to_instances:
-            del self.channel.game_id_to_instances[self.request.game_id]
 
 def default_manager(context, response):
     """ Default manager called for requests that don't have specific management.
@@ -105,7 +47,7 @@ def on_create_game(context, response):
         :param context: request context
         :param response: response received
         :return: a new network game
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
         :type response: responses.DataGame
     """
     return context.new_game(response.data)
@@ -115,7 +57,7 @@ def on_delete_account(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     context.remove_channel()
 
@@ -124,7 +66,7 @@ def on_delete_game(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     context.delete_game()
 
@@ -133,7 +75,7 @@ def on_get_phase_history(context, response):
         :param context: request context
         :param response: response received
         :return: a list of game states
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
         :type response: responses.DataGamePhases
     """
     phase_history = response.data
@@ -155,7 +97,7 @@ def on_leave_game(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     context.delete_game()
 
@@ -164,7 +106,7 @@ def on_logout(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     context.remove_channel()
 
@@ -173,7 +115,7 @@ def on_send_game_message(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
         :type response: responses.DataTimeStamp
     """
     request = context.request  # type: requests.SendGameMessage
@@ -186,7 +128,7 @@ def on_set_game_state(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.SetGameState
     context.game.set_phase_data(GamePhaseData(name=request.state['name'],
@@ -200,7 +142,7 @@ def on_set_game_status(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.SetGameStatus
     Game.set_status(context.game, request.status)
@@ -210,7 +152,7 @@ def on_set_orders(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.SetOrders
     orders = request.orders
@@ -225,7 +167,7 @@ def on_clear_orders(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.ClearOrders
     Game.clear_orders(context.game, request.power_name)
@@ -235,7 +177,7 @@ def on_clear_centers(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.ClearCenters
     Game.clear_centers(context.game, request.power_name)
@@ -245,7 +187,7 @@ def on_clear_units(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.ClearUnits
     Game.clear_units(context.game, request.power_name)
@@ -255,7 +197,7 @@ def on_set_wait_flag(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.SetWaitFlag
     wait = request.wait
@@ -270,7 +212,7 @@ def on_sign_in(context, response):
         :param context: request context
         :param response: response received
         :return: a new channel
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
         :type response: responses.DataToken
     """
     return context.new_channel(response.data)
@@ -280,7 +222,7 @@ def on_vote(context, response):
         :param context: request context
         :param response: response received
         :return: None
-        :type context: RequestFutureContext
+        :type context: diplomacy.client.client_utils.request_future_context.RequestFutureContext
     """
     request = context.request  # type: requests.Vote
     vote = request.vote

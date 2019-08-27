@@ -17,6 +17,7 @@
 """ Connection object, handling an internal websocket tornado connection. """
 import logging
 import weakref
+from typing import Dict
 from datetime import timedelta
 
 from tornado import gen, ioloop
@@ -28,209 +29,15 @@ from tornado.websocket import websocket_connect, WebSocketClosedError
 import ujson as json
 
 from diplomacy.client import notification_managers
-from diplomacy.client.response_managers import RequestFutureContext, handle_response
+from diplomacy.client.client_utils.reconnection import Reconnection
+from diplomacy.client.response_managers import handle_response
+from diplomacy.client.client_utils.request_future_context import RequestFutureContext
 from diplomacy.communication import notifications, requests, responses
 from diplomacy.utils import exceptions, strings, constants
 
 LOGGER = logging.getLogger(__name__)
 
-class MessageWrittenCallback():
-    """ Helper class representing callback to call on a connection when a request is written in a websocket. """
-    __slots__ = ['request_context']
-
-    def __init__(self, request_context):
-        """ Initialize the callback object.
-            :param request_context: a request context
-            :type request_context: RequestFutureContext
-        """
-        self.request_context = request_context
-
-    def callback(self, msg_future):
-        """ Called when request is effectively written on socket, and move the request
-            from `request to send` to `request assumed sent`.
-        """
-        # Remove request context from `requests to send` in any case.
-        connection = self.request_context.connection  # type: Connection
-        request_id = self.request_context.request_id
-        exception = msg_future.exception()
-        if exception is not None:
-            if isinstance(exception, (WebSocketClosedError, StreamClosedError)):
-                # Connection suddenly closed.
-                # Request context was stored in connection.requests_to_send
-                # and will be re-sent when reconnection succeeds.
-                # For more details, see method Connection.write_request().
-                LOGGER.error('Connection was closed when sending a request. Silently waiting for a reconnection.')
-            else:
-                LOGGER.error('Fatal error occurred while writing a request.')
-                self.request_context.future.set_exception(exception)
-        else:
-            connection.requests_waiting_responses[request_id] = self.request_context
-
-class Reconnection():
-    """ Class performing reconnection work for a given connection.
-
-        Class properties:
-        =================
-
-        - connection: Connection object to reconnect.
-
-        - games_phases: dictionary mapping each game address (game ID + game role) to server game info:
-                {game ID => {game role => responses.DataGamePhase}}
-            Server game info is a DataGamePhase response sent by server as response to a Synchronize request.
-            It contains 3 fields: game ID, current server game phase and current server game timestamp.
-            We currently use only game phase.
-
-        - n_expected_games: number of games registered in games_phases.
-
-        - n_synchronized_games: number of games already synchronized.
-
-        Reconnection procedure:
-        =======================
-
-        - Mark all waiting responses as `re-sent` (may be useful on server-side) and
-          move them back to responses_to_send.
-
-        - Remove all previous synchronization requests that are not yet sent. We will send new synchronization
-          requests with latest games timestamps. Future associated to removed requests will raise an exception.
-
-        - Initialize games_phases associating None to each game object currently opened in connection.
-
-        - Send synchronization request for each game object currently opened in connection. For each game:
-
-          - server will send a response describing current server game phase (current phase and timestamp). This info
-            will be used to check local requests to send. Note that concrete synchronization is done via notifications.
-            Thus, when server responses is received, game synchronization may not be yet terminated, but at least
-            we will now current server game phase.
-
-          - Server response is saved in games_phases (replacing None associated to game object).
-
-          - n_synchronized_games is incremented.
-
-        - When sync responses are received for all games registered in games_phases
-          (n_expected_games == n_synchronized_games), we can finalize reconnection:
-
-          - Remove every phase-dependent game request not yet sent for which phase does not match
-            server game phase. Futures associated to removed request will raise an exception.
-
-          - Finally send all remaining requests.
-
-            These requests may be marked as re-sent.
-            For these requests, server is (currently) responsible for checking if they don't represent
-            a duplicated query.
-
-    """
-
-    __slots__ = ['connection', 'games_phases', 'n_expected_games', 'n_synchronized_games']
-
-    def __init__(self, connection):
-        """ Initialize reconnection data/
-            :param connection: connection to reconnect.
-            :type connection: Connection
-        """
-        self.connection = connection
-        self.games_phases = {}
-        self.n_expected_games = 0
-        self.n_synchronized_games = 0
-
-    def reconnect(self):
-        """ Perform concrete reconnection work. """
-
-        # Mark all waiting responses as `re-sent` and move them back to responses_to_send.
-        for waiting_context in self.connection.requests_waiting_responses.values():  # type: RequestFutureContext
-            waiting_context.request.re_sent = True
-        self.connection.requests_to_send.update(self.connection.requests_waiting_responses)
-        self.connection.requests_waiting_responses.clear()
-
-        # Remove all previous synchronization requests.
-        requests_to_send_updated = {}
-        for context in self.connection.requests_to_send.values():  # type: RequestFutureContext
-            if isinstance(context.request, requests.Synchronize):
-                context.future.set_exception(exceptions.DiplomacyException(
-                    'Sync request invalidated for game ID %s.' % context.request.game_id))
-            else:
-                requests_to_send_updated[context.request.request_id] = context
-        self.connection.requests_to_send = requests_to_send_updated
-
-        # Count games to synchronize.
-        for channel in self.connection.channels.values():
-            for game_instance_set in channel.game_id_to_instances.values():
-                for game in game_instance_set.get_games():
-                    self.games_phases.setdefault(game.game_id, {})[game.role] = None
-                    self.n_expected_games += 1
-
-        if self.n_expected_games:
-            # Synchronize games.
-            for channel in self.connection.channels.values():
-                for game_instance_set in channel.game_id_to_instances.values():
-                    for game in game_instance_set.get_games():
-                        game.synchronize().add_done_callback(self.generate_sync_callback(game))
-        else:
-            # No game to sync, finish sync now.
-            self.sync_done()
-
-    def generate_sync_callback(self, game):
-        """ Generate callback to call when response to sync request is received for given game.
-            :param game: game
-            :return: a callback.
-            :type game: diplomacy.client.network_game.NetworkGame
-        """
-
-        def on_sync(future):
-            """ Callback. If exception occurs, print it as logging error. Else, register server response,
-                and move forward to final reconnection work if all games received sync responses.
-            """
-            exception = future.exception()
-            if exception is not None:
-                LOGGER.error(str(exception))
-            else:
-                self.games_phases[game.game_id][game.role] = future.result()
-                self.n_synchronized_games += 1
-                if self.n_synchronized_games == self.n_expected_games:
-                    self.sync_done()
-
-        return on_sync
-
-    def sync_done(self):
-        """ Final reconnection work. Remove obsolete game requests and send remaining requests. """
-
-        # All sync requests sent have finished.
-        # Remove all obsolete game requests from connection.
-        # A game request is obsolete if it's phase-dependent and if its phase does not match current game phase.
-
-        request_to_send_updated = {}
-        for context in self.connection.requests_to_send.values():  # type: RequestFutureContext
-            keep = True
-            if context.request.level == strings.GAME and context.request.phase_dependent:
-                request_phase = context.request.phase
-                server_phase = self.games_phases[context.request.game_id][context.request.game_role].phase
-                if request_phase != server_phase:
-                    # Request is obsolete.
-                    context.future.set_exception(exceptions.DiplomacyException(
-                        'Game %s: request %s: request phase %s does not match current server game phase %s.'
-                        % (context.request.game_id, context.request.name, request_phase, server_phase)))
-                    keep = False
-            if keep:
-                request_to_send_updated[context.request.request_id] = context
-
-        LOGGER.debug('Keep %d/%d old requests to send.',
-                     len(request_to_send_updated), len(self.connection.requests_to_send))
-
-        # All requests to send are stored in request_to_send_updated.
-        # Then we can empty connection.requests_to_send.
-        # If we fail to send a request, it will be re-added again.
-        self.connection.requests_to_send.clear()
-
-        # Send requests.
-        for request_to_send in request_to_send_updated.values():  # type: RequestFutureContext
-            self.connection.write_request(request_to_send).add_done_callback(
-                MessageWrittenCallback(request_to_send).callback)
-
-        # We are reconnected.
-        self.connection.is_reconnecting.set()
-
-        LOGGER.info('Done reconnection work.')
-
-class Connection():
+class Connection:
     """ Connection class. Properties:
         - hostname: hostname to connect (e.g. 'localhost')
         - port: port to connect (e.g. 8888)
@@ -248,15 +55,12 @@ class Connection():
             Non-synchronize request cannot be sent while is_reconnecting.
             If reconnected, all requests can be sent.
         - channels: a WeakValueDictionary mapping channel token to Channel object.
-        - requests_to_send: a dictionary mapping a request ID to the context of a request
-            **not sent**. If we are disconnected when trying to send a request, then request
-            context is added to this dictionary to be send later once reconnected.
         - requests_waiting_responses: a dictionary mapping a request ID to the context of a
             request **sent**. Contains requests that are waiting for a server response.
         - unknown_tokens: a set of unknown tokens. We can safely ignore them, as the server has been notified.
     """
-    __slots__ = ['hostname', 'port', 'use_ssl', 'connection', 'is_connecting', 'is_reconnecting', 'connection_count',
-                 'channels', 'requests_to_send', 'requests_waiting_responses', 'unknown_tokens']
+    __slots__ = ['hostname', 'port', 'use_ssl', 'connection', 'is_connecting', 'is_reconnecting',
+                 'connection_count', 'channels', 'requests_waiting_responses', 'unknown_tokens']
 
     def __init__(self, hostname, port, use_ssl=False):
         self.hostname = hostname
@@ -271,8 +75,7 @@ class Connection():
 
         self.channels = weakref.WeakValueDictionary()  # {token => Channel}
 
-        self.requests_to_send = {}  # type: dict{str, RequestFutureContext}
-        self.requests_waiting_responses = {}  # type: dict{str, RequestFutureContext}
+        self.requests_waiting_responses = {}  # type: Dict[str, RequestFutureContext]
         self.unknown_tokens = set()
 
         # When connection is created, we are not yet connected, but reconnection does not matter
@@ -326,23 +129,21 @@ class Connection():
         # We will be reconnected when method Reconnection.sync_done() will finish.
         Reconnection(self).reconnect()
 
-    def _register_to_send(self, request_context):
-        """ Register given request context as a request to send as soon as possible.
-            :param request_context: context of request to send.
-            :type request_context: RequestFutureContext
-        """
-        self.requests_to_send[request_context.request_id] = request_context
-
     def write_request(self, request_context):
         """ Write a request into internal connection object.
             :param request_context: context of request to send.
             :type request_context: RequestFutureContext
         """
-        future = Future()
+        if request_context.write_future:
+            return request_context.write_future
+        future = request_context.write_future = Future()
+        future.add_done_callback(self.generate_written_callback(request_context))
         request = request_context.request
+        self.requests_waiting_responses[request_context.request_id] = request_context
 
         def on_message_written(write_future):
-            """ 3) Writing returned, set future as done (with writing result) or with writing exception. """
+            """ 3) Writing returned, set future as done (with writing result)
+            or with writing exception. """
             exception = write_future.exception()
             if exception is not None:
                 future.set_exception(exception)
@@ -361,11 +162,6 @@ class Connection():
                         raise WebSocketClosedError()
                     write_future = self.connection.write_message(request.json())
                 except (WebSocketClosedError, StreamClosedError) as exc:
-                    # We were disconnected.
-                    # Save request context as a request to send.
-                    # We will re-try to send it later once reconnected.
-                    self._register_to_send(request_context)
-                    # Transfer exception to returned future.
                     future.set_exception(exc)
                 else:
                     write_future.add_done_callback(on_message_written)
@@ -405,7 +201,9 @@ class Connection():
 
         if request_id:
             if request_id not in self.requests_waiting_responses:
-                LOGGER.error('Unknown request.')
+                LOGGER.error('Unknown request %s.', request_id)
+                LOGGER.error(', '.join(self.requests_waiting_responses))
+                exit(-1)
                 return
             request_context = self.requests_waiting_responses.pop(request_id)  # type: RequestFutureContext
             try:
@@ -481,10 +279,45 @@ class Connection():
             :return: a Future that returns the response handler result of this request.
         """
         request_future = Future()
-        request_context = RequestFutureContext(request=request, future=request_future, connection=self, game=for_game)
+        request_context = RequestFutureContext(
+            request=request, future=request_future, connection=self, game=for_game)
 
-        self.write_request(request_context).add_done_callback(MessageWrittenCallback(request_context).callback)
-        return gen.with_timeout(timedelta(seconds=constants.REQUEST_TIMEOUT_SECONDS), request_future)
+        self.write_request(request_context)
+        return gen.with_timeout(
+            timedelta(seconds=constants.REQUEST_TIMEOUT_SECONDS), request_future)
+
+    def generate_written_callback(self, request_context):
+        """ Generate and return the callback to call when a request is effectively written on
+        socket.
+
+        :param request_context: context of request to write
+        :return: callback to call
+        :type request_context: RequestFutureContext
+        :rtype: callable
+        """
+
+        def callback(msg_future):
+            """ Called when request is effectively written on socket.
+
+                - If no exception occurs, do nothing.
+                - Else if exception is a websockets error or a stream closed error, then
+                  do nothing again and silently wait for reconnection.
+                - Else, it's a fatal exception. Request won't receive response anymore,
+                  and exception must be transferred to request future.
+            """
+            request_context.write_future = None
+            exception = msg_future.exception()
+            if exception:
+                if isinstance(exception, (WebSocketClosedError, StreamClosedError)):
+                    LOGGER.info('Socket error when writing request %s, waiting for reconnection.',
+                                request_context.request_id)
+                else:
+                    # Fatal error while writing request. Request cannot be sent.
+                    del self.requests_waiting_responses[request_context.request_id]
+                    LOGGER.error('Fatal error occurred while writing a request.')
+                    request_context.future.set_exception(exception)
+
+        return callback
 
 @gen.coroutine
 def connect(hostname, port):

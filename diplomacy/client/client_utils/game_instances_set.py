@@ -26,7 +26,7 @@ import weakref
 from diplomacy.engine.game import Game
 from diplomacy.utils import exceptions
 
-class GameInstancesSet():
+class GameInstancesSet:
     """ Game Instances Set class. """
     __slots__ = ['game_id', 'games', 'current_observer_type']
 
