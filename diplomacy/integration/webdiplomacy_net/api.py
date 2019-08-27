@@ -17,9 +17,11 @@
 """ Contains an API class to send requests to webdiplomacy.net """
 import logging
 import os
+from socket import herror, gaierror, timeout
 from urllib.parse import urlencode
 from tornado import gen
 from tornado.httpclient import HTTPRequest
+from tornado.simple_httpclient import HTTPTimeoutError, HTTPStreamClosedError
 import ujson as json
 from diplomacy.integration.base_api import BaseAPI
 from diplomacy.integration.webdiplomacy_net.game import state_dict_to_game_and_power
@@ -28,6 +30,7 @@ from diplomacy.integration.webdiplomacy_net.utils import CACHE, GameIdCountryId
 
 # Constants
 LOGGER = logging.getLogger(__name__)
+HTTP_ERRORS = (herror, gaierror, timeout, HTTPTimeoutError, HTTPStreamClosedError)
 API_USER_AGENT = 'KestasBot / Philip Paquette v1.0'
 API_WEBDIPLOMACY_NET = os.environ.get('API_WEBDIPLOMACY', 'https://webdiplomacy.net/api.php')
 
@@ -41,8 +44,14 @@ class API(BaseAPI):
         """
         route = 'players/cd'
         url = '%s?%s' % (API_WEBDIPLOMACY_NET, urlencode({'route': route}))
-        response = yield self._send_get_request(url)
         return_val = []
+
+        # Sending request
+        try:
+            response = yield self._send_get_request(url)
+        except HTTP_ERRORS as err:
+            LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
+            return return_val
 
         # 200 - Response OK
         if response.code == 200 and response.body:
@@ -64,8 +73,14 @@ class API(BaseAPI):
         """
         route = 'players/missing_orders'
         url = '%s?%s' % (API_WEBDIPLOMACY_NET, urlencode({'route': route}))
-        response = yield self._send_get_request(url)
         return_val = []
+
+        # Sending request
+        try:
+            response = yield self._send_get_request(url)
+        except HTTP_ERRORS as err:
+            LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
+            return return_val
 
         # 200 - Response OK
         if response.code == 200 and response.body:
@@ -92,8 +107,14 @@ class API(BaseAPI):
         """
         route = 'game/status'
         url = '%s?%s' % (API_WEBDIPLOMACY_NET, urlencode({'route': route, 'gameID': game_id, 'countryID': country_id}))
-        response = yield self._send_get_request(url)
         return_val = None, None
+
+        # Sending request
+        try:
+            response = yield self._send_get_request(url)
+        except HTTP_ERRORS as err:
+            LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
+            return return_val
 
         # 200 - Response OK
         if response.code == 200 and response.body:
@@ -157,7 +178,13 @@ class API(BaseAPI):
         if wait is not None:
             body['ready'] = 'Yes' if not wait else 'No'
         body = json.dumps(body).encode('utf-8')
-        response = yield self._send_post_request(url, body)
+
+        # Sending request
+        try:
+            response = yield self._send_post_request(url, body)
+        except HTTP_ERRORS as err:
+            LOGGER.error('Unable to connect to server. Error raised is: "%s"', repr(err))
+            return False
 
         # Error Occurred
         if response.code != 200:
