@@ -1443,11 +1443,17 @@ class Game(Jsonable):
     def set_phase_data(self, phase_data, clear_history=True):
         """ Set game from phase data.
             :param phase_data: either a GamePhaseData or a list of GamePhaseData.
-                If phase_data is a GamePhaseData, it will be treated as a list of GamePhaseData with 1 element.
+                If phase_data is a GamePhaseData,
+                it will be treated as a list of GamePhaseData with 1 element.
                 Last phase data in given list will be used to set current game internal state.
                 Previous phase data in given list will replace current game history.
             :param clear_history: Indicate if we must clear game history fields before update.
         """
+
+        # In following code, we use Game.method instead of self.method to make sure
+        # game internal state is correctly set without calling any asynchronous
+        # overriden method from a derived class (especially NetworkGame class).
+
         if not phase_data:
             return
         if isinstance(phase_data, GamePhaseData):
@@ -1457,15 +1463,20 @@ class Game(Jsonable):
 
         if clear_history:
             self._clear_history()
+        else:
+            # Clear orders and vote.
+            # Messages will be totally overwritten below.
+            Game.clear_vote(self)
+            Game.clear_orders(self)
 
         for game_phase_data in phase_data[:-1]:  # type: GamePhaseData
-            self.extend_phase_history(game_phase_data)
+            Game.extend_phase_history(self, game_phase_data)
 
         current_phase_data = phase_data[-1]  # type: GamePhaseData
-        self.set_state(current_phase_data.state, clear_history=False)
+        Game.set_state(self, current_phase_data.state, clear_history=False)
         for power_name, power_orders in current_phase_data.orders.items():
             if power_orders is not None:
-                self.set_orders(power_name, power_orders)
+                Game.set_orders(self, power_name, power_orders)
         self.messages = current_phase_data.messages.copy()
         # We ignore 'results' for current phase data.
 

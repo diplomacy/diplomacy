@@ -29,7 +29,8 @@ class Reconnection:
     def reconnect(self):
         """ Perform concrete reconnection work. """
 
-        LOGGER.debug('Trying to synchronize, with %d remaining requests', len(self.connection.requests_waiting_responses))
+        LOGGER.debug('Trying to synchronize, with %d remaining requests',
+                     len(self.connection.requests_waiting_responses))
 
         # Remove all previous synchronisation requests, and mark all remaining request as re-sent.
         for context in self.connection.requests_waiting_responses.values():
