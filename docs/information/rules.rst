@@ -5,7 +5,8 @@ We describe below the available game rules that can be passed to parameter ``rul
 
 Fore more info, see:
 
-- constructor for class :class:`.Game`
+- class :class:`.Game` about default rules for a game.
+- class :class:`.ServerGame` about default rules for a server game.
 - Remote game creation method in Python client: :meth:`.Channel.create_game`.
 
 POWER_CHOICE
@@ -113,7 +114,6 @@ CD_DUMMIES will default the orders only of the dummy powers.
 NO_DEADLINE
 -----------
 
-
 In certain cases, e.g. for testing and solving Diplomacy puzzles (solitaire games),
 there's no need for a deadline. It's up to the game master to process each turn after
 all (relevant) orders are submitted, or for all players to submit their orders
@@ -122,19 +122,30 @@ influenced with the NO_WAIT and ALWAYS_WAIT options.
 
 Note that, adding rule ``NO_DEADLINE`` is equivalent to setting game deadline to zero (``0``).
 
+.. _rule_real_time:
+
 REAL_TIME
 ---------
 
 **Forbids these rules:** ``ALWAYS_WAIT``
 
-With this rule, wait flag is set to ``False`` by default for all powers after each game processing.
+With this rule, wait flag is set to ``False`` by default for all non-dummy powers after each game processing.
+
+.. _rule_always_wait:
 
 ALWAYS_WAIT
 -----------
 
 **Forbids these rules:** ``REAL_TIME``
 
-With this rule, wait flag is set to ``True`` by default for all powers after each game processing.
+With this rule, wait flag is set to ``True`` by default for all non-dummy powers after each game processing.
+
+DUMMY_REAL_TIME
+---------------
+
+With this rule, wait flag is set to ``False`` by default for all dummy powers after each game processing.
+
+Without this rule, wait flag for dummy powers is set to ``True`` when a new phase starts.
 
 HOLD_WIN
 --------

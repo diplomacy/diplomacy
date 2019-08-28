@@ -321,3 +321,203 @@ Example:
         assert game_identifiers and 'my_game' in game_identifiers, game_identifiers
         print('My role is', game.role)
     asyncio.run(main())
+
+
+NetworkGame class
+-----------------
+
+WHen joining or creating a game, you finally get a :class:`.NetworkGame` object, which is your client version of the
+server game, with a specific game role. You can then use this client game to interact with server game. Network game
+object interface provides 2 types of methods:
+
+- remote methods, to send game requests to server.
+- notification methods, that allows you to add and remove callbacks to handle game notifications sent by server.
+
+Notifications
++++++++++++++
+
+Server can send notifications to a game at any moment, for example after game is processed.
+
+When game receives the notification, it performs necessary internal updates based on notification data, and then
+can call a callback to perform additional user-defined tasks.
+
+You can check :mod:`diplomacy.communication.notifications` about all available game notifications.
+For each notification class, netork game provide methods ``add_on_<NOTIFICATION_SNAKE_NAME>(callback)``
+to add a callback, and ``clear_on_<NOTIFICATION_SNAKE_NAME>()`` to remove any callback for this notification.
+
+.. note::
+
+    When a game receives a game notification, there is always a preliminary checking where game makes any
+    updates based on notification data. After updates are done, associated callback (if exists) is then called.
+
+Game deadline, powers ordering and powers wait flags
+++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+The main step when playing a diplomacy game is to order powers. When playing with basic :class:`.Game` class, you
+can set orders for each power and then just force game processing by calling method :meth:`.Game.process`. While
+this way is still possible with remote games if you are a game master, it is not suited to manage multiple players
+who don't necessarily have game master privileges to force processing, and it would be annoying to wait for a game
+master to force a game processing when all players already submitted their orders.
+
+To handle all these details, server manages server games processing using 3 important information:
+
+- the server game deadline, which define maximum time (in seconds) to wait before processing a single phase
+- the order state of each game power, ie. whether or not power does have orders.
+- the wait flag of each game power, which tell if power wants to wait (for example, if associated player is
+  not sure about orders he submitted and plan to modify them again later) or not (for example, if player is
+  sure about submitted orders).
+
+Server uses these information in following procedure for each game for each phase:
+
+- If deadline is nul (zero), then server will only check powers orders states and wait flags.
+- If deadline is not null, then server will wait for given deadline.
+- In both cases, at any moment, if all powers submitted orders (ie. order state is "True" for all powers)
+  and don't wait (ie. wait flag is "False" for all powers), then this means that "games is in no wait state",
+  and then server processes the game immediately. So, if game does have a deadline and reaches a no wait state
+  before deadline is over, then server will stop waiting, process game now, and advance to next phase.
+
+When game advances to next phase, all orders from previous phase are cleaned, so that order state become False
+for all powers, and all wait flags are reset to default game wait flag value, depending on game rules
+:ref:`REAL_TIME <rule_real_time>` and :ref:`ALWAYS_WAIT <rule_always_wait>`. Thus, for each phase, a player should
+follow these steps:
+
+- Check and set (if necessary) his power wait flag before submitting orders. For example, if game has rule
+  ``REAL_TIME``, then wait flag will be False by default, ant player may consider set it to True. Otherwise,
+  if he's the last to submit orders and if all powers wait flags are set to False, then server will process
+  the game immediately without even letting him time to reconsider his submitted orders.
+- Set orders.
+- If his power wait flag is True, eventually re-set orders if needed.
+- If his power wait flag is True and he's sure about his submitted orders, then set power wait flag to False.
+
+Network game provides all necessary remote methods to handle orders and wait flag. You can see description below
+and also check class documentation (:class:`.NetworkGame`).
+
+.. warning::
+
+    A game master can force processing even if game is not in no wait state, ie., even if some powers
+    did not have submitted orders and or still have her wait flags to True.
+
+Remote methods
+++++++++++++++
+
+Network game remote methods send requests and return responses, just like channel remote methods. However, allowed
+requests depend on the game role of the netork game object you use to send them **and** whether or not your are
+a game master.
+
+A request sent by a network game remote method will always contains 3 automatically filled parameters:
+
+- ``game_id``: the game ID
+- ``game_role``: the game role of the network game object sending the request
+- ``phase``: the game phase on client side (used by server for synchronisation checkings)
+
+Then:
+
+- You don't need to fill these parameters.
+- Many important requests needs a power name as parameter, especially playing requests like
+  :class:`.SetOrders`. If you have a player role, then the name of power you control will be
+  used to fill ``game_role``, and then you won't need to explicitly fill ``power_name`` parameter for these
+  requests. If you have an omniscient role with game master privileges, then you will need to fill ``power_name``
+  parameter, as it will be the only way for server to get which power is queried.
+  See requests documentation (:mod:`diplomacy.communication.requests`) about requests requiring
+  optional ``power_name`` parameter.
+
+You can check network game documentation (:class:`.NetworkGame`) and associated requests documentation
+(:mod:`diplomacy.communication.requests`) about all available remote methods. Some important ones are:
+
+- :meth:`.NetworkGame.set_orders` to set orders for a power.
+- :meth:`.NetworkGame.clear_orders` to clear orders for a power.
+- :meth:`.NetworkGame.wait` to turn on wait flag for a specific power.
+- :meth:`.NetworkGame.no_wait` to turn off wait flag for a specific power.
+- :meth:`.NetworkGame.leave` to disconnect from the game. Network game object will become invalid if this request
+  succeeds.
+
+Following example uses :meth:`.NetworkGame.set_orders` and :meth:`.NetworkGame.no_wait`.
+
+.. code-block:: python
+
+    import asyncio
+    import random
+    from diplomacy.client.connection import connect
+    from diplomacy.utils import exceptions
+
+    async def login(connection, username, password):
+        """ Login to the server """
+        try:
+            channel = await connection.authenticate(username, password, create_user=True)
+        except exceptions.DiplomacyException:
+            channel = await connection.authenticate(username, password, create_user=False)
+        return channel
+
+    async def main(hostname='localhost', port=8432):
+        """ Creates a game on server and play it. """
+        power_name = 'FRANCE'
+        connection = await connect(hostname, port)
+        channel = await login(connection, 'random_user', 'password')
+
+        # Rule POWER_CHOICE allows us to choose a specific power.
+
+        # Rule ALWAYS_WAIT makes sure wait flags are set to True by default for controlled powers.
+
+        # Rule DUMMY_REAL_TIME make sure wait flags are set to False
+        # and orders as empty orders by default for dummy powers.
+
+        # With n_controls set to 1 and a power name immediately given, we make sure game will
+        # start immediately and we join game as player game controlling given power name.
+
+        # We conveniently set deadline to 0, so that server won't schedule game.
+        # Process will then depend only on orders and wait flags.
+
+        game = await channel.create_game(rules={'POWER_CHOICE', 'ALWAYS_WAIT', 'DUMMY_REAL_TIME'},
+                                         n_controls=1,
+                                         power_name=power_name,
+                                         deadline=0)
+
+        assert game.is_game_active
+        print('Game ID', game.game_id)
+
+        # Playing game for 20 phases.
+        for step in range(20):
+
+            # Stop if game is done.
+            if game.is_game_done:
+                print('[%s] game done' % power_name)
+                break
+
+            # Save current phase. It will be used to check phase change.
+            current_phase = game.get_current_phase()
+
+            # Submitting orders. Select orders randomly using game.get_all_possible_orders().
+            orders = []
+            if game.get_orderable_locations(power_name):
+                possible_orders = game.get_all_possible_orders()
+                orders = [random.choice(possible_orders[loc]) for loc in
+                          game.get_orderable_locations(power_name)
+                          if possible_orders[loc]]
+
+            # Submit orders.
+            await game.set_orders(power_name=power_name, orders=orders)
+            print('[%s/%s] - Submitted: %s' % (power_name, current_phase, orders))
+            # Turn off wait flag.
+            await game.no_wait()
+
+            assert not game.get_power(power_name).wait
+
+            # Waiting for game to be processed.
+            # Server will process game, send relevant notification, and then game will be updated.
+            # This may take a few time, and once it's done, game phase should have changed.
+            while current_phase == game.get_current_phase():
+                await asyncio.sleep(0.1)
+
+        print('[%s]' % power_name, 'phase', game.get_current_phase())
+
+    if __name__ == '__main__':
+        asyncio.run(main())
+
+.. note::
+
+    You can also immediately set wait flag when calling set_orders:
+
+    .. code-block:: python
+
+        await game.set_orders(power_name=power_name, orders=orders, wait=False)
+

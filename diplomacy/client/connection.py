@@ -325,7 +325,7 @@ class Connection():
         """ Reconnect. """
         # We are reconnecting.
         self.is_reconnecting.clear()
-        yield self._connect('Trying to reconnect.')
+        yield self.connect('Trying to reconnect.')
         # We will be reconnected when method Reconnection.sync_done() will finish.
         Reconnection(self).reconnect()
 

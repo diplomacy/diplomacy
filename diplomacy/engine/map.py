@@ -172,6 +172,7 @@ class Map():
 
     @property
     def svg_path(self):
+        """ Return path to the SVG file of this map. """
         return os.path.join(settings.PACKAGE_DIR, 'maps', 'svg', self.root_map + '.svg')
 
     def validate(self, force=0):

@@ -33,8 +33,8 @@ from tornado.concurrent import Future
 from diplomacy.communication import notifications, requests, responses
 from diplomacy.server.notifier import Notifier
 from diplomacy.server.server_game import ServerGame
-from diplomacy.server.request_manager_utils import (SynchronizedData, verify_request, transfer_special_tokens,
-                                                    assert_game_not_finished)
+from diplomacy.server.request_manager_utils import (
+    SynchronizedData, verify_request, transfer_special_tokens, assert_game_not_finished)
 from diplomacy.utils import exceptions, strings, constants, export
 from diplomacy.utils.common import hash_password
 from diplomacy.utils.constants import OrderSettings
@@ -45,8 +45,6 @@ LOGGER = logging.getLogger(__name__)
 # =================
 # Request managers.
 # =================
-
-SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
 
 def on_clear_centers(server, request, connection_handler):
     """ Manage request ClearCenters.
@@ -136,7 +134,7 @@ def on_create_game(server, request, connection_handler):
     elif server.has_game_id(game_id):
         raise exceptions.GameIdException('Game ID already used (%s).' % game_id)
     server_game = ServerGame(map_name=request.map_name,
-                             rules=request.rules or SERVER_GAME_RULES,
+                             rules=request.rules,
                              game_id=game_id,
                              initial_state=state,
                              n_controls=request.n_controls,
@@ -162,6 +160,7 @@ def on_create_game(server, request, connection_handler):
     # Start game immediately if possible (e.g. if it's a solitaire game).
     if server_game.game_can_start():
         server.start_game(server_game)
+        client_game.status = server_game.status
 
     server.save_game(server_game)
 

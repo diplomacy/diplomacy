@@ -13,4 +13,4 @@ Following contents describe how to use the Diplomacy package and its features to
    client
    web
    daide
-   integration
+   webdiplomacy

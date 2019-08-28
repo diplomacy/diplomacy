@@ -77,10 +77,10 @@ def req_fn(request_class, local_req_fn=None, **request_args):
             directly. See :class:`.NetworkGame` about available public methods.
 
             """ % {
-            'request_name': request_class.__name__,
-            'with_params': ('with forced parameters ``(%s)`` and additional request parameters '
-                           % str_params) if request_args else 'with request parameters '
-        }
+                'request_name': request_class.__name__,
+                'with_params': ('with forced parameters ``(%s)`` and additional request parameters '
+                                % str_params) if request_args else 'with request parameters '
+            }
 
     else:
 
@@ -102,9 +102,9 @@ def req_fn(request_class, local_req_fn=None, **request_args):
         Return response data returned by server for this request.
         See :class:`.%(request_name)s` about request parameters and response.
             """ % {
-            'request_name': request_class.__name__,
-            'with_params': ' with forced parameters ``(%s)`` and additional request parameters '
-                           % str_params if request_args else ' with request parameters '
+                'request_name': request_class.__name__,
+                'with_params': ' with forced parameters ``(%s)`` and additional request parameters '
+                               % str_params if request_args else ' with request parameters '
             }
 
     func.__request_name__ = request_class.__name__

@@ -49,8 +49,13 @@ PRIVATE_BOT_PASSWORD = '#bot:password:28131821--mx1fh5g7hg5gg5g´[],s222222223dj
 PRIVATE_BOT_TIMEOUT_SECONDS = 60
 
 DEFAULT_GAME_RULES = ('SOLITAIRE', 'NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE')
-""" Default rules used to construct a :class:`.Game` object when no rules are provided.
-    See :doc:`/information/rules` about available rules.
+""" Default rules used to construct a :class:`.Game` object (generic game)
+    when no rules are provided. See :doc:`/information/rules` about available rules.
+"""
+
+SERVER_GAME_RULES = ['NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
+""" Default rules used to construct a :class:`.ServerGame` object (server game)
+    when no rules are provided. See :doc:`/information/rules` about available rules.
 """
 
 class OrderSettings:

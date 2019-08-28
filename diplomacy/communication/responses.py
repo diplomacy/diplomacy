@@ -58,7 +58,6 @@ class Error(_AbstractResponse):
     def throw(self):
         """ Convert this error to an instance of a Diplomacy ResponseException class
         and raises it. """
-        import inspect
         # If error type is the name of a ResponseException class,
         # convert it to related class and raise it.
         if hasattr(exceptions, self.error_type):
@@ -73,7 +72,7 @@ class Ok(_AbstractResponse):
     __slots__ = []
 
 class NoResponse(_AbstractResponse):
-    """ Indicates that no responses are required """
+    """ Placeholder reponse to indicate that no responses are required """
     __slots__ = []
 
     def __bool__(self):

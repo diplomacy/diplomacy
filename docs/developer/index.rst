@@ -9,7 +9,3 @@ use Diplomacy programmatically and/or extend it with new features.
    :caption: Tutorials
 
    communication
-   utils
-   maps
-   web
-   testing

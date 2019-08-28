@@ -175,7 +175,8 @@ class Game(Jsonable):
 
     - role: game type (observer, omniscient, player or server game).
       Either a power name (for player game) or a value in diplomacy.utils.strings.ALL_ROLE_TYPES.
-    - rules: Contains a list of active rules. e.g. ['NO_PRESS', ...]
+    - rules: Contains a list of active rules. e.g. ['NO_PRESS', ...]. Default is
+      :const:`diplomacy.utils.constants.DEFAULT_GAME_RULES`.
     - state_history:
 
       - history of previous game states (returned by method get_state()) for this game.
@@ -449,6 +450,7 @@ class Game(Jsonable):
     power_choice = property(lambda self: 'POWER_CHOICE' in self.rules)
     public_press = property(lambda self: 'PUBLIC_PRESS' in self.rules)
     real_time = property(lambda self: 'REAL_TIME' in self.rules)
+    dummy_real_time = property(lambda self: 'DUMMY_REAL_TIME' in self.rules)
     start_master = property(lambda self: 'START_MASTER' in self.rules)
     solitaire = property(lambda self: 'SOLITAIRE' in self.rules)
 
@@ -1343,6 +1345,7 @@ class Game(Jsonable):
         # Otherwise, write image into `<output_name>.<output_format>`
         with open('%s.%s' % (output_name, output_format), 'w') as out_file:
             out_file.write(output)
+        return None
 
     def add_rule(self, rule):
         """ Adds a rule to the current rule list

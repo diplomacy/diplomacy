@@ -18,7 +18,7 @@
 from diplomacy.engine.game import Game
 from diplomacy.engine.message import GLOBAL, Message, OBSERVER, OMNISCIENT, SYSTEM
 from diplomacy.engine.power import Power
-from diplomacy.utils import exceptions, parsing, strings
+from diplomacy.utils import exceptions, parsing, strings, constants
 from diplomacy.utils.game_phase_data import GamePhaseData
 
 class ServerGame(Game):
@@ -33,6 +33,8 @@ class ServerGame(Game):
       special Power object (diplomacy.Power) used to manage observer tokens.
     - omniscient (only for server games):
       special Power object (diplomacy.Power) used to manage omniscient tokens.
+
+    Default rules for a server game is :const:`diplomacy.utils.constants.SERVER_GAME_RULES`.
     """
     __slots__ = ['server', 'omniscient_usernames', 'moderator_usernames', 'observer', 'omniscient']
     model = parsing.update_model(Game.model, {
@@ -50,6 +52,9 @@ class ServerGame(Game):
         self.observer = None  # type: Power
         self.omniscient = None  # type: Power
 
+        # Set default server game rules if no rules were specified.
+        if not kwargs.get(strings.RULES, None):
+            kwargs[strings.RULES] = list(constants.SERVER_GAME_RULES)
         super(ServerGame, self).__init__(**kwargs)
         assert self.is_server_game()
 

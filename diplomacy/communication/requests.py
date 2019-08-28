@@ -518,9 +518,12 @@ class Logout(_AbstractChannelRequest):
     __slots__ = []
 
 class UnknownToken(_AbstractChannelRequest):
-    """ Request to tell server that a channel token is unknown.
-        Expected response: Nothing - Client does not even wait for a server response.
-        Expected response handler result: None
+    """ Channel request to tell server that a channel token is unknown.
+
+    .. note::
+
+        Client does not even wait for a server response when sending this request,
+        which acts more like a "client notification" sent to server.
     """
     __slots__ = []
 

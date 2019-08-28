@@ -211,7 +211,7 @@ def to_string(element):
     element = str(element)
     if '"' in element:
         return "'%s'" % element
-    elif "'" in element:
+    if "'" in element:
         return '"%s"' % element
     return element
 

@@ -127,6 +127,11 @@
         10 minutes).
 
 ==================================================================
+** DUMMY_REAL_TIME **
+        By default, wait flag is forced to True for dummy powers.
+        If this rule is used, wait flag will be set to False for dummy powers when a new phase starts.
+
+==================================================================
 ** ALWAYS_WAIT ** (!REAL_TIME)
         If this rule is used, orders will never process until the deadline
         has arrived (unless requested by the Master using a PROCESS
@@ -238,6 +243,7 @@
 <!-- RULE GROUP 9 Deadline Handling and Phase Processing -->
 <!-- RULE NO_DEADLINE -->
 <!-- RULE REAL_TIME !ALWAYS_WAIT -->
+<!-- RULE DUMMY_REAL_TIME -->
 <!-- RULE ALWAYS_WAIT !REAL_TIME -->
 <!-- RULE GROUP 10 Game Conclusion -->
 <!-- RULE PROPOSE_DIAS !NO_DIAS -->

@@ -183,9 +183,14 @@ class Power(Jsonable):
             if self.is_eliminated():
                 self.order_is_set = OrderSettings.ORDER_SET_EMPTY
                 self.wait = False
+            elif self.is_dummy():
+                self.order_is_set = (OrderSettings.ORDER_SET_EMPTY
+                                     if self.game.dummy_real_time
+                                     else OrderSettings.ORDER_NOT_SET)
+                self.wait = not self.game.dummy_real_time
             else:
                 self.order_is_set = OrderSettings.ORDER_NOT_SET
-                self.wait = True if self.is_dummy() else (not self.game.real_time)
+                self.wait = not self.game.real_time
         self.goner = 0
 
     @staticmethod
@@ -213,8 +218,14 @@ class Power(Jsonable):
         assert self.is_server_power()
 
         self.game = game
-        self.order_is_set = OrderSettings.ORDER_NOT_SET
-        self.wait = True if self.is_dummy() else (not self.game.real_time)
+        if self.is_dummy():
+            self.order_is_set = (OrderSettings.ORDER_SET_EMPTY
+                                 if self.game.dummy_real_time
+                                 else OrderSettings.ORDER_NOT_SET)
+            self.wait = not self.game.dummy_real_time
+        else:
+            self.order_is_set = OrderSettings.ORDER_NOT_SET
+            self.wait = not self.game.real_time
 
         # Get power abbreviation.
         self.abbrev = self.game.map.abbrev.get(self.name, self.name[0])
@@ -363,7 +374,7 @@ class Power(Jsonable):
             if self.controller.last_value() != strings.DUMMY:
                 self.controller.put(common.timestamp_microseconds(), strings.DUMMY)
                 self.tokens.clear()
-                self.wait = True
+                self.wait = not self.game.dummy_real_time
                 self.vote = strings.NEUTRAL
         elif self.controller.last_value() == strings.DUMMY:
             self.controller.put(common.timestamp_microseconds(), username)
