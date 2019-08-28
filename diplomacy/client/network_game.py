@@ -21,7 +21,6 @@ from diplomacy.client.channel import Channel
 from diplomacy.communication import notifications
 from diplomacy.engine.game import Game
 from diplomacy.utils.exceptions import DiplomacyException
-from diplomacy.utils.game_phase_data import GamePhaseData
 
 LOGGER = logging.getLogger(__name__)
 
@@ -175,25 +174,3 @@ class NetworkGame(Game):
         """ Notify game with given notification (call associated callbacks if defined). """
         for callback in self.notification_callbacks.get(type(notification), ()):
             callback(self, notification)
-
-    def set_phase_data(self, phase_data, clear_history=True):
-        """ Overwrite base method to prevent call to channel methods. """
-        if not phase_data:
-            return
-        if isinstance(phase_data, GamePhaseData):
-            phase_data = [phase_data]
-        elif not isinstance(phase_data, list):
-            phase_data = list(phase_data)
-
-        if clear_history:
-            self._clear_history()
-
-        for game_phase_data in phase_data[:-1]:  # type: GamePhaseData
-            Game.extend_phase_history(self, game_phase_data)
-
-        current_phase_data = phase_data[-1]  # type: GamePhaseData
-        Game.set_state(self, current_phase_data.state, clear_history=clear_history)
-        for power_name, power_orders in current_phase_data.orders.items():
-            Game.set_orders(self, power_name, power_orders)
-        self.messages = current_phase_data.messages.copy()
-        # We ignore 'results' for current phase data.
