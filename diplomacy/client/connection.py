@@ -385,6 +385,7 @@ class Connection():
         LOGGER.info('Trying to connect.')
         yield self._connect()
 
+    @gen.coroutine
     def _on_socket_message(self, socket_message):
         """ Manage given socket_message (string),
             that may be a string representation of either a request or a notification.
@@ -405,8 +406,15 @@ class Connection():
 
         if request_id:
             if request_id not in self.requests_waiting_responses:
-                LOGGER.error('Unknown request.')
-                return
+                # Response received before the request was marked as 'waiting responses'
+                # Waiting 5 secs to make sure this is not a race condition before aborting
+                for _ in range(10):
+                    yield gen.sleep(0.5)
+                    if request_id in self.requests_waiting_responses:
+                        break
+                else:
+                    LOGGER.error('Unknown request.')
+                    return
             request_context = self.requests_waiting_responses.pop(request_id)  # type: RequestFutureContext
             try:
                 response = responses.parse_dict(json_message)
@@ -439,7 +447,7 @@ class Connection():
                 yield self._reconnect()
             else:
                 # Check response format and run callback (if defined).
-                self._on_socket_message(msg)
+                yield self._on_socket_message(msg)
 
     def _handle_unknown_token(self, token):
         """ Notify server about an unknown channel token.
