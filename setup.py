@@ -28,7 +28,7 @@ if (sys.version_info.major, sys.version_info.minor) <= (3, 4):
 # ------------------------------------
 # Configuration
 PACKAGE_NAME = 'diplomacy'
-PACKAGE_VERSION = '1.0.1'
+PACKAGE_VERSION = '1.1.0'
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
