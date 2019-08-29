@@ -565,7 +565,7 @@ def test_histories():
     from diplomacy.server.server_game import ServerGame
     from diplomacy.utils.sorted_dict import SortedDict
     from diplomacy.utils import strings
-    game = ServerGame(status=strings.ACTIVE)
+    game = ServerGame(status=strings.ACTIVE, rules=['SOLITAIRE'])
     assert game.solitaire
     assert not game.n_controls
     assert game.is_game_active
