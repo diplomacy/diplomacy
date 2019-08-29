@@ -125,7 +125,7 @@ class NetworkGame(Game):
         with associated server game. """
         if not self.channel:
             raise DiplomacyException('Invalid client game.')
-        return self.channel.synchronize(game_object=self, timestamp=self.get_latest_timestamp())
+        return self.channel.synchronize(game=self, timestamp=self.get_latest_timestamp())
 
     # Admin / Moderator API.
     delete = game_request_method(Channel.delete_game)
