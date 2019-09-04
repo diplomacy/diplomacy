@@ -1,3 +1,8 @@
+include ACKNOWLEDGEMENTS
 include LICENSE
-include README
+include README.md
+include requirements.txt
+include requirements_dev.txt
+include run_install_nvm.sh
+include run_tests.sh
 recursive-include diplomacy *
