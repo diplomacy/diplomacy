@@ -1,0 +1,29 @@
+cache:
+  directories:
+    - $HOME/.cache/pip
+    - $HOME/.cache/diplomacy
+install:
+  - mkdir -p $HOME/.cache/diplomacy
+  - wget -nv https://storage.googleapis.com/ppaquette-diplomacy/cache-jenkins/convoy_paths_cache.pkl -O $HOME/.cache/diplomacy/convoy_paths_cache.pkl
+  - pip install -r requirements.txt
+  - pip install -r requirements_dev.txt
+  - touch run_install_nvm.sh
+  - chmod +x run_install_nvm.sh
+  - ./run_install_nvm.sh
+script: ./run_tests.sh
+jobs:
+  include:
+    - os: linux
+      sudo: required
+      language: python
+      python: 3.5
+
+    - os: linux
+      sudo: required
+      language: python
+      python: 3.6
+
+    - os: linux
+      sudo: required
+      language: python
+      python: 3.7
