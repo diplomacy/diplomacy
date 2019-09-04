@@ -1,5 +1,5 @@
 -e .
 -r requirements.txt
 pylint>=2.3.0
-pytest
+pytest>=4.4.0
 pytest-xdist
