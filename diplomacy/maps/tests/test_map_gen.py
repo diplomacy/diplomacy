@@ -34,3 +34,12 @@ def test_map_creation():
         this_map = Map(map_name)
         assert this_map.error == [], 'Map %s should have no errors' % map_name
         del this_map
+
+def test_map_with_full_path():
+    """ Tests for map creation """
+    maps = glob.glob(os.path.join(MODULE_PATH, 'maps', '*.map'))
+    assert maps, 'Expected maps to be found.'
+    for current_map in maps:
+        this_map = Map(current_map)
+        assert this_map.error == [], 'Map %s should have no errors' % current_map
+        del this_map

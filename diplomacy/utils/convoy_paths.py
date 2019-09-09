@@ -188,7 +188,10 @@ def add_to_cache(map_name):
             pass
 
     # Getting map MD5 hash
-    map_path = os.path.join(settings.PACKAGE_DIR, 'maps', map_name + '.map')
+    if os.path.exists(map_name):
+        map_path = map_name
+    else:
+        map_path = os.path.join(settings.PACKAGE_DIR, 'maps', map_name + '.map')
     if not os.path.exists(map_path):
         return None
     map_hash = get_file_md5(map_path)
@@ -227,6 +230,7 @@ def get_convoy_paths_cache():
         map_hash = get_file_md5(file_path)
         if map_hash in disk_convoy_paths:
             cache_convoy_paths[map_name] = disk_convoy_paths[map_hash]
+            cache_convoy_paths[file_path] = disk_convoy_paths[map_hash]
 
     # Returning
     return cache_convoy_paths
