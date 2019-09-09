@@ -38,19 +38,23 @@ def _attr(node_element, attr_name):
 class Renderer():
     """ Renderer object responsible for rendering a game state to svg """
 
-    def __init__(self, game):
+    def __init__(self, game, svg_path=None):
         """ Constructor
             :param game: The instantiated game object to render
+            :param svg_path: Optional. Can be set to the full path of a custom SVG to use for rendering the map.
             :type game: diplomacy.Game
         """
         self.game = game
         self.metadata = {}
         self.xml_map = None
-        self.xml_map_path = os.path.join(settings.PACKAGE_DIR, 'maps', 'svg', self.game.map.name + '.svg')
+
+        # If no SVG path provided, we default to the one in the maps folder
+        if not svg_path:
+            svg_path = os.path.join(settings.PACKAGE_DIR, 'maps', 'svg', self.game.map.name + '.svg')
 
         # Loading XML
-        if os.path.exists(self.xml_map_path):
-            self.xml_map = minidom.parse(self.xml_map_path).toxml()
+        if os.path.exists(svg_path):
+            self.xml_map = minidom.parse(svg_path).toxml()
         self._load_metadata()
 
     def norm_order(self, order):
