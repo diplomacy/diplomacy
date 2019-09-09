@@ -74,8 +74,8 @@ class Map():
                 e.g. {'MAO': 'WATER', 'SER': 'LAND', 'SYR': 'COAST', 'MOS': 'LAND', 'VEN': 'COAST', ... }
         - locs: List of 3 letter locations (With coasts)
                 e.g. ['ADR', 'AEG', 'ALB', 'ANK', 'APU', 'ARM', 'BAL', 'BAR', 'BEL', 'BER', ... ]
-        - name: Name of the map
-                e.g. 'standard'
+        - name: Name of the map (or full path to a custom map file)
+                e.g. 'standard' or '/some/path/to/file.map'
         - own_word: Dict to indicate the word used to refer to people living in each power's country
                 e.g. {'RUSSIA': 'RUSSIAN', 'FRANCE': 'FRENCH', 'UNOWNED': 'UNOWNED', 'TURKEY': 'TURKISH', ... }
         - owns: List that indicates which power have a OWNS or CENTERS line
@@ -128,7 +128,7 @@ class Map():
 
     def __init__(self, name='standard', use_cache=True):
         """ Constructor function
-            :param name: Name of the map to load
+            :param name: Name of the map to load (or full path to a custom map file)
             :param use_cache: Boolean flag to indicate we want a blank object that doesn't use cache
         """
         if name in MAP_CACHE:
@@ -302,8 +302,13 @@ class Map():
         # Otherwise file_name is the file handler
         power = 0
         if file_name is None:
-            file_name = '{}.map'.format(self.name)
-        file_path = os.path.join(settings.PACKAGE_DIR, 'maps', file_name)
+            file_name = '{}.map'.format(self.name) if not self.name.endswith('.map') else self.name
+
+        # If file_name is a path to a custom map, we use that path, otherwise, we check in the maps folder
+        if os.path.exists(file_name):
+            file_path = file_name
+        else:
+            file_path = os.path.join(settings.PACKAGE_DIR, 'maps', file_name)
 
         # Checking if file exists:
         found_map = 1 if os.path.exists(file_path) else 0

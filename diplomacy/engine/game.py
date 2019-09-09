@@ -79,8 +79,8 @@ class Game(Jsonable):
                 e.g. {'PAR': 'FRANCE'}  to indicate that PAR was lost by France (previous owner)
         - map: Contains a reference to the current map (Map instance)
                 e.g. map = Map('standard')
-        - map_name: Contains a reference to the name of the map that was loaded
-                e.g. map_name = 'standard'
+        - map_name: Contains a reference to the name of the map that was loaded (or a full path to a custom map file)
+                e.g. map_name = 'standard' or map_name = '/some/path/to/file.map'
         - messages (only for non-observer games): history of messages exchanged inside this game.
                 Sorted dict mapping message timestamps to message objects (instances of diplomacy.Message).
                 Format: {message.time_sent => message}
