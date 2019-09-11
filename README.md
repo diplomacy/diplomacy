@@ -1,10 +1,14 @@
-# Diplomacy: DATC-Compliant Game Engine
+# Diplomacy: DATC-Compliant Game Engine [![Build Status](https://travis-ci.org/diplomacy/diplomacy.svg?branch=master)](https://travis-ci.org/diplomacy/diplomacy) [![Documentation Status](https://readthedocs.org/projects/diplomacy/badge/?version=latest)](https://docs.diplomacy.ai/en/latest/?badge=latest)
 
 This project contains an open-source DATC-compliant Diplomacy game engine, a client-server architecture for network play, a web interface to play against bots and to visualize games, and a DAIDE-compatible adapter to connect DAIDE bots to the server.
 
 <p align="center">
   <img width="500" src="docs/images/map_overview.png" alt="Diplomacy Map Overview">
 </p>
+
+## Documentation
+
+The complete documentation is available at [docs.diplomacy.ai](https://docs.diplomacy.ai/).
 
 ## Getting Started
 

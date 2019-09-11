@@ -62,10 +62,11 @@ def run_with_timeout(callable_fn, timeout):
     finally:
         signal.alarm(0)
 
-class ClientCommsSimulator():
+class ClientCommsSimulator:
     """ Represents a client's comms """
     def __init__(self, client_id):
         """ Constructor
+
             :param client_id: the id
         """
         self._id = client_id
@@ -92,7 +93,8 @@ class ClientCommsSimulator():
         """ Set the client's communications.
 
             The client's comms will be sorted to have the requests of a phase
-            preceeding the responses / notifications of the phase
+            preceding the responses / notifications of the phase
+
             :param comms: the game's communications
         """
         self._comms = [comm for comm in comms if comm.client_id == self._id]
@@ -126,8 +128,9 @@ class ClientCommsSimulator():
 
     def pop_next_request(self, comms):
         """ Pop the next request from a DAIDE communications list
+
             :return: The next request along with the updated list of communications
-                     or None and the updated list of communications
+                 or None and the updated list of communications
         """
         com = next(iter(comms), None)
         request = None
@@ -148,8 +151,9 @@ class ClientCommsSimulator():
 
     def pop_next_resp_notif(self, comms):
         """ Pop the next response or notifcation from a DAIDE communications list
+
             :return: The next response or notifcation along with the updated list of communications
-                     or None and the updated list of communications
+                 or None and the updated list of communications
         """
         com = next(iter(comms), None)
         resp_notif = None
@@ -170,6 +174,7 @@ class ClientCommsSimulator():
     @gen.coroutine
     def connect(self, game_port):
         """ Connect to the DAIDE server
+
             :param game_port: the DAIDE game's port
         """
         self._stream = yield TCPClient().connect('localhost', game_port)
@@ -181,6 +186,7 @@ class ClientCommsSimulator():
     @gen.coroutine
     def send_request(self, request):
         """ Sends a request
+
             :param request: the request to send
         """
         message = messages.DiplomacyMessage()
@@ -190,6 +196,7 @@ class ClientCommsSimulator():
     @gen.coroutine
     def validate_resp_notifs(self, expected_resp_notifs):
         """ Validate that expected response / notifications are received regardless of the order
+
             :param expected_resp_notifs: the response / notifications to receive
         """
         while expected_resp_notifs:
@@ -211,6 +218,7 @@ class ClientCommsSimulator():
     @gen.coroutine
     def execute_phase(self, game_id, channels):
         """ Execute a single communications phase
+
             :param game_id: The game id of the current game
             :param channels: A dictionary of power name to its channel (BOT_KEYWORD for dummies)
             :return: True if there are communications left to execute in the game
@@ -267,10 +275,11 @@ class ClientCommsSimulator():
 
         return bool(self._comms)
 
-class ClientsCommsSimulator():
+class ClientsCommsSimulator:
     """ Represents multi clients's communications """
     def __init__(self, nb_clients, csv_file, game_id, channels):
         """ Constructor
+
             :param nb_clients: the number of clients
             :param csv_file: the csv containing the communications in chronological order
             :param game_id: The game id on the server
@@ -291,6 +300,7 @@ class ClientsCommsSimulator():
     @gen.coroutine
     def retrieve_game_port(self, host, port):
         """ Retreive and store the game's port
+
             :param host: the host
             :param port: the port
             :param game_id: the game id
@@ -347,6 +357,7 @@ class ClientsCommsSimulator():
 
 def run_game_data(nb_daide_clients, rules, csv_file):
     """ Start a server and a client to test DAIDE communications
+
         :param port: The port of the DAIDE server
         :param csv_file: the csv file containing the list of DAIDE communications
     """

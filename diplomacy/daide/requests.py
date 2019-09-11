@@ -22,11 +22,12 @@ from diplomacy.daide import tokens
 from diplomacy.daide.tokens import Token, is_ascii_token
 from diplomacy.utils import parsing, strings
 
-class RequestBuilder():
+class RequestBuilder:
     """ Builds DaideRequest from bytes or tokens """
     @staticmethod
     def from_bytes(daide_bytes, **kwargs):
         """ Builds a request from DAIDE bytes
+
             :param daide_bytes: The bytes representation of a request
             :return: The DaideRequest built from the bytes
         """
@@ -82,7 +83,9 @@ class DaideRequest(_AbstractGameRequest):
 
 class NameRequest(DaideRequest):
     """ Represents a NME DAIDE request. Can be sent by the client as soon as it connects to the server.
-        Syntax:
+
+        Syntax: ::
+
             NME ('name') ('version')
     """
     __slots__ = ['client_name', 'client_version']
@@ -114,7 +117,9 @@ class NameRequest(DaideRequest):
 
 class ObserverRequest(DaideRequest):
     """ Represents a NME DAIDE request. Can be sent by the client as soon as it connects to the server.
-        Syntax:
+
+        Syntax: ::
+
             OBS
     """
     __slots__ = []
@@ -131,7 +136,9 @@ class ObserverRequest(DaideRequest):
 
 class IAmRequest(DaideRequest):
     """ Represents a IAM DAIDE request. Can be sent by the client at anytime to rejoin the game.
-        Syntax:
+
+        Syntax: ::
+
             IAM (power) (passcode)
     """
     __slots__ = ['power_name', 'passcode']
@@ -173,7 +180,9 @@ class IAmRequest(DaideRequest):
 
 class HelloRequest(DaideRequest):
     """ Represents a HLO DAIDE request. Sent by the client to request a copy of the HLO message.
-        Syntax:
+
+        Syntax: ::
+
             HLO
     """
     __slots__ = []
@@ -190,7 +199,9 @@ class HelloRequest(DaideRequest):
 
 class MapRequest(DaideRequest):
     """ Represents a MAP DAIDE request. Sent by the client to request a copy of the MAP message.
-        Syntax:
+
+        Syntax: ::
+
             MAP
     """
     __slots__ = []
@@ -207,7 +218,9 @@ class MapRequest(DaideRequest):
 
 class MapDefinitionRequest(DaideRequest):
     """ Represents a MDF DAIDE request. Sent by the client to request the map definition of the game.
-        Syntax:
+
+        Syntax: ::
+
             MDF
     """
     __slots__ = []
@@ -229,7 +242,9 @@ class MapDefinitionRequest(DaideRequest):
 
 class SupplyCentreOwnershipRequest(DaideRequest):
     """ Represents a SCO DAIDE request. Sent by the client to request a copy of the last SCO message.
-        Syntax:
+
+        Syntax: ::
+
             SCO
     """
     __slots__ = []
@@ -246,7 +261,9 @@ class SupplyCentreOwnershipRequest(DaideRequest):
 
 class CurrentPositionRequest(DaideRequest):
     """ Represents a NOW DAIDE request. Sent by the client to request a copy of the last NOW message.
-        Syntax:
+
+        Syntax: ::
+
             NOW
     """
     __slots__ = []
@@ -263,7 +280,9 @@ class CurrentPositionRequest(DaideRequest):
 
 class HistoryRequest(DaideRequest):
     """ Represents a HST DAIDE request. Sent by the client to request a copy of a previous ORD, SCO and NOW messages.
-        Syntax:
+
+        Syntax: ::
+
             HST (turn)
     """
     def __init__(self, **kwargs):
@@ -293,10 +312,14 @@ class HistoryRequest(DaideRequest):
 
 class SubmitOrdersRequest(DaideRequest):
     """ Represents a SUB DAIDE request. Sent by the client to submit orders.
-        Syntax:
+
+        Syntax: ::
+
             SUB (order) (order) ...
             SUB (turn) (order) (order) ...
-        order syntax:
+
+        order syntax: ::
+
             (unit) HLD                                       # Hold
             (unit) MTO province                              # Move to
             (unit) SUP (unit)                                # Support
@@ -343,7 +366,9 @@ class SubmitOrdersRequest(DaideRequest):
 
 class MissingOrdersRequest(DaideRequest):
     """ Represents a MIS DAIDE request. Sent by the client to request a copy of the current MIS message.
-        Syntax:
+
+        Syntax: ::
+
             MIS
     """
     __slots__ = []
@@ -360,7 +385,9 @@ class MissingOrdersRequest(DaideRequest):
 
 class GoFlagRequest(DaideRequest):
     """ Represents a GOF DAIDE request. Sent by the client to notify that the client is ready to process the turn.
-        Syntax:
+
+        Syntax: ::
+
             GOF
     """
     __slots__ = []
@@ -382,7 +409,9 @@ class GoFlagRequest(DaideRequest):
 
 class TimeToDeadlineRequest(DaideRequest):
     """ Represents a TME DAIDE request. Sent by the client to request a TME message or to request it at a later time.
-        Syntax:
+
+        Syntax: ::
+
             TME
             TME (seconds)
     """
@@ -421,9 +450,13 @@ class TimeToDeadlineRequest(DaideRequest):
 
 class DrawRequest(DaideRequest):
     """ Represents a DRW DAIDE request. Sent by the client to notify that the client would accept a draw.
-        Syntax:
+
+        Syntax: ::
+
             DRW
-        LVL 10:
+
+        LVL 10: ::
+
             DRW (power power ...)
     """
     __slots__ = ['powers']
@@ -465,17 +498,23 @@ class DrawRequest(DaideRequest):
 
 class SendMessageRequest(DaideRequest):
     """ Represents a SND DAIDE request
-        Syntax:
+
+        Syntax: ::
+
             SND (power ...) (press_message)
             SND (power ...) (reply)
             SND (turn) (power ...) (press_message)
             SND (turn) (power ...) (reply)
-        Press message syntax:
+
+        Press message syntax: ::
+
             PRP (arrangement)
             CCL (press_message)
             FCT (arrangement)
             TRY (tokens)
-        Reply syntax:
+
+        Reply syntax: ::
+
             YES (press_message)
             REJ (press_message)
             BWX (press_message)
@@ -531,7 +570,9 @@ class SendMessageRequest(DaideRequest):
 
 class NotRequest(DaideRequest):
     """ Represents a NOT DAIDE request. Sent by the client to cancel a previous request.
-        Syntax:
+
+        Syntax: ::
+
             NOT (SUB)                       # Cancel all submitted orders
             NOT (SUB (order))               # Cancel specific submitted order
             NOT (GOF)                       # Do not process orders until the deadline
@@ -572,7 +613,9 @@ class NotRequest(DaideRequest):
 
 class AcceptRequest(DaideRequest):
     """ Represents a YES DAIDE request.
-        Syntax:
+
+        Syntax: ::
+
             YES (MAP ('name'))
             YES (SVE ('gamename'))
     """
@@ -602,7 +645,9 @@ class AcceptRequest(DaideRequest):
 
 class RejectRequest(DaideRequest):
     """ Represents a REJ DAIDE request.
-        Syntax:
+
+        Syntax: ::
+
             REJ (SVE ('gamename'))
     """
     __slots__ = ['response_bytes']
@@ -635,7 +680,9 @@ class RejectRequest(DaideRequest):
 
 class ParenthesisErrorRequest(DaideRequest):
     """ Represents a PRN DAIDE request. Sent by the client to specify an error in the set of parenthesis.
-        Syntax:
+
+        Syntax: ::
+
             PRN (message)
     """
     __slots__ = ['message_bytes']
@@ -668,7 +715,9 @@ class ParenthesisErrorRequest(DaideRequest):
 
 class SyntaxErrorRequest(DaideRequest):
     """ Represents a HUH DAIDE request. Sent by the client to specify an error in a message.
-        Syntax:
+
+        Syntax: ::
+
             HUH (message)
     """
     __slots__ = ['message_bytes']
@@ -704,7 +753,8 @@ class AdminMessageRequest(DaideRequest):
     """ Represents a ADM DAIDE request. Can be sent by the client to send a message to all clients.
         Should not be used for negotiation.
 
-        Syntax:
+        Syntax: ::
+
             ADM ('message')
     """
     __slots__ = ['adm_message']

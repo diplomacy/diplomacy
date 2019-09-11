@@ -17,6 +17,7 @@
 """ Game message. Represent a message exchanged inside a game.
 
     Possible messages exchanges:
+
     - power 1 -> power 2
     - power -> all game
     - system -> power
@@ -25,10 +26,12 @@
     - system -> omniscient observers
 
     Sender `system` is identified with constant SYSTEM defined below.
-    Recipients `all game`, `observers` and `omniscient observers` are identified respectively with constants
-    GLOBAL, OBSERVER and OMNISCIENT defined below.
+
+    Recipients `all game`, `observers` and `omniscient observers` are identified respectively with
+    constants GLOBAL, OBSERVER and OMNISCIENT defined below.
 
     Consider using Game methods to generate appropriate messages instead of this class directly:
+
     - Game.new_power_message() to send a message from a power to another.
     - Game.new_global_message() to send a message from a power to all game.
     - ServerGame.new_system_message() to send a server system message.
@@ -44,14 +47,18 @@ OBSERVER = 'OBSERVER'  # recipient (all observer tokens)
 OMNISCIENT = 'OMNISCIENT'  # recipient (all omniscient tokens)
 
 class Message(Jsonable):
-    """ GameMessage class. Properties:
-        - sender: message sender name: either SYSTEM or a power name.
-        - recipient: message recipient name: either GLOBAL, OBSERVER, OMNISCIENT or a power name.
-        - time_sent: message timestamp in microseconds.
-        - phase: short name of game phase when message is sent.
-        - message: message body.
+    """ Message class.
 
-        Note about timestamp management:
+        Properties:
+
+        - **sender**: message sender name: either SYSTEM or a power name.
+        - **recipient**: message recipient name: either GLOBAL, OBSERVER, OMNISCIENT or a power name.
+        - **time_sent**: message timestamp in microseconds.
+        - **phase**: short name of game phase when message is sent.
+        - **message**: message body.
+
+        **Note about timestamp management**:
+
         We assume a message has an unique timestamp inside one game. To respect this rule, the server is the only one
         responsible for generating message timestamps. This allow to generate timestamp or only 1 same machine (server)
         instead of managing timestamps from many user machines, to prevent timestamp inconsistency when messages
@@ -60,19 +67,19 @@ class Message(Jsonable):
     """
     __slots__ = ['sender', 'recipient', 'time_sent', 'phase', 'message']
     model = {
-        strings.SENDER: str,  # either SYSTEM or a power name.
-        strings.RECIPIENT: str,  # either GLOBAL, OBSERVER, OMNISCIENT or a power name.
+        strings.SENDER: str,                                # either SYSTEM or a power name.
+        strings.RECIPIENT: str,                             # either GLOBAL, OBSERVER, OMNISCIENT or a power name.
         strings.TIME_SENT: parsing.OptionalValueType(int),  # given by server.
-        strings.PHASE: str,  # phase short name.
+        strings.PHASE: str,                                 # phase short name (e.g. 'S1901M' or 'COMPLETED')
         strings.MESSAGE: str,
     }
 
     def __init__(self, **kwargs):
-        self.sender = None  # type: str
-        self.recipient = None  # type: str
-        self.time_sent = None  # type: int
-        self.phase = None  # type: str
-        self.message = None  # type: str
+        self.sender = None                  # type: str
+        self.recipient = None               # type: str
+        self.time_sent = None               # type: int
+        self.phase = None                   # type: str
+        self.message = None                 # type: str
         super(Message, self).__init__(**kwargs)
 
     def __str__(self):

@@ -63,6 +63,7 @@ DUMMY = 'dummy'
 DUMMY_PLAYER = 'dummy_player'
 DUMMY_POWERS = 'dummy_powers'
 ERROR = 'error'
+ERROR_TYPE = 'error_type'
 FOR_OMNISCIENCE = 'for_omniscience'
 FORCED = 'forced'
 FORCED_ORDERS = 'forced_orders'
@@ -235,8 +236,9 @@ def role_is_special(role):
 
 def switch_special_role(role):
     """ Return opposite special role of given special role:
-        - observer role if omniscient role is given
-        - omniscient role if observer role is given
+
+            - observer role if omniscient role is given
+            - omniscient role if observer role is given
     """
     if role == OBSERVER_TYPE:
         return OMNISCIENT_TYPE

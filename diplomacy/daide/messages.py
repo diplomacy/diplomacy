@@ -69,6 +69,7 @@ class DaideMessage(metaclass=ABCMeta):
     @gen.coroutine
     def from_stream(stream):
         """ Builds a message from the stream
+
             :param stream: An opened Tornado stream.
             :type stream: tornado.iostream.BaseIOStream
         """

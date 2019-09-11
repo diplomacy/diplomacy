@@ -14,14 +14,20 @@
 #  You should have received a copy of the GNU Affero General Public License along
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
-""" Concret standalone server object. Manages and save server data and games on disk, send notifications,
-    receives requests and send responses.
+""" Concrete standalone server object. Manages and save server data and games on disk,
+    send notifications, receives requests and send responses.
 
     Example:
+
+    .. code-block:: python
+
         >>> from diplomacy import Server
         >>> Server().start(port=1234)  # If port is not given, a random port will be selected.
 
     You can interrupt server by sending a keyboard interrupt signal (Ctrl+C).
+
+    .. code-block:: python
+
         >>> from diplomacy import Server
         >>> try:
         >>>     Server().start()
@@ -29,21 +35,24 @@
         >>>     print('Server interrupted.')
 
     You can also configure some server attributes when instantiating it:
+
+    .. code-block:: python
+
         >>> from diplomacy import Server
         >>> server = Server(backup_delay_seconds=5)
         >>> server.start()
 
     These are public configurable server attributes. They are saved on disk at each server backup:
-    - allow_user_registrations: (bool) indicate if server accepts users registrations
-        (default True)
-    - backup_delay_seconds: (int) number of seconds to wait between two consecutive full server backup on disk
-        (default 10 minutes)
-    - ping_seconds: (int) ping period used by server to check is connected sockets are alive.
-    - max_games: (int) maximum number of games server accepts to create. If there are at least such number of games on
-        server, server will not accept further game creation requests. If 0, no limit.
-        (default 0)
-    - remove_canceled_games: (bool) indicate if games must be deleted from server database when they are canceled
-        (default False)
+
+    - **allow_user_registrations**: (bool) indicate if server accepts users registrations (default True)
+    - **backup_delay_seconds**: (int) number of seconds to wait between two consecutive full server backup
+      on disk (default 10 minutes)
+    - **ping_seconds**: (int) ping period used by server to check is connected sockets are alive.
+    - **max_games**: (int) maximum number of games server accepts to create.
+      If there are at least such number of games on server, server will not accept
+      further game creation requests. If 0, no limit. (default 0)
+    - **remove_canceled_games**: (bool) indicate if games must be deleted from server database
+      when they are canceled (default False)
 
 """
 import atexit
@@ -80,6 +89,7 @@ LOGGER = logging.getLogger(__name__)
 
 def is_port_opened(port, hostname='127.0.0.1'):
     """ Checks if the specified port is opened
+
         :param port: The port to check
         :param hostname: The hostname to check, defaults to '127.0.0.1'
     """
@@ -107,8 +117,12 @@ def save_json_on_disk(filename, json_dict):
 
 def load_json_from_disk(filename):
     """ Return a JSON dictionary loaded from given filename.
-        If JSON parsing fail for given filename, try to load JSON dictionary for a backup file (if present)
-        and rename backup file to given filename (backup file becomes current file versions).
+        If JSON parsing fail for given filename, try to load JSON dictionary for a backup file
+        (if present) and rename backup file to given filename
+        (backup file becomes current file versions).
+
+        :param filename: file path to open
+        :return: JSON dictionary loaded from file
         :rtype: dict
     """
     try:
@@ -140,6 +154,7 @@ class InterruptionHandler():
 
     def __init__(self, server):
         """ Initializer the handler.
+
             :param server: server to save
         """
         self.server = server  # type: Server
@@ -147,6 +162,7 @@ class InterruptionHandler():
 
     def handler(self, signum, frame):
         """ Handler function.
+
             :param signum: system signal received
             :param frame: frame received
         """
@@ -156,12 +172,15 @@ class InterruptionHandler():
             if self.previous_handler:
                 self.previous_handler(signum, frame)
 
-class _ServerBackend():
-    """ Class representing tornado objects used to run a server. Properties:
-        - port: (integer) port where server runs.
-        - application: tornado web Application object.
-        - http_server: tornado HTTP server object running server code.
-        - io_loop: tornado IO loop where server runs.
+class _ServerBackend:
+    """ Class representing tornado objects used to run a server.
+
+        Properties:
+
+        - **port**: (integer) port where server runs.
+        - **application**: tornado web Application object.
+        - **http_server**: tornado HTTP server object running server code.
+        - **io_loop**: tornado IO loop where server runs.
     """
     #pylint: disable=too-few-public-methods
     __slots__ = ['port', 'application', 'http_server', 'io_loop']
@@ -174,7 +193,7 @@ class _ServerBackend():
         self.http_server = None
         self.io_loop = None
 
-class Server():
+class Server:
     """ Server class. """
     __slots__ = ['data_path', 'games_path', 'available_maps', 'maps_mtime', 'notifications',
                  'games_scheduler', 'allow_registrations', 'max_games', 'remove_canceled_games', 'users', 'games',
@@ -195,11 +214,12 @@ class Server():
 
     def __init__(self, server_dir=None, **kwargs):
         """ Initialize the server.
+            Server data is stored in folder ``<working directory>/data``.
+
             :param server_dir: path of folder in (from) which server data will be saved (loaded).
                 If None, working directory (where script is executed) will be used.
             :param kwargs: (optional) values for some public configurable server attributes.
                 Given values will overwrite values saved on disk.
-            Server data is stored in folder `<working directory>/data`.
         """
 
         # File paths and attributes related to database.
@@ -336,7 +356,9 @@ class Server():
 
     def _backup_server_data_now(self, force=False):
         """ Save latest backed-up version of server data on disk. This does not save games.
-            :param force: if True, force to save current server data even if it was not modified recently.
+
+            :param force: if True, force to save current server data,
+                even if it was not modified recently.
         """
         if force:
             self.save_data()
@@ -347,6 +369,7 @@ class Server():
 
     def _backup_games_now(self, force=False):
         """ Save latest backed-up versions of loaded games on disk.
+
             :param force: if True, force to save all games currently loaded in memory
                 even if they were not modified recently.
         """
@@ -362,7 +385,9 @@ class Server():
 
     def backup_now(self, force=False):
         """ Save backup of server data and loaded games immediately.
-            :param force: if True, force to save server data and all loaded games even if there are no recent changes.
+
+            :param force: if True, force to save server data and all loaded games
+                even if there are no recent changes.
         """
         self._backup_server_data_now(force=force)
         self._backup_games_now(force=force)
@@ -370,6 +395,7 @@ class Server():
     @gen.coroutine
     def _process_game(self, server_game):
         """ Process given game and send relevant notifications.
+
             :param server_game: server game to process
             :return: A boolean indicating if we must stop game.
             :type server_game: ServerGame
@@ -437,7 +463,9 @@ class Server():
                 self.notifications.task_done()
 
     def set_tasks(self, io_loop: IOLoop):
-        """ Set server callbacks on given IO loop. Must be called once per server before starting IO loop. """
+        """ Set server callbacks on given IO loop.
+            Must be called once per server before starting IO loop.
+        """
         io_loop.add_callback(self._task_save_database)
         io_loop.add_callback(self._task_send_notifications)
         # These both coroutines are used to manage games.
@@ -449,8 +477,9 @@ class Server():
 
     def start(self, port=None, io_loop=None):
         """ Start server if not yet started. Raise an exception if server is already started.
-            :param port: (optional) port where server must run. If not provided, try to start on a random
-                selected port. Use property `port` to get current server port.
+
+            :param port: (optional) port where server must run. If not provided,
+                try to start on a random selected port. Use property `port` to get current server port.
             :param io_loop: (optional) tornado IO lopp where server must run. If not provided, get
                 default IO loop instance (tornado.ioloop.IOLoop.instance()).
         """
@@ -517,6 +546,7 @@ class Server():
 
     def save_game(self, server_game):
         """ Update on-memory version of given server game.
+
             :param server_game: server game
             :type server_game: ServerGame
         """
@@ -525,8 +555,8 @@ class Server():
         self.register_dummy_power_names(server_game)
 
     def register_dummy_power_names(self, server_game):
-        """ Update internal registry of dummy power names waiting for orders
-            for given server games.
+        """ Update internal registry of dummy power names waiting for orders for given server games.
+
             :param server_game: server game to check
             :type server_game: ServerGame
         """
@@ -551,6 +581,7 @@ class Server():
     def get_dummy_waiting_power_names(self, buffer_size, bot_token):
         """ Return names of dummy powers waiting for orders for current loaded games.
             This query is allowed only for bot tokens.
+
             :param buffer_size: maximum number of powers queried.
             :param bot_token: bot token
             :return: a dictionary mapping each game ID to a list of power names.
@@ -592,11 +623,16 @@ class Server():
     def load_game(self, game_id):
         """ Return a game matching given game ID from server database.
             Raise an exception if such game does not exists.
+
             If such game is already stored in server object, return it.
-            Else, load it from disk but ** does not store it in server object **.
+
+            Else, load it from disk but **does not store it in server object**.
+
             To load and immediately store a game object in server object, please use method get_game().
+
             Method load_game() is convenient when you want to iterate over all games in server database
             without taking memory space.
+
             :param game_id: ID of game to load.
             :return: a ServerGame object
             :rtype: ServerGame
@@ -620,10 +656,10 @@ class Server():
                 # This should be an internal server error.
                 raise exc
 
-    #
     def add_new_game(self, server_game):
         """ Add a new game data on server in memory and perform any addition processing.
             This does not save the game on disk.
+
             :type server_game: ServerGame
         """
         # Register game on memory.
@@ -631,11 +667,12 @@ class Server():
         # Start DAIDE server for this game.
         self.start_new_daide_server(server_game.game_id)
 
-    #
     def get_game(self, game_id):
-        """ Return game saved on server matching given game ID. Raise an exception if game ID not found.
+        """ Return game saved on server matching given game ID.
+            Raise an exception if game ID not found.
             Return game if already loaded on memory, else load it from disk, store it,
             perform any loading/addition processing and return it.
+
             :param game_id: ID of game to load.
             :return: a ServerGame object.
             :rtype: ServerGame
@@ -662,9 +699,10 @@ class Server():
                     self.schedule_game(server_game)
         return server_game
 
-    #
     def delete_game(self, server_game):
-        """ Delete given game from server (both from memory and disk) and perform any post-deletion processing.
+        """ Delete given game from server (both from memory and disk)
+            and perform any post-deletion processing.
+
             :param server_game: game to delete
             :type server_game: ServerGame
         """
@@ -687,6 +725,7 @@ class Server():
     def schedule_game(self, server_game):
         """ Add a game to scheduler only if game has a deadline and is not already scheduled.
             To add games without deadline, use force_game_processing().
+
             :param server_game: game
             :type server_game: ServerGame
         """
@@ -696,6 +735,7 @@ class Server():
     @gen.coroutine
     def unschedule_game(self, server_game):
         """ Remove a game from scheduler.
+
             :param server_game: game
             :type server_game: ServerGame
         """
@@ -706,6 +746,7 @@ class Server():
     def force_game_processing(self, server_game):
         """ Add a game to scheduler to be processed as soon as possible.
             Use this method instead of schedule_game() to explicitly add games with null deadline.
+
             :param server_game: game
             :type server_game: ServerGame
         """
@@ -713,6 +754,7 @@ class Server():
 
     def start_game(self, server_game):
         """ Start given server game.
+
             :param server_game: server game
             :type server_game: ServerGame
         """
@@ -721,7 +763,9 @@ class Server():
         Notifier(self).notify_game_status(server_game)
 
     def stop_game_if_needed(self, server_game):
-        """ Stop game if it has not required number of controlled powers. Notify game if status changed.
+        """ Stop game if it has not required number of controlled powers.
+            Notify game if status changed.
+
             :param server_game: game to check
             :param server_game: game
             :type server_game: ServerGame
@@ -734,6 +778,7 @@ class Server():
 
     def user_is_master(self, username, server_game):
         """ Return True if given username is a game master for given game data.
+
             :param username: username
             :param server_game: game data
             :return: a boolean
@@ -744,34 +789,40 @@ class Server():
 
     def user_is_omniscient(self, username, server_game):
         """ Return True if given username is omniscient for given game data.
+
             :param username: username
             :param server_game: game data
             :return: a boolean
             :type server_game: ServerGame
             :rtype: bool
         """
-        return self.users.has_admin(username) or server_game.is_moderator(username) or server_game.is_omniscient(
-            username)
+        return (self.users.has_admin(username)
+                or server_game.is_moderator(username)
+                or server_game.is_omniscient(username))
 
     def token_is_master(self, token, server_game):
         """ Return True if given token is a master token for given game data.
+
             :param token: token
             :param server_game: game data
             :return: a boolean
             :type server_game: ServerGame
             :rtype: bool
         """
-        return self.users.has_token(token) and self.user_is_master(self.users.get_name(token), server_game)
+        return (self.users.has_token(token)
+                and self.user_is_master(self.users.get_name(token), server_game))
 
     def token_is_omniscient(self, token, server_game):
         """ Return True if given token is omniscient for given game data.
+
             :param token: token
             :param server_game: game data
             :return: a boolean
             :type server_game: ServerGame
             :rtype: bool
         """
-        return self.users.has_token(token) and self.user_is_omniscient(self.users.get_name(token), server_game)
+        return (self.users.has_token(token)
+                and self.user_is_omniscient(self.users.get_name(token), server_game))
 
     def create_game_id(self):
         """ Create and return a game ID not already used by a game in server database. """
@@ -781,9 +832,8 @@ class Server():
         return game_id
 
     def remove_token(self, token):
-        """ Disconnect given token from related user and loaded games.
-            Stop related games if needed, e.g. if a game does not have anymore
-            expected number of controlled powers.
+        """ Disconnect given token from related user and loaded games. Stop related games if needed,
+            e.g. if a game does not have anymore expected number of controlled powers.
         """
         self.users.disconnect_token(token)
         for server_game in self.games.values():  # type: ServerGame
@@ -793,8 +843,9 @@ class Server():
         self.save_data()
 
     def assert_token(self, token, connection_handler):
-        """ Check if given token is associated to an user, check if token is still valid, and link token to given
-            connection handler. If any step failed, raise an exception.
+        """ Check if given token is associated to an user, check if token is still valid,
+            and link token to given connection handler. If any step failed, raise an exception.
+
             :param token: token to check
             :param connection_handler: connection handler associated to this token
         """
@@ -817,6 +868,7 @@ class Server():
 
     def assert_master_token(self, token, server_game):
         """ Check if given token is a master token for given game data. Raise an exception on error.
+
             :param token: token
             :param server_game: game data
             :type server_game: ServerGame
@@ -834,6 +886,7 @@ class Server():
 
     def start_new_daide_server(self, game_id, port=None):
         """ Start a new DAIDE TCP server to handle DAIDE clients connections
+
             :param game_id: game id to pass to the DAIDE server
             :param port: the port to use. If None, an available random port will be used
         """
@@ -856,6 +909,7 @@ class Server():
 
     def stop_daide_server(self, game_id):
         """ Stop one or all DAIDE TCP server
+
             :param game_id: game id of the DAIDE server. If None, all servers will be stopped
             :type game_id: str
         """
@@ -867,6 +921,7 @@ class Server():
 
     def get_daide_port(self, game_id):
         """ Get the DAIDE port opened for a specific game_id
+
             :param game_id: game id of the DAIDE server.
         """
         for port, server in self.daide_servers.items():

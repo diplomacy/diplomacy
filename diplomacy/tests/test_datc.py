@@ -24,7 +24,7 @@ from diplomacy.utils.order_results import OK, NO_CONVOY, BOUNCE, VOID, CUT, DISL
 # -----------------
 # DATC TEST CASES
 # -----------------
-class TestDATC():
+class TestDATC:
     """ DATC test cases"""
     # pylint: disable=too-many-public-methods
 

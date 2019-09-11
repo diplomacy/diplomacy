@@ -29,9 +29,12 @@ from diplomacy.utils import exceptions
 # Constants
 LOGGER = logging.getLogger(__name__)
 
-class ConnectionHandler():
-    """ ConnectionHandler class. Properties:
-        - server: server object representing running server.
+class ConnectionHandler:
+    """ ConnectionHandler class.
+
+        Properties:
+
+            - **server**: server object representing running server.
     """
     _NAME_VARIANT_PREFIX = 'DAIDE'
     _NAME_VARIANTS_POOL = []
@@ -54,6 +57,7 @@ class ConnectionHandler():
 
     def initialize(self, stream, server, game_id):
         """ Initialize the connection handler.
+
             :param server: a Server object.
             :type server: diplomacy.Server
         """
@@ -152,6 +156,7 @@ class ConnectionHandler():
 
     def translate_notification(self, notification):
         """ Translate a notification to a DAIDE notification.
+
             :param notification: a notification object to pass to handler function.
                 See diplomacy.communication.notifications for possible notifications.
             :return: either None or an array of daide notifications.

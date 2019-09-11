@@ -18,9 +18,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def turn_to_phase(turn, phase):
-    """ Converts a turn and phase to a short phase name
-        e.g. turn 1 - phase 'Retreats' to 'F1901R'
-    """
+    """ Converts a turn and phase to a short phase name e.g. turn 1 - phase 'Retreats' to 'F1901R' """
     year = 1901 + turn // 2
     season = 'S' if turn % 2 == 0 else 'F'
     if phase == 'Builds':
@@ -36,13 +34,14 @@ def turn_to_phase(turn, phase):
 #  'retreating': 'Yes'/'No'}
 def unit_dict_to_str(unit_dict, map_id=1):
     """ Converts a unit from the dictionary format to the string format
-        e.g. {'unitType': 'Army', 'terrID': 6, 'countryId': 1, 'retreating': 'No'}
-             to 'ENGLAND', 'A LON'
+        e.g. ``{'unitType': 'Army', 'terrID': 6, 'countryId': 1, 'retreating': 'No'}``
+        to ``'ENGLAND', 'A LON'``
 
         :param unit_dict: The unit in dictionary format from webdiplomacy.net
         :return: A tuple consisting of:
-            1) The power owning the unit (e.g. 'FRANCE')
-            2) The unit in string format (with a leading * when dislodged) (e.g. '*A PAR')
+
+            #. The power owning the unit (e.g. 'FRANCE')
+            #. The unit in string format (with a leading ``*`` when dislodged) (e.g. ``'*A PAR'``)
     """
     req_fields = ('unitType', 'terrID', 'countryID', 'retreating')
     if [1 for field in req_fields if field not in unit_dict]:
@@ -84,12 +83,13 @@ def unit_dict_to_str(unit_dict, map_id=1):
 #  'countryId':  integer}
 def center_dict_to_str(center_dict, map_id=1):
     """ Converts a supply center from the dictionary format to the string format
-        e.g. {'terrID': 6, 'countryId': 1} to 'ENGLAND', 'LON'
+        e.g. ``{'terrID': 6, 'countryId': 1}`` to ``'ENGLAND', 'LON'``
 
         :param center_dict: The center in dictionary format from webdiplomacy.net
         :return: A tuple consisting of:
-            1) The power owning the center (e.g. 'FRANCE')
-            2) The location where the supply center is (e.g. 'PAR')
+
+            #. The power owning the center (e.g. 'FRANCE')
+            #. The location where the supply center is (e.g. 'PAR')
     """
     req_fields = ('terrID', 'countryID')
     if [1 for field in req_fields if field not in center_dict]:
@@ -132,11 +132,13 @@ def center_dict_to_str(center_dict, map_id=1):
 #  'dislodged':  'Yes', 'No'}
 def order_dict_to_str(order_dict, phase, map_id=1):
     """ Converts an order from the dictionary format to the string format
+
         :param order_dict: The order in dictionary format from webdiplomacy.net
         :param phase: The current phase ('Diplomacy', 'Retreats', 'Builds')
         :return: A tuple consisting of:
-            1) The power who submitted the order (e.g. 'FRANCE')
-            2) The order in string format (e.g. 'A PAR H')
+
+            #. The power who submitted the order (e.g. 'FRANCE')
+            #. The order in string format (e.g. 'A PAR H')
     """
     req_fields = ('countryID',)
     if [1 for field in req_fields if field not in order_dict]:
@@ -223,12 +225,14 @@ def process_phase_dict(phase_dict, map_id=1):
 #  'standoffs':   []}
 def state_dict_to_game_and_power(state_dict, country_id, max_phases=None):
     """ Converts a game state from the dictionary format to an actual diplomacy.Game object with the related power.
+
         :param state_dict: The game state in dictionary format from webdiplomacy.net
         :param country_id: The country id we want to convert.
         :param max_phases: Optional. If set, improve speed by only keeping the last 'x' phases to regenerate the game.
         :return: A tuple of
-            1) None, None       - on error or if the conversion is not possible, or game is invalid / not-started / done
-            2) game, power_name - on successful conversion
+
+            #. None, None       - on error or if the conversion is not possible, or game is invalid / not-started / done
+            #. game, power_name - on successful conversion
     """
     if state_dict is None:
         return None, None

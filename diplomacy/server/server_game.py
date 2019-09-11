@@ -22,15 +22,18 @@ from diplomacy.utils import exceptions, parsing, strings
 from diplomacy.utils.game_phase_data import GamePhaseData
 
 class ServerGame(Game):
-    """ ServerGame class. Properties:
-        - server: (optional) server (Server object) that handles this game.
-        - omniscient_usernames (only for server games):
+    """ ServerGame class.
+
+        Properties:
+
+        - **server**: (optional) server (Server object) that handles this game.
+        - **omniscient_usernames** (only for server games):
           set of usernames allowed to be omniscient observers for this game.
-        - moderator_usernames (only for server games):
+        - **moderator_usernames** (only for server games):
           set of usernames allowed to be moderators for this game.
-        - observer (only for server games):
+        - **observer** (only for server games):
           special Power object (diplomacy.Power) used to manage observer tokens.
-        - omniscient (only for server games):
+        - **omniscient** (only for server games):
           special Power object (diplomacy.Power) used to manage omniscient tokens.
     """
     __slots__ = ['server', 'omniscient_usernames', 'moderator_usernames', 'observer', 'omniscient']
@@ -43,11 +46,11 @@ class ServerGame(Game):
 
     def __init__(self, server=None, **kwargs):
         # Reference to a Server instance.
-        self.server = server  # type: diplomacy.Server
-        self.omniscient_usernames = None  # type: set
-        self.moderator_usernames = None  # type: set
-        self.observer = None  # type: Power
-        self.omniscient = None  # type: Power
+        self.server = server                # type: diplomacy.Server
+        self.omniscient_usernames = None    # type: set
+        self.moderator_usernames = None     # type: set
+        self.observer = None                # type: Power
+        self.omniscient = None              # type: Power
 
         super(ServerGame, self).__init__(**kwargs)
         assert self.is_server_game()
@@ -72,6 +75,7 @@ class ServerGame(Game):
 
     def filter_phase_data(self, phase_data, role, is_current):
         """ Return a filtered version of given phase data for given gam role.
+
             :param phase_data: GamePhaseData object to filter.
             :param role: game role to filter phase data for.
             :param is_current: Boolean. Indicate if given phase data is for a current phase (True), or for a pase phase.
@@ -108,10 +112,13 @@ class ServerGame(Game):
                              results=phase_data.results)
 
     def game_can_start(self):
-        """ Return True if server game can start. A game can start if all followings conditions are satisfied:
+        """ Return True if server game can start.
+            A game can start if all followings conditions are satisfied:
+
             - Game has not yet started.
             - Game can start automatically (no rule START_MASTER).
             - Game has expected number of controlled powers.
+
             :return: a boolean
             :rtype: bool
         """
@@ -135,18 +142,24 @@ class ServerGame(Game):
     def new_system_message(self, recipient, body):
         """ Create a system message (immediately dated) to be sent by server and add it to message history.
             To be used only by server game.
+
             :param recipient: recipient description (string). Either:
+
                 - a power name.
                 - 'GLOBAL' (all game tokens)
                 - 'OBSERVER' (all special tokens [observers and omniscient observers])
                 - 'OMNISCIENT' (all omniscient tokens only)
+
             :param body: message body (string).
             :return: a new GameMessage object.
             :rtype: Message
         """
         assert (recipient in {GLOBAL, OBSERVER, OMNISCIENT}
                 or self.has_power(recipient))
-        message = Message(phase=self.current_short_phase, sender=SYSTEM, recipient=recipient, message=body)
+        message = Message(phase=self.current_short_phase,
+                          sender=SYSTEM,
+                          recipient=recipient,
+                          message=body)
         # Message timestamp will be generated when adding message.
         self.add_message(message)
         return message
@@ -205,7 +218,9 @@ class ServerGame(Game):
         return game
 
     def cast(self, role, for_username):
-        """ Return a copy of this game for given role (either observer role, omniscient role or a power role). """
+        """ Return a copy of this game for given role
+            (either observer role, omniscient role or a power role).
+        """
         assert strings.role_is_special(role) or self.has_power(role)
         if role == strings.OBSERVER_TYPE:
             return self.as_observer_game(for_username)
@@ -219,6 +234,7 @@ class ServerGame(Game):
 
     def get_observer_level(self, username):
         """ Return the highest observation level allowed for given username.
+
             :param username: name of user to get observation right
             :return: either 'master_type', 'omniscient_type', 'observer_type' or None.
         """
@@ -242,7 +258,8 @@ class ServerGame(Game):
 
     def get_special_addresses(self):
         """ Generate addresses (couples [power name, token]) of
-            omniscient observers and simple observers of this game. """
+            omniscient observers and simple observers of this game.
+        """
         for power in (self.omniscient, self.observer):
             for token in power.tokens:
                 yield (power.name, token)
@@ -253,7 +270,9 @@ class ServerGame(Game):
             yield (self.observer.name, token)
 
     def get_omniscient_addresses(self):
-        """ Generate addresses (couples [power name, token]) of omniscient observers of this game. """
+        """ Generate addresses (couples [power name, token])
+            of omniscient observers of this game.
+        """
         for token in self.omniscient.tokens:
             yield (self.omniscient.name, token)
 
@@ -266,7 +285,9 @@ class ServerGame(Game):
         raise exceptions.DiplomacyException('Unknown special token in game %s' % self.game_id)
 
     def get_power_addresses(self, power_name):
-        """ Generate addresses (couples [power name, token]) of user controlling given power name. """
+        """ Generate addresses (couples [power name, token])
+            of user controlling given power name.
+        """
         for token in self.get_power(power_name).tokens:
             yield (power_name, token)
 
@@ -293,6 +314,7 @@ class ServerGame(Game):
 
     def power_has_token(self, power_name, token):
         """ Return True if given power has given player token.
+
             :param power_name: name of power to check.
             :param token: token to look for.
             :return: a boolean
@@ -316,7 +338,9 @@ class ServerGame(Game):
         self.observer.add_token(token)
 
     def transfer_special_token(self, token):
-        """ Move given token from a special case to another (observer -> omniscient or omniscient -> observer). """
+        """ Move given token from a special case to another
+            (observer -> omniscient or omniscient -> observer).
+        """
         if self.has_observer_token(token):
             self.remove_observer_token(token)
             self.add_omniscient_token(token)
@@ -345,7 +369,9 @@ class ServerGame(Game):
         self.omniscient.remove_tokens([token])
 
     def remove_special_token(self, special_name, token):
-        """ Remove given token from given special power name (either __OBSERVER__ or __OMNISCIENT__). """
+        """ Remove given token from given special power name
+            (either __OBSERVER__ or __OMNISCIENT__).
+        """
         if special_name == self.observer.name:
             self.remove_observer_token(token)
         else:
@@ -393,14 +419,19 @@ class ServerGame(Game):
             self.omniscient_usernames.remove(username)
 
     def filter_usernames(self, filter_function):
-        """ Remove each omniscient username, moderator username and player controller that does not match given
-            filter function (if filter_function(username) is False).
+        """ Remove each omniscient username, moderator username and player controller
+            that does not match given filter function (if filter_function(username) is False).
+
             :param filter_function: a callable receiving a username and returning a boolean.
             :return: an integer, either:
+
                 * 0: nothing changed.
                 * -1: something changed, but no player controllers removed.
                 * 1: something changed, and some player controllers were removed.
-                So, if 1 is returned, there are new dummy powers in the game (some notifications may need to be sent).
+
+                So, if 1 is returned, there are new dummy powers in the game
+                (some notifications may need to be sent).
+
         """
         n_kicked_players = 0
         n_kicked_omniscients = len(self.omniscient_usernames)
@@ -420,7 +451,9 @@ class ServerGame(Game):
         return 0
 
     def filter_tokens(self, filter_function):
-        """ Remove from this game any token not matching given filter function (if filter_function(token) is False)."""
+        """ Remove from this game any token not matching given filter function
+            (if filter_function(token) is False).
+        """
         self.observer.remove_tokens([token for token in self.observer.tokens if not filter_function(token)])
         self.omniscient.remove_tokens([token for token in self.omniscient.tokens if not filter_function(token)])
         for power in self.powers.values():  # type: Power
@@ -428,13 +461,18 @@ class ServerGame(Game):
 
     def process(self):
         """ Process current game phase and move forward to next phase.
+
             :return: a triple containing:
+
                 - previous game state (before the processing)
                 - current game state (after processing and game updates)
                 - A dictionary mapping kicked power names to tokens previously associated to these powers.
                   Useful to notify kicked users as they will be not registered in game anymore.
+
                 If game was not active, triple is (None, None, None).
+
                 If game kicked powers, only kicked powers dict is returned: (None, None, kicked powers).
+
                 If game was correctly processed, only states are returned: (prev, curr, None).
         """
         if not self.is_game_active:

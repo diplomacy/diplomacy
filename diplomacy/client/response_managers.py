@@ -28,7 +28,7 @@ from diplomacy.engine.game import Game
 from diplomacy.utils import exceptions
 from diplomacy.utils.game_phase_data import GamePhaseData
 
-class RequestFutureContext():
+class RequestFutureContext:
     """ Helper class to store a context around a request
         (with future for response management, related connection and optional related game).
     """
@@ -36,6 +36,7 @@ class RequestFutureContext():
 
     def __init__(self, request, future, connection, game=None):
         """ Initialize a request future context.
+
             :param request: a request object (see diplomacy.communication.requests about possible classes).
             :param future: a tornado Future object.
             :param connection: a diplomacy.Connection object.
@@ -63,6 +64,7 @@ class RequestFutureContext():
     def new_game(self, received_game):
         """ Create, store (in associated connection) and return a new network game wrapping given game data.
             Returned game is already in appropriate type (observer game, omniscient game or power game).
+
             :param received_game: game sent by server (Game object)
             :type received_game: Game
         """
@@ -90,6 +92,7 @@ def default_manager(context, response):
         Else, return response.
         Expect response to be either OK or a UniqueData
         (containing only 1 field intended to be returned by server for associated request).
+
         :param context: request context
         :param response: response received
         :return: None, or data if response is a UniqueData.
@@ -100,8 +103,42 @@ def default_manager(context, response):
         return None
     return response
 
+def on_clear_centers(context, response):
+    """ Manage response for request ClearCenters.
+
+        :param context: request context
+        :param response: response received
+        :return: None
+        :type context: RequestFutureContext
+    """
+    request = context.request  # type: requests.ClearCenters
+    Game.clear_centers(context.game, request.power_name)
+
+def on_clear_orders(context, response):
+    """ Manage response for request ClearOrders.
+
+        :param context: request context
+        :param response: response received
+        :return: None
+        :type context: RequestFutureContext
+    """
+    request = context.request  # type: requests.ClearOrders
+    Game.clear_orders(context.game, request.power_name)
+
+def on_clear_units(context, response):
+    """ Manage response for request ClearUnits.
+
+        :param context: request context
+        :param response: response received
+        :return: None
+        :type context: RequestFutureContext
+    """
+    request = context.request  # type: requests.ClearUnits
+    Game.clear_units(context.game, request.power_name)
+
 def on_create_game(context, response):
     """ Manage response for request CreateGame.
+
         :param context: request context
         :param response: response received
         :return: a new network game
@@ -112,6 +149,7 @@ def on_create_game(context, response):
 
 def on_delete_account(context, response):
     """ Manage response for request DeleteAccount.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -121,6 +159,7 @@ def on_delete_account(context, response):
 
 def on_delete_game(context, response):
     """ Manage response for request DeleteGame.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -130,6 +169,7 @@ def on_delete_game(context, response):
 
 def on_get_phase_history(context, response):
     """ Manage response for request GetPhaseHistory.
+
         :param context: request context
         :param response: response received
         :return: a list of game states
@@ -143,6 +183,7 @@ def on_get_phase_history(context, response):
 
 def on_join_game(context, response):
     """ Manage response for request JoinGame.
+
         :param context: request context
         :param response: response received
         :return: a new network game
@@ -152,6 +193,7 @@ def on_join_game(context, response):
 
 def on_leave_game(context, response):
     """ Manage response for request LeaveGame.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -161,6 +203,7 @@ def on_leave_game(context, response):
 
 def on_logout(context, response):
     """ Manage response for request Logout.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -170,6 +213,7 @@ def on_logout(context, response):
 
 def on_send_game_message(context, response):
     """ Manage response for request SendGameMessage.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -183,6 +227,7 @@ def on_send_game_message(context, response):
 
 def on_set_game_state(context, response):
     """ Manage response for request SetGameState.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -197,6 +242,7 @@ def on_set_game_state(context, response):
 
 def on_set_game_status(context, response):
     """ Manage response for request SetGameStatus.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -207,6 +253,7 @@ def on_set_game_status(context, response):
 
 def on_set_orders(context, response):
     """ Manage response for request SetOrders.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -220,38 +267,9 @@ def on_set_orders(context, response):
     else:
         Game.set_orders(context.game, request.power_name, orders)
 
-def on_clear_orders(context, response):
-    """ Manage response for request ClearOrders.
-        :param context: request context
-        :param response: response received
-        :return: None
-        :type context: RequestFutureContext
-    """
-    request = context.request  # type: requests.ClearOrders
-    Game.clear_orders(context.game, request.power_name)
-
-def on_clear_centers(context, response):
-    """ Manage response for request ClearCenters.
-        :param context: request context
-        :param response: response received
-        :return: None
-        :type context: RequestFutureContext
-    """
-    request = context.request  # type: requests.ClearCenters
-    Game.clear_centers(context.game, request.power_name)
-
-def on_clear_units(context, response):
-    """ Manage response for request ClearUnits.
-        :param context: request context
-        :param response: response received
-        :return: None
-        :type context: RequestFutureContext
-    """
-    request = context.request  # type: requests.ClearUnits
-    Game.clear_units(context.game, request.power_name)
-
 def on_set_wait_flag(context, response):
     """ Manage response for request SetWaitFlag.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -267,6 +285,7 @@ def on_set_wait_flag(context, response):
 
 def on_sign_in(context, response):
     """ Manage response for request SignIn.
+
         :param context: request context
         :param response: response received
         :return: a new channel
@@ -277,6 +296,7 @@ def on_sign_in(context, response):
 
 def on_vote(context, response):
     """ Manage response for request VoteAboutDraw.
+
         :param context: request context
         :param response: response received
         :return: None
@@ -300,13 +320,13 @@ MAPPING = {
     requests.GetAvailableMaps: default_manager,
     requests.GetDaidePort: default_manager,
     requests.GetDummyWaitingPowers: default_manager,
-    requests.GetPlayablePowers: default_manager,
+    requests.GetGamesInfo: default_manager,
     requests.GetPhaseHistory: on_get_phase_history,
+    requests.GetPlayablePowers: default_manager,
     requests.JoinGame: on_join_game,
     requests.JoinPowers: default_manager,
     requests.LeaveGame: on_leave_game,
     requests.ListGames: default_manager,
-    requests.GetGamesInfo: default_manager,
     requests.Logout: on_logout,
     requests.ProcessGame: default_manager,
     requests.QuerySchedule: default_manager,
@@ -325,6 +345,7 @@ MAPPING = {
 
 def handle_response(context, response):
     """ Call appropriate handler for given response with given request context.
+
         :param context: request context.
         :param response: response received.
         :return: value returned by handler.

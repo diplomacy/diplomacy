@@ -12,9 +12,30 @@ if [ "${1:-auto}" != "0" ]; then
 fi
 
 # Running pylint
+echo ""
+echo "------------------------------"
+echo "         PYLINT TESTS         "
+echo "------------------------------"
+echo ""
 find diplomacy -name "*.py" ! -name 'zzz_*.py' ! -name '_*.py' -exec pylint '{}' + || FAILED=1
 
+# Running sphinx
+echo ""
+echo "------------------------------"
+echo "         SPHINX TESTS         "
+echo "------------------------------"
+echo ""
+cd $DIR/docs
+make clean || FAILED=1
+make html || FAILED=1
+cd -
+
 # Running eslint
+echo ""
+echo "------------------------------"
+echo "         ESLINT TESTS         "
+echo "------------------------------"
+echo ""
 if [ -f "$DIR/diplomacy/web/node_modules/.bin/eslint" ]; then
     if [ -z ${NVM_DIR+x} ]; then
         export NVM_DIR="$HOME/.nvm"

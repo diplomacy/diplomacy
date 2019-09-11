@@ -37,14 +37,17 @@ LOGGER = logging.getLogger(__name__)
 TOKEN_LIFETIME_SECONDS = 24 * 60 * 60
 
 class Users(Jsonable):
-    """ Users class. Properties:
-        - users: dictionary mapping usernames to User object.s
-        - administrators: set of administrator usernames.
-        - token_timestamp: dictionary mapping each token to its creation/last confirmation timestamp.
-        - token_to_username: dictionary mapping each token to its username.
-        - username_to_tokens: dictionary mapping each username to a set of its tokens.
-        - token_to_connection_handler: (memory only) dictionary mapping each token to a connection handler
-        - connection_handler_to_tokens (memory only) dictionary mapping a connection handler to a set of its tokens
+    """ Users class.
+
+        Properties:
+
+        - **users**: dictionary mapping usernames to User object.s
+        - **administrators**: set of administrator usernames.
+        - **token_timestamp**: dictionary mapping each token to its creation/last confirmation timestamp.
+        - **token_to_username**: dictionary mapping each token to its username.
+        - **username_to_tokens**: dictionary mapping each username to a set of its tokens.
+        - **token_to_connection_handler**: (memory only) dictionary mapping each token to a connection handler
+        - **connection_handler_to_tokens**: (memory only) dictionary mapping a connection handler to a set of its tokens
     """
     __slots__ = ['users', 'administrators', 'token_timestamp', 'token_to_username', 'username_to_tokens',
                  'token_to_connection_handler', 'connection_handler_to_tokens']
@@ -170,6 +173,7 @@ class Users(Jsonable):
         """ Remove given connection handler.
             Return tokens associated to this connection handler,
             or None if connection handler is unknown.
+
             :param connection_handler: connection handler to remove.
             :param remove_tokens: if True, tokens related to connection handler are deleted.
             :return: either None or a set of tokens.
@@ -188,8 +192,9 @@ class Users(Jsonable):
         return None
 
     def connect_user(self, username, connection_handler):
-        """ Connect given username to given connection handler with a new generated token, and return
-            token generated.
+        """ Connect given username to given connection handler with a new generated token,
+            and return token generated.
+
             :param username: username to connect
             :param connection_handler: connection handler to link to user
             :return: a new token generated for connexion
@@ -209,9 +214,11 @@ class Users(Jsonable):
 
     def attach_connection_handler(self, token, connection_handler):
         """ Associate given token with given connection handler if token is known.
-            If there is a previous connection handler associated to given token, it should be the same
-            as given connection handler, otherwise an error is raised (meaning previous connection handler
-            was not correctly disconnected from given token. It should be a programming error).
+            If there is a previous connection handler associated to given token, it should be
+            the same as given connection handler, otherwise an error is raised
+            (meaning previous connection handler was not correctly disconnected from given token.
+            It should be a programming error).
+
             :param token: token
             :param connection_handler: connection handler
         """

@@ -20,7 +20,7 @@ from tornado import gen
 from diplomacy.communication import notifications
 from diplomacy.utils import strings
 
-class Notifier():
+class Notifier:
     """ Server notifier class. """
     __slots__ = ['server', 'ignore_tokens', 'ignore_addresses']
 
@@ -28,6 +28,7 @@ class Notifier():
         """ Initialize a server notifier. You can specify some tokens or addresses to ignore using
             ignore_tokens or ignore_addresses. Note that these parameters are mutually exclusive
             (you can use either none of them or only one of them).
+
             :param server: a server object.
             :param ignore_tokens: (optional) sequence of tokens to ignore.
             :param ignore_addresses: (optional) sequence of couples (power name, token) to ignore.
@@ -45,7 +46,8 @@ class Notifier():
             self.ignore_tokens = set(ignore_tokens)
 
         # Expect a sequence of tuples (power name, token) to ignore.
-        # Convert it to a dict {power name => {token}} (each power name with all associated ignored tokens).
+        # Convert it to a dict {power name => {token}}
+        # (each power name with all associated ignored tokens).
         elif ignore_addresses:
             self.ignore_addresses = {}
             for power_name, token in ignore_addresses:
@@ -55,6 +57,7 @@ class Notifier():
 
     def ignores(self, notification):
         """ Return True if given notification must be ignored.
+
             :param notification:
             :return: a boolean
             :type notification: notifications._AbstractNotification | notifications._GameNotification
@@ -62,7 +65,8 @@ class Notifier():
         if self.ignore_tokens:
             return notification.token in self.ignore_tokens
         if self.ignore_addresses and notification.level == strings.GAME:
-            # We can ignore addresses only for game requests (as other requests only have a token, not a full address).
+            # We can ignore addresses only for game requests
+            # (as other requests only have a token, not a full address).
             return (notification.game_role in self.ignore_addresses
                     and notification.token in self.ignore_addresses[notification.game_role])
         return False
@@ -70,6 +74,7 @@ class Notifier():
     @gen.coroutine
     def _notify(self, notification):
         """ Register a notification to send.
+
             :param notification: a notification instance.
             :type notification: notifications._AbstractNotification | notifications._GameNotification
         """
@@ -84,6 +89,7 @@ class Notifier():
     def _notify_game(self, server_game, notification_class, **kwargs):
         """ Send a game notification.
             Game token, game ID and game role will be automatically provided to notification object.
+
             :param server_game: game to notify
             :param notification_class: class of notification to send
             :param kwargs: (optional) other notification parameters
@@ -99,6 +105,7 @@ class Notifier():
     def _notify_power(self, game_id, power, notification_class, **kwargs):
         """ Send a notification to all tokens of a power.
             Automatically add token, game ID and game role to notification parameters.
+
             :param game_id: power game ID.
             :param power: power to send notification.
             :param notification_class: class of notification to send.
@@ -114,6 +121,7 @@ class Notifier():
     @gen.coroutine
     def notify_game_processed(self, server_game, previous_phase_data, current_phase_data):
         """ Notify all game tokens about a game phase update (game processing).
+
             :param server_game: game to notify
             :param previous_phase_data: game phase data before phase update
             :param current_phase_data: game phase data after phase update
@@ -157,6 +165,7 @@ class Notifier():
     @gen.coroutine
     def notify_game_deleted(self, server_game):
         """ Notify all game tokens about game deleted.
+
             :param server_game: game to notify
             :type server_game: diplomacy.server.server_game.ServerGame
         """
@@ -165,6 +174,7 @@ class Notifier():
     @gen.coroutine
     def notify_game_powers_controllers(self, server_game):
         """ Notify all game tokens about current game powers controllers.
+
             :param server_game: game to notify
             :type server_game: diplomacy.server.server_game.ServerGame
         """
@@ -175,6 +185,7 @@ class Notifier():
     @gen.coroutine
     def notify_game_status(self, server_game):
         """ Notify all game tokens about current game status.
+
             :param server_game: game to notify
             :type server_game: diplomacy.server.server_game.ServerGame
         """
@@ -183,6 +194,7 @@ class Notifier():
     @gen.coroutine
     def notify_game_phase_data(self, server_game):
         """ Notify all game tokens about current game state.
+
             :param server_game: game to notify
             :type server_game: diplomacy.server.server_game.ServerGame
         """
@@ -215,6 +227,7 @@ class Notifier():
     def notify_game_vote_updated(self, server_game):
         """ Notify all game tokens about current game vote.
             Send relevant notifications to each type of tokens.
+
             :param server_game: game to notify
             :type server_game: diplomacy.server.server_game.ServerGame
         """
@@ -242,6 +255,7 @@ class Notifier():
     @gen.coroutine
     def notify_power_orders_update(self, server_game, power, orders):
         """ Notify all power tokens and all observers about new orders for given power.
+
             :param server_game: game to notify
             :param power: power to notify
             :param orders: new power orders
@@ -265,6 +279,7 @@ class Notifier():
     @gen.coroutine
     def notify_power_wait_flag(self, server_game, power, wait_flag):
         """ Notify all power tokens about new wait flag for given power.
+
             :param server_game: game to notify
             :param power: power to notify
             :param wait_flag: new wait flag
@@ -275,6 +290,7 @@ class Notifier():
     @gen.coroutine
     def notify_cleared_orders(self, server_game, power_name):
         """ Notify all game tokens about game orders cleared for a given power name.
+
             :param server_game: game to notify
             :param power_name: name of power for which orders were cleared.
                 None means all power orders were cleared.
@@ -285,6 +301,7 @@ class Notifier():
     @gen.coroutine
     def notify_cleared_units(self, server_game, power_name):
         """ Notify all game tokens about game units cleared for a given power name.
+
             :param server_game: game to notify
             :param power_name: name of power for which units were cleared.
                 None means all power units were cleared.
@@ -295,6 +312,7 @@ class Notifier():
     @gen.coroutine
     def notify_cleared_centers(self, server_game, power_name):
         """ Notify all game tokens about game centers cleared for a given power name.
+
             :param server_game: game to notify
             :param power_name: name of power for which centers were cleared.
                 None means all power centers were cleared.
@@ -305,6 +323,7 @@ class Notifier():
     @gen.coroutine
     def notify_game_message(self, server_game, game_message):
         """ Notify relevant users about a game message received.
+
             :param server_game: Game data who handles this game message.
             :param game_message: the game message received.
             :return: None
@@ -330,6 +349,7 @@ class Notifier():
         """ Notify addresses of a game with a notification.
             Game ID is automatically provided to notification.
             Token and game role are automatically provided to notifications from given addresses.
+
             :param game_id: related game ID
             :param addresses: addresses to notify. Sequence of couples (game role, token).
             :param notification_class: class of notification to send

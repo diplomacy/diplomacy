@@ -21,7 +21,7 @@ from diplomacy.utils.sorted_set import SortedSet
 from diplomacy.utils.tests.test_common import assert_raises
 from diplomacy.utils.tests.test_jsonable import MyJsonable
 
-class MyStringable():
+class MyStringable:
     """ Example of Stringable class.
         As instances of such class may be used as dict keys, class should define a proper __hash__().
     """

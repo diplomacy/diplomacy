@@ -27,7 +27,8 @@ LOGGER = logging.getLogger(__name__)
 class Server(TCPServer):
     """ Represents a server to receive DAIDE communications """
     def __init__(self, master_server, game_id):
-        """ Contructor
+        """ Constructor
+
             :param master_server: the internal server
             :param game_id: the game id for which this server will receive communications
         """
@@ -55,6 +56,7 @@ class Server(TCPServer):
     @gen.coroutine
     def handle_stream(self, stream, address):
         """ Handle an open stream
+
             :param stream: the stream to handle
             :param address: the address of the client
         """
