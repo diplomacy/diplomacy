@@ -46,11 +46,7 @@ export class ContentConnection extends React.Component {
                 page.connection = this.connection;
                 this.connection = null;
                 page.success(`Successfully connected to server ${data.username}:${data.port}`);
-                page.connection.authenticate(data.username, data.password, false)
-                    .catch((error) => {
-                        page.error(`Unable to sign in, trying to create an account, error: ${error}`);
-                        return page.connection.authenticate(data.username, data.password, true);
-                    })
+                page.connection.authenticate(data.username, data.password)
                     .then((channel) => {
                         page.channel = channel;
                         return channel.getAvailableMaps();

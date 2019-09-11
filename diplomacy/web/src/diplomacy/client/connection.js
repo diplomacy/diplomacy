@@ -340,11 +340,10 @@ export class Connection {
         return requestContext.future;
     }
 
-    authenticate(username, password, createUser = false) {
+    authenticate(username, password) {
         return this.send(REQUESTS.create('sign_in', {
             username: username,
-            password: password,
-            create_user: createUser
+            password: password
         })).promise();
     }
 

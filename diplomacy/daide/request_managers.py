@@ -50,12 +50,7 @@ def on_name_request(server, request, connection_handler, game):
         connection_handler.token = None
 
     if not connection_handler.token:
-        user_exists = server.users.has_username(username)
-
-        sign_in_request = internal_requests.SignIn(username=username,
-                                                   password='1234',
-                                                   create_user=not user_exists)
-
+        sign_in_request = internal_requests.SignIn(username=username, password='1234')
         try:
             token_response = yield internal_request_managers.handle_request(server, sign_in_request, connection_handler)
             connection_handler.token = token_response.data
@@ -119,10 +114,7 @@ def on_i_am_request(server, request, connection_handler, game):
         connection_handler.token = None
 
     if not connection_handler.token:
-        sign_in_request = internal_requests.SignIn(username=username,
-                                                   password='1234',
-                                                   create_user=False)
-
+        sign_in_request = internal_requests.SignIn(username=username, password='1234')
         try:
             token_response = yield internal_request_managers.handle_request(server, sign_in_request, connection_handler)
             connection_handler.token = token_response.data

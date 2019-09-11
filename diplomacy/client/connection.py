@@ -130,19 +130,18 @@ class Connection:
     # ===================
 
     @gen.coroutine
-    def authenticate(self, username, password, create_user=False):
+    def authenticate(self, username, password):
         """ Send a :class:`.SignIn` request.
+            User will be created on the server automatically if it doesn't exist.
 
             :param username: username
             :param password: password
-            :param create_user: boolean indicating if you want to create a user or login to an existing user.
             :return: a :class:`.Channel` object representing the authentication.
             :type username: str
             :type password: str
-            :type create_user: bool
             :rtype: diplomacy.client.channel.Channel
         """
-        request = requests.SignIn(username=username, password=password, create_user=create_user)
+        request = requests.SignIn(username=username, password=password)
         return (yield self.send(request))
 
     @gen.coroutine

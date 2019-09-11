@@ -1068,20 +1068,23 @@ def on_sign_in(server, request, connection_handler):
         :type request: diplomacy.communication.requests.SignIn
     """
     # No channel/game request verification to do.
-    username, password, create_user = request.username, request.password, request.create_user
-    if create_user:
-        # Register.
-        if not username:
-            raise exceptions.UserException()
-        if not password:
-            raise exceptions.PasswordException()
+    username, password = request.username, request.password
+
+    if not username:
+        raise exceptions.UserException()
+    if not password:
+        raise exceptions.PasswordException()
+
+    # New user
+    if not server.users.has_username(username):
         if not server.allow_registrations:
             raise exceptions.ServerRegistrationException()
-        if server.users.has_username(username):
-            raise exceptions.UserException()
         server.users.add_user(username, hash_password(password))
+
+    # Existing user
     elif not server.users.has_user(username, password):
         raise exceptions.UserException()
+
     token = server.users.connect_user(username, connection_handler)
     server.save_data()
     return responses.DataToken(data=token, request_id=request.request_id)
