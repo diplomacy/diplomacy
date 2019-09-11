@@ -27,7 +27,6 @@ The package is compatible with Python 3.5, 3.6, and 3.7.
 The following script plays a game locally by submitting random valid orders until the game is completed.
 
 ```python3
-import json
 import random
 from diplomacy import Game
 from diplomacy.utils.export import to_saved_game_format
@@ -56,9 +55,9 @@ while not game.is_game_done:
     # Processing the game to move to the next phase
     game.process()
 
-# Exporting the game to disk to visualize
-with open('game.json', 'w') as file:
-    file.write(json.dumps(to_saved_game_format(game)))
+# Exporting the game to disk to visualize (game is appended to file)
+# Alternatively, we can do >> file.write(json.dumps(to_saved_game_format(game)))
+to_saved_game_format(game, output_path='game.json')
 ```
 
 ## Web interface
