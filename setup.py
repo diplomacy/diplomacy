@@ -19,6 +19,10 @@ import os
 import sys
 from setuptools import setup, find_packages
 
+# Import the current version
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'diplomacy'))
+from version import PACKAGE_VERSION
+
 # Requiring python 3.5+.
 # To simplify code for Tornado coroutines return statements, we don't support Python 3.4
 # ( more info here: http://www.tornadoweb.org/en/stable/guide/coroutines.html#coroutines ).
@@ -28,10 +32,7 @@ if (sys.version_info.major, sys.version_info.minor) <= (3, 4):
 
 # ------------------------------------
 # Configuration
-PACKAGE_NAME = 'diplomacy'
-PACKAGE_VERSION = '1.1.0'
-
-setup(name=PACKAGE_NAME,
+setup(name='diplomacy',
       version=PACKAGE_VERSION,
       description='Diplomacy: DATC-Compliant Game Engine with Web Interface',
       long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),

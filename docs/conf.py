@@ -13,7 +13,9 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.join(os.path.abspath('..'), 'diplomacy'))
 from datetime import datetime
+from version import PACKAGE_VERSION
 
 # -- Project information -----------------------------------------------------
 
@@ -22,8 +24,8 @@ author = 'Philip Paquette'
 copyright = str(datetime.now().year) + ' - ' + author
 
 # The full version, including alpha/beta/rc tags
-version = 'latest'
-release = 'latest'
+version = PACKAGE_VERSION
+release = PACKAGE_VERSION
 
 # -- General configuration ---------------------------------------------------
 autodoc_member_order = 'bysource'
