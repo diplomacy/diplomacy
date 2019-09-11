@@ -17,6 +17,7 @@
 """ Exporter
     - Responsible for exporting games in a standardized format to disk
 """
+import ujson as json
 from diplomacy.engine.game import Game
 from diplomacy.engine.map import Map
 from diplomacy.utils.game_phase_data import GamePhaseData
@@ -24,21 +25,22 @@ from diplomacy.utils.game_phase_data import GamePhaseData
 # Constants
 RULES_TO_SKIP = ['SOLITAIRE', 'NO_DEADLINE', 'CD_DUMMIES', 'ALWAYS_WAIT', 'IGNORE_ERRORS']
 
-def to_saved_game_format(game):
+def to_saved_game_format(game, output_path=None, output_mode='a'):
     """ Converts a game to a standardized JSON format
 
         :param game: game to convert.
+        :param output_path: Optional path to file. If set, the json.dumps() of the saved_game is written to that file.
+        :param output_mode: Optional. The mode to use to write to the output_path (if provided). Defaults to 'a'
         :return: A game in the standard format used to saved game, that can be converted to JSON for serialization
         :type game: diplomacy.engine.game.Game
+        :type output_path: str | None, optional
+        :type output_mode: str, optional
         :rtype: Dict
     """
+    phases = Game.get_phase_history(game)                                       # Get phase history.
+    phases.append(Game.get_phase_data(game))                                    # Add current game phase.
+    rules = [rule for rule in game.rules if rule not in RULES_TO_SKIP]          # Filter rules.
 
-    # Get phase history.
-    phases = Game.get_phase_history(game)
-    # Add current game phase.
-    phases.append(Game.get_phase_data(game))
-    # Filter rules.
-    rules = [rule for rule in game.rules if rule not in RULES_TO_SKIP]
     # Extend states fields.
     phases_to_dict = [phase.to_dict() for phase in phases]
     for phase_dct in phases_to_dict:
@@ -47,10 +49,18 @@ def to_saved_game_format(game):
         phase_dct['state']['rules'] = rules
 
     # Building saved game
-    return {'id': game.game_id,
-            'map': game.map_name,
-            'rules': rules,
-            'phases': phases_to_dict}
+    saved_game = {'id': game.game_id,
+                  'map': game.map_name,
+                  'rules': rules,
+                  'phases': phases_to_dict}
+
+    # Writing to disk
+    if output_path:
+        with open(output_path, output_mode) as output_file:
+            output_file.write(json.dumps(saved_game) + '\n')
+
+    # Returning
+    return saved_game
 
 def is_valid_saved_game(saved_game):
     """ Checks if the saved game is valid.
