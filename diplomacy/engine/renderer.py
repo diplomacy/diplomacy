@@ -63,15 +63,17 @@ class Renderer:
             self.xml_map = minidom.parse(svg_path).toxml()
         self._load_metadata()
 
-    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg'):
+    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
         """ Renders the current game and returns the XML representation
 
             :param incl_orders:  Optional. Flag to indicate we also want to render orders.
             :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
             :param output_format: The desired output format. Valid values are: 'svg'
+            :param output_path: Optional. The full path where to save the rendering on disk.
             :type incl_orders: bool, optional
             :type incl_abbrev: bool, optional
             :type output_format: str, optional
+            :type output_path: str | None, optional
             :return: The rendered image in the specified format.
         """
         # pylint: disable=too-many-branches
@@ -181,8 +183,16 @@ class Renderer:
             elif _attr(child_node, 'id') == 'MouseLayer':
                 svg_node.removeChild(child_node)
 
+        # Rendering
+        rendered_image = xml_map.toxml()
+
+        # Saving to disk
+        if output_path:
+            with open(output_path, 'w') as output_file:
+                output_file.write(rendered_image)
+
         # Returning
-        return xml_map.toxml()
+        return rendered_image
 
     def _load_metadata(self):
         """ Loads meta-data embedded in the XML map and clears unused nodes """
