@@ -1324,17 +1324,25 @@ class Game(Jsonable):
             self.phase = self.map.phase_long(new_phase)
             self.phase_type = self.phase.split()[-1][0]
 
-    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg'):
+    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
         """ Renders the current game and returns its image representation
 
             :param incl_orders:  Optional. Flag to indicate we also want to render orders.
             :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
             :param output_format: The desired output format. Currently, only 'svg' is supported.
+            :param output_path: Optional. The full path where to save the rendering on disk.
+            :type incl_orders: bool, optional
+            :type incl_abbrev: bool, optional
+            :type output_format: str, optional
+            :type output_path: str | None, optional
             :return: The rendered image in the specified format.
         """
         if not self.renderer:
             self.renderer = Renderer(self)
-        return self.renderer.render(incl_orders=incl_orders, incl_abbrev=incl_abbrev, output_format=output_format)
+        return self.renderer.render(incl_orders=incl_orders,
+                                    incl_abbrev=incl_abbrev,
+                                    output_format=output_format,
+                                    output_path=output_path)
 
     def add_rule(self, rule):
         """ Adds a rule to the current rule list
