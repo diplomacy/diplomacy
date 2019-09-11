@@ -15,6 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Package installer """
+import os
 import sys
 from setuptools import setup, find_packages
 
@@ -32,9 +33,15 @@ PACKAGE_VERSION = '1.1.0'
 
 setup(name=PACKAGE_NAME,
       version=PACKAGE_VERSION,
+      description='Diplomacy: DATC-Compliant Game Engine with Web Interface',
+      long_description=open(os.path.join(os.path.dirname(__file__), 'README.md')).read(),
+      long_description_content_type='text/markdown',
+      url='https://github.com/diplomacy/diplomacy',
       author='Philip Paquette',
       author_email='pcpaquette@gmail.com',
       packages=find_packages(),
+      keywords='diplomacy diplomacy-game game negotiation',
+      python_requires='>=3.5',
       include_package_data=True,
       install_requires=[
           'bcrypt',
@@ -51,6 +58,9 @@ setup(name=PACKAGE_NAME,
                    'Programming Language :: Python :: 3.5',
                    'Programming Language :: Python :: 3.6',
                    'Programming Language :: Python :: 3.7',
-                   'Topic :: Games/Entertainment :: Board Games'])
+                   'Topic :: Games/Entertainment :: Board Games'],
+      project_urls={'Bug Reports': 'https://github.com/diplomacy/diplomacy/issues',
+                    'Documentation': 'https://docs.diplomacy.ai/',
+                    'Source': 'https://github.com/diplomacy/diplomacy/'})
 
 # ------------------------------------
