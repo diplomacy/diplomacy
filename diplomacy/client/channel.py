@@ -46,24 +46,24 @@ def _req_fn(request_class, local_req_fn=None, **request_args):
                             for (key, value) in sorted(request_args.items()))) if request_args else ''
 
     @gen.coroutine
-    def func(self, game_object=None, **kwargs):
+    def func(self, game=None, **kwargs):
         """ Send an instance of request_class with given kwargs and game object.
             :param self: Channel object who sends the request.
-            :param game_object: (optional) a NetworkGame object (required for game requests).
+            :param game: (optional) a NetworkGame object (required for game requests).
             :param kwargs: request arguments.
             :return: Data returned after response is received and handled by associated response manager.
                 See module diplomacy.client.response_managers about responses management.
-            :type game_object: diplomacy.client.network_game.NetworkGame
+            :type game: diplomacy.client.network_game.NetworkGame
         """
         kwargs.update(request_args)
         if request_class.level == strings.GAME:
-            assert game_object is not None
+            assert game is not None
             kwargs[strings.TOKEN] = self.token
-            kwargs[strings.GAME_ID] = game_object.game_id
-            kwargs[strings.GAME_ROLE] = game_object.role
-            kwargs[strings.PHASE] = game_object.current_short_phase
+            kwargs[strings.GAME_ID] = game.game_id
+            kwargs[strings.GAME_ROLE] = game.role
+            kwargs[strings.PHASE] = game.current_short_phase
         else:
-            assert game_object is None
+            assert game is None
             if request_class.level == strings.CHANNEL:
                 kwargs[strings.TOKEN] = self.token
         if local_req_fn is not None:
@@ -71,7 +71,7 @@ def _req_fn(request_class, local_req_fn=None, **request_args):
             if local_ret is not None:
                 return local_ret
         request = request_class(**kwargs)
-        return (yield self.connection.send(request, game_object))
+        return (yield self.connection.send(request, game))
 
     func.__request_name__ = request_class.__name__
     func.__request_params__ = str_params

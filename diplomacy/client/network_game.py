@@ -32,7 +32,7 @@ def _game_request_method(channel_method):
         # NB: Channel method returns a future.
         if not self.channel:
             raise DiplomacyException('Invalid client game.')
-        return channel_method(self.channel, game_object=self, **kwargs)
+        return channel_method(self.channel, game=self, **kwargs)
 
     func.__doc__ = """
     Send game request :class:`.%(request_name)s`%(with_params)s``kwargs``.
@@ -123,7 +123,7 @@ class NetworkGame(Game):
         """ Send a :class:`.Synchronize` request to synchronize this game with associated server game. """
         if not self.channel:
             raise DiplomacyException('Invalid client game.')
-        return self.channel._synchronize(game_object=self, timestamp=self.get_latest_timestamp())
+        return self.channel._synchronize(game=self, timestamp=self.get_latest_timestamp())
 
     # Admin / Moderator API.
     delete = _game_request_method(Channel._delete_game)
