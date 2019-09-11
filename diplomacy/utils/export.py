@@ -17,12 +17,16 @@
 """ Exporter
     - Responsible for exporting games in a standardized format to disk
 """
+import logging
+import os
 import ujson as json
 from diplomacy.engine.game import Game
 from diplomacy.engine.map import Map
+from diplomacy.utils import strings
 from diplomacy.utils.game_phase_data import GamePhaseData
 
 # Constants
+LOGGER = logging.getLogger(__name__)
 RULES_TO_SKIP = ['SOLITAIRE', 'NO_DEADLINE', 'CD_DUMMIES', 'ALWAYS_WAIT', 'IGNORE_ERRORS']
 
 def to_saved_game_format(game, output_path=None, output_mode='a'):
@@ -61,6 +65,64 @@ def to_saved_game_format(game, output_path=None, output_mode='a'):
 
     # Returning
     return saved_game
+
+def from_saved_game_format(saved_game):
+    """ Rebuilds a :class:`diplomacy.engine.game.Game` object from the saved game (python :class:`Dict`)
+        saved_game is the dictionary. It can be built by calling json.loads(json_line).
+
+        :param saved_game: The saved game exported from :meth:`to_saved_game_format`
+        :type saved_game: Dict
+        :rtype: diplomacy.engine.game.Game
+        :return: The game object restored from the saved game
+    """
+    game_id = saved_game.get('id', None)
+    kwargs = {strings.MAP_NAME: saved_game.get('map', 'standard'),
+              strings.RULES: saved_game.get('rules', [])}
+
+    # Building game
+    game = Game(game_id=game_id, **kwargs)
+    phase_history = []
+
+    # Restoring every phase
+    for phase_dct in saved_game.get('phases', []):
+        phase_history.append(GamePhaseData.from_dict(phase_dct))
+    game.set_phase_data(phase_history, clear_history=True)
+
+    # Returning game
+    return game
+
+def load_saved_games_from_disk(input_path, on_error='raise'):
+    """ Rebuids multiple :class:`diplomacy.engine.game.Game` from each line in a .jsonl file
+
+        :param input_path: The path to the input file. Expected content is one saved_game json per line.
+        :param on_error: Optional. What to do if a game conversion fails. Either 'raise', 'warn', 'ignore'
+        :type input_path: str
+        :rtype: List[diplomacy.Game]
+        :return: A list of :class:`diplomacy.engine.game.Game` objects.
+    """
+    loaded_games = []
+    assert on_error in ('raise', 'warn', 'ignore'), 'Expected values for on_error are "raise", "warn", "ignore".'
+
+    # File does not exist
+    if not os.path.exists(input_path):
+        LOGGER.warning('File %s does not exist. Aborting.', input_path)
+        return loaded_games
+
+    # Importing each game
+    with open(input_path, 'r') as file:
+        for line in file:
+            try:
+                saved_game = json.loads(line.rstrip('\n'))
+                game = from_saved_game_format(saved_game)
+                loaded_games.append(game)
+            except Exception as exc:                    # pylint: disable=broad-except
+                if on_error == 'raise':
+                    raise exc
+                if on_error == 'warn':
+                    LOGGER.warning(exc)
+
+    # Returning
+    return loaded_games
 
 def is_valid_saved_game(saved_game):
     """ Checks if the saved game is valid.
