@@ -30,84 +30,83 @@ UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = 0, 1, 2, 3,
 MAP_CACHE = {}
 
 
-class Map():
-    """ MAP Class
+class Map:
+    """ Map Class
 
-    Properties:
-        - abbrev: Contains the power abbreviation, otherwise defaults to first letter of PowerName
-                e.g. {'ENGLISH': 'E'}
-        - abuts_cache: Contains a cache of abuts for ['A,'F'] between all locations for orders ['S', 'C', '-']
-                e.g. {(A, PAR, -, MAR): 1, ...}
-        - aliases: Contains a dict of all the aliases (e.g. full province name to 3 char)
-                e.g. {'EAST': 'EAS', 'STP ( /SC )': 'STP/SC', 'FRENCH': 'FRANCE', 'BUDAPEST': 'BUD', 'NOR': 'NWY', ... }
-        - centers: Contains a dict of currently owned supply centers for each player
-                e.g. {'RUSSIA': ['MOS', 'SEV', 'STP', 'WAR'], 'FRANCE': ['BRE', 'MAR', 'PAR'], ... }
-        - convoy_paths: Contains a list of all possible convoys paths bucketed by number of fleets
-                format: {nb of fleets: [(START_LOC, {FLEET LOC}, {DEST LOCS})]}
-        - dest_with_coasts: Contains a dictionary of locs with all destinations (incl coasts) that can be reached
-                e.g. {'PAR': ['BRE', 'PIC', 'BUR', ...], ...}
-        - dummies: Indicates the list of powers that are dummies
-                e.g. ['FRANCE', 'ITALY']
-        - error: Contains a list of errors that the map generated
-                e.g. [''DUPLICATE MAP ALIAS OR POWER: JAPAN']
-        - files: Contains a list of files that were loaded (e.g. USES keyword)
-                e.g. ['standard.map', 'standard.politics', 'standard.geography', 'standard.military']
-        - first_year: Indicates the year where the game is starting.
-                e.g. 1901
-        - flow: List that contains the seasons with the phases
-                e.g. ['SPRING:MOVEMENT,RETREATS', 'FALL:MOVEMENT,RETREATS', 'WINTER:ADJUSTMENTS']
-        - flow_sign: Indicate the direction of flow (1 is positive, -1 is negative)
-                e.g. 1
-        - homes: Contains the list of supply centers where units can be built (i.e. assigned at the beginning)
-                e.g. {'RUSSIA': ['MOS', 'SEV', 'STP', 'WAR'], 'FRANCE': ['BRE', 'MAR', 'PAR'], ... }
-        - inhabits: List that indicates which power have a INHABITS, HOME, or HOMES line
-                e.g. ['FRANCE']
-        - keywords: Contains a dict of keywords to parse status files and orders
-                e.g. {'BUILDS': 'B', '>': '', 'SC': '/SC', 'REMOVING': 'D', 'WAIVED': 'V', 'ATTACK': '', ... }
-        - loc_abut: Contains a adjacency list for each province
-                e.g. {'LVP': ['CLY', 'edi', 'IRI', 'NAO', 'WAL', 'yor'], ...}
-        - loc_coasts: Contains a mapping of all coasts for every location
-                e.g. {'PAR': ['PAR'], 'BUL': ['BUL', 'BUL/EC', 'BUL/SC'], ... }
-        - loc_name: Dict that indicates the 3 letter name of each location
-                e.g. {'GULF OF LYON': 'LYO', 'BREST': 'BRE', 'BUDAPEST': 'BUD', 'RUHR': 'RUH', ... }
-        - loc_type: Dict that indicates if each location is 'WATER', 'COAST', 'LAND', or 'PORT'
-                e.g. {'MAO': 'WATER', 'SER': 'LAND', 'SYR': 'COAST', 'MOS': 'LAND', 'VEN': 'COAST', ... }
-        - locs: List of 3 letter locations (With coasts)
-                e.g. ['ADR', 'AEG', 'ALB', 'ANK', 'APU', 'ARM', 'BAL', 'BAR', 'BEL', 'BER', ... ]
-        - name: Name of the map (or full path to a custom map file)
-                e.g. 'standard' or '/some/path/to/file.map'
-        - own_word: Dict to indicate the word used to refer to people living in each power's country
-                e.g. {'RUSSIA': 'RUSSIAN', 'FRANCE': 'FRENCH', 'UNOWNED': 'UNOWNED', 'TURKEY': 'TURKISH', ... }
-        - owns: List that indicates which power have a OWNS or CENTERS line
-                e.g. ['FRANCE']
-        - phase: String to indicate the beginning phase of the map
-                e.g. 'SPRING 1901 MOVEMENT'
-        - phase_abbrev: Dict to indicate the 1 letter abbreviation for each phase
-                e.g. {'A': 'ADJUSTMENTS', 'M': 'MOVEMENT', 'R': 'RETREATS'}
-        - pow_name: Dict to indicate the power's name
-                e.g. {'RUSSIA': 'RUSSIA', 'FRANCE': 'FRANCE', 'TURKEY': 'TURKEY', 'GERMANY': 'GERMANY', ... }
-        - powers: Contains the list of powers (players) in the game
-                e.g. ['AUSTRIA', 'ENGLAND', 'FRANCE', 'GERMANY', 'ITALY', 'RUSSIA', 'TURKEY']
-        - root_map: Contains the name of the original map file loaded (before the USES keyword are applied)
-                    A map that is called with MAP is the root_map
-                e.g. 'standard'
-        - rules: Contains a list of rules used by all variants (for display only)
-                e.g. ['RULE_1']
-        - scs: Contains a list of all the supply centers in the game
-                e.g. ['MOS', 'SEV', 'STP', 'WAR', 'BRE', 'MAR', 'PAR', 'BEL', 'BUL', 'DEN', 'GRE', 'HOL', 'NWY', ... ]
-        - seq: [] Contains the sequence of seasons in format 'SEASON_NAME SEASON_TYPE'
-                e.g. ['NEWYEAR', 'SPRING MOVEMENT', 'SPRING RETREATS', 'FALL MOVEMENT', 'FALL RETREATS',
-                      'WINTER ADJUSTMENTS']
-        - unclear: Contains the alias for ambiguous places
-                e.g. {'EAST': 'EAS'}
-        - unit_names: {} Contains a dict of the unit names
-                e.g. {'F': 'FLEET', 'A': 'ARMY'}
-        - units: Dict that contains the current position of each unit by power
-                e.g. {'FRANCE': ['F BRE', 'A MAR', 'A PAR'], 'RUSSIA': ['A WAR', 'A MOS', 'F SEV', 'F STP/SC'], ... }
-        - validated: Boolean to indicate if the map file has been validated
-                e.g. 1
-        - victory: Indicates the number of supply centers to win the game (>50% required if None)
-                e.g. 18
+        Properties:
+
+        - **abbrev**: Contains the power abbreviation, otherwise defaults to first letter of PowerName
+          e.g. {'ENGLISH': 'E'}
+        - **abuts_cache**: Contains a cache of abuts for ['A,'F'] between all locations for orders ['S', 'C', '-']
+          e.g. {(A, PAR, -, MAR): 1, ...}
+        - **aliases**: Contains a dict of all the aliases (e.g. full province name to 3 char)
+          e.g. {'EAST': 'EAS', 'STP ( /SC )': 'STP/SC', 'FRENCH': 'FRANCE', 'BUDAPEST': 'BUD', 'NOR': 'NWY', ... }
+        - **centers**: Contains a dict of owned supply centers for each player at the beginning of the map
+          e.g. {'RUSSIA': ['MOS', 'SEV', 'STP', 'WAR'], 'FRANCE': ['BRE', 'MAR', 'PAR'], ... }
+        - **convoy_paths**: Contains a list of all possible convoys paths bucketed by number of fleets
+          format: {nb of fleets: [(START_LOC, {FLEET LOC}, {DEST LOCS})]}
+        - **dest_with_coasts**: Contains a dictionary of locs with all destinations (incl coasts) that can be reached
+          e.g. {'PAR': ['BRE', 'PIC', 'BUR', ...], ...}
+        - **dummies**: Indicates the list of powers that are dummies
+          e.g. ['FRANCE', 'ITALY']
+        - **error**: Contains a list of errors that the map generated
+          e.g. [''DUPLICATE MAP ALIAS OR POWER: JAPAN']
+        - **files**: Contains a list of files that were loaded (e.g. USES keyword)
+          e.g. ['standard.map', 'standard.politics', 'standard.geography', 'standard.military']
+        - **first_year**: Indicates the year where the game is starting.
+          e.g. 1901
+        - **flow**: List that contains the seasons with the phases
+          e.g. ['SPRING:MOVEMENT,RETREATS', 'FALL:MOVEMENT,RETREATS', 'WINTER:ADJUSTMENTS']
+        - **flow_sign**: Indicate the direction of flow (1 is positive, -1 is negative)
+          e.g. 1
+        - **homes**: Contains the list of supply centers where units can be built (i.e. assigned at the beginning)
+          e.g. {'RUSSIA': ['MOS', 'SEV', 'STP', 'WAR'], 'FRANCE': ['BRE', 'MAR', 'PAR'], ... }
+        - **inhabits**: List that indicates which power have a INHABITS, HOME, or HOMES line
+          e.g. ['FRANCE']
+        - **keywords**: Contains a dict of keywords to parse status files and orders
+          e.g. {'BUILDS': 'B', '>': '', 'SC': '/SC', 'REMOVING': 'D', 'WAIVED': 'V', 'ATTACK': '', ... }
+        - **loc_abut**: Contains a adjacency list for each province
+          e.g. {'LVP': ['CLY', 'edi', 'IRI', 'NAO', 'WAL', 'yor'], ...}
+        - **loc_coasts**: Contains a mapping of all coasts for every location
+          e.g. {'PAR': ['PAR'], 'BUL': ['BUL', 'BUL/EC', 'BUL/SC'], ... }
+        - **loc_name**: Dict that indicates the 3 letter name of each location
+          e.g. {'GULF OF LYON': 'LYO', 'BREST': 'BRE', 'BUDAPEST': 'BUD', 'RUHR': 'RUH', ... }
+        - **loc_type**: Dict that indicates if each location is 'WATER', 'COAST', 'LAND', or 'PORT'
+          e.g. {'MAO': 'WATER', 'SER': 'LAND', 'SYR': 'COAST', 'MOS': 'LAND', 'VEN': 'COAST', ... }
+        - **locs**: List of 3 letter locations (With coasts)
+          e.g. ['ADR', 'AEG', 'ALB', 'ANK', 'APU', 'ARM', 'BAL', 'BAR', 'BEL', 'BER', ... ]
+        - **name**: Name of the map (or full path to a custom map file)
+          e.g. 'standard' or '/some/path/to/file.map'
+        - **own_word**: Dict to indicate the word used to refer to people living in each power's country
+          e.g. {'RUSSIA': 'RUSSIAN', 'FRANCE': 'FRENCH', 'UNOWNED': 'UNOWNED', 'TURKEY': 'TURKISH', ... }
+        - **owns**: List that indicates which power have a OWNS or CENTERS line
+          e.g. ['FRANCE']
+        - **phase**: String to indicate the beginning phase of the map
+          e.g. 'SPRING 1901 MOVEMENT'
+        - **phase_abbrev**: Dict to indicate the 1 letter abbreviation for each phase
+          e.g. {'A': 'ADJUSTMENTS', 'M': 'MOVEMENT', 'R': 'RETREATS'}
+        - **pow_name**: Dict to indicate the power's name
+          e.g. {'RUSSIA': 'RUSSIA', 'FRANCE': 'FRANCE', 'TURKEY': 'TURKEY', 'GERMANY': 'GERMANY', ... }
+        - **powers**: Contains the list of powers (players) in the game
+          e.g. ['AUSTRIA', 'ENGLAND', 'FRANCE', 'GERMANY', 'ITALY', 'RUSSIA', 'TURKEY']
+        - **root_map**: Contains the name of the original map file loaded (before the USES keyword are applied)
+          A map that is called with MAP is the root_map. e.g. 'standard'
+        - **rules**: Contains a list of rules used by all variants (for display only)
+          e.g. ['RULE_1']
+        - **scs**: Contains a list of all the supply centers in the game
+          e.g. ['MOS', 'SEV', 'STP', 'WAR', 'BRE', 'MAR', 'PAR', 'BEL', 'BUL', 'DEN', 'GRE', 'HOL', 'NWY', ... ]
+        - **seq**: [] Contains the sequence of seasons in format 'SEASON_NAME SEASON_TYPE'
+          e.g. ['NEWYEAR', 'SPRING MOVEMENT', 'SPRING RETREATS', 'FALL MOVEMENT', 'FALL RETREATS', 'WINTER ADJUSTMENTS']
+        - **unclear**: Contains the alias for ambiguous places
+          e.g. {'EAST': 'EAS'}
+        - **unit_names**: {} Contains a dict of the unit names
+          e.g. {'F': 'FLEET', 'A': 'ARMY'}
+        - **units**: Dict that contains the current position of each unit by power
+          e.g. {'FRANCE': ['F BRE', 'A MAR', 'A PAR'], 'RUSSIA': ['A WAR', 'A MOS', 'F SEV', 'F STP/SC'], ... }
+        - **validated**: Boolean to indicate if the map file has been validated
+          e.g. 1
+        - **victory**: Indicates the number of supply centers to win the game (>50% required if None)
+          e.g. 18
     """
     # pylint: disable=too-many-instance-attributes
 
@@ -119,6 +118,7 @@ class Map():
 
     def __new__(cls, name='standard', use_cache=True):
         """ New function - Retrieving object from cache if possible
+
             :param name: Name of the map to load
             :param use_cache: Boolean flag to indicate we want a blank object that doesn't use cache
         """
@@ -128,6 +128,7 @@ class Map():
 
     def __init__(self, name='standard', use_cache=True):
         """ Constructor function
+
             :param name: Name of the map to load (or full path to a custom map file)
             :param use_cache: Boolean flag to indicate we want a blank object that doesn't use cache
         """
@@ -168,8 +169,18 @@ class Map():
     def __str__(self):
         return self.name
 
+    @property
+    def svg_path(self):
+        """ Return path to the SVG file of this map (or None if it does not exist) """
+        for file_name in [self.name + '.svg', self.root_map + '.svg']:
+            svg_path = os.path.join(settings.PACKAGE_DIR, 'maps', 'svg', file_name)
+            if os.path.exists(svg_path):
+                return svg_path
+        return None
+
     def validate(self, force=0):
         """ Validate that the configuration from a map file is correct
+
             :param force: Indicate that we want to force a validation, even if the map is already validated
             :return: Nothing
         """
@@ -294,6 +305,7 @@ class Map():
 
     def load(self, file_name=None):
         """ Loads a map file from disk
+
             :param file_name: Optional. A string representing the file to open. Otherwise, defaults to the map name
             :return: Nothing
         """
@@ -716,8 +728,9 @@ class Map():
 
     def add_homes(self, power, homes, reinit):
         """ Add new homes (and deletes previous homes if reinit)
+
             :param power: Name of power (e.g. ITALY)
-            :param homes: List of homes e.g. ['BUR', '-POR', '*ITA', ... ]
+            :param homes: List of homes e.g. ``['BUR', '-POR', '*ITA', ... ]``
             :param reinit: Indicates that we want to strip the list of homes before adding
             :return: Nothing
         """
@@ -753,6 +766,7 @@ class Map():
 
     def drop(self, place):
         """ Drop a place
+
             :param place: Name of place to remove
             :return: Nothing
         """
@@ -807,6 +821,7 @@ class Map():
 
     def norm_power(self, power):
         """ Normalise the name of a power (removes spaces)
+
             :param power: Name of power to normalise
             :return: Normalised power name
         """
@@ -814,6 +829,7 @@ class Map():
 
     def norm(self, phrase):
         """ Normalise a sentence (add spaces before /, replace -+, with ' ', remove .:
+
             :param phrase: Phrase to normalise
             :return: Normalised sentences
         """
@@ -828,8 +844,9 @@ class Map():
 
     def compact(self, phrase):
         """ Compacts a full sentence into a list of short words
+
             :param phrase: The full sentence to compact (e.g. 'England: Fleet Western Mediterranean -> Tyrrhenian
-                           Sea. (*bounce*)')
+               Sea. (*bounce*)')
             :return: The compacted phrase in an array (e.g. ['ENGLAND', 'F', 'WES', 'TYS', '|'])
         """
         if ':' in phrase:
@@ -849,6 +866,7 @@ class Map():
 
     def alias(self, word):
         """ This function is used to replace multi-words with their acronyms
+
             :param word: The current list of words to try to shorten
             :return: alias, ix - alias is the shorten list of word, ix is the ix of the next non-processed word
         """
@@ -922,12 +940,20 @@ class Map():
 
     def vet(self, word, strict=0):
         """ Determines the type of every word in a compacted order phrase
-            0 - Undetermined, 1 - Power, 2 - Unit, 3 - Location, 4 - Coastal location
-            5 - Order, 6 - Move Operator (-=_^), 7 - Non-move separator (|?~) or result (*!?~+)
-            :param word: The list of words to vet (e.g. ['A', 'POR', 'S', 'SPA/NC'])
+
+            0 - Undetermined,
+            1 - Power,
+            2 - Unit,
+            3 - Location,
+            4 - Coastal location
+            5 - Order,
+            6 - Move Operator ``(-=_^)``,
+            7 - Non-move separator ``(|?~)`` or result ``(*!?~+)``
+
+            :param word: The list of words to vet (e.g. ``['A', 'POR', 'S', 'SPA/NC']``)
             :param strict: Boolean to indicate that we want to verify that the words actually exist.
                            Numbers become negative if they don't exist
-            :return: A list of tuple (e.g. [('A', 2), ('POR', 3), ('S', 5), ('SPA/NC', 4)])
+            :return: A list of tuple (e.g. ``[('A', 2), ('POR', 3), ('S', 5), ('SPA/NC', 4)]``)
         """
         result = []
         for thing in word:
@@ -960,6 +986,7 @@ class Map():
 
     def rearrange(self, word):
         """ This function is used to parse commands
+
             :param word: The list of words to vet (e.g. ['ENGLAND', 'F', 'WES', 'TYS', '|'])
             :return: The list of words in the correct order to be processed (e.g. ['ENGLAND', 'F', 'WES', '-', 'TYS'])
         """
@@ -1070,6 +1097,7 @@ class Map():
 
     def area_type(self, loc):
         """ Returns 'WATER', 'COAST', 'PORT', 'LAND', 'SHUT'
+
             :param loc: The name of the location to query
             :return: Type of the location ('WATER', 'COAST', 'PORT', 'LAND', 'SHUT')
         """
@@ -1078,6 +1106,7 @@ class Map():
     def default_coast(self, word):
         """ Returns the coast for a fleet move order that can only be to a single coast
             (e.g. F GRE-BUL returns F GRE-BUL/SC)
+
             :param word: A list of tokens (e.g. ['F', 'GRE', '-', 'BUL'])
             :return: The updated list of tokens (e.g. ['F', 'GRE', '-', 'BUL/SC'])
         """
@@ -1096,14 +1125,16 @@ class Map():
 
     def find_coasts(self, loc):
         """ Finds all coasts for a given location
+
             :param loc: The name of a location (e.g. 'BUL')
             :return: Returns the list of all coasts, including the location (e.g. ['BUL', 'BUL/EC', 'BUL/SC']
         """
         return self.loc_coasts.get(loc.upper(), [])
 
     def abuts(self, unit_type, unit_loc, order_type, other_loc):
-        """ Determines if a order for unit_type from unit_loc to other_loc is adjacent
-            Note: This method uses the precomputed cache
+        """ Determines if a order for unit_type from unit_loc to other_loc is adjacent.
+
+            **Note**: This method uses the precomputed cache
 
             :param unit_type: The type of unit ('A' or 'F')
             :param unit_loc: The location of the unit ('BUR', 'BUL/EC')
@@ -1120,7 +1151,8 @@ class Map():
 
     def _abuts(self, unit_type, unit_loc, order_type, other_loc):
         """ Determines if a order for unit_type from unit_loc to other_loc is adjacent
-            Note: This method is used to generate the abuts_cache
+
+            **Note**: This method is used to generate the abuts_cache
 
             :param unit_type: The type of unit ('A' or 'F')
             :param unit_loc: The location of the unit ('BUR', 'BUL/EC')
@@ -1186,6 +1218,7 @@ class Map():
 
     def is_valid_unit(self, unit, no_coast_ok=0, shut_ok=0):
         """ Determines if a unit and location combination is valid (e.g. 'A BUR') is valid
+
             :param unit: The name of the unit with its location (e.g. F SPA/SC)
             :param no_coast_ok: Indicates if a coastal location with no coast (e.g. SPA vs SPA/SC) is acceptable
             :param shut_ok: Indicates if a impassable country (e.g. Switzerland) is OK
@@ -1209,12 +1242,17 @@ class Map():
 
     def abut_list(self, site, incl_no_coast=False):
         """ Returns the adjacency list for the site
+
             :param site: The province we want the adjacency list for
             :param incl_no_coast: Boolean flag that indicates to also include province without coast if it has coasts
-                                 e.g. will return ['BUL/SC', 'BUL/EC'] if False, and ['bul', 'BUL/SC', 'BUL/EC'] if True
+                 e.g. will return ['BUL/SC', 'BUL/EC'] if False, and ['bul', 'BUL/SC', 'BUL/EC'] if True
             :return: A list of adjacent provinces
 
-            Note: abuts are returned in mixed cases (lowercase for A only, First capital letter for F only)
+            Note: abuts are returned in **mixed cases**
+
+                - An adjacency that is lowercase (e.g. 'bur') can only be used by an army
+                - An adjacency that starts with a capital letter (e.g. 'Bal') can only be used by a fleet
+                - An adjacency that is uppercase can be used by both an army and a fleet
         """
         if site in self.loc_abut:
             abut_list = self.loc_abut.get(site, [])
@@ -1229,9 +1267,10 @@ class Map():
 
     def find_next_phase(self, phase, phase_type=None, skip=0):
         """ Returns the long name of the phase coming immediately after the phase
+
             :param phase: The long name of the current phase (e.g. SPRING 1905 RETREATS)
-            :param phase_type: The type of phase we are looking for (e.g. 'M' for Movement, 'R' for Retreats,
-                               'A' for Adjust.)
+            :param phase_type: The type of phase we are looking for
+                (e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjust.)
             :param skip: The number of match to skip (e.g. 1 to find not the next phase, but the one after)
             :return: The long name of the next phase (e.g. FALL 1905 MOVEMENT)
         """
@@ -1277,9 +1316,10 @@ class Map():
 
     def find_previous_phase(self, phase, phase_type=None, skip=0):
         """ Returns the long name of the phase coming immediately prior the phase
+
             :param phase: The long name of the current phase (e.g. SPRING 1905 RETREATS)
-            :param phase_type: The type of phase we are looking for (e.g. 'M' for Movement, 'R' for Retreats,
-                               'A' for Adjust.)
+            :param phase_type: The type of phase we are looking for
+                (e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjust.)
             :param skip: The number of match to skip (e.g. 1 to find not the next phase, but the one after)
             :return: The long name of the previous phase (e.g. SPRING 1905 MOVEMENT)
         """
@@ -1332,6 +1372,7 @@ class Map():
 
     def compare_phases(self, phase1, phase2):
         """ Compare 2 phases (Strings) and return 1, -1, or 0 to indicate which phase is larger
+
             :param phase1:  The first phase (e.g. S1901M, FORMING, COMPLETED)
             :param phase2:  The second phase (e.g. S1901M, FORMING, COMPLETED)
             :return: 1 if phase1 > phase2, -1 if phase2 > phase1 otherwise 0 if they are equal
@@ -1378,6 +1419,7 @@ class Map():
     @staticmethod
     def phase_abbr(phase, default='?????'):
         """ Constructs a 5 character representation (S1901M) from a phase (SPRING 1901 MOVEMENT)
+
             :param phase: The full phase (e.g. SPRING 1901 MOVEMENT)
             :param default: The default value to return in case conversion fails
             :return: A 5 character representation of the phase
@@ -1389,6 +1431,7 @@ class Map():
 
     def phase_long(self, phase_abbr, default='?????'):
         """ Constructs a full sentence of a phase from a 5 character abbreviation
+
             :param phase_abbr: 5 character abbrev. (e.g. S1901M)
             :param default: The default value to return in case conversion fails
             :return: A full phase description (e.g. SPRING 1901 MOVEMENT)

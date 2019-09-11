@@ -27,6 +27,7 @@ class Token:
 
     def __init__(self, from_str=None, from_int=None, from_bytes=None):
         """ Initialize a token from its string representation, or from its bytes representation
+
             :param from_str: The string representation of the token
             :param from_int: The integer representation of the token
             :param from_bytes: The byte representation of the token
@@ -139,6 +140,7 @@ class Token:
 
 def is_ascii_token(token):
     """ Check if the token is an ascii token
+
         :param token: An instance of Token
         :return: True if `token` is an acsii token. False otherwise
     """
@@ -147,6 +149,7 @@ def is_ascii_token(token):
 
 def is_integer_token(token):
     """ Check if the token is an integer token
+
         :param token: An instance of Token
         :return: True if `token` is an integer token. False otherwise
     """
@@ -155,6 +158,7 @@ def is_integer_token(token):
 
 def register_token(str_repr, bytes_repr):
     """ Registers a token in the registry
+
         :param str_repr: The DAIDE string representation of the token (e.g. 'ECS')
         :param bytes_repr: The bytes representation of the token (i.e. bytes of length 2)
         :return: The token that has been registered

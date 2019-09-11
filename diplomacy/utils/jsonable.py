@@ -16,25 +16,30 @@
 # ==============================================================================
 """ Abstract Jsonable class with automatic attributes checking and conversion to/from JSON dict.
     To write a Jsonable sub-class:
+
     - Define a model with expected attribute names and types. Use module `parsing` to describe expected types.
-    - Override initializer __init__(**kwargs):
-      - **first**: initialize each attribute defined in model with value None.
-      - **then** : call parent __init__() method. Attributes will be checked and filled by
-        Jsonable's __init__() method.
-      - If needed, add further initialization code after call to parent __init__() method. At this point,
-        attributes were correctly set based on defined model, and you can now work with them.
+    - Override initializer ``__init__(**kwargs)``:
+
+        - **first**: initialize each attribute defined in model with value None.
+        - **then** : call parent __init__() method. Attributes will be checked and filled by
+          Jsonable's __init__() method.
+        - If needed, add further initialization code after call to parent __init__() method. At this point,
+          attributes were correctly set based on defined model, and you can now work with them.
 
     Example:
-    ```
-    class MyClass(Jsonable):
-        model = {
-            'my_attribute': parsing.Sequence(int),
-        }
-        def __init__(**kwargs):
-            self.my_attribute = None
-            super(MyClass, self).__init__(**kwargs)
-            # my_attribute is now initialized based on model. You can then do any further initialization if needed.
-    ```
+
+    .. code-block:: python
+
+        class MyClass(Jsonable):
+            model = {
+                'my_attribute': parsing.Sequence(int),
+            }
+            def __init__(**kwargs):
+                self.my_attribute = None
+                super(MyClass, self).__init__(**kwargs)
+                # my_attribute is now initialized based on model.
+                # You can then do any further initialization if needed.
+
 """
 import logging
 import ujson as json
@@ -43,7 +48,7 @@ from diplomacy.utils import exceptions, parsing
 
 LOGGER = logging.getLogger(__name__)
 
-class Jsonable():
+class Jsonable:
     """ Abstract class to ease conversion from/to JSON dict. """
     __slots__ = []
     __cached__models__ = {}
@@ -78,12 +83,14 @@ class Jsonable():
 
     def json(self):
         """ Convert this object to a JSON string ready to be sent/saved.
+
             :return: string
         """
         return json.dumps(self.to_dict())
 
     def to_dict(self):
         """ Convert this object to a python dictionary ready for any JSON work.
+
             :return: dict
         """
         model = self.get_model()
@@ -95,6 +102,7 @@ class Jsonable():
             JSON dictionary is passed by class method from_dict() (see below), and is guaranteed to contain
             at least all expected model keys. Some keys may be associated to None if initial JSON dictionary
             did not provide values for them.
+
             :param json_dict: a JSON dictionary to be parsed.
             :type json_dict: dict
         """
@@ -102,6 +110,7 @@ class Jsonable():
     @classmethod
     def from_dict(cls, json_dict):
         """ Convert a JSON dictionary to an instance of this class.
+
             :param json_dict: a JSON dictionary to parse. Dictionary with basic types (int, bool, dict, str, None, etc.)
             :return: an instance from this class or from a derived one from which it's called.
             :rtype: cls
@@ -133,6 +142,7 @@ class Jsonable():
     def get_model(cls):
         """ Return model associated to current class, and cache it for future uses, to avoid
             multiple rendering of model for each class derived from Jsonable. Private method.
+
             :return: dict: model associated to current class.
         """
         if cls not in cls.__cached__models__:

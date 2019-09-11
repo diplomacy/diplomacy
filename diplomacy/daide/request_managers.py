@@ -35,6 +35,7 @@ from diplomacy.utils.order_results import OK
 @gen.coroutine
 def on_name_request(server, request, connection_handler, game):
     """ Manage NME request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -77,6 +78,7 @@ def on_name_request(server, request, connection_handler, game):
 
 def on_observer_request(server, request, connection_handler, game):
     """ Manage OBS request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -89,6 +91,7 @@ def on_observer_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_i_am_request(server, request, connection_handler, game):
     """ Manage IAM request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -137,6 +140,7 @@ def on_i_am_request(server, request, connection_handler, game):
 
 def on_hello_request(server, request, connection_handler, game):
     """ Manage HLO request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -158,6 +162,7 @@ def on_hello_request(server, request, connection_handler, game):
 
 def on_map_request(server, request, connection_handler, game):
     """ Manage MAP request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -169,6 +174,7 @@ def on_map_request(server, request, connection_handler, game):
 
 def on_map_definition_request(server, request, connection_handler, game):
     """ Manage MDF request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -180,6 +186,7 @@ def on_map_definition_request(server, request, connection_handler, game):
 
 def on_supply_centre_ownership_request(server, request, connection_handler, game):
     """ Manage SCO request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -192,6 +199,7 @@ def on_supply_centre_ownership_request(server, request, connection_handler, game
 
 def on_current_position_request(server, request, connection_handler, game):
     """ Manage NOW request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -205,6 +213,7 @@ def on_current_position_request(server, request, connection_handler, game):
 
 def on_history_request(server, request, connection_handler, game):
     """ Manage HST request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -266,6 +275,7 @@ def on_history_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_submit_orders_request(server, request, connection_handler, game):
     """ Manage SUB request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -328,6 +338,7 @@ def on_submit_orders_request(server, request, connection_handler, game):
 
 def on_missing_orders_request(server, request, connection_handler, game):
     """ Manage MIS request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -342,6 +353,7 @@ def on_missing_orders_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_go_flag_request(server, request, connection_handler, game):
     """ Manage GOF request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -371,6 +383,7 @@ def on_go_flag_request(server, request, connection_handler, game):
 
 def on_time_to_deadline_request(server, request, connection_handler, game):
     """ Manage TME request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -383,6 +396,7 @@ def on_time_to_deadline_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_draw_request(server, request, connection_handler, game):
     """ Manage DRW request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -404,6 +418,7 @@ def on_draw_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_send_message_request(server, request, connection_handler, game):
     """ Manage SND request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -433,6 +448,7 @@ def on_send_message_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_not_request(server, request, connection_handler, game):
     """ Manage NOT request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -489,6 +505,7 @@ def on_not_request(server, request, connection_handler, game):
 @gen.coroutine
 def on_accept_request(server, request, connection_handler, game):
     """ Manage YES request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -532,6 +549,7 @@ def on_accept_request(server, request, connection_handler, game):
 
 def on_reject_request(server, request, connection_handler, game):
     """ Manage REJ request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -550,6 +568,7 @@ def on_reject_request(server, request, connection_handler, game):
 
 def on_parenthesis_error_request(server, request, connection_handler, game):
     """ Manage PAR request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -560,6 +579,7 @@ def on_parenthesis_error_request(server, request, connection_handler, game):
 
 def on_syntax_error_request(server, request, connection_handler, game):
     """ Manage ERR request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -570,6 +590,7 @@ def on_syntax_error_request(server, request, connection_handler, game):
 
 def on_admin_message_request(server, request, connection_handler, game):
     """ Manage ADM request
+
         :param server: server which receives the request
         :param request: request to manage
         :param connection_handler: connection handler from which the request was sent
@@ -608,6 +629,7 @@ MAPPING = {
 
 def handle_request(server, request, connection_handler):
     """ (coroutine) Find request handler function for associated request, run it and return its result.
+
         :param server: a Server object to pass to handler function.
         :param request: a request object to pass to handler function.
             See diplomacy.communication.requests for possible requests.

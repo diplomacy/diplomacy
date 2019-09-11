@@ -103,9 +103,10 @@ class Version22(Jsonable):
 class Version3(Jsonable):
     """ Version 1 with a modified, b removed, e added.
         To parse a dict between Version3 and Version1:
-        - a must be convertible in both versions.
-        - b must be optional in Version1.
-        - e must be optional in Version3.
+
+            - a must be convertible in both versions.
+            - b must be optional in Version1.
+            - e must be optional in Version3.
     """
     model = {
         'a': parsing.ConverterType(str, converter_function=str),

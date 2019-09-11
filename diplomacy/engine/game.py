@@ -16,6 +16,7 @@
 # ==============================================================================
 # -*- coding: utf-8 -*-
 """ Game
+
     - Contains the game engine
 """
 # pylint: disable=too-many-lines
@@ -37,7 +38,7 @@ from diplomacy.engine.renderer import Renderer
 from diplomacy.utils import PriorityDict, common, exceptions, parsing, strings
 from diplomacy.utils.jsonable import Jsonable
 from diplomacy.utils.sorted_dict import SortedDict
-from diplomacy.utils.constants import OrderSettings
+from diplomacy.utils.constants import OrderSettings, DEFAULT_GAME_RULES
 from diplomacy.utils.game_phase_data import GamePhaseData, MESSAGES_TYPE
 
 # Constants
@@ -45,126 +46,176 @@ UNDETERMINED, POWER, UNIT, LOCATION, COAST, ORDER, MOVE_SEP, OTHER = 0, 1, 2, 3,
 LOGGER = logging.getLogger(__name__)
 
 class Game(Jsonable):
-    """
-        - combat - Dictionary of dictionaries containing the strength of every attack on a location (including units
-                    who don't count toward dislodgment)
-                 - Format: {loc: attack_strength: [ ['src loc', [support loc] ]}
-                e.g. { 'MUN': { 1 : [ ['A MUN', [] ], ['A RUH', [] ] ], 2 : [ ['A SIL', ['A BOH'] ] ] } }
-                MUN is holding, being attack without support from RUH and being attacked with support from SIL
-                    (S from BOH)
-        - command - Contains the list of finalized orders to be processed (same format as orders, but without .order)
-                e.g. {'A PAR': '- A MAR'}
-        - controlled_powers: for client games only. List of powers currently controlled by associated client user.
-        - convoy_paths - Contains the list of remaining convoys path for each convoyed unit to reach their destination
-                Note: This is used to see if there are still active convoy paths remaining.
-                Note: This also include the start and ending location
-                e.g. {'A PAR': [ ['PAR', 'ION','NAO', 'MAR], ['PAR', 'ION', 'MAR'] ], ... }
-        - convoy_paths_possible - Contains the list of possible convoy paths given the current fleet locations or None
-                e.g. [(START_LOC, {Fleets Req}, {possible dest}), ...]
-        - convoy_paths_dest - Contains a dictionary of possible paths to reach destination from start or None
-                e.g. {start_loc: {dest_loc_1: [{fleets}, {fleets}, {fleets}], dest_loc_2: [{fleets, fleets}]}
-        - daide_port: for client games only. Port when a DAIDE bot can connect, to play with this game.
-        - deadline: integer: game deadline in seconds.
-        - dislodged - Contains a dictionary of dislodged units (and the site that dislodged them')
-                e.g. { 'A PAR': 'MAR' }
-        - error - Contains a list of errors that the game generated
-                e.g. ['NO MASTER SPECIFIED']
-        - fixed_state - used when game is a context of a with-block.
-            Store values that define the game state when entered in with-statement.
-            Compared to actual fixed state to detect any changes in methods where changes are not allowed.
-            Reset to None when exited from with-statement.
-        - game_id: String that contains the current game's ID
-                e.g. '123456'
-        - lost - Contains a dictionary of centers that have been lost during the term
-                e.g. {'PAR': 'FRANCE'}  to indicate that PAR was lost by France (previous owner)
-        - map: Contains a reference to the current map (Map instance)
-                e.g. map = Map('standard')
-        - map_name: Contains a reference to the name of the map that was loaded (or a full path to a custom map file)
-                e.g. map_name = 'standard' or map_name = '/some/path/to/file.map'
-        - messages (only for non-observer games): history of messages exchanged inside this game.
-                Sorted dict mapping message timestamps to message objects (instances of diplomacy.Message).
-                Format: {message.time_sent => message}
-        - message_history: history of messages through all played phases.
-                Sorted dict mapping a short phase name to a message dict
-                (with same format as field `message` describe above).
-                Format: {short phase name => {message.time_sent => message}}
-                Wrapped in a sorted dict at runtime, see method __init__().
-        - meta_rules - Contains the rules that have been processed as directives
-                e.g. ['NO_PRESS']
-        - n_controls: integer: exact number of controlled powers allowed for this game.
-                If game start mode is not START_MASTER, then game starts as soon as this number of powers
-                are controlled.
-        - no_rules - Contains the list of rules that have been disabled (prefixed with '!')
-                e.g ['NO_PRESS']
-        - note - A note to display on the rendering
-                e.g. 'Winner: FRANCE'
-        - observer_level: for client games only. Highest observation level allowed for associated client user.
-                Either "master_type", "omniscient_type" or "observer_type".
-        - orders - Contains the list of current orders (not yet processed)
-                e.g. {'A PAR': '- A MAR'}
-        - ordered_units - Contains a dictionary of the units ordered by each power in the last phase
-                e.g. {'FRANCE': ['A PAR', 'A MAR'], 'ENGLAND': ... }
-        - order_history - Contains the history of orders from each player from the beginning of the game.
-                Sorted dict mapping  a short phase name to a dictionary of orders
-                (powers names as keys, powers orders as values).
-                Format: {short phase name => {power name => [orders]}}
-                Wrapped in a sorted dict at runtime, see method __init__().
-        - outcome - Contains the game outcome
-                e.g. [lastPhase, victor1, victor2, victor3]
-        - phase: String that contains a long representation of the current phase
-                e.g. 'SPRING 1901 MOVEMENT'
-        - phase_type: Indicates the current phase type
-                (e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjustment, '-' for non-playing phase)
-                e.g. 'M'
-        - popped - Contains a list of all retreaters who didn't make it
-                e.g. ['A PAR', 'A MAR']
-        - powers - Contains a dictionary mapping power names to power instances in the game
-                e.g. {'FRANCE': FrancePower, 'ENGLAND': EnglishPower, ...}
-        - registration_password: ** hashed ** version of password to be sent by a player to join this game.
-        - renderer - Contains the object in charge of rendering the map
-                e.g. Renderer()
-        - result - Contains the result of the action for each unit.
-                In Movement Phase, result can be 'no convoy', 'bounce', 'void', 'cut', 'dislodged', 'disrupted'
-                    e.g. { 'A PAR': ['cut', 'void'] }
-                In Retreats phase, result can be 'bounce', 'disband', 'void'
-                    e.g. { 'A PAR': ['cut', 'void'] }
-                In Adjustments phase, result can be 'void' or ''
-                    e.g. { 'A PAR': ['', 'void'] }      # e.g. to indicate a successful build, and a void build.
-        - result_history - Contains the history of orders results for all played phases.
-                Sorted dict mapping a short phase name to a dictionary of order results for this phase.
-                Dictionary of order results maps a unit to a list of results. See field result for more details.
-                Format: {short phase name => {unit => [results]}}
-                Wrapped in a sorted dict at runtime, see method __init__().
-        - role: game type (observer, omniscient, player or server game).
-                Either a power name (for player game) or a value in diplomacy.utils.strings.ALL_ROLE_TYPES.
-        - rules: Contains a list of active rules
-                e.g. ['NO_PRESS', ...]
-        - state_history: history of previous game states (returned by method get_state()) for this game.
-                Sorted dict mapping a short phase name to a game state.
-                Each game state is associated to a timestamp generated when state is created by method get_state().
-                State timestamp then represents the "end" time of the state, ie. time when this state was saved and
-                archived in state history.
-                Format: {short phase name => state}
-                Wrapped in a sorted dict at runtime, see method __init__().
-        - status: game status (forming, active, paused, completed or canceled).
-                Possible values in diplomacy.utils.strings.ALL_GAME_STATUSES.
-        - supports - Contains a dictionary of support for each unit
-                - Format: { 'unit': [nb_of_support, [list of supporting units]] }
-                e.g. { 'A PAR': [2, ['A MAR']] }
-                    2 support, but the Marseille support does NOT count toward dislodgment
-        - timestamp_created: timestamp in microseconds when game object was created on server side.
-        - victory - Indicates the number of SUPPLY [default] centers one power must control to win the game
-                  - Format: [reqFirstYear, reqSecondYear, ..., reqAllFurtherYears]
-                e.g. [10,10,18]     for 10 the 1st year, 10 the 2nd year, 18 year 3+
-        - win - Indicates the minimum number of centers required to win
-                e.g. 3
-        - zobrist_hash - Contains the zobrist hash representing the current state of this game
-                e.g. 12545212418541325
+    """ Game class.
 
-        ----- Caches ----
-        - _unit_owner_cache - Contains a dictionary with (unit, coast_required) as key and owner as value
-                            - Set to Note when the cache is not built
-                e.g. {('A PAR', True): <FRANCE>, ('A PAR', False): <FRANCE>), ...}
+        Properties:
+
+        - **combat**:
+
+          - Dictionary of dictionaries containing the strength of every attack on a location (including units
+            who don't count toward dislodgment)
+          - Format: {loc: attack_strength: [ ['src loc', [support loc] ]}
+          - e.g. ``{ 'MUN': { 1 : [ ['A MUN', [] ], ['A RUH', [] ] ], 2 : [ ['A SIL', ['A BOH'] ] ] } }``.
+            MUN is holding, being attack without support from RUH and being attacked with support from SIL (S from BOH)
+
+        - **command**: contains the list of finalized orders to be processed
+          (same format as orders, but without .order). e.g. {'A PAR': '- A MAR'}
+        - **controlled_powers**: *(for client games only)*. List of powers currently controlled
+          by associated client user.
+        - **convoy_paths**:
+
+          - Contains the list of remaining convoys path for each convoyed unit to reach their destination
+          - Note: This is used to see if there are still active convoy paths remaining.
+          - Note: This also include the start and ending location
+          - e.g. {'A PAR': [ ['PAR', 'ION','NAO', 'MAR], ['PAR', 'ION', 'MAR'] ], ... }
+
+        - **convoy_paths_possible**:
+
+          - Contains the list of possible convoy paths given the current fleet locations or None
+          - e.g. [(START_LOC, {Fleets Req}, {possible dest}), ...]
+
+        - **convoy_paths_dest**:
+
+          - Contains a dictionary of possible paths to reach destination from start or None
+          - e.g. {start_loc: {dest_loc_1: [{fleets}, {fleets}, {fleets}], dest_loc_2: [{fleets, fleets}]}
+
+        - **daide_port**: *(for client games only)*. Port when a DAIDE bot can connect, to play with this game.
+        - **deadline**: integer: game deadline in seconds.
+        - **dislodged**: contains a dictionary of dislodged units (and the site that dislodged them').
+          e.g. { 'A PAR': 'MAR' }
+        - **error**: contains a list of errors that the game generated. e.g. ['NO MASTER SPECIFIED']
+        - **fixed_state**:
+
+          - used when game is a context of a with-block.
+          - Store values that define the game state when entered in with-statement.
+          - Compared to actual fixed state to detect any changes in methods where changes are not allowed.
+          - Reset to None when exited from with-statement.
+
+        - **game_id**: String that contains the current game's ID. e.g. '123456'
+        - **lost**:
+
+          - Contains a dictionary of centers that have been lost during the term
+          - e.g. {'PAR': 'FRANCE'}  to indicate that PAR was lost by France (previous owner)
+
+        - **map**: Contains a reference to the current map (Map instance). e.g. map = Map('standard')
+        - **map_name**: Contains a reference to the name of the map that was loaded (or a path to a custom map file)
+          e.g. map_name = 'standard' or map_name = '/some/path/to/file.map'
+        - **messages** *(for non-observer games only)*:
+
+          - history of messages exchanged inside this game.
+          - Sorted dict mapping message timestamps to message objects (instances of diplomacy.Message).
+          - Format: {message.time_sent => message}
+
+        - **message_history**:
+
+          - history of messages through all played phases.
+          - Sorted dict mapping a short phase name to a message dict
+            (with same format as field `message` describe above).
+          - Format: {short phase name => {message.time_sent => message}}
+          - Wrapped in a sorted dict at runtime, see method __init__().
+
+        - **meta_rules**: contains the rules that have been processed as directives. e.g. ['NO_PRESS']
+        - **n_controls**: integer:
+
+          - exact number of controlled powers allowed for this game.
+          - If game start mode is not START_MASTER, then game starts as soon as
+            this number of powers are controlled.
+
+        - **no_rules**: contains the list of rules that have been disabled (prefixed with '!').
+          e.g ['NO_PRESS']
+        - **note**: a note to display on the rendering. e.g. 'Winner: FRANCE'
+        - **observer_level** *(for client games only)*:
+
+          - Highest observation level allowed for associated client user.
+          - Either "master_type", "omniscient_type" or "observer_type".
+
+        - **orders**: contains the list of current orders (not yet processed). e.g. {'A PAR': '- A MAR'}
+        - **ordered_units**:
+
+          - Contains a dictionary of the units ordered by each power in the last phase
+          - e.g. {'FRANCE': ['A PAR', 'A MAR'], 'ENGLAND': ... }
+
+        - **order_history**:
+
+          - Contains the history of orders from each player from the beginning of the game.
+          - Sorted dict mapping  a short phase name to a dictionary of orders
+            (powers names as keys, powers orders as values).
+          - Format: {short phase name => {power name => [orders]}}
+          - Wrapped in a sorted dict at runtime, see method __init__().
+
+        - **outcome**: contains the game outcome. e.g. [lastPhase, victor1, victor2, victor3]
+        - **phase**: string that contains a long representation of the current phase.
+          e.g. 'SPRING 1901 MOVEMENT'
+        - **phase_type**: indicates the current phase type.
+          e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjustment, '-' for non-playing phase
+        - **popped**: contains a list of all retreaters who didn't make it. e.g. ['A PAR', 'A MAR']
+        - **powers**:
+
+          - Contains a dictionary mapping power names to power instances in the game
+          - e.g. {'FRANCE': FrancePower, 'ENGLAND': EnglishPower, ...}
+
+        - **registration_password**: ** hashed ** version of password to be sent by a player to join this game.
+        - **renderer**: contains the object in charge of rendering the map. e.g. Renderer()
+        - **result**:
+
+          - Contains the result of the action for each unit.
+          - In Movement Phase, result can be 'no convoy', 'bounce', 'void', 'cut', 'dislodged', 'disrupted'.
+            e.g. { 'A PAR': ['cut', 'void'] }
+          - In Retreats phase, result can be 'bounce', 'disband', 'void'.
+            e.g. { 'A PAR': ['cut', 'void'] }
+          - In Adjustments phase, result can be 'void' or ''.
+            e.g. { 'A PAR': ['', 'void'] }      # e.g. to indicate a successful build, and a void build.
+
+        - **result_history**:
+
+          - Contains the history of orders results for all played phases.
+          - Sorted dict mapping a short phase name to a dictionary of order results for this phase.
+          - Dictionary of order results maps a unit to a list of results. See field result for more details.
+          - Format: {short phase name => {unit => [results]}}
+          - Wrapped in a sorted dict at runtime, see method __init__().
+
+        - **role**: Either a power name (for player game) or a value in diplomacy.utils.strings.ALL_ROLE_TYPES.
+        - **rules**: Contains a list of active rules. e.g. ['NO_PRESS', ...]. Default is
+          :const:`diplomacy.utils.constants.DEFAULT_GAME_RULES`.
+        - **state_history**:
+
+          - history of previous game states (returned by method get_state()) for this game.
+          - Sorted dict mapping a short phase name to a game state.
+          - Each game state is associated to a timestamp generated
+            when state is created by method get_state().
+          - State timestamp then represents the "end" time of the state,
+            ie. time when this state was saved and archived in state history.
+          - Format: {short phase name => state}
+          - Wrapped in a sorted dict at runtime, see method __init__().
+
+        - **status**: game status (forming, active, paused, completed or canceled).
+          Possible values in diplomacy.utils.strings.ALL_GAME_STATUSES.
+        - **supports**:
+
+          - Contains a dictionary of support for each unit
+          - Format: { 'unit': [nb_of_support, [list of supporting units]] }
+          - e.g. { 'A PAR': [2, ['A MAR']] }. 2 support, but the Marseille support
+            does NOT count toward dislodgment
+
+        - **timestamp_created**: timestamp in microseconds when game object was created on server side.
+        - **victory**:
+
+          - Indicates the number of SUPPLY [default] centers one power must control to win the game
+          - Format: [reqFirstYear, reqSecondYear, ..., reqAllFurtherYears]
+          - e.g. [10,10,18]     for 10 the 1st year, 10 the 2nd year, 18 year 3+
+
+        - **win** - Indicates the minimum number of centers required to win. e.g. 3
+        - **zobrist_hash** - Contains the zobrist hash representing the current state of this game.
+          e.g. 12545212418541325
+
+        Cache properties:
+
+        - **unit_owner_cache**:
+
+          - Contains a dictionary with (unit, coast_required) as key and owner as value
+          - Set to Note when the cache is not built
+          - e.g. {('A PAR', True): <FRANCE>, ('A PAR', False): <FRANCE>), ...}
+
     """
     # pylint: disable=too-many-instance-attributes
     __slots__ = ['victory', 'no_rules', 'meta_rules', 'phase', 'note', 'map', 'powers', 'outcome', 'error', 'popped',
@@ -262,15 +313,19 @@ class Game(Jsonable):
             raise exceptions.NaturalIntegerException('n_controls must be a natural integer.')
         if self.deadline < 0:
             raise exceptions.NaturalIntegerException('Deadline must be a natural integer.')
+
         # Check rules.
         if rules is None:
-            rules = ['SOLITAIRE', 'NO_PRESS', 'IGNORE_ERRORS', 'POWER_CHOICE']
+            rules = list(DEFAULT_GAME_RULES)
+
         # Set game rules.
         for rule in rules:
             self.add_rule(rule)
+
         # Check settings about rule NO_DEADLINE.
         if 'NO_DEADLINE' in self.rules:
             self.deadline = 0
+
         # Check settings about rule SOLITAIRE.
         if 'SOLITAIRE' in self.rules:
             self.n_controls = 0
@@ -375,8 +430,9 @@ class Game(Jsonable):
     @property
     def power(self):
         """ (only for player games) Return client power associated to this game.
+
             :return: a Power object.
-            :rtype: Power
+            :rtype: diplomacy.engine.power.Power
         """
         return self.powers[self.role] if self.is_player_game() else None
 
@@ -408,18 +464,19 @@ class Game(Jsonable):
 
     def current_state(self):
         """ Returns the game object. To be used with the following syntax:
-            ```
-                with game.current_state():
-                    orders = players.get_orders(game, power_name)
-                    game.set_orders(power_name, orders)
-            ```
+
+            .. code-block:: python
+
+                    with game.current_state():
+                        orders = players.get_orders(game, power_name)
+                        game.set_orders(power_name, orders)
         """
         return self
 
     def __enter__(self):
         """ Enter into game context. Initialize fixed state.
-            Raise an exception if fixed state is already initialized to a different state, to prevent using the game
-            into multiple contexts at same time.
+            Raise an exception if fixed state is already initialized to a different state,
+            to prevent using the game into multiple contexts at same time.
         """
         current_state = (self.get_current_phase(), self.get_hash())
         if self.fixed_state and self.fixed_state != current_state:
@@ -433,6 +490,7 @@ class Game(Jsonable):
 
     def is_fixed_state_unchanged(self, log_error=True):
         """ Check if actual state matches saved fixed state, if game is used as context of a with-block.
+
             :param log_error: Boolean that indicates to log an error if state has changed
             :return: boolean that indicates if the state has changed.
         """
@@ -468,7 +526,12 @@ class Game(Jsonable):
         return common.is_valid_password(registration_password, self.registration_password)
 
     def is_controlled(self, power_name):
-        """ Return True if given power name is currently controlled. """
+        """ Return True if given power name is currently controlled.
+
+            :param power_name: power name
+            :type power_name: str
+            :rtype: bool
+        """
         return self.get_power(power_name).is_controlled()
 
     def is_dummy(self, power_name):
@@ -512,13 +575,10 @@ class Game(Jsonable):
             expected_count = len(self.powers)
         return expected_count
 
-    def get_map_power_names(self):
-        """ Return sequence of map power names. """
-        return self.powers.keys()
-
     def get_dummy_power_names(self):
-        """ Return sequence of dummy power names. """
-        return set(power_name for power_name in self.get_map_power_names() if self.is_dummy(power_name))
+        """ Return sequence of not eliminated dummy power names. """
+        return set(power_name for power_name in self.get_map_power_names()
+                   if self.is_dummy(power_name) and not self.get_power(power_name).is_eliminated())
 
     def get_dummy_unordered_power_names(self):
         """ Return a sequence of playable dummy power names
@@ -555,7 +615,9 @@ class Game(Jsonable):
         return playable_power_names[random.randint(0, len(playable_power_names) - 1)]
 
     def get_latest_timestamp(self):
-        """ Return timestamp of latest data saved into this game (either current state, archived state or message).
+        """ Return timestamp of latest data saved into this game
+            (either current state, archived state or message).
+
             :return: a timestamp
             :rtype: int
         """
@@ -570,6 +632,7 @@ class Game(Jsonable):
     def filter_messages(cls, messages, game_role, timestamp_from=None, timestamp_to=None):
         """ Filter given messages based on given game role between given timestamps (bounds included).
             See method diplomacy.utils.SortedDict.sub() about bound rules.
+
             :param messages: a sorted dictionary of messages to filter.
             :param game_role: game role requiring messages. Either a special power name
                 (PowerName.OBSERVER or PowerName.OMNISCIENT), a power name, or a list of power names.
@@ -603,16 +666,23 @@ class Game(Jsonable):
     def get_phase_history(self, from_phase=None, to_phase=None, game_role=None):
         """ Return a list of game phase data from game history between given phases (bounds included).
             Each GamePhaseData object contains game state, messages, orders and order results for a phase.
+
             :param from_phase: either:
+
                 - a string: phase name
                 - an integer: index of phase in game history
                 - None (default): lowest phase stored in game history
+
             :param to_phase: either:
+
                 - a string: phase name
                 - an integer: index of phase in game history
                 - None (default): latest phase stored in game history
-            :param game_role (optional): role of game for which phase history is retrieved.
+
+            :param game_role: (optional) role of game for which phase history is retrieved.
                 If none, messages in game history will not be filtered.
+
+            :return: a list of GamePhaseHistory objects
         """
         if isinstance(from_phase, int):
             from_phase = self.state_history.key_from_index(from_phase)
@@ -653,6 +723,7 @@ class Game(Jsonable):
 
     def extend_phase_history(self, game_phase_data):
         """ Add data from a game phase to game history.
+
             :param game_phase_data: a GamePhaseData object.
             :type game_phase_data: GamePhaseData
         """
@@ -673,10 +744,11 @@ class Game(Jsonable):
 
     def draw(self, winners=None):
         """ Force a draw for this game, set status as COMPLETED and finish the game.
-            :param winners: (optional) either None (all powers remaining to map are considered winners) or a sequence
-                of required power names to be considered as winners.
-            :return: a couple (previous state, current state) with game state before the draw and game state after
-                the draw.
+
+            :param winners: (optional) either None (all powers remaining to map are considered winners)
+                or a sequence of required power names to be considered as winners.
+            :return: a couple (previous state, current state)
+                with game state before the draw and game state after the draw.
         """
         if winners is None:
             # Draw with all powers which still have units in map.
@@ -726,6 +798,7 @@ class Game(Jsonable):
 
     def update_dummy_powers(self, dummy_power_names):
         """ Force all power associated to given dummy power names to be uncontrolled.
+
             :param dummy_power_names: Sequence of required dummy power names.
         """
         for dummy_power_name in dummy_power_names:
@@ -734,6 +807,7 @@ class Game(Jsonable):
 
     def update_powers_controllers(self, powers_controllers, timestamps):
         """ Update powers controllers.
+
             :param powers_controllers: a dictionary mapping a power name to a controller name.
             :param timestamps: a dictionary mapping a power name to timestamp when related controller
                 (in powers_controllers) was associated to power.
@@ -746,6 +820,7 @@ class Game(Jsonable):
         """ Create a undated (without timestamp) power message to be sent from a power to another via server.
             Server will answer with timestamp, and message will be updated
             and added to local game messages.
+
             :param recipient: recipient power name (string).
             :param body: message body (string).
             :return: a new GameMessage object.
@@ -759,6 +834,7 @@ class Game(Jsonable):
     def new_global_message(self, body):
         """ Create an undated (without timestamp) global message to be sent from a power via server.
             Server will answer with timestamp, and message will be updated and added to local game messages.
+
             :param body: message body (string).
             :return: a new GameMessage object.
             :rtype: Message
@@ -770,6 +846,7 @@ class Game(Jsonable):
         """ Add message to current game data.
             Only a server game can add a message with no timestamp:
             game will auto-generate a timestamp for the message.
+
             :param message: a GameMessage object to add.
             :return: message timestamp.
             :rtype: int
@@ -820,13 +897,24 @@ class Game(Jsonable):
     # ==============
     # Basic methods.
     # ==============
+
+    def get_map_power_names(self):
+        """ Return sequence of map power names. """
+        return self.powers.keys()
+
+    def get_current_phase(self):
+        """ Returns the current phase (format 'S1901M' or 'FORMING' or 'COMPLETED') """
+        return self._phase_abbr()
+
     def get_units(self, power_name=None):
         """ Retrieves the list of units for a power or for all powers
-            :param power_name: Optional. The name of the power (e.g. 'FRANCE') or None for all powers
-            :return: A list of units (e.g. ['A PAR', 'A MAR']) if a power name is provided
-                     or a dictionary of powers with their units if None is provided (e.g. {'FRANCE': [...], ...}
 
-            Note: Dislodged units will appear with a leading asterisk (e.g. '*A PAR')
+            :param power_name: Optional. The name of the power (e.g. ``'FRANCE'``) or None for all powers
+            :return: A list of units (e.g. ``['A PAR', 'A MAR']``) if a power name is provided
+                or a dictionary of powers with their units if None is provided
+                (e.g. ``{'FRANCE': [...], ...}``)
+
+            Note: Dislodged units will appear with a leading asterisk (e.g. ``'*A PAR'``)
         """
         if power_name is not None:
             power_name = power_name.upper()
@@ -842,10 +930,11 @@ class Game(Jsonable):
 
     def get_centers(self, power_name=None):
         """ Retrieves the list of owned supply centers for a power or for all powers
+
             :param power_name: Optional. The name of the power (e.g. 'FRANCE') or None for all powers
             :return: A list of supply centers (e.g. ['PAR', 'MAR']) if a power name is provided
-                     or a dictionary of powers with their supply centers if None is provided
-                     (e.g. {'FRANCE': [...], ...}
+                or a dictionary of powers with their supply centers if None is provided
+                (e.g. {'FRANCE': [...], ...}
         """
         if power_name is not None:
             power_name = power_name.upper()
@@ -861,10 +950,11 @@ class Game(Jsonable):
 
     def get_orders(self, power_name=None):
         """ Retrieves the orders submitted by a specific power, or by all powers
+
             :param power_name: Optional. The name of the power (e.g. 'FRANCE') or None for all powers
             :return: A list of orders (e.g. ['A PAR H', 'A MAR - BUR']) if a power name is provided
-                     or a dictionary of powers with their orders if None is provided
-                     (e.g. {'FRANCE': ['A PAR H', 'A MAR - BUR', ...], ...}
+                or a dictionary of powers with their orders if None is provided
+                (e.g. {'FRANCE': ['A PAR H', 'A MAR - BUR', ...], ...}
         """
         if power_name is not None:
             power_name = power_name.upper()
@@ -893,10 +983,11 @@ class Game(Jsonable):
 
     def get_orderable_locations(self, power_name=None):
         """ Find the location requiring an order for a power (or for all powers)
+
             :param power_name: Optionally, the name of the power (e.g. 'FRANCE') or None for all powers
             :return: A list of orderable locations (e.g. ['PAR', 'MAR']) if a power name is provided
-                     or a dictionary of powers with their orderable locations if None is not provided
-                     (e.g. {'FRANCE': [...], ...}
+                or a dictionary of powers with their orderable locations if None is not provided
+                (e.g. {'FRANCE': [...], ...}
         """
         if power_name is not None:
             power_name = power_name.upper()
@@ -939,17 +1030,22 @@ class Game(Jsonable):
     def get_order_status(self, power_name=None, unit=None, loc=None):
         """ Returns a list or a dict representing the order status ('', 'no convoy', 'bounce', 'void', 'cut',
             'dislodged', 'disrupted') for orders submitted in the last phase
+
             :param power_name: Optional. If provided (e.g. 'FRANCE') will only return the order status of that
-                               power's orders
+                power's orders
             :param unit: Optional. If provided (e.g. 'A PAR') will only return that specific unit order status.
             :param loc: Optional. If provided (e.g. 'PAR') will only return that specific loc order status.
                 Mutually exclusive with unit
             :param phase_type: Optional. Returns the results of a specific phase type (e.g. 'M', 'R', or 'A')
-            :return: If unit is provided a list (e.g. [] or ['void', 'dislodged'])
-                     If loc is provided, a couple of unit and list (e.g. ('A PAR', ['void', 'dislodged'])),
-                        or loc, [] if unit not found.
-                     If power is provided a dict (e.g. {'A PAR': ['void'], 'A MAR': []})
-                     Otherwise a 2-level dict (e.g. {'FRANCE: {'A PAR': ['void'], 'A MAR': []}, 'ENGLAND': {}, ... }
+            :return:
+
+                - If unit is provided a list (e.g. [] or ['void', 'dislodged'])
+                - If loc is provided, a couple of unit and list (e.g. ('A PAR', ['void', 'dislodged'])),
+                  or (loc, []) if unit not found.
+                - If power is provided a dict (e.g. {'A PAR': ['void'], 'A MAR': []})
+                - Otherwise a 2-level dict
+                  (e.g. {'FRANCE: {'A PAR': ['void'], 'A MAR': []}, 'ENGLAND': {}, ... }
+
         """
         # Specific location
         if unit or loc:
@@ -986,15 +1082,17 @@ class Game(Jsonable):
 
     def get_power(self, power_name):
         """ Retrieves a power instance from given power name.
+
             :param power_name: name of power instance to retrieve. Power name must be as given
                 in map file.
             :return: the power instance, or None if power name is not found.
-            :rtype: Power
+            :rtype: diplomacy.engine.power.Power
         """
         return self.powers.get(power_name, None)
 
     def set_units(self, power_name, units, reset=False):
         """ Sets units directly on the map
+
             :param power_name: The name of the power who will own the units (e.g. 'FRANCE')
             :param units: An unit (e.g. 'A PAR') or a list of units (e.g. ['A PAR', 'A MAR']) to set
                           Note units starting with a '*' will be set as dislodged
@@ -1078,6 +1176,7 @@ class Game(Jsonable):
 
     def set_centers(self, power_name, centers, reset=False):
         """ Transfers supply centers ownership
+
             :param power_name: The name of the power who will control the supply centers (e.g. 'FRANCE')
             :param centers: A loc (e.g. 'PAR') or a list of locations (e.g. ['PAR', 'MAR']) to transfer
             :param reset: Boolean. If, removes ownership of all power's SC before transferring ownership of the new SC
@@ -1113,16 +1212,18 @@ class Game(Jsonable):
 
     def set_orders(self, power_name, orders, expand=True, replace=True):
         """ Sets the current orders for a power
+
             :param power_name: The name of the power (e.g. 'FRANCE')
             :param orders: The list of orders (e.g. ['A MAR - PAR', 'A PAR - BER', ...])
             :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.)
-                           If false, expect orders in the following format. False gives a performance improvement.
+                If false, expect orders in the following format. False gives a performance improvement.
             :param replace: Boolean. If set, replace previous orders on same units, otherwise prevents re-orders.
             :return: Nothing
 
-            Expected format:
-                A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
-                A IRO R MAO, A IRO D, A LON B, F LIV B
+            Expected format: ::
+
+                A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI,
+                F NWG C A NWY - EDI, A IRO R MAO, A IRO D, A LON B, F LIV B
         """
         if not self.is_fixed_state_unchanged(log_error=bool(orders)):
             return
@@ -1155,6 +1256,7 @@ class Game(Jsonable):
 
     def set_wait(self, power_name, wait):
         """ Set wait flag for a power.
+
             :param power_name: name of power to set wait flag.
             :param wait: wait flag (boolean).
         """
@@ -1165,13 +1267,14 @@ class Game(Jsonable):
         if not self.has_power(power_name):
             return
 
-        power = self.get_power(power_name.upper())  # type: Power
+        power = self.get_power(power_name.upper())          # type: diplomacy.engine.power.Power
         power.wait = wait
 
     def clear_units(self, power_name=None):
         """ Clear the power's units
+
             :param power_name: Optional. The name of the power whose units will be cleared (e.g. 'FRANCE'),
-                               otherwise all units on the map will be cleared
+                otherwise all units on the map will be cleared
             :return: Nothing
         """
         for power in self.powers.values():
@@ -1181,8 +1284,9 @@ class Game(Jsonable):
 
     def clear_centers(self, power_name=None):
         """ Removes ownership of supply centers
+
             :param power_name:  Optional. The name of the power whose centers will be cleared (e.g. 'FRANCE'),
-                                otherwise all centers on the map will lose ownership.
+                otherwise all centers on the map will lose ownership.
             :return: Nothing
         """
         for power in self.powers.values():
@@ -1192,8 +1296,9 @@ class Game(Jsonable):
 
     def clear_orders(self, power_name=None):
         """  Clears the power's orders
+
             :param power_name:  Optional. The name of the power to clear (e.g. 'FRANCE') or will clear orders for
-                                all powers if None.
+                all powers if None.
             :return: Nothing
         """
         if not self.is_fixed_state_unchanged():
@@ -1210,10 +1315,6 @@ class Game(Jsonable):
         self.convoy_paths_possible, self.convoy_paths_dest = None, None
         self._unit_owner_cache = None
 
-    def get_current_phase(self):
-        """ Returns the current phase (format 'S1901M' or 'FORMING' or 'COMPLETED' """
-        return self._phase_abbr()
-
     def set_current_phase(self, new_phase):
         """ Changes the phase to the specified new phase (e.g. 'S1901M') """
         if new_phase in ('FORMING', 'COMPLETED'):
@@ -1225,9 +1326,10 @@ class Game(Jsonable):
 
     def render(self, incl_orders=True, incl_abbrev=False, output_format='svg'):
         """ Renders the current game and returns its image representation
+
             :param incl_orders:  Optional. Flag to indicate we also want to render orders.
             :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
-            :param output_format: The desired output format.
+            :param output_format: The desired output format. Currently, only 'svg' is supported.
             :return: The rendered image in the specified format.
         """
         if not self.renderer:
@@ -1236,6 +1338,7 @@ class Game(Jsonable):
 
     def add_rule(self, rule):
         """ Adds a rule to the current rule list
+
             :param rule: Name of rule to add (e.g. 'NO_PRESS')
             :return: Nothing
         """
@@ -1274,6 +1377,7 @@ class Game(Jsonable):
 
     def remove_rule(self, rule):
         """ Removes a rule from the current rule list
+
             :param rule: Name of rule to remove (e.g. 'NO_PRESS')
             :return: Nothing
         """
@@ -1282,6 +1386,7 @@ class Game(Jsonable):
 
     def load_map(self, reinit_powers=True):
         """ Load a map and process directives
+
             :param reinit_powers: Boolean. If true, empty powers dict.
             :return: Nothing, but stores the map in self.map
         """
@@ -1314,6 +1419,7 @@ class Game(Jsonable):
 
     def process(self):
         """ Processes the current phase of the game.
+
             :return: game phase data with data before processing.
         """
         previous_phase = self._phase_wrapper_type(self.current_short_phase)
@@ -1361,6 +1467,7 @@ class Game(Jsonable):
 
     def rebuild_hash(self):
         """ Completely recalculate the Zobrist hash
+
             :return: The updated hash value
         """
         self.zobrist_hash = 0
@@ -1391,13 +1498,14 @@ class Game(Jsonable):
 
     def update_hash(self, power, unit_type='', loc='', is_dislodged=False, is_center=False, is_home=False):
         """ Updates the zobrist hash for the current game
-        :param power: The name of the power owning the unit, supply center or home
-        :param unit_type: Contains the unit type of the unit being added or remove from the board ('A' or 'F')
-        :param loc:  Contains the location of the unit, supply center, of home being added or remove
-        :param is_dislodged: Indicates that the unit being added/removed is dislodged
-        :param is_center: Indicates that the location being added/removed is a supply center
-        :param is_home: Indicates that the location being added/removed is a home
-        :return: Nothing
+
+            :param power: The name of the power owning the unit, supply center or home
+            :param unit_type: Contains the unit type of the unit being added or remove from the board ('A' or 'F')
+            :param loc:  Contains the location of the unit, supply center, of home being added or remove
+            :param is_dislodged: Indicates that the unit being added/removed is dislodged
+            :param is_center: Indicates that the location being added/removed is a supply center
+            :param is_home: Indicates that the location being added/removed is a home
+            :return: Nothing
         """
         if self.map is None:
             return
@@ -1442,6 +1550,7 @@ class Game(Jsonable):
 
     def set_phase_data(self, phase_data, clear_history=True):
         """ Set game from phase data.
+
             :param phase_data: either a GamePhaseData or a list of GamePhaseData.
                 If phase_data is a GamePhaseData, it will be treated as a list of GamePhaseData with 1 element.
                 Last phase data in given list will be used to set current game internal state.
@@ -1485,8 +1594,8 @@ class Game(Jsonable):
             See field order_history to get orders from previous phases.
             To get a complete state of all data in this game object, consider using method Game.to_dict().
 
-            :param make_copy: Boolean. If true, a deep copy of the game state is returned, otherwise the attributes are
-                              returned directly.
+            :param make_copy: Boolean. If true, a deep copy of the game state is returned,
+                otherwise the attributes are returned directly.
             :return: The internal saved state (dict) of the game
         """
         state = {}
@@ -1527,6 +1636,7 @@ class Game(Jsonable):
 
     def set_state(self, state, clear_history=True):
         """ Sets the game from a saved internal state
+
             :param state: The saved state (dict)
             :param clear_history: Boolean. If true, all game histories are cleared.
             :return: Nothing
@@ -1576,6 +1686,7 @@ class Game(Jsonable):
 
     def get_all_possible_orders(self):
         """ Computes a list of all possible orders for all locations
+
             :return: A dictionary with locations as keys, and their respective list of possible orders as values
         """
         # pylint: disable=too-many-branches,too-many-nested-blocks
@@ -1806,6 +1917,7 @@ class Game(Jsonable):
 
     def _is_convoyer(self, army, loc):
         """ Detects if there is a convoyer at thru location for army/fleet (e.g. can an army be convoyed through PAR)
+
             :param army: Boolean to indicate if unit being convoyed is army (1) or fleet (0)
             :param loc: Location we are checking (e.g. 'STP/SC')
             :return: Boolean to indicate if unit can be convoyed through location
@@ -1824,6 +1936,7 @@ class Game(Jsonable):
 
     def _is_moving_via_convoy(self, unit):
         """ Determines if a unit is moving via a convoy or through land
+
             :param unit: The name of the unit (e.g. 'A PAR')
             :return: A boolean (True, False) to indicate if the unit is moving via convoy
         """
@@ -1838,6 +1951,7 @@ class Game(Jsonable):
 
     def _has_convoy_path(self, unit, start, end, convoying_loc=None):
         """ Determines if there is a convoy path for unit
+
             :param unit: The unit BEING convoyed (e.g. 'A' or 'F')
             :param start: The start location of the unit (e.g. 'LON')
             :param end: The destination of the unit (e.g. 'MAR')
@@ -1854,6 +1968,7 @@ class Game(Jsonable):
 
     def _get_convoying_units_for_path(self, unit, start, end):
         """ Returns a list of units who have submitted orders to convoy 'unit' from 'start' to 'end'
+
             :param unit: The unit BEING convoyed (e.g. 'A' or 'F')
             :param start: The start location of the unit (e.g. 'LON')
             :param end: The destination of the unit (e.g. 'MAR')
@@ -1869,10 +1984,11 @@ class Game(Jsonable):
 
     def _get_convoy_destinations(self, unit, start, unit_is_convoyer=False, exclude_convoy_locs=None):
         """ Returns a list of possible convoy destinations for a unit
+
             :param unit: The unit BEING convoyed (e.g. 'A' or 'F')
             :param start: The start location of the unit (e.g. 'LON')
             :param unit_is_convoyer: Boolean flag. If true, list all the dests that an unit being convoyed by unit
-                        could reach
+                could reach
             :param exclude_convoy_locs: Optional. A list of convoying location that needs to be excluded from all paths.
             :return: A list of convoying destinations (e.g. ['PAR', 'MAR']) that can be reached from start
         """
@@ -1908,11 +2024,12 @@ class Game(Jsonable):
 
     def _get_convoy_paths(self, unit_type, start, end, via, convoying_units):
         """ Return a list of all possible convoy paths (using convoying units) from start to end
+
             :param unit_type: The unit type BEING convoyed (e.g. 'A' or 'F')
             :param start: The start location of the unit (e.g. 'LON')
             :param end: The destination of the unit (e.g. 'MAR')
             :param via: Boolean flag (0 or 1) to indicate if we want only paths with a local convoyer, or also paths
-                        including only foreign convoyers
+                including only foreign convoyers
             :param convoying_units: The list of units who can convoy the unit
             :return: A list of paths from start to end using convoying_units
         """
@@ -1956,6 +2073,7 @@ class Game(Jsonable):
     def _get_distance_to_home(self, unit_type, start, homes):
         """ Calculate the distance from unit to one of its homes
             Armies can move over water (4.D.8 choice d)
+
             :param unit_type: The unit type to calculate distance (e.g. 'A' or 'F')
             :param start: The start location of the unit (e.g. 'LON')
             :param homes: The list of homes (first one reached calculates the distance)
@@ -2000,15 +2118,17 @@ class Game(Jsonable):
     # ====================================================================
     def _valid_order(self, power, unit, order, report=1):
         """ Determines if an order is valid
+
             :param power: The power submitting the order
             :param unit: The unit being affected by the order (e.g. 'A PAR')
             :param order: The actual order (e.g. 'H' or 'S A MAR')
             :param report: Boolean to report errors in self.errors
             :return: One of the following:
-                None -  The order is NOT valid at all
-                -1   -  It is NOT valid, BUT it does not get reported because it may be used to signal support
-                 0   -  It is valid, BUT some unit mentioned does not exist
-                 1   -  It is completed valid
+
+                * None -  The order is NOT valid at all
+                * -1   -  It is NOT valid, BUT it does not get reported because it may be used to signal support
+                * 0    -  It is valid, BUT some unit mentioned does not exist
+                * 1    -  It is completed valid
         """
         # pylint: disable=too-many-return-statements,too-many-branches,too-many-statements
         # No order
@@ -2261,8 +2381,9 @@ class Game(Jsonable):
 
     def _expand_order(self, word):
         """ Detects errors in order, convert to short version, and expand the default coast if necessary
+
             :param word: The words (e.g. order.split()) for an order
-                        (e.g. ['England:', 'Army', 'Rumania', 'SUPPORT', 'German', 'Army', 'Bulgaria']).
+                (e.g. ['England:', 'Army', 'Rumania', 'SUPPORT', 'German', 'Army', 'Bulgaria']).
             :return: The compacted and expanded order (e.g. ['A', 'RUM', 'S', 'A', 'BUL'])
         """
         if not word:
@@ -2350,6 +2471,7 @@ class Game(Jsonable):
             For Fleets: Adjust to correct coast if wrong coast is specified
             For Armies: Removes coast if coast is specified
             (e.g. if F is on SPA/SC but the order is F SPA/NC - LYO, the coast will be added or corrected)
+
             :param word: A list of tokens (e.g. ['F', 'GRE', '-', 'BUL'])
             :return: The updated list of tokens (e.g. ['F', 'GRE', '-', 'BUL/SC'])
         """
@@ -2393,6 +2515,7 @@ class Game(Jsonable):
 
     def _add_unit_types(self, item):
         """ Adds any missing "A" and "F" designations and (current) coastal locations for fleets.
+
             :param item: The words for expand_order() (e.g. ['A', 'RUM', 'S', 'BUL'])
             :return: The list of items with A/F and coasts added (e.g. ['A', 'RUM', 'S', 'A', 'BUL'])
         """
@@ -2431,8 +2554,9 @@ class Game(Jsonable):
         return word
 
     def _add_coasts(self):
-        """ This method adds the matching coast to orders supporting or (portage) convoying a fleet to
-            a multi-coast province.
+        """ This method adds the matching coast to orders supporting or (portage)
+            convoying a fleet to a multi-coast province.
+
             :return: Nothing
         """
         # converting to unique format
@@ -2528,14 +2652,16 @@ class Game(Jsonable):
     # ====================================================================
     def _load_rules(self):
         """ Loads the list of rules and their forced (+) and denied (!) corresponding rules
-            :return: A tuple of dictionaries: rules, forced, and denied
-                    rules = {'NO_CHECK':
-                                 { 'group': '3 Movement Order',
-                                   'variant': 'standard',
-                                   '!': ['RULE_1', 'RULE_2'],
-                                   '+': ['RULE_3'] } }
-                    forced = {'payola': 'RULE_4'}
-                    denied = {'payola': 'RULE_5'}
+
+            :return: A tuple of dictionaries: rules, forced, and denied ::
+
+                rules = {'NO_CHECK':
+                             { 'group': '3 Movement Order',
+                               'variant': 'standard',
+                               '!': ['RULE_1', 'RULE_2'],
+                               '+': ['RULE_3'] } }
+                forced = {'payola': 'RULE_4'}
+                denied = {'payola': 'RULE_5'}
         """
         if self.__class__.rule_cache:
             return self.__class__.rule_cache
@@ -2612,6 +2738,7 @@ class Game(Jsonable):
     # ====================================================================
     def _begin(self):
         """ Called to begin the game and move to the start phase
+
             :return: Nothing
         """
         self._move_to_start_phase()
@@ -2655,6 +2782,7 @@ class Game(Jsonable):
 
     def _advance_phase(self):
         """ Advance the game to the next phase (skipping phases with no actions)
+
             :return: A list of lines to put in the results
         """
 
@@ -2689,6 +2817,7 @@ class Game(Jsonable):
 
     def _move_to_start_phase(self):
         """ Moves to the map's start phase
+
             :return: Nothing, but sets the self.phase and self.phase_type settings
         """
         # Retrieve the beginning phase and phase type from the map
@@ -2697,8 +2826,9 @@ class Game(Jsonable):
 
     def _find_next_phase(self, phase_type=None, skip=0):
         """ Returns the long name of the phase coming immediately after the current phase
+
             :param phase_type: The type of phase we are looking for
-                    (e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjust.)
+                (e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjust.)
             :param skip: The number of match to skip (e.g. 1 to find not the next phase, but the one after)
             :return: The long name of the next phase (e.g. FALL 1905 MOVEMENT)
         """
@@ -2706,8 +2836,9 @@ class Game(Jsonable):
 
     def _find_previous_phase(self, phase_type=None, skip=0):
         """ Returns the long name of the phase coming immediately before the current phase
+
             :param phase_type: The type of phase we are looking for
-                    (e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjust.)
+                (e.g. 'M' for Movement, 'R' for Retreats, 'A' for Adjust.)
             :param skip: The number of match to skip (e.g. 1 to find not the next phase, but the one after)
             :return: The long name of the previous phase (e.g. SPRING 1905 MOVEMENT)
         """
@@ -2723,6 +2854,7 @@ class Game(Jsonable):
 
     def _check_phase(self):
         """ Checks if we need to process a phase, or if we can skip it if there are no actions
+
             :return: Boolean (0 or 1) - 0 if we need to process phase, 1 if we can skip it
         """
         # pylint: disable=too-many-return-statements
@@ -2786,6 +2918,7 @@ class Game(Jsonable):
 
     def _build_sites(self, power):
         """ Returns a list of sites where power can build units
+
             :param power: The power instance to check
             :return: A list of build sites
         """
@@ -2805,8 +2938,12 @@ class Game(Jsonable):
 
     def _build_limit(self, power, sites=None):
         """ Determines the maximum number of builds a power can do in an adjustment phase
-            Note: This function assumes that one unit can be built per build sites + alternative sites
-                  The actual maximum build limit would be less if units are built on alternative sites.
+
+            Note:
+
+            - This function assumes that one unit can be built per build sites + alternative sites.
+            - The actual maximum build limit would be less if units are built on alternative sites.
+
             :param power: The power instance to check
             :param sites: The power's build sites (or None to compute them)
             :return: An integer representing the maximum number of simultaneous builds
@@ -2820,6 +2957,7 @@ class Game(Jsonable):
 
     def _calculate_victory_score(self):
         """ Calculates the score to determine win for each power
+
             :return: A dict containing the score for each power (e.g. {'FRANCE': 10, 'ENGLAND': 2})
         """
         score = {}
@@ -2831,8 +2969,9 @@ class Game(Jsonable):
 
     def _determine_win(self, last_year):
         """ Determine if we have a win.
+
             :param last_year: A dict containing the score for each power (e.g. {'FRANCE': 10, 'ENGLAND': 2})
-                             (from the previous year)
+                (from the previous year)
             :return: Nothing
         """
         victors, this_year = [], self._calculate_victory_score()
@@ -2863,6 +3002,7 @@ class Game(Jsonable):
 
     def _capture_centers(self):
         """ In Adjustment Phase, proceed with the capture of occupied supply centers
+
             :return: Nothing
         """
         victory_score_prev_year = self._calculate_victory_score()
@@ -2913,6 +3053,7 @@ class Game(Jsonable):
 
     def _transfer_center(self, from_power, to_power, center):
         """ Transfers a supply center from a power to another
+
             :param from_power: The power instance from whom the supply center is transfered
             :param to_power: The power instance to whom the supply center is transferred
             :param center: The supply center location (e.g. 'PAR')
@@ -2927,6 +3068,7 @@ class Game(Jsonable):
 
     def _finish(self, victors):
         """ Indicates that a game is finished and has been won by 'victors'
+
             :param victors: The list of victors (e.g. ['FRANCE', 'GERMANY'])
             :return: Nothing
         """
@@ -2942,6 +3084,7 @@ class Game(Jsonable):
 
     def _phase_abbr(self, phase=None):
         """ Constructs a 5 character representation (S1901M) from a phase (SPRING 1901 MOVEMENT)
+
             :param phase: The full phase (e.g. SPRING 1901 MOVEMENT)
             :return: A 5 character representation of the phase
         """
@@ -2954,14 +3097,15 @@ class Game(Jsonable):
         """ Adds an order for a power
             :param power: The power instance issuing the order
             :param word: The order (e.g. ['A', 'PAR', '-', 'MAR'])
-            :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.)
-                           If false, expect orders in the following format. False gives a performance improvement.
+            :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.).
+               If false, expect orders in the following format. False gives a performance improvement.
             :param replace: Boolean. If set, replace previous orders on same units, otherwise prevents re-orders.
             :return: Nothing, but adds error to self.error
 
-            Expected format:
-                A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
-                A IRO R MAO, A IRO D, A LON B, F LIV B
+            Expected format: ::
+
+                A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI,
+                F NWG C A NWY - EDI, A IRO R MAO, A IRO D, A LON B, F LIV B
         """
         if not word:
             return None
@@ -3019,15 +3163,17 @@ class Game(Jsonable):
 
     def _update_orders(self, power, orders, expand=True, replace=True):
         """ Updates the orders of a power
+
             :param power: The power instance (or None if updating multiple instances)
             :param orders: The updated list of orders
-                        e.g. ['A MAR - PAR', 'A PAR - BER', ...]
+                e.g. ['A MAR - PAR', 'A PAR - BER', ...]
             :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.)
-                           If false, expect orders in the following format. False gives a performance improvement.
+                If false, expect orders in the following format. False gives a performance improvement.
             :param replace: Boolean. If set, replace previous orders on same units, otherwise prevents re-orders.
             :return: Nothing
 
-            Expected format:
+            Expected format: ::
+
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
@@ -3081,15 +3227,17 @@ class Game(Jsonable):
 
     def _add_retreat_orders(self, power, orders, expand=True, replace=True):
         """ Adds a retreat order (Retreats Phase)
+
             :param power: The power instance who is submitting orders (or None if power is in the orders)
             :param orders: The list of adjustment orders
-                            (format can be [Country: order], [Country, order, order], or [order,order])
+                (format can be [Country: order], [Country, order, order], or [order,order])
             :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.)
-                           If false, expect orders in the following format. False gives a performance improvement.
+                If false, expect orders in the following format. False gives a performance improvement.
             :param replace: Boolean. If set, replace previous orders on same units, otherwise prevents re-orders.
             :return: Nothing, but adds error to self.error
 
-            Expected format:
+            Expected format: ::
+
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
@@ -3178,14 +3326,16 @@ class Game(Jsonable):
 
     def _update_retreat_orders(self, power, orders, expand=True, replace=True):
         """ Updates order for Retreats phase
+
             :param power: The power instance submitting the orders
             :param orders: The updated orders
             :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.)
-                           If false, expect orders in the following format. False gives a performance improvement.
+                If false, expect orders in the following format. False gives a performance improvement.
             :param replace: Boolean. If set, replace previous orders on same units, otherwise prevents re-orders.
             :return: List of processing errors
 
-            Expected format:
+            Expected format: ::
+
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
@@ -3194,15 +3344,17 @@ class Game(Jsonable):
 
     def _add_adjust_orders(self, power, orders, expand=True, replace=True):
         """ Adds an adjustment order (Adjustment Phase)
+
             :param power: The power instance who is submitting orders (or None if power is in the orders)
             :param orders: The list of adjustment orders (format can be [Country: order],
-                            [Country, order, order], or [order,order])
+                [Country, order, order], or [order,order])
             :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.)
-                           If false, expect orders in the following format. False gives a performance improvement.
+                If false, expect orders in the following format. False gives a performance improvement.
             :param replace: Boolean. If set, replace previous orders on same units, otherwise prevents re-orders.
             :return: Nothing, but adds error to self.error
 
-            Expected format:
+            Expected format: ::
+
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
@@ -3344,14 +3496,16 @@ class Game(Jsonable):
 
     def _update_adjust_orders(self, power, orders, expand=True, replace=True):
         """ Updates order for Adjustment phase
+
             :param power: The power instance submitting the orders
             :param orders: The updated orders
             :param expand: Boolean. If set, performs order expansion and reformatting (e.g. adding unit type, etc.)
-                           If false, expect orders in the following format. False gives a performance improvement.
+                If false, expect orders in the following format. False gives a performance improvement.
             :param replace: Boolean. If set, replace previous orders on same units, otherwise prevents re-orders.
             :return: List of processing errors
 
-            Expected format:
+            Expected format: ::
+
                 A LON H, F IRI - MAO, A IRI - MAO VIA, A WAL S F LON, A WAL S F MAO - IRI, F NWG C A NWY - EDI
                 A IRO R MAO, A IRO D, A LON B, F LIV B
         """
@@ -3379,6 +3533,7 @@ class Game(Jsonable):
 
     def _default_orders(self, power):
         """ Issues default orders for a power (HOLD)
+
             :param power: The power instance
             :return: Nothing
         """
@@ -3397,6 +3552,7 @@ class Game(Jsonable):
     # ====================================================================
     def _abuts(self, unit_type, unit_loc, order_type, other_loc):
         """ Determines if a order for unit_type from unit_loc to other_loc is adjacent (Support and convoy only)
+
             :param unit_type: The type of unit ('A' or 'F')
             :param unit_loc: The location of the unit ('BUR', 'BUL/EC')
             :param order_type: The type of order ('S' for Support, 'C' for Convoy', '-' for move)
@@ -3422,9 +3578,10 @@ class Game(Jsonable):
 
     def _unit_owner(self, unit, coast_required=1):
         """ Finds the power who owns a unit
+
             :param unit: The name of the unit to find (e.g. 'A PAR')
             :param coast_required: Indicates that the coast is in the unit
-                                   (if 0, you can search for 'F STP' for example, but if 1, you must specify 'F STP/SC')
+                (if 0, you can search for 'F STP' for example, but if 1, you must specify 'F STP/SC')
             :return: The power instance who owns the unit or None
         """
         # If coast_required is 0 and unit does not contain a '/'
@@ -3435,6 +3592,7 @@ class Game(Jsonable):
 
     def _occupant(self, site, any_coast=0):
         """ Finds the occupant of a site
+
             :param site: The site name (e.g. "STP")
             :param any_coast: Boolean to indicate to return unit on any coast
             :return: The unit (e.g. "A STP", "F STP/NC") occupying the site, None otherwise
@@ -3451,6 +3609,7 @@ class Game(Jsonable):
         """ This function sets self.combat to a dictionary of dictionaries, specifying each potential destination
             for every piece, with the strengths of each unit's attempt to get (or stay) there, and with the givers
             of supports that DON'T country dislodgement. (i.e. supports given by the power owning the occupying unit).
+
             :return: Nothing, but sets self.combat
         """
         # For example, the following orders, all by the same power:
@@ -3483,6 +3642,7 @@ class Game(Jsonable):
     def _detect_paradox(self, starting_node, paradox_action, paradox_last_words):
         """ Paradox detection algorithm. Start at starting node and move chain to see if node if performing
             paradox action
+
             :param starting_node: The location (e.g. PAR) where to start the paradox chain
             :param paradox_action: The action that would cause a paradox in the chain (e.g. 'S')
             :param paradox_last_words: The last words to detect in a order to cause a paradox (e.g. ['F', 'NTH'])
@@ -3511,8 +3671,9 @@ class Game(Jsonable):
 
     def _check_disruptions(self, may_convoy, result, coresult=None):
         """ Determines convoy disruptions.
+
             :param may_convoy: Contains the dictionary of all convoys that have a chance to succeed
-            (e.g. {'A PAR': ['BER', 'MUN']}
+                (e.g. {'A PAR': ['BER', 'MUN']}
             :param result: Result to set for the unit if the convoying fleet would be dislodged
                 (e.g. 'maybe', 'no convoy')
             :param coresult: Result to set for the convoyer if the convoying fleet would be dislodged (e.g. 'dislodged')
@@ -3583,6 +3744,7 @@ class Game(Jsonable):
     def _boing(self, unit):
         """ Mark a unit bounced, and update the combat table to show the unit as
             having strength one at its current location
+
             :param unit: The unit to bounce (e.g. 'A PAR')
             :return: 1
         """
@@ -3669,6 +3831,7 @@ class Game(Jsonable):
 
     def _cut_support(self, unit, direct=0):
         """ See if the order made by the unit cuts a support. If so, cut it.
+
             :param unit: The unit who is attacking (and cutting support)
             :param direct: Boolean Flag - If set, the order must not only be a move, but also a non-convoyed move.
             :return: Nothing
@@ -3709,6 +3872,7 @@ class Game(Jsonable):
 
     def _no_effect(self, unit, site):
         """ Removes a unit from the combat list of an attack site
+
             :param unit: The unit attacking the site (e.g. ['A PAR', []])
             :param site: The site being attacked (e.g. 'MAR')
             :return: Nothing
@@ -3722,6 +3886,7 @@ class Game(Jsonable):
 
     def _unbounce(self, site):
         """ Unbounce any powerful-enough move that can now take the spot being vacated by the dislodger.
+
             :param site: The site being attacked
             :return: Nothing
         """
@@ -4015,6 +4180,7 @@ class Game(Jsonable):
 
     def _move_results(self):
         """ Resolves moves (Movement phase) and returns a list of messages explaining what happened
+
             :return: A list of lines for the results file explaining what happened during the phase
         """
         # Resolving moves
@@ -4097,6 +4263,7 @@ class Game(Jsonable):
 
     def _other_results(self):
         """ Resolves moves (Retreat and Adjustment phase) and returns a list of messages explaining what happened
+
             :return: A list of lines for the results file explaining what happened during the phase
         """
         # pylint: disable=too-many-statements,too-many-branches,too-many-nested-blocks
@@ -4320,6 +4487,7 @@ class Game(Jsonable):
 
     def _resolve(self):
         """ Resolve the current phase
+
             :return: A list of strings for the results file explaining how the phase was resolved.
         """
         this_phase = self.phase_type

@@ -18,12 +18,13 @@
 from diplomacy.utils.common import is_dictionary
 from diplomacy.utils.sorted_set import SortedSet
 
-class SortedDict():
+class SortedDict:
     """ Dict with sorted keys. """
     __slots__ = ['__val_type', '__keys', '__couples']
 
     def __init__(self, key_type, val_type, kwargs=None):
         """ Initialize a typed SortedDict.
+
             :param key_type: expected type for keys.
             :param val_type: expected type for values.
             :param kwargs: (optional) dictionary-like object: initial values for sorted dict.
@@ -40,6 +41,9 @@ class SortedDict():
     def builder(key_type, val_type):
         """ Return a function to build sorted dicts from a dictionary-like object.
             Returned function expects a dictionary parameter (an object with method items()).
+
+            .. code-block:: python
+
                 builder_fn = SortedDict.builder(str, int)
                 my_sorted_dict = builder_fn({'a': 1, 'b': 2})
 
@@ -157,17 +161,18 @@ class SortedDict():
         return self.__keys[position_from:(position_to + 1)]
 
     def sub(self, key_from=None, key_to=None):
-        """ Return a list of values associated to keys between key_from and key_to (both bounds included).
+        """ Return a list of values associated to keys between key_from and key_to
+            (both bounds included).
 
-            If key_from is None, lowest key in dict is used.
-            If key_to is None, greatest key in dict is used.
-            If key_from is not in dict, lowest key in dict greater than key_from is used.
-            If key_to is not in dict, greatest key in dict less than key_to is used.
+            - If key_from is None, lowest key in dict is used.
+            - If key_to is None, greatest key in dict is used.
+            - If key_from is not in dict, lowest key in dict greater than key_from is used.
+            - If key_to is not in dict, greatest key in dict less than key_to is used.
 
-            If dict is empty, return empty list.
-            With keys (None, None) return a copy of all values.
-            With keys (None, key_to), return values from first to the one associated to key_to.
-            With keys (key_from, None), return values from the one associated to key_from to the last value.
+            - If dict is empty, return empty list.
+            - With keys (None, None) return a copy of all values.
+            - With keys (None, key_to), return values from first to the one associated to key_to.
+            - With keys (key_from, None), return values from the one associated to key_from to the last value.
 
             :param key_from: start key
             :param key_to: end key
@@ -184,7 +189,7 @@ class SortedDict():
             :param key_from: start key
             :param key_to: end key
             :return: nothing
-            """
+        """
         position_from, position_to = self._get_keys_interval(key_from, key_to)
         keys_to_remove = self.__keys[position_from:(position_to + 1)]
         for key in keys_to_remove:
@@ -207,13 +212,12 @@ class SortedDict():
             to easily retrieve values in closed interval [index of key_from; index of key_to]
             corresponding to Python slice [index of key_from : (index of key_to + 1)]
 
-            If dict is empty, return (0, -1), so that python slice [0 : -1 + 1] corresponds to empty interval.
-            If key_from is None, lowest key in dict is used.
-            If key_to is None, greatest key in dict is used.
-            If key_from is not in dict, lowest key in dict greater than key_from is used.
-            If key_to is not in dict, greatest key in dict less than key_to is used.
+            - If dict is empty, return (0, -1), so that python slice [0 : -1 + 1] corresponds to empty interval.
+            - If key_from is None, lowest key in dict is used.
+            - If key_to is None, greatest key in dict is used.
+            - If key_from is not in dict, lowest key in dict greater than key_from is used.
+            - If key_to is not in dict, greatest key in dict less than key_to is used.
 
-            Thus:
             - With keys (None, None), we get interval of all values.
             - With keys (key_from, None), we get interval for values from key_from to the last key.
             - With keys (None, key_to), we get interval for values from the first key to key_to.

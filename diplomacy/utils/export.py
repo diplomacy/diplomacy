@@ -26,9 +26,11 @@ RULES_TO_SKIP = ['SOLITAIRE', 'NO_DEADLINE', 'CD_DUMMIES', 'ALWAYS_WAIT', 'IGNOR
 
 def to_saved_game_format(game):
     """ Converts a game to a standardized JSON format
+
         :param game: game to convert.
-        :return: A game in the standard JSON format used to saved game (returned object is a dictionary)
-        :type game: Game
+        :return: A game in the standard format used to saved game, that can be converted to JSON for serialization
+        :type game: diplomacy.engine.game.Game
+        :rtype: Dict
     """
 
     # Get phase history.
@@ -53,6 +55,7 @@ def to_saved_game_format(game):
 def is_valid_saved_game(saved_game):
     """ Checks if the saved game is valid.
         This is an expensive operation because it replays the game.
+
         :param saved_game: The saved game (from to_saved_game_format)
         :return: A boolean that indicates if the game is valid
     """

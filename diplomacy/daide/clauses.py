@@ -30,7 +30,7 @@ def break_next_group(daide_bytes):
         e.g. bytes for ENG AMY PAR would return -> '' + ENG AMY PAR since the byte array does not start with a "("
 
         :return: A tuple consisting of the parenthesis group and the remaining bytes after the group
-                 or an empty byte array and the entire byte array if the byte array does not start with a parenthesis
+             or an empty byte array and the entire byte array if the byte array does not start with a parenthesis
     """
     if not daide_bytes:
         return b'', b''
@@ -69,6 +69,7 @@ def strip_parentheses(daide_bytes):
 
 def parse_bytes(clause_constructor, daide_bytes, on_error='raise'):
     """ Creates a clause object from a string of bytes
+
         :param clause_constructor: The type of clause to build
         :param daide_bytes: The bytes to use to build this clause
         :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
@@ -83,6 +84,7 @@ def parse_bytes(clause_constructor, daide_bytes, on_error='raise'):
 
 def parse_string(clause_constructor, string, on_error='raise'):
     """ Creates a clause object from a string
+
         :param clause_constructor: The type of clause to build
         :param string: The string to use to build this clause
         :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
@@ -114,6 +116,7 @@ class AbstractClause(metaclass=ABCMeta):
     @abstractmethod
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -123,6 +126,7 @@ class AbstractClause(metaclass=ABCMeta):
     @abstractmethod
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -130,6 +134,7 @@ class AbstractClause(metaclass=ABCMeta):
 
     def error(self, on_error, message=''):
         """ Performs the error action
+
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :param message: The message to display
         """
@@ -141,9 +146,7 @@ class AbstractClause(metaclass=ABCMeta):
         self._is_valid = False
 
 class SingleToken(AbstractClause):
-    """ Extracts a single token
-        e.g. NME
-    """
+    """ Extracts a single token (e.g. NME) """
     def __init__(self):
         """ Constructor """
         super(SingleToken, self).__init__()
@@ -160,6 +163,7 @@ class SingleToken(AbstractClause):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -178,6 +182,7 @@ class SingleToken(AbstractClause):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build this clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -205,6 +210,7 @@ class Power(SingleToken):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -215,6 +221,7 @@ class Power(SingleToken):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build this clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -241,6 +248,7 @@ class String(AbstractClause):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -260,6 +268,7 @@ class String(AbstractClause):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -290,6 +299,7 @@ class Number(AbstractClause):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -311,6 +321,7 @@ class Number(AbstractClause):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -319,8 +330,10 @@ class Number(AbstractClause):
 
 class Province(AbstractClause):
     """ Each clause is an province token
-        Syntax: ADR
-                (STP ECS)
+        Syntax:
+
+            - ADR
+            - (STP ECS)
     """
     _alias_from_bytes = {'ECS': '/EC',
                          'NCS': '/NC',
@@ -347,6 +360,7 @@ class Province(AbstractClause):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -381,6 +395,7 @@ class Province(AbstractClause):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -433,6 +448,7 @@ class Turn(AbstractClause):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -460,6 +476,7 @@ class Turn(AbstractClause):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -483,6 +500,7 @@ class UnitType(SingleToken):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -493,6 +511,7 @@ class UnitType(SingleToken):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build this clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -530,6 +549,7 @@ class Unit(AbstractClause):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -559,6 +579,7 @@ class Unit(AbstractClause):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -610,6 +631,7 @@ class OrderType(SingleToken):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -620,6 +642,7 @@ class OrderType(SingleToken):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build this clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """
@@ -628,6 +651,7 @@ class OrderType(SingleToken):
 
 def parse_order_to_bytes(phase_type, order_split):
     """ Builds an order clause from a byte array
+
         :param phase_type: The game phase
         :param order_split: An instance of diplomacy.utils.subject_split.OrderSplit
         :return: The order clause's bytes
@@ -720,6 +744,7 @@ class Order(AbstractClause):
 
     def from_bytes(self, daide_bytes, on_error='raise'):
         """ Builds the clause from a byte array
+
             :param daide_bytes: The bytes to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
             :return: The remaining (unparsed) bytes
@@ -796,6 +821,7 @@ class Order(AbstractClause):
 
     def from_string(self, string, on_error='raise'):
         """ Builds the clause from a string
+
             :param string: The string to use to build the clause
             :param on_error: The action to take when an error is encountered ('raise', 'warn', 'ignore')
         """

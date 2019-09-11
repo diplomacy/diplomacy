@@ -47,6 +47,7 @@ DISK_CACHE_PATH = os.path.join(HOME_DIRECTORY, '.cache', 'diplomacy', CACHE_FILE
 
 def display_progress_bar(queue, max_loop_iters):
     """ Displays a progress bar
+
         :param queue: Multiprocessing queue to display the progress bar
         :param max_loop_iters: The expected maximum number of iterations
     """
@@ -122,6 +123,7 @@ def get_convoy_paths(map_object, start_location, max_convoy_length, queue):
 
 def build_convoy_paths_cache(map_object, max_convoy_length):
     """ Builds the convoy paths cache for a map
+
         :param map_object: The instantiated map object
         :param max_convoy_length: The maximum convoy length permitted
         :return: A dictionary where the key is the number of fleets in the path and
@@ -158,6 +160,7 @@ def build_convoy_paths_cache(map_object, max_convoy_length):
 
 def get_file_md5(file_path):
     """ Calculates a file MD5 hash
+
         :param file_path: The file path
         :return: The computed md5 hash
     """
@@ -169,6 +172,7 @@ def get_file_md5(file_path):
 
 def add_to_cache(map_name):
     """ Lazy generates convoys paths for a map and adds it to the disk cache
+
         :param map_name: The name of the map
         :return: The convoy_paths for that map
     """

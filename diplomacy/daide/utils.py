@@ -22,6 +22,7 @@ ClientConnection = namedtuple('ClientConnection', ['username', 'daide_user', 'to
 
 def get_user_connection(server_users, game, connection_handler):
     """ Get the DAIDE user connection informations
+
         :param server_users: The instance of `diplomacy.server.users` of the game's server
         :param game: The game the user has joined
         :param connection_handler: The connection_handler of the user
@@ -38,6 +39,7 @@ def get_user_connection(server_users, game, connection_handler):
 
 def str_to_bytes(daide_str):
     """ Converts a str into its bytes representation
+
         :param daide_str: A DAIDE string with tokens separated by spaces
         :return: The bytes representation of the string
 
@@ -56,6 +58,7 @@ def str_to_bytes(daide_str):
 
 def bytes_to_str(daide_bytes):
     """ Converts a bytes into its str representation
+
         :param daide_bytes: A DAIDE bytes with tokens separated by spaces
         :return: The bytes representation of the string
 

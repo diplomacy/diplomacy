@@ -38,9 +38,12 @@ REGEX_UNDERSCORE_THEN_LETTER = re.compile('_([a-z])')
 REGEX_START_BY_LOWERCASE = re.compile('^[a-z]')
 
 def _sub_hash_password(password):
-    """ Hash long password to allow bcrypt to handle password longer than 72 characters. Module private method.
+    """ Hash long password to allow bcrypt to handle password longer than 72 characters.
+        Module private method.
+
         :param password: password to hash.
-        :return: (String) The hashed password.
+        :return: The hashed password.
+        :rtype: str
     """
     # Bcrypt only handles passwords up to 72 characters. We use this hashing method as a work around.
     # Suggested in bcrypt PyPI page (2018/02/08 12:36 EST): https://pypi.python.org/pypi/bcrypt/3.1.0
@@ -48,16 +51,20 @@ def _sub_hash_password(password):
 
 def is_valid_password(password, hashed):
     """ Check if password matches hashed.
+
         :param password: password to check.
         :param hashed: a password hashed with method hash_password().
-        :return: (Boolean). Indicates if the password matches the hash.
+        :return: Indicates if the password matches the hash.
+        :rtype: bool
     """
     return bcrypt.checkpw(_sub_hash_password(password), hashed.encode('utf-8'))
 
 def hash_password(password):
     """ Hash password. Accepts password longer than 72 characters. Public method.
+
         :param password: The password to hash
-        :return: (String). The hashed password.
+        :return: The hashed password.
+        :rtype: str
     """
     return bcrypt.hashpw(_sub_hash_password(password), bcrypt.gensalt(14)).decode('utf-8')
 
@@ -67,8 +74,10 @@ def generate_token(n_bytes=128):
 
 def is_dictionary(dict_to_check):
     """ Check if given variable is a dictionary-like object.
+
         :param dict_to_check: Dictionary to check.
-        :return: (Boolean). Indicates if the object is a dictionary.
+        :return: Indicates if the object is a dictionary.
+        :rtype: bool
     """
     return isinstance(dict_to_check, dict) or all(
         hasattr(dict_to_check, expected_attribute)
@@ -87,8 +96,10 @@ def is_dictionary(dict_to_check):
 def is_sequence(seq_to_check):
     """ Check if given variable is a sequence-like object.
         Note that strings and dictionary-like objects will not be considered as sequences.
+
         :param seq_to_check: Sequence-like object to check.
-        :return: (Boolean). Indicates if the object is sequence-like.
+        :return: Indicates if the object is sequence-like.
+        :rtype: bool
     """
     # Strings and dicts are not valid sequences.
     if isinstance(seq_to_check, str) or is_dictionary(seq_to_check):
@@ -97,8 +108,10 @@ def is_sequence(seq_to_check):
 
 def camel_case_to_snake_case(name):
     """ Convert a string (expected to be in camel case) to snake case.
+
         :param name: string to convert.
-        :return: string: snake case version of given name.
+        :return: snake case version of given name.
+        :rtype: str
     """
     if name == '':
         return name
@@ -106,10 +119,12 @@ def camel_case_to_snake_case(name):
     return REGEX_LOWER_THEN_UPPER_CASES.sub(r'\1_\2', separated_consecutive_uppers).lower()
 
 def snake_case_to_upper_camel_case(name):
-    """ Convert a string (expected to be in snake case) to camel case and convert first letter to upper case
-        if it's in lowercase.
+    """ Convert a string (expected to be in snake case) to camel case and convert first letter
+        to upper case if it's in lowercase.
+
         :param name: string to convert.
         :return: camel case version of given name.
+        :rtype: str
     """
     if name == '':
         return name
@@ -118,6 +133,7 @@ def snake_case_to_upper_camel_case(name):
 
 def assert_no_common_keys(dict1, dict2):
     """ Check that dictionaries does not share keys.
+
         :param dict1: dict
         :param dict2: dict
     """
@@ -131,7 +147,8 @@ def assert_no_common_keys(dict1, dict2):
 
 def timestamp_microseconds():
     """ Return current timestamp with microsecond resolution.
-        :return: int
+
+        :rtype: int
     """
     delta = datetime.now() - EPOCH
     return (delta.days * 24 * 60 * 60 + delta.seconds) * 1000000 + delta.microseconds
@@ -140,27 +157,29 @@ def str_cmp_class(compare_function):
     """ Return a new class to be used as string comparator.
 
         Example:
-        ```
-        def my_cmp_func(a, b):
-            # a and b are two strings to compare with a specific code.
-            # Return -1 if a < b, 0 if a == b, 1 otherwise.
 
-        my_class = str_cmp_class(my_cmp_func)
-        wrapped_str_1 = my_class(str_to_compare_1)
-        wrapped_str_2 = my_class(str_to_compare_2)
-        my_list = [wrapped_str_1, wrapped_str_2]
+        .. code-block:: python
 
-        # my_list will be sorted according to my_cmp_func.
-        my_list.sort()
-        ```
+            def my_cmp_func(a, b):
+                # a and b are two strings to compare with a specific code.
+                # Return -1 if a < b, 0 if a == b, 1 otherwise.
 
-        :param compare_function: a callable that takes 2 strings a and b, and compares it according to custom rules.
-            This function should return:
-            -1 (or a negative value) if a < b
-            0 if a == b
-            1 (or a positive value) if a > b
+            my_class = str_cmp_class(my_cmp_func)
+            wrapped_str_1 = my_class(str_to_compare_1)
+            wrapped_str_2 = my_class(str_to_compare_2)
+            my_list = [wrapped_str_1, wrapped_str_2]
 
+            # my_list will be sorted according to my_cmp_func.
+            my_list.sort()
+
+        :param compare_function: a callable that takes 2 strings a and b, and compares
+            it according to custom rules. This function should return:
+
+            * -1 (or a negative value) if a < b
+            * 0 if a == b
+            * 1 (or a positive value) if a > b
         :return: a comparator class, instanciable with a string.
+        :type compare_function: callable
     """
 
     class StringComparator:
@@ -188,12 +207,28 @@ def str_cmp_class(compare_function):
     StringComparator.__name__ = 'StringComparator%s' % (id(compare_function))
     return StringComparator
 
-class StringableCode():
+def to_string(element):
+    """ Convert element to a string and make sure string is wrapped in either simple quotes
+        (if contains double quotes) or double quotes (if contains simple quotes).
+
+        :param element: element to convert
+        :return: string version of element
+        :rtype: str
+    """
+    element = str(element)
+    if '"' in element:
+        return "'%s'" % element
+    if "'" in element:
+        return '"%s"' % element
+    return element
+
+class StringableCode:
     """ Represents a stringable version of a code (with an optional message) """
     def __init__(self, code, message=None):
         """ Build a StringableCode
+
             :param code: int - code
-            :param message: Optional. human readable string message associated to the cide
+            :param message: Optional. human readable string message associated to the code
         """
         if isinstance(code, str) or message is None:
             message = code
@@ -246,13 +281,14 @@ class StringableCode():
         """ Format the message of the result """
         return StringableCode(self._code, self._message.format(*values))
 
-class Tornado():
+class Tornado:
     """ Utilities for Tornado. """
 
     @staticmethod
     def stop_loop_on_callback_error(io_loop):
         """ Modify exception handler method of given IO loop so that IO loop stops and raises
             as soon as an exception is thrown from a callback.
+
             :param io_loop: IO loop
             :type io_loop: tornado.ioloop.IOLoop
         """

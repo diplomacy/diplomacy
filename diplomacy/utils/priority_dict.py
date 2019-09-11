@@ -18,13 +18,15 @@
 import heapq
 
 # ------------------------------------------------
-# Adapted from (2018/03/14s): https://docs.python.org/3.6/library/heapq.html#priority-queue-implementation-notes
+# Adapted from (2018/03/14s):
+# https://docs.python.org/3.6/library/heapq.html#priority-queue-implementation-notes
 # Unlicensed
 class PriorityDict(dict):
     """ Priority Dictionary Implementation """
 
     def __init__(self, **kwargs):
         """ Initialize the priority queue.
+
             :param kwargs: (optional) initial values for priority queue.
         """
         self.__heap = []  # Heap for entries. An entry is a triple (priority value, key, valid entry flag (boolean)).
@@ -36,6 +38,7 @@ class PriorityDict(dict):
 
     def __setitem__(self, key, val):
         """ Sets a key with his associated priority
+
             :param key: The key to set in the dictionary
             :param val: The priority to associate with the key
             :return: None
@@ -48,7 +51,9 @@ class PriorityDict(dict):
         heapq.heappush(self.__heap, entry)
 
     def __delitem__(self, key):
-        """ Removes key from dict and marks associated heap entry as invalid (False). Raises KeyError if not found. """
+        """ Removes key from dict and marks associated heap entry as invalid (False).
+            Raises KeyError if not found.
+        """
         entry = self.pop(key)
         entry[-1] = False
 
@@ -71,6 +76,7 @@ class PriorityDict(dict):
 
     def smallest(self):
         """ Finds the smallest item in the priority dict
+
             :return: A tuple of (priority, key) for the item with the smallest priority, or None if dict is empty.
         """
         while self.__heap and not self.__heap[0][-1]:
@@ -85,6 +91,7 @@ class PriorityDict(dict):
 
     def copy(self):
         """ Return a copy of this priority dict.
+
             :rtype: PriorityDict
         """
         return PriorityDict(**{key: entry[0] for key, entry in dict.items(self)})

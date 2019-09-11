@@ -15,7 +15,7 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Helper script to convert a SVG file into a React JS component file.
-    Type `python <script name> --help` for help.
+    Type ``python <script name> --help`` for help.
 """
 import argparse
 import os
@@ -61,6 +61,7 @@ STRING_REGEX = re.compile(r'[`\'"] {0,1}\+ {0,1}[`\'"]')
 
 def prepend_css_selectors(prefix, css_text):
     """ Prepend all CSS selector with given prefix (e.g. ID selector) followed by a space.
+
         :param prefix: prefix to prepend
         :param css_text: CSS text to parse
         :rtype: str
@@ -73,6 +74,7 @@ def prepend_css_selectors(prefix, css_text):
 
 class ExtractedData:
     """ Helper class to store extra data collected while parsing SVG file. Properties:
+
         - name: class name of parsed SVG component
         - extra: data parsed from invalid tags found in SVG content
         - style_lines: string lines parsed from <style> tag if found in SVG content
@@ -83,6 +85,7 @@ class ExtractedData:
 
     def __init__(self, name):
         """ Initialize extracted data object.
+
             :param name: class name of parsed SVG content
         """
         self.name = name
@@ -92,6 +95,7 @@ class ExtractedData:
 
     def get_coordinates(self):
         """ Parse and return unit coordinates from extra field.
+
             :return: a dictionary mapping a province name to coordinates [x, y] (as string values)
                 for unit ('unit'), dislodged unit ('disl'), and supply center ('sc', if available).
             :rtype: dict
@@ -113,6 +117,7 @@ class ExtractedData:
 
     def get_symbol_sizes(self):
         """ Parse and return symbol sizes from extra field.
+
             :return: a dictionary mapping a symbol name to sizes
                 ('width' and 'height' as floating values).
             :rtype: dict
@@ -127,6 +132,7 @@ class ExtractedData:
 
     def get_colors(self):
         """ Parse and return power colors from extra field.
+
             :return: a dictionary mapping a power name to a HTML color.
             :rtype: dict
         """
@@ -138,6 +144,7 @@ class ExtractedData:
 
 def safe_react_attribute_name(name):
     """ Convert given raw attribute name into a valid React HTML tag attribute name.
+
         :param name: attribute to convert
         :return: valid attribute
         :type name: str
@@ -161,6 +168,7 @@ def safe_react_attribute_name(name):
 
 def compact_extra(extra):
     """ Compact extra dictionary so that it takes less place into final output string.
+
         :param extra: dictionary of extra data
         :type extra: dict
     """
@@ -219,6 +227,7 @@ def compact_extra(extra):
 
 def extract_extra(node, extra):
     """ Collect extra information from given node into output extra.
+
         :type extra: dict
     """
     extra_dictionary = {'name': node.tagName, 'attributes': {}, 'children': []}
@@ -242,6 +251,7 @@ def extract_extra(node, extra):
 
 def attributes_to_string(attributes):
     """ Convert given HTML attributes ton an inline string.
+
         :param attributes: attributes to write
         :return: a string representing attributes
         :type attributes: dict
@@ -259,6 +269,7 @@ def attributes_to_string(attributes):
 
 def extract_dom(node, nb_indentation, lines, data):
     """ Parse given node.
+
         :param node: (input) node to parse
         :param nb_indentation: (input) number of indentation to use for current node content
             into output lines. 1 indentation is converted to 4 spaces.

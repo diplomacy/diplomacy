@@ -3,3 +3,6 @@
 pylint>=2.3.0
 pytest>=4.4.0
 pytest-xdist
+sphinx
+sphinx_copybutton
+sphinx_rtd_theme

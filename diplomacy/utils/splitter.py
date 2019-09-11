@@ -24,6 +24,7 @@ class AbstractStringSplitter(metaclass=ABCMeta):
     """ Breaks a string into its components - Generic class """
     def __init__(self, string, length):
         """ Constructor
+
             :param string: the string to split
             :param length: the maximum length of the split
         """
@@ -60,6 +61,7 @@ class OrderSplitter(AbstractStringSplitter):
     """ Splits an order into its components """
     def __init__(self, string):
         """ Constructor
+
             :param string: the string to split
         """
         self._unit_index = None
@@ -196,6 +198,7 @@ class PhaseSplitter(AbstractStringSplitter):
     """ Splits a phase into its components """
     def __init__(self, string):
         """ Constructor
+
             :param string: the string to split
         """
         self._season_index = None

@@ -15,14 +15,13 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """ Abstract Jsonable class to create data intended to be exchanged on network.
+
     Used for requests, responses and notifications.
     To write a sub-class, you must first write a base class for data category (e.g. notifications):
 
     - Define header model for network data.
-
     - Define ID field for data category (e.g. "notification_id"). This will be used to create unique
       identifier for every data exchanged on network.
-
     - Then every sub-class from base class must define parameters (params) model. Params and header
       must not share any field.
 """
