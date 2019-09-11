@@ -198,7 +198,6 @@ class SignIn(_AbstractRequest):
 
         :param username: account username
         :param password: account password
-        :param create_user: if True, server must create user. If False, server must login user.
         :return:
 
             - Server: :class:`.DataToken`
@@ -207,19 +206,16 @@ class SignIn(_AbstractRequest):
 
         :type username: str
         :type password: str
-        :type create_user: bool
     """
-    __slots__ = ['username', 'password', 'create_user']
+    __slots__ = ['username', 'password']
     params = {
         strings.USERNAME: str,
         strings.PASSWORD: str,
-        strings.CREATE_USER: bool
     }
 
     def __init__(self, **kwargs):
         self.username = None
         self.password = None
-        self.create_user = None
         super(SignIn, self).__init__(**kwargs)
 
 # =================

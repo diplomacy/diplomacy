@@ -118,24 +118,16 @@ from diplomacy.utils import exceptions
 
 POWERS = ['AUSTRIA', 'ENGLAND', 'FRANCE', 'GERMANY', 'ITALY', 'RUSSIA', 'TURKEY']
 
-async def login(connection, username, password):
-    """ Logins to the server """
-    try:
-        channel = await connection.authenticate(username, password, create_user=True)
-    except exceptions.DiplomacyException:
-        channel = await connection.authenticate(username, password, create_user=False)
-    return channel
-
 async def create_game(game_id, hostname='localhost', port=8432):
     """ Creates a game on the server """
     connection = await connect(hostname, port)
-    channel = await login(connection, 'random_user', 'password')
+    channel = await connection.authenticate('random_user', 'password')
     await channel.create_game(game_id=game_id, rules={'REAL_TIME', 'NO_DEADLINE', 'POWER_CHOICE'})
 
 async def play(game_id, power_name, hostname='localhost', port=8432):
     """ Play as the specified power """
     connection = await connect(hostname, port)
-    channel = await login(connection, 'user_' + power_name, 'password')
+    channel = await connection.authenticate('user_' + power_name, 'password')
 
     # Waiting for the game, then joining it
     while not (await channel.list_games(game_id=game_id)):

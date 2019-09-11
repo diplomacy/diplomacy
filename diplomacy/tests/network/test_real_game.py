@@ -32,7 +32,7 @@ from diplomacy.server.server import Server
 from diplomacy.engine.game import Game
 from diplomacy.engine.map import Map
 from diplomacy.engine.message import GLOBAL, Message as EngineMessage
-from diplomacy.utils import common, exceptions, constants, strings
+from diplomacy.utils import common, constants, strings
 
 LOGGER = logging.getLogger('diplomacy.tests.network.test_real_game')
 
@@ -511,11 +511,7 @@ def load_power_game(case_data, power_name):
 
     username = 'user_%s' % power_name
     password = 'password_%s' % power_name
-    try:
-        user_channel = yield case_data.connection.authenticate(username, password, create_user=True)
-    except exceptions.ResponseException:
-        print('User', username, 'seems to already exists. Try to login.')
-        user_channel = yield case_data.connection.authenticate(username, password, create_user=False)
+    user_channel = yield case_data.connection.authenticate(username, password)
     print('User', username, 'connected.')
 
     user_game = yield user_channel.join_game(game_id=case_data.admin_game.game_id, power_name=power_name)
@@ -550,7 +546,7 @@ def main(case_data):
     if case_data.admin_channel is None:
         LOGGER.info('Creating connection, admin channel and admin game.')
         case_data.connection = yield connect(case_data.hostname, case_data.port)
-        case_data.admin_channel = yield case_data.connection.authenticate('admin', 'password', create_user=False)
+        case_data.admin_channel = yield case_data.connection.authenticate('admin', 'password')
         # NB: For all test cases, first game state should be default game engine state when starting.
         # So, we don't need to pass game state of first expected phase when creating a server game.
         case_data.admin_game = yield case_data.admin_channel.create_game(

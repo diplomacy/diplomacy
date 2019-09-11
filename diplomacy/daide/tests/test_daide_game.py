@@ -390,17 +390,15 @@ def run_game_data(nb_daide_clients, rules, csv_file):
         # Creating human player
         human_username = 'username'
         human_password = 'password'
-        human_create_user = not server.users.has_user(human_username, human_password)
 
         # Creating bot player to play for dummy powers
         bot_username = constants.PRIVATE_BOT_USERNAME
         bot_password = constants.PRIVATE_BOT_PASSWORD
-        bot_create_user = not server.users.has_user(bot_username, bot_password)
 
         # Connecting
         connection = yield connect(HOSTNAME, port)
-        human_channel = yield connection.authenticate(human_username, human_password, human_create_user)
-        bot_channel = yield connection.authenticate(bot_username, bot_password, bot_create_user)
+        human_channel = yield connection.authenticate(human_username, human_password)
+        bot_channel = yield connection.authenticate(bot_username, bot_password)
 
         # Joining human to game
         channels = {BOT_KEYWORD: bot_channel}

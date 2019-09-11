@@ -35,7 +35,7 @@ export const REQUESTS = {
      * - request phase dependent (optional, for game requests): boolean (default, true)
      * **/
     models: {
-        sign_in: {level: null, model: {username: null, password: null, create_user: null}},
+        sign_in: {level: null, model: {username: null, password: null}},
         create_game: {
             level: STRINGS.CHANNEL,
             model: {
