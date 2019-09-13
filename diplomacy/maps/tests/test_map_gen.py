@@ -19,9 +19,11 @@
 """
 import glob
 import os
+import pickle
 import sys
 
 from diplomacy.engine.map import Map
+from diplomacy.utils.convoy_paths import INTERNAL_CACHE_PATH, get_file_md5
 
 MODULE_PATH = sys.modules['diplomacy'].__path__[0]
 
@@ -43,3 +45,20 @@ def test_map_with_full_path():
         this_map = Map(current_map)
         assert this_map.error == [], 'Map %s should have no errors' % current_map
         del this_map
+
+def test_internal_cache():
+    """ Tests that all maps with a SVG are in the internal cache """
+    maps = glob.glob(os.path.join(MODULE_PATH, 'maps', '*.map'))
+    assert maps, 'Expected maps to be found.'
+    assert os.path.exists(INTERNAL_CACHE_PATH), 'Expected internal cache to exist'
+
+    # Checking that maps with a svg are in the internal cache
+    with open(INTERNAL_CACHE_PATH, 'rb') as cache_file:
+        internal_cache = pickle.load(cache_file)
+        for current_map in maps:
+            map_name = current_map[current_map.rfind('/') + 1:].replace('.map', '')
+            this_map = Map(map_name)
+            if not this_map.svg_path:
+                continue
+            assert get_file_md5(current_map) in internal_cache, 'Map "%s" not found in internal cache' % map_name
+            del this_map
