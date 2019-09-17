@@ -30,7 +30,8 @@ from diplomacy.integration.webdiplomacy_net.utils import CACHE, GameIdCountryId
 
 # Constants
 LOGGER = logging.getLogger(__name__)
-HTTP_ERRORS = (herror, gaierror, timeout, HTTPTimeoutError, HTTPStreamClosedError)
+HTTP_ERRORS = (herror, gaierror, timeout, HTTPTimeoutError, HTTPStreamClosedError,
+               ConnectionResetError, ConnectionRefusedError, OSError)
 API_USER_AGENT = 'KestasBot / Philip Paquette v1.0'
 API_WEBDIPLOMACY_NET = os.environ.get('API_WEBDIPLOMACY', 'https://webdiplomacy.net/api.php')
 
