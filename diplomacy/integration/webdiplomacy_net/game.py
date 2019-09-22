@@ -9,7 +9,7 @@
 # ==============================================================================
 """ Utility to convert a webdiplomacy.net game state to a game object """
 import logging
-from diplomacy import Game
+from diplomacy import Game, Message
 from diplomacy.integration.webdiplomacy_net.orders import Order
 from diplomacy.integration.webdiplomacy_net.utils import CACHE
 
@@ -19,6 +19,8 @@ LOGGER = logging.getLogger(__name__)
 
 def turn_to_phase(turn, phase):
     """ Converts a turn and phase to a short phase name e.g. turn 1 - phase 'Retreats' to 'F1901R' """
+    if phase == 'Finished':
+        return 'COMPLETED'
     year = 1901 + turn // 2
     season = 'S' if turn % 2 == 0 else 'F'
     if phase == 'Builds':
@@ -165,6 +167,50 @@ def order_dict_to_str(order_dict, phase, map_id=1):
     # Returning
     return power_name, order.to_string()
 
+# Format:
+# {'turn':          integer,
+#  'phase':         'Diplomacy', 'Retreats', 'Builds', 'Finished'
+#  'timeSent':      integer,
+#  'fromCountryID': integer,
+#  'toCountryID':   integer,
+#  'message':       string}
+def message_dict_to_message(message_dict, map_id=1):
+    """ Converts a message from the dictionary format to the Message format
+
+        :param message_dict: The message in dictionary format from webdiplomacy.net
+        :return: A :class:`diplomacy.engine.message.Message` object
+    """
+    req_fields = ('turn', 'phase', 'timeSent', 'fromCountryID', 'toCountryID', 'message')
+    if [1 for field in req_fields if field not in message_dict]:
+        LOGGER.error('The required fields for message dict are %s. Cannot translate %s', req_fields, message_dict)
+        return None
+
+    # Extracting information
+    turn = int(message_dict['turn'])
+    phase = str(message_dict['phase'])
+    time_sent = int(message_dict['timeSent'])
+    from_country_id = int(message_dict['fromCountryID'])
+    to_country_id = int(message_dict['toCountryID'])
+    message = str(message_dict['message'])
+
+    # Validating
+    if from_country_id not in CACHE[map_id]['ix_to_power']:
+        LOGGER.error('Unknown fromCountryID "%s" for mapID "%s".', from_country_id, map_id)
+        return None
+    if to_country_id not in CACHE[map_id]['ix_to_power']:
+        LOGGER.error('Unknown toCountryID "%s" for mapID "%s".', to_country_id, map_id)
+        return None
+    if phase not in ('Diplomacy', 'Retreats', 'Builds', 'Finished'):
+        LOGGER.error('Unknown phase "%s" for mapID "%s".', phase, map_id)
+        return None
+
+    # Getting sender, recipient, and current_phase
+    sender = CACHE[map_id]['ix_to_power'][from_country_id]
+    recipient = CACHE[map_id]['ix_to_power'][to_country_id]
+    current_phase = turn_to_phase(turn, phase)
+
+    # Building message
+    return Message(sender=sender, recipient=recipient, time_sent=time_sent, phase=current_phase, message=message)
 
 # Format:
 # {'turn':       integer,
@@ -208,11 +254,19 @@ def process_phase_dict(phase_dict, map_id=1):
             orders_per_power[power_name] = []
         orders_per_power[power_name].append(order)
 
+    # Processing messages
+    messages = []
+    for message_dict in phase_dict.get('messages', []):
+        message_obj = message_dict_to_message(message_dict, map_id=map_id)
+        if message_obj is not None:
+            messages.append(message_obj)
+
     # Returning
     return {'name': phase,
             'units': units_per_power,
             'centers': centers_per_power,
-            'orders': orders_per_power}
+            'orders': orders_per_power,
+            'messages': messages}
 
 
 # Format:
@@ -280,6 +334,10 @@ def state_dict_to_game_and_power(state_dict, country_id, max_phases=None):
                 continue
             game.set_orders(power_name, power_orders)
 
+        # Messages
+        for message in phase_to_replay['messages']:
+            game.add_message(message)
+
         # Processing
         game.process()
 
@@ -300,6 +358,10 @@ def state_dict_to_game_and_power(state_dict, country_id, max_phases=None):
         if power_name == 'GLOBAL':
             continue
         game.set_centers(power_name, power_centers)
+
+    # Messages
+    for message in current_phase['messages']:
+        game.add_message(message)
 
     # Setting retreat locs
     if current_phase['name'][-1] == 'R':
