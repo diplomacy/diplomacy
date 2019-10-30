@@ -25,6 +25,12 @@ features:
 
 .. toctree::
    :maxdepth: -1
+   :caption: DAIDE Protocol Documentation
+
+   daide/daide.client
+
+.. toctree::
+   :maxdepth: -1
    :caption: API Documentation
 
    api/diplomacy.client
