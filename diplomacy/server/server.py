@@ -248,7 +248,7 @@ class Server:
         self.backup_delay_seconds = constants.DEFAULT_BACKUP_DELAY_SECONDS
         self.ping_seconds = constants.DEFAULT_PING_SECONDS
         self.users = None  # type: Users  # Users and administrators usernames.
-        self.available_maps = {}  # type: Dict[str, Set[str]] # {"map_name" => set("map_power")}
+        self.available_maps = {}  # type: Dict[str, List[str]] # {"map_name" => list("map_power")}
         self.maps_mtime = 0  # Latest maps modification date (used to manage maps cache in server object).
 
         # Server games loaded on memory (stored on disk).
@@ -303,8 +303,8 @@ class Server:
                     # Either it's a new map file or map file was modified.
                     available_map = Map(map_name)
                     self.available_maps[map_name] = {
-                        'powers': set(available_map.powers),
-                        'supply_centers': set(available_map.scs),
+                        'powers': list(available_map.powers),
+                        'supply_centers': list(available_map.scs),
                         'loc_type': available_map.loc_type.copy(),
                         'loc_abut': available_map.loc_abut.copy(),
                         'aliases': available_map.aliases.copy()
