@@ -61,7 +61,7 @@ setup(name='diplomacy',
                    'Programming Language :: Python :: 3.7',
                    'Topic :: Games/Entertainment :: Board Games'],
       project_urls={'Bug Reports': 'https://github.com/diplomacy/diplomacy/issues',
-                    'Documentation': 'https://docs.diplomacy.ai/',
+                    'Documentation': 'https://diplomacy.readthedocs.io/',
                     'Source': 'https://github.com/diplomacy/diplomacy/'})
 
 # ------------------------------------
