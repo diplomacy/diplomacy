@@ -89,8 +89,9 @@ class ConnectionHandler:
 
     def release_name_variant(self):
         """ Return the next available user name variant """
-        self._USED_NAME_VARIANTS.remove(self._name_variant)
-        self._NAME_VARIANTS_POOL.append(self._name_variant)
+        if self._name_variant is not None:
+            self._USED_NAME_VARIANTS.remove(self._name_variant)
+            self._NAME_VARIANTS_POOL.append(self._name_variant)
         self._name_variant = None
 
     @gen.coroutine

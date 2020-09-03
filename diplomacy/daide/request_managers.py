@@ -32,6 +32,16 @@ from diplomacy.utils.order_results import OK
 # Request managers.
 # =================
 
+def _get_long_power_name(short_power_name):
+    """ Return the long version of the power name
+
+        :param short_power_name:
+        :return: the long version of the power name of None if short_power_name is invalid
+    """
+    power_clause, _ = parse_bytes(clauses.Power, bytes(tokens.Token(short_power_name)), on_error='ignore')
+    # If the short power name is valid, return the long power name
+    return str(power_clause) if power_clause else None
+
 @gen.coroutine
 def on_name_request(server, request, connection_handler, game):
     """ Manage NME request
@@ -42,7 +52,14 @@ def on_name_request(server, request, connection_handler, game):
         :param game: the game
         :return: the list of responses
     """
-    username = connection_handler.get_name_variant() + request.client_name
+    # Get the power name if specified
+    # i.e. if the Daide client is 'FRA__Dumbbot', it wants to be assigned to a power starting with 'FRA'
+    power_client_name = request.client_name.split("__")
+    requested_power_name = _get_long_power_name(power_client_name[0]) if len(power_client_name) == 2 else None
+
+    client_name = power_client_name[-1]
+    username = (client_name if requested_power_name else request.client_name) + \
+               connection_handler.get_name_variant()
 
     try:
         server.assert_token(connection_handler.token, connection_handler)
@@ -56,7 +73,7 @@ def on_name_request(server, request, connection_handler, game):
             connection_handler.token = token_response.data
             if not isinstance(server.users.get_user(username), DaideUser):
                 daide_user = DaideUser(passcode=random.randint(1, 8191),
-                                       client_name=request.client_name,
+                                       client_name=client_name,
                                        client_version=request.client_version,
                                        **server.users.get_user(username).to_dict())
                 server.users.replace_user(username, daide_user)
@@ -64,9 +81,15 @@ def on_name_request(server, request, connection_handler, game):
         except exceptions.UserException:
             return [responses.REJ(bytes(request))]
 
-    # find next available power
-    power_name = [power_name for power_name, power in game.powers.items() if not power.is_controlled()]
-    if not power_name:
+    # check if there are powers left
+    uncontrolled_powers = sorted([pow_name for pow_name, power in game.powers.items()
+                                  if not power.is_eliminated() and not power.is_controlled()])
+
+    if requested_power_name:
+        uncontrolled_powers = [power_name for power_name in uncontrolled_powers
+                               if power_name == requested_power_name]
+
+    if not uncontrolled_powers:
         return [responses.REJ(bytes(request))]
 
     return [responses.YES(bytes(request)), responses.MAP(game.map.name)]
@@ -504,7 +527,7 @@ def on_accept_request(server, request, connection_handler, game):
         :param game: the game
         :return: the list of responses
     """
-    _, daide_user, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
+    username, _, token, power_name = utils.get_user_connection(server.users, game, connection_handler)
 
     response = None
     accept_response = request.response_bytes
@@ -514,22 +537,23 @@ def on_accept_request(server, request, connection_handler, game):
 
         # Assigning a power to the user
         if not power_name:
-            uncontrolled_powers = [pow_name for pow_name, power in game.powers.items()
-                                   if not power.is_eliminated() and not power.is_controlled()]
+            # Get the power name if specified
+            # i.e. if the Daide client is 'FRA__Dumbbot', it wants to be assigned to a power starting with 'FRA'
+            power_client_name = username.split("__")
+            requested_power_name = _get_long_power_name(power_client_name[0]) if len(power_client_name) == 2 else None
+
+            uncontrolled_powers = sorted([pow_name for pow_name, power in game.powers.items()
+                                          if not power.is_eliminated() and not power.is_controlled()])
+
+            # If the Daide client is 'FRA__Dumbbot', it wants to be assigned to a power starting with 'FRA'
+            if requested_power_name:
+                uncontrolled_powers = [power_name for power_name in uncontrolled_powers
+                                       if power_name == requested_power_name]
+
             if not uncontrolled_powers:
                 return [responses.OFF()]
 
-            # 1 - Trying to respect the choice specified by the DAIDE user
-            # i.e. if the Daide client is 'FRA:Dumbbot', it wants to be assigned to a power starting with 'FRA'
-            if ':' in daide_user.client_name:
-                prefix = daide_user.client_name.split(':')[0].upper()
-                selected_powers = [pow_name for pow_name in uncontrolled_powers if pow_name.upper().startswith(prefix)]
-                if selected_powers:
-                    power_name = selected_powers[0]
-
-            # 2 - Otherwise, assigning to the first uncontrolled power
-            if not power_name:
-                power_name = sorted(uncontrolled_powers)[0]
+            power_name = uncontrolled_powers[0]
 
             join_game_request = internal_requests.JoinGame(game_id=game.game_id,
                                                            power_name=power_name,
