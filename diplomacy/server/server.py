@@ -224,6 +224,7 @@ class Server:
 
         # File paths and attributes related to database.
         server_dir = get_absolute_path(server_dir)
+        ensure_path(server_dir)
         if server_dir in self.__class__.__cache__:
             return
         if not os.path.exists(server_dir) or not os.path.isdir(server_dir):
