@@ -110,7 +110,7 @@ def _get_convoy_paths(map_object, start_location, max_convoy_length, queue):
                     dest_paths[loc] += [fleets_loc]
 
             # If we find adjacent water/port, we add them to the queue
-            elif map_object.area_type(loc) in WATER_TYPES \
+            if map_object.area_type(loc) in WATER_TYPES \
                     and loc not in fleets_loc \
                     and len(fleets_loc) < max_convoy_length:
                 to_check.put((fleets_loc | {loc}, loc))
