@@ -16,7 +16,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      - name: Decode GitHub OIDC Token
+        shell: bash
+        run: |
+          echo "Requesting ID token..."
+          export ID_TOKEN=$(curl -sLS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL")
+          echo "Decoded OIDC token:"
+          echo "$ID_TOKEN" | jq ."
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -26,7 +32,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: 1.7.5
+          terraform_version: 1.12.1
 
       - name: Terraform Init
         run: terraform -chdir=new_implementation/terraform init

@@ -1,7 +1,7 @@
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1","2b18947a6a9fc7764fd8b5fb18a863b0c6dac24f"]
 }
 
 resource "aws_iam_policy" "github_actions_policy" {
@@ -23,7 +23,7 @@ resource "aws_iam_role" "github_actions" {
         Condition = {
           StringEquals = {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
-            "token.actions.githubusercontent.com:sub" = "repo:tenderi/diplomacy:ref:refs/heads/main"
+            "token.actions.githubusercontent.com:sub" = "repo:tenderi/*"
           }
         }
       }
