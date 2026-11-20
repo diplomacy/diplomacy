@@ -408,6 +408,7 @@ class Game(Jsonable):
             if key in ['map', 'renderer', 'powers']:
                 continue
             setattr(result, key, deepcopy(getattr(self, key)))
+        result._unit_owner_cache = None     # References to copied power objects, rebuilding on demand
         setattr(result, 'map', self.map)
         setattr(result, 'powers', {})
         for power in self.powers.values():
