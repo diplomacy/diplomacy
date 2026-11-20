@@ -56,7 +56,9 @@ def to_saved_game_format(game, output_path=None, output_mode='a'):
     saved_game = {'id': game.game_id,
                   'map': game.map_name,
                   'rules': rules,
-                  'phases': phases_to_dict}
+                  'phases': phases_to_dict,
+                  'status': game.status,
+                  'outcome': game.outcome}
 
     # Writing to disk
     if output_path:
@@ -87,6 +89,13 @@ def from_saved_game_format(saved_game):
     for phase_dct in saved_game.get('phases', []):
         phase_history.append(GamePhaseData.from_dict(phase_dct))
     game.set_phase_data(phase_history, clear_history=True)
+
+    # Restoring fields that are not part of the phase state
+    status = saved_game.get('status')
+    if status in strings.ALL_GAME_STATUSES:
+        game.set_status(status)
+    if 'outcome' in saved_game:
+        game.outcome = list(saved_game['outcome'])
 
     # Returning game
     return game
