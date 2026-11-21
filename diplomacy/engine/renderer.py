@@ -63,6 +63,17 @@ class Renderer:
             self.xml_map = minidom.parse(svg_path).toxml()
         self._load_metadata()
 
+    def get_power_color(self, power_name):
+        """Return the SVG POWERCOLOR metadata value, not necessarily the unit fill.
+
+        Power names are case-insensitive. A valid power with no SVG or color
+        metadata returns None; an unknown power raises ValueError.
+        """
+        power_name = power_name.upper()
+        if power_name not in self.game.powers:
+            raise ValueError('Unknown power: {}'.format(power_name))
+        return self.metadata.get('color', {}).get(power_name)
+
     def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
         """ Renders the current game and returns the XML representation
 

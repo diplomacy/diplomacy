@@ -1335,6 +1335,17 @@ class Game(Jsonable):
             self.phase = self.map.phase_long(new_phase)
             self.phase_type = self.phase.split()[-1][0]
 
+    def get_power_color(self, power_name):
+        """Return a power's SVG POWERCOLOR metadata, using its renderer's palette.
+
+        Names are case-insensitive. Returns None for a valid power without SVG
+        color metadata, and raises ValueError for an unknown power. This color
+        is not necessarily the color used to fill unit symbols.
+        """
+        if not self.renderer:
+            self.renderer = Renderer(self)
+        return self.renderer.get_power_color(power_name)
+
     def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
         """ Renders the current game and returns its image representation
 

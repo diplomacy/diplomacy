@@ -38,3 +38,24 @@ Other options are unchanged: ``incl_abbrev`` controls province abbreviations,
 ``output_format`` accepts ``'svg'``, and ``output_path`` optionally writes the
 result to disk. Default engine actions that were not submitted as orders are not
 drawn; see :doc:`orders`.
+
+Power colors
+------------
+
+``game.get_power_color('france')`` returns the SVG's ``POWERCOLOR`` metadata
+value for that power. The same accessor is available on ``Renderer``. Names are
+case-insensitive; unknown names raise ``ValueError``. A valid power with no SVG
+or no color metadata returns ``None``.
+
+These are map-specific metadata/territory colors, not necessarily unit fills:
+standard France returns ``'royalblue'``, while its units use ``'deepskyblue'``.
+No palette is inferred when metadata is missing. The game reuses an existing
+renderer, including a renderer initialized with a custom ``svg_path``. Map
+variants use their root map's SVG when they have no SVG of their own.
+
+.. code-block:: python
+
+    from diplomacy import Game
+
+    game = Game()
+    france_color = game.get_power_color('FRANCE')  # 'royalblue'
