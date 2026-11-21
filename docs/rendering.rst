@@ -34,10 +34,27 @@ Units, dislodged units, influence, and supply centers are always drawn for every
 power, regardless of the order filter. The filter is a display option over the
 full public game state; it is not a fog-of-war or access-control mechanism.
 
-Other options are unchanged: ``incl_abbrev`` controls province abbreviations,
-``output_format`` accepts ``'svg'``, and ``output_path`` optionally writes the
-result to disk. Default engine actions that were not submitted as orders are not
-drawn; see :doc:`orders`.
+Other options are also available: ``incl_abbrev`` controls province
+abbreviations, ``output_format`` accepts ``'svg'``, ``output_path`` optionally
+writes the result to disk, and ``unit_labels`` adds unit-type badges. Default
+engine actions that were not submitted as orders are not drawn; see
+:doc:`orders`.
+
+Unit labels
+-----------
+
+``unit_labels=True`` adds a small high-contrast ``A`` or ``F`` badge to each
+regular and dislodged unit actually on the board. Badges sit in the unit's
+upper-right corner with a white circle and black text, independent of power
+colors. They are not added to order overlays, so build-order previews and other
+order symbols are never labeled. ``pointer-events="none"`` keeps badges out of
+map interaction.
+
+The default ``False`` leaves the rendered SVG unchanged.
+
+.. code-block:: python
+
+    svg = game.render(unit_labels=True)
 
 Power colors
 ------------

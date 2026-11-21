@@ -74,7 +74,8 @@ class Renderer:
             raise ValueError('Unknown power: {}'.format(power_name))
         return self.metadata.get('color', {}).get(power_name)
 
-    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
+    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None,
+               unit_labels=False):
         """ Renders the current game and returns the XML representation
 
             :param incl_orders: Optional. Controls which orders are drawn. ``True`` draws every
@@ -85,10 +86,14 @@ class Renderer:
             :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
             :param output_format: The desired output format. Valid values are: 'svg'
             :param output_path: Optional. The full path where to save the rendering on disk.
+            :param unit_labels: Optional. When True, labels each actual unit on the board with a
+                high-contrast 'A' or 'F' badge, including dislodged units. Build and other order
+                previews are not labeled.
             :type incl_orders: bool | str, optional
             :type incl_abbrev: bool, optional
             :type output_format: str, optional
             :type output_path: str | None, optional
+            :type unit_labels: bool, optional
             :return: The rendered image in the specified format.
             :raises ValueError: If ``incl_orders`` is a string that is not a power name.
         """
@@ -121,9 +126,11 @@ class Renderer:
         # Adding units and influence
         for power in self.game.powers.values():
             for unit in power.units:
-                xml_map = self._add_unit(xml_map, unit, power.name, is_dislodged=False)
+                xml_map = self._add_unit(xml_map, unit, power.name, is_dislodged=False,
+                                         unit_labels=unit_labels)
             for unit in power.retreats:
-                xml_map = self._add_unit(xml_map, unit, power.name, is_dislodged=True)
+                xml_map = self._add_unit(xml_map, unit, power.name, is_dislodged=True,
+                                         unit_labels=unit_labels)
             for center in power.centers:
                 xml_map = self._set_influence(xml_map, center, power.name, has_supply_center=True)
             for loc in power.influence:
@@ -286,13 +293,14 @@ class Renderer:
         """
         return self.game._add_unit_types(self.game._expand_order(order.split()))    # pylint: disable=protected-access
 
-    def _add_unit(self, xml_map, unit, power_name, is_dislodged):
+    def _add_unit(self, xml_map, unit, power_name, is_dislodged, unit_labels=False):
         """ Adds a unit to the map
 
             :param xml_map: The xml map being generated
             :param unit: The unit to add (e.g. 'A PAR')
             :param power_name: The name of the power owning the unit (e.g. 'FRANCE')
             :param is_dislodged: Boolean. Indicates if the unit is dislodged
+            :param unit_labels: Boolean. Indicates if the unit should be labeled with its type
             :return: Nothing
         """
         unit_type, loc = unit.split()
@@ -313,8 +321,59 @@ class Renderer:
             if child_node.nodeName == 'g' \
                     and _attr(child_node, 'id') == ['UnitLayer', 'DislodgedUnitLayer'][is_dislodged]:
                 child_node.appendChild(node)
+                if unit_labels:
+                    child_node.appendChild(self._add_unit_label(xml_map, unit_type, node))
                 break
         return xml_map
+
+    def _add_unit_label(self, xml_map, unit_type, unit_node):
+        """ Builds a high-contrast A/F badge at the upper-right of an actual unit.
+
+            :param xml_map: The xml map being generated
+            :param unit_type: The unit type to label ('A' or 'F')
+            :param unit_node: The rendered unit's use node, including its position and dimensions
+            :return: A 'g' node holding the badge
+        """
+        loc_x, loc_y = (float(unit_node.getAttribute(name)) for name in ('x', 'y'))
+        height, width = (float(unit_node.getAttribute(name)) for name in ('height', 'width'))
+        size = min(height, width)
+        radius = size * 0.3
+        center_x = loc_x + width - radius
+        center_y = loc_y + radius
+
+        g_node = xml_map.createElement('g')
+        g_node.setAttribute('class', 'unit-label')
+        g_node.setAttribute('pointer-events', 'none')
+        g_node.setAttribute('style', 'pointer-events:none')
+
+        circle_node = xml_map.createElement('circle')
+        circle_node.setAttribute('cx', str(center_x))
+        circle_node.setAttribute('cy', str(center_y))
+        circle_node.setAttribute('r', str(radius))
+        stroke_width = round(size * 0.04, 2)
+        circle_node.setAttribute('fill', 'white')
+        circle_node.setAttribute('stroke', 'black')
+        circle_node.setAttribute('stroke-width', str(stroke_width))
+        circle_node.setAttribute('style', 'fill:white;stroke:black;stroke-width:{}'.format(stroke_width))
+
+        text_node = xml_map.createElement('text')
+        text_node.setAttribute('x', str(center_x))
+        text_node.setAttribute('y', str(center_y))
+        text_node.setAttribute('text-anchor', 'middle')
+        text_node.setAttribute('dominant-baseline', 'central')
+        text_node.setAttribute('font-family', 'sans-serif')
+        font_size = round(size * 0.45, 2)
+        text_node.setAttribute('font-size', str(font_size))
+        text_node.setAttribute('font-weight', 'bold')
+        text_node.setAttribute('fill', 'black')
+        text_node.setAttribute('style', 'fill:black;font-family:sans-serif;font-size:{}px;'
+                                        'font-weight:bold;text-anchor:middle;'
+                                        'dominant-baseline:central'.format(font_size))
+        text_node.appendChild(xml_map.createTextNode(unit_type))
+
+        g_node.appendChild(circle_node)
+        g_node.appendChild(text_node)
+        return g_node
 
     def _set_influence(self, xml_map, loc, power_name, has_supply_center=False):
         """ Sets the influence on the map

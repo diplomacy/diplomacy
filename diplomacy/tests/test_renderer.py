@@ -69,6 +69,33 @@ def _unit_ids(svg):
             if _in_layer(node, 'UnitLayer')}
 
 
+def _unit_labels(svg):
+    """Returns (letter, layer id) pairs for badges on actual board units."""
+    dom = minidom.parseString(svg)
+    labels = []
+    for node in dom.getElementsByTagName('g'):
+        if 'unit-label' not in _classes(node):
+            continue
+        letter = node.getElementsByTagName('text')[0].childNodes[0].data
+        layer = 'DislodgedUnitLayer' if _in_layer(node, 'DislodgedUnitLayer') else 'UnitLayer'
+        labels.append((letter, layer))
+    return labels
+
+
+def _unit_label_circle(svg, unit_id):
+    """Returns the badge circle immediately following a unit node."""
+    dom = minidom.parseString(svg)
+    for node in dom.getElementsByTagName('use'):
+        if node.getAttribute('id') != unit_id:
+            continue
+        sibling = node.nextSibling
+        while sibling is not None and sibling.nodeType != sibling.ELEMENT_NODE:
+            sibling = sibling.nextSibling
+        assert sibling is not None and 'unit-label' in _classes(sibling)
+        return sibling.getElementsByTagName('circle')[0]
+    raise AssertionError('Missing unit: {}'.format(unit_id))
+
+
 def _movement_game():
     """Builds a game where two powers each issue one move order."""
     game = Game()
@@ -145,6 +172,103 @@ def test_render_incl_orders_keeps_bool_compatibility_and_reuses_renderer():
     assert renderer.render(incl_orders='france') == filtered_svg
     with pytest.raises(ValueError):
         renderer.render(incl_orders='UNKNOWN')
+
+
+def test_render_unit_labels_default_keeps_output_unchanged():
+    """The opt-in flag leaves default and positional rendering byte-identical."""
+    game = _movement_game()
+    renderer = Renderer(game)
+    default_svg = renderer.render()
+
+    assert renderer.render(unit_labels=False) == default_svg
+    assert game.render(True, False, 'svg', None) == default_svg
+    assert _unit_labels(default_svg) == []
+
+
+@pytest.mark.parametrize('map_name,units,expected', [
+    ('standard', ['A PAR', 'F BRE', '*A BUR', '*F LON'], [
+        ('A', 'UnitLayer'),
+        ('F', 'UnitLayer'),
+        ('A', 'DislodgedUnitLayer'),
+        ('F', 'DislodgedUnitLayer'),
+    ]),
+    ('pure', ['A PAR', '*A BER'], [
+        ('A', 'UnitLayer'),
+        ('A', 'DislodgedUnitLayer'),
+    ]),
+])
+def test_render_unit_labels_marks_regular_and_dislodged_units(map_name, units, expected):
+    """Every actual board unit is labeled in its own unit layer."""
+    game = Game(map_name=map_name)
+    game.clear_units()
+    game.set_units('FRANCE', units)
+
+    labels = _unit_labels(game.render(incl_orders=False, unit_labels=True))
+
+    assert sorted(labels) == sorted(expected)
+
+
+def test_render_unit_labels_uses_actual_symbol_dimensions(tmp_path):
+    """Badge geometry follows the unit's own symbol size, not an Army default."""
+    game = Game()
+    game.set_units('FRANCE', ['F BRE'])
+    source_svg = Path(settings.PACKAGE_DIR) / 'maps' / 'svg' / 'standard.svg'
+    custom_svg = tmp_path / 'custom.svg'
+    custom_svg.write_text(source_svg.read_text().replace(
+        'SYMBOLSIZE name="Fleet" width="40" height="40"',
+        'SYMBOLSIZE name="Fleet" width="70" height="20"'))
+    game.renderer = Renderer(game, svg_path=str(custom_svg))
+
+    svg = game.renderer.render(incl_orders=False, unit_labels=True)
+    circle = _unit_label_circle(svg, 'unit_BRE')
+    unit_x, unit_y = (float(value) for value in game.renderer.metadata['coord']['BRE']['unit'])
+    height, width = (float(value) for value in game.renderer.metadata['symbol_size']['Fleet'])
+    radius = float(circle.getAttribute('r'))
+    text_style = circle.parentNode.getElementsByTagName('text')[0].getAttribute('style')
+    font_size = round(min(height, width) * 0.45, 2)
+
+    assert radius == pytest.approx(min(height, width) * 0.3)
+    assert 'font-size:{}px'.format(font_size) in text_style
+    assert float(circle.getAttribute('cx')) == pytest.approx(unit_x + width - radius)
+    assert float(circle.getAttribute('cy')) == pytest.approx(unit_y + radius)
+    assert float(circle.getAttribute('cx')) > unit_x + 40
+
+
+@pytest.mark.parametrize('unit', ['A LON', 'F EDI'])
+def test_render_dislodged_labels_match_rendered_dimensions(unit):
+    """Dislodged symbol metadata must not override the actual use-node dimensions."""
+    game = Game(map_name='modern')
+    game.clear_units()
+    game.set_units('BRITAIN', ['*' + unit])
+    svg = game.render(unit_labels=True)
+    dom = minidom.parseString(svg)
+    rendered_unit = next(node for node in dom.getElementsByTagName('use')
+                         if _in_layer(node, 'DislodgedUnitLayer'))
+    circle = _unit_label_circle(svg, rendered_unit.getAttribute('id'))
+    x, y, width, height = (float(rendered_unit.getAttribute(name))
+                           for name in ('x', 'y', 'width', 'height'))
+    radius = float(circle.getAttribute('r'))
+    assert float(circle.getAttribute('cx')) + radius == pytest.approx(x + width)
+    assert float(circle.getAttribute('cy')) - radius == pytest.approx(y)
+    assert radius == pytest.approx(min(width, height) * 0.3)
+
+
+def test_render_unit_labels_skips_build_previews_and_reuses_renderer():
+    """Build overlays are not labeled and repeated renders do not leak badges."""
+    game = Game()
+    game.clear_units()
+    game.set_units('FRANCE', ['A PAR'])
+    game.set_current_phase('W1901A')
+    game.get_power('FRANCE').adjust = ['A PAR B']
+    renderer = Renderer(game)
+
+    labeled_svg = renderer.render(unit_labels=True)
+    plain_svg = renderer.render()
+    labeled_again_svg = renderer.render(unit_labels=True)
+
+    assert _unit_labels(labeled_svg) == [('A', 'UnitLayer')]
+    assert _unit_labels(plain_svg) == []
+    assert labeled_again_svg == labeled_svg
 
 
 @pytest.mark.parametrize('map_name,power,color', [
