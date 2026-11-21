@@ -36,9 +36,12 @@ if __name__ == '__main__':
     PARSER = argparse.ArgumentParser(description='Run server.')
     PARSER.add_argument('--port', '-p', type=int, default=constants.DEFAULT_PORT,
                         help='run on the given port (default: %s)' % constants.DEFAULT_PORT)
+    PARSER.add_argument('--server_dir', '-s', default=None,
+                        help='root folder containing data/server.json and data/games '
+                             '(default: current working directory)')
     ARGS = PARSER.parse_args()
 
     try:
-        Server().start(port=ARGS.port)
+        Server(server_dir=ARGS.server_dir).start(port=ARGS.port)
     except KeyboardInterrupt:
         print('Keyboard interruption.')

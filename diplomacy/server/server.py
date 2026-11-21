@@ -226,7 +226,9 @@ class Server:
         server_dir = get_absolute_path(server_dir)
         if server_dir in self.__class__.__cache__:
             return
-        if not os.path.exists(server_dir) or not os.path.isdir(server_dir):
+        if not os.path.exists(server_dir):
+            ensure_path(server_dir)
+        if not os.path.isdir(server_dir):
             raise exceptions.ServerDirException(server_dir)
         self.data_path = os.path.join(server_dir, 'data')
         self.games_path = os.path.join(self.data_path, 'games')
