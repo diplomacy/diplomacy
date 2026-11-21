@@ -32,14 +32,14 @@ export class NetworkGame {
     }
 
     addCallback(notificationName, notificationCallback) {
-        if (!this.notificationCallbacks.hasOwnProperty(notificationName))
+        if (!Object.prototype.hasOwnProperty.call(this.notificationCallbacks, notificationName))
             this.notificationCallbacks[notificationName] = [notificationCallback];
         else if (!this.notificationCallbacks[notificationName].includes(notificationCallback))
             this.notificationCallbacks[notificationName].push(notificationCallback);
     }
 
     clearCallbacks(notificationName) {
-        if (this.notificationCallbacks.hasOwnProperty(notificationName))
+        if (Object.prototype.hasOwnProperty.call(this.notificationCallbacks, notificationName))
             delete this.notificationCallbacks[notificationName];
     }
 
@@ -48,7 +48,7 @@ export class NetworkGame {
     }
 
     notify(notification) {
-        if (this.notificationCallbacks.hasOwnProperty(notification.name)) {
+        if (Object.prototype.hasOwnProperty.call(this.notificationCallbacks, notification.name)) {
             for (let callback of this.notificationCallbacks[notification.name])
                 setTimeout(() => callback(this, notification), 0);
         }

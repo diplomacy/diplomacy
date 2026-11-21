@@ -23,7 +23,7 @@ import {Game} from "../engine/game";
 export const NOTIFICATION_MANAGERS = {
     account_deleted: function (channel, notification) {
         const connection = channel.connection;
-        if (connection.channels.hasOwnProperty(channel.token))
+        if (Object.prototype.hasOwnProperty.call(connection.channels, channel.token))
             delete channel.connection.channels[channel.token];
     },
     cleared_centers: function (game, notification) {
@@ -105,15 +105,15 @@ export const NOTIFICATION_MANAGERS = {
         }
     },
     handleNotification: function (connection, notification) {
-        if (!NOTIFICATION_MANAGERS.hasOwnProperty(notification.name))
+        if (!Object.prototype.hasOwnProperty.call(NOTIFICATION_MANAGERS, notification.name))
             throw new Error('No notification handler available for notification ' + notification.name);
         const handler = NOTIFICATION_MANAGERS[notification.name];
         const level = NOTIFICATIONS.levels[notification.name];
-        if (!connection.channels.hasOwnProperty(notification.token))
+        if (!Object.prototype.hasOwnProperty.call(connection.channels, notification.token))
             throw new Error('Unable to find channel related to notification ' + notification.name);
         let objectToNotify = connection.channels[notification.token];
         if (level === STRINGS.GAME) {
-            if (objectToNotify.game_id_to_instances.hasOwnProperty(notification.game_id)
+            if (Object.prototype.hasOwnProperty.call(objectToNotify.game_id_to_instances, notification.game_id)
                 && objectToNotify.game_id_to_instances[notification.game_id].has(notification.game_role))
                 objectToNotify = objectToNotify.game_id_to_instances[notification.game_id].get(notification.game_role);
             else

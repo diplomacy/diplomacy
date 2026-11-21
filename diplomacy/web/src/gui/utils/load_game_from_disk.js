@@ -40,6 +40,7 @@ function parseSavedGames(text, filename) {
     try {
         savedGames.push(JSON.parse(text));
     } catch (wholeFileError) {
+        void wholeFileError;
         // A whole-file parse fails for one object per nonempty line (JSONL), including
         // appended .json files. Parse every nonempty line so malformed later lines reject.
         const lines = text.split(/\r?\n/);

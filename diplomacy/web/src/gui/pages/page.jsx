@@ -204,7 +204,7 @@ export class Page extends React.Component {
         let gamesFound = null;
         for (let gameToAdd of gamesToAdd) {
             myGames[gameToAdd.game_id] = gameToAdd;
-            if (this.state.games.hasOwnProperty(gameToAdd.game_id)) {
+            if (Object.prototype.hasOwnProperty.call(this.state.games, gameToAdd.game_id)) {
                 if (!gamesFound)
                     gamesFound = Object.assign({}, this.state.games);
                 gamesFound[gameToAdd.game_id] = gameToAdd;
@@ -216,7 +216,7 @@ export class Page extends React.Component {
     }
 
     getGame(gameID) {
-        if (this.state.myGames.hasOwnProperty(gameID))
+        if (Object.prototype.hasOwnProperty.call(this.state.myGames, gameID))
             return this.state.myGames[gameID];
         return this.state.games[gameID];
     }
@@ -233,7 +233,7 @@ export class Page extends React.Component {
         const gamesFound = {};
         for (let game of gamesToAdd) {
             gamesFound[game.game_id] = (
-                this.state.myGames.hasOwnProperty(game.game_id) ?
+                Object.prototype.hasOwnProperty.call(this.state.myGames, game.game_id) ?
                     this.state.myGames[game.game_id] : game
             );
         }
@@ -241,7 +241,7 @@ export class Page extends React.Component {
     }
 
     leaveGame(gameID) {
-        if (this.state.myGames.hasOwnProperty(gameID)) {
+        if (Object.prototype.hasOwnProperty.call(this.state.myGames, gameID)) {
             const game = this.state.myGames[gameID];
             if (game.client) {
                 return game.client.leave()
@@ -299,15 +299,15 @@ export class Page extends React.Component {
 
     _add_to_my_games(game) {
         const myGames = Object.assign({}, this.state.myGames);
-        const gamesFound = this.state.games.hasOwnProperty(game.game_id) ? Object.assign({}, this.state.games) : this.state.games;
+        const gamesFound = Object.prototype.hasOwnProperty.call(this.state.games, game.game_id) ? Object.assign({}, this.state.games) : this.state.games;
         myGames[game.game_id] = game;
-        if (gamesFound.hasOwnProperty(game.game_id))
+        if (Object.prototype.hasOwnProperty.call(gamesFound, game.game_id))
             gamesFound[game.game_id] = game;
         return {myGames: myGames, games: gamesFound};
     }
 
     _remove_from_my_games(gameID) {
-        if (this.state.myGames.hasOwnProperty(gameID)) {
+        if (Object.prototype.hasOwnProperty.call(this.state.myGames, gameID)) {
             const games = Object.assign({}, this.state.myGames);
             delete games[gameID];
             DipStorage.removeUserGame(this.channel.username, gameID);
@@ -318,7 +318,7 @@ export class Page extends React.Component {
     }
 
     _remove_from_games(gameID) {
-        if (this.state.games.hasOwnProperty(gameID)) {
+        if (Object.prototype.hasOwnProperty.call(this.state.games, gameID)) {
             const games = Object.assign({}, this.state.games);
             delete games[gameID];
             return games;
@@ -339,7 +339,7 @@ export class Page extends React.Component {
     }
 
     hasMyGame(gameID) {
-        return this.state.myGames.hasOwnProperty(gameID);
+        return Object.prototype.hasOwnProperty.call(this.state.myGames, gameID);
     }
 
     //// Render method.

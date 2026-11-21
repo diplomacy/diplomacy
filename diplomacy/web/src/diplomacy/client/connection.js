@@ -70,7 +70,7 @@ class Reconnection {
                 for (let game of gis.getGames()) {
                     const game_id = game.local.game_id;
                     const game_role = game.local.role;
-                    if (!this.games_phases.hasOwnProperty(game_id))
+                    if (!Object.prototype.hasOwnProperty.call(this.games_phases, game_id))
                         this.games_phases[game_id] = {};
                     this.games_phases[game_id][game_role] = null;
                     ++this.n_expected_games;
@@ -251,7 +251,7 @@ export class Connection {
             }
             if (jsonMessage.request_id) {
                 const requestID = jsonMessage.request_id;
-                if (!this.requestsWaitingResponses.hasOwnProperty(requestID)) {
+                if (!Object.prototype.hasOwnProperty.call(this.requestsWaitingResponses, requestID)) {
                     Diplog.error('Unknown request ' + requestID + '.');
                     return;
                 }
@@ -262,7 +262,7 @@ export class Connection {
                 } catch (error) {
                     context.future.setException(error);
                 }
-            } else if (jsonMessage.hasOwnProperty('notification_id') && jsonMessage.notification_id)
+            } else if (Object.prototype.hasOwnProperty.call(jsonMessage, 'notification_id') && jsonMessage.notification_id)
                 NOTIFICATION_MANAGERS.handleNotification(this, NOTIFICATIONS.parse(jsonMessage));
             else
                 Diplog.error('Unknown socket message received.');
@@ -310,13 +310,13 @@ export class Connection {
         const onConnected = () => {
             connection.socket.send(JSON.stringify(request));
             connection.requestsWaitingResponses[requestID] = requestContext;
-            if (connection.requestsToSend.hasOwnProperty(requestID)) {
+            if (Object.prototype.hasOwnProperty.call(connection.requestsToSend, requestID)) {
                 delete connection.requestsToSend[requestID];
             }
             writeFuture.setResult(null);
         };
         const onAnyError = (error) => {
-            if (!connection.requestsToSend.hasOwnProperty(requestID)) {
+            if (!Object.prototype.hasOwnProperty.call(connection.requestsToSend, requestID)) {
                 connection.requestsToSend[requestID] = requestContext;
             }
             Diplog.info('Error occurred while sending a request ' + requestID);

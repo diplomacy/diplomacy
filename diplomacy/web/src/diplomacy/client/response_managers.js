@@ -110,7 +110,7 @@ export const RESPONSE_MANAGERS = {
         return context.newChannel(context.request.username, response.data);
     },
     handleResponse: function (context, response) {
-        if (!RESPONSE_MANAGERS.hasOwnProperty(context.request.name))
+        if (!Object.prototype.hasOwnProperty.call(RESPONSE_MANAGERS, context.request.name))
             throw new Error('No response handler available for request ' + context.request.name);
         const handler = RESPONSE_MANAGERS[context.request.name];
         return handler(context, response);

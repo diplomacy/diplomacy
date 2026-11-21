@@ -46,7 +46,7 @@ export class Tabs extends React.Component {
                 <nav className={'tabs-bar nav nav-tabs justify-content-center mb-3'}>
                     {this.props.menu.map((tabName, index) => this.generateTabAction(
                         this.props.titles[index], tabName, active === tabName, this.props.onChange,
-                        (this.props.highlights.hasOwnProperty(tabName) && this.props.highlights[tabName]) || null
+                        (Object.prototype.hasOwnProperty.call(this.props.highlights, tabName) && this.props.highlights[tabName]) || null
                     ))}
                 </nav>
                 {this.props.children}

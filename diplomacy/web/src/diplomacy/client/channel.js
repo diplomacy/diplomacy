@@ -29,7 +29,7 @@ export class Channel {
 
     localJoinGame(joinParameters) {
         // Game ID must be known.
-        if (this.game_id_to_instances.hasOwnProperty(joinParameters.game_id)) {
+        if (Object.prototype.hasOwnProperty.call(this.game_id_to_instances, joinParameters.game_id)) {
             // If there is a power name, we return associated power game.
             if (joinParameters.power_name)
                 return this.game_id_to_instances[joinParameters.game_id].get(joinParameters.power_name);

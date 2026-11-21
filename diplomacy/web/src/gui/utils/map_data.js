@@ -83,17 +83,17 @@ export class MapData {
             abbr = abbr.substr(1, 3);
         if (!abbr)
             return null;
-        if (this.provinces.hasOwnProperty(abbr))
+        if (Object.prototype.hasOwnProperty.call(this.provinces, abbr))
             return this.provinces[abbr];
-        if (this.provinces.hasOwnProperty(abbr.toUpperCase()))
+        if (Object.prototype.hasOwnProperty.call(this.provinces, abbr.toUpperCase()))
             return this.provinces[abbr.toUpperCase()];
-        if (this.provinces.hasOwnProperty(abbr.toLowerCase()))
+        if (Object.prototype.hasOwnProperty.call(this.provinces, abbr.toLowerCase()))
             return this.provinces[abbr.toLowerCase()];
-        if (this.aliases.hasOwnProperty(abbr))
+        if (Object.prototype.hasOwnProperty.call(this.aliases, abbr))
             return this.provinces[this.aliases[abbr]];
-        if (this.aliases.hasOwnProperty(abbr.toUpperCase()))
+        if (Object.prototype.hasOwnProperty.call(this.aliases, abbr.toUpperCase()))
             return this.provinces[this.aliases[abbr.toUpperCase()]];
-        if (this.aliases.hasOwnProperty(abbr.toLowerCase()))
+        if (Object.prototype.hasOwnProperty.call(this.aliases, abbr.toLowerCase()))
             return this.provinces[this.aliases[abbr.toLowerCase()]];
         return null;
     }

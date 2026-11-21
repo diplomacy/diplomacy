@@ -45,7 +45,7 @@ export class RequestFutureContext {
     newGame(received_game) {
         const channel = this.getChannel();
         const game = new NetworkGame(channel, received_game);
-        if (!channel.game_id_to_instances.hasOwnProperty(game.local.game_id))
+        if (!Object.prototype.hasOwnProperty.call(channel.game_id_to_instances, game.local.game_id))
             channel.game_id_to_instances[game.local.game_id] = new GameInstanceSet(game.local.game_id);
         channel.game_id_to_instances[game.local.game_id].add(game);
         return game;
@@ -57,7 +57,7 @@ export class RequestFutureContext {
 
     deleteGame() {
         const channel = this.getChannel();
-        if (channel.game_id_to_instances.hasOwnProperty(this.request.game_id))
+        if (Object.prototype.hasOwnProperty.call(channel.game_id_to_instances, this.request.game_id))
             delete channel.game_id_to_instances[this.request.game_id];
     }
 }

@@ -116,7 +116,7 @@ export const UTILS = {
         },
 
         extendArrayWithUniqueValues(obj, key, value) {
-            if (!obj.hasOwnProperty(key))
+            if (!Object.prototype.hasOwnProperty.call(obj, key))
                 obj[key] = [value];
             else if (!obj[key].includes(value))
                 obj[key].push(value);
@@ -128,12 +128,12 @@ export const UTILS = {
             const parentPathLength = pathLength - 1;
             for (let i = 0; i < parentPathLength; ++i) {
                 const stepName = path[i];
-                if (!current.hasOwnProperty(stepName))
+                if (!Object.prototype.hasOwnProperty.call(current, stepName))
                     current[stepName] = new Dict();
                 current = current[stepName];
             }
             const stepName = path[pathLength - 1];
-            if (!current.hasOwnProperty(stepName))
+            if (!Object.prototype.hasOwnProperty.call(current, stepName))
                 current[stepName] = [];
             if (allowMultipleValues || !current[stepName].includes(value))
                 current[stepName].push(value);
@@ -142,7 +142,7 @@ export const UTILS = {
         getTreeValue: function (obj, path) {
             let current = obj;
             for (let stepName of path) {
-                if (!current.hasOwnProperty(stepName))
+                if (!Object.prototype.hasOwnProperty.call(current, stepName))
                     return null;
                 current = current[stepName];
             }

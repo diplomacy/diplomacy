@@ -185,7 +185,7 @@ export class ContentGame extends React.Component {
     }
 
     static prettyRole(role) {
-        if (PRETTY_ROLES.hasOwnProperty(role))
+        if (Object.prototype.hasOwnProperty.call(PRETTY_ROLES, role))
             return PRETTY_ROLES[role];
         return role;
     }
@@ -329,7 +329,7 @@ export class ContentGame extends React.Component {
                     this.schedule_timeout_id = setInterval(this.updateDeadlineTimer, schedule.time_unit * 1000);
             })
             .catch(() => {
-                if (this.props.data.hasOwnProperty('deadline_timer'))
+                if (Object.prototype.hasOwnProperty.call(this.props.data, 'deadline_timer'))
                     delete this.props.data.deadline_timer;
                 this.clearScheduleTimeout();
             });
@@ -357,7 +357,7 @@ export class ContentGame extends React.Component {
 
     notifiedPowersControllers(networkGame, notification) {
         if (networkGame.local.isPlayerGame() && (
-            !networkGame.channel.game_id_to_instances.hasOwnProperty(networkGame.local.game_id)
+            !Object.prototype.hasOwnProperty.call(networkGame.channel.game_id_to_instances, networkGame.local.game_id)
             || !networkGame.channel.game_id_to_instances[networkGame.local.game_id].has(networkGame.local.role)
         )) {
             // This power game is now invalid.
@@ -411,7 +411,7 @@ export class ContentGame extends React.Component {
         if (notification.message.recipient === 'GLOBAL')
             protagonist = notification.message.recipient;
         const messageHighlights = Object.assign({}, this.state.messageHighlights);
-        if (!messageHighlights.hasOwnProperty(protagonist))
+        if (!Object.prototype.hasOwnProperty.call(messageHighlights, protagonist))
             messageHighlights[protagonist] = 1;
         else
             ++messageHighlights[protagonist];
@@ -550,7 +550,7 @@ export class ContentGame extends React.Component {
                     for (let localOrder of Object.values(localPowerOrders)) {
                         localOrder.local = (
                             !serverPowerOrders
-                            || !serverPowerOrders.hasOwnProperty(localOrder.loc)
+                            || !Object.prototype.hasOwnProperty.call(serverPowerOrders, localOrder.loc)
                             || serverPowerOrders[localOrder.loc].order !== localOrder.order
                         );
                     }
@@ -590,7 +590,7 @@ export class ContentGame extends React.Component {
         const serverOrders = this.props.data.getServerOrders();
         const engine = this.props.data;
         const allOrders = this.__get_orders(engine);
-        if (!allOrders.hasOwnProperty(powerName)) {
+        if (!Object.prototype.hasOwnProperty.call(allOrders, powerName)) {
             return this.getPage().error(`Unknown power ${powerName}.`);
         }
         allOrders[powerName] = serverOrders[powerName];
@@ -617,8 +617,8 @@ export class ContentGame extends React.Component {
      */
     onRemoveOrder(powerName, order) {
         const orders = this.__get_orders(this.props.data);
-        if (orders.hasOwnProperty(powerName)
-            && orders[powerName].hasOwnProperty(order.loc)
+        if (Object.prototype.hasOwnProperty.call(orders, powerName)
+            && Object.prototype.hasOwnProperty.call(orders[powerName], order.loc)
             && orders[powerName][order.loc].order === order.order) {
             delete orders[powerName][order.loc];
             if (!UTILS.javascript.count(orders[powerName]))
@@ -637,7 +637,7 @@ export class ContentGame extends React.Component {
         if (currentPowerName) {
             const engine = this.props.data;
             const allOrders = this.__get_orders(engine);
-            if (!allOrders.hasOwnProperty(currentPowerName)) {
+            if (!Object.prototype.hasOwnProperty.call(allOrders, currentPowerName)) {
                 this.getPage().error(`Unknown power ${currentPowerName}.`);
                 return;
             }
@@ -738,7 +738,7 @@ export class ContentGame extends React.Component {
         const engine = this.props.data;
         const localOrder = new Order(orderString, true);
         const allOrders = this.__get_orders(engine);
-        if (!allOrders.hasOwnProperty(powerName)) {
+        if (!Object.prototype.hasOwnProperty.call(allOrders, powerName)) {
             Diplog.warn(`Unknown power ${powerName}.`);
             return this.setState(state);
         }
@@ -851,7 +851,7 @@ export class ContentGame extends React.Component {
             if (message.recipient === 'GLOBAL')
                 protagonist = message.recipient;
             this.getPage().load(`game: ${this.props.data.game_id}`, <ContentGame data={this.props.data}/>);
-            if (this.state.messageHighlights.hasOwnProperty(protagonist) && this.state.messageHighlights[protagonist] > 0) {
+            if (Object.prototype.hasOwnProperty.call(this.state.messageHighlights, protagonist) && this.state.messageHighlights[protagonist] > 0) {
                 const messageHighlights = Object.assign({}, this.state.messageHighlights);
                 --messageHighlights[protagonist];
                 this.setState({messageHighlights: messageHighlights});
@@ -897,7 +897,7 @@ export class ContentGame extends React.Component {
                 <Tabs menu={tabNames} titles={titles} onChange={this.onChangeTabPastMessages} active={currentTabId}>
                     {tabNames.map(protagonist => (
                         <Tab key={protagonist} className={'game-messages'} display={currentTabId === protagonist}>
-                            {(!messageChannels.hasOwnProperty(protagonist) || !messageChannels[protagonist].length ?
+                            {(!Object.prototype.hasOwnProperty.call(messageChannels, protagonist) || !messageChannels[protagonist].length ?
                                     (<div className={'no-game-message'}>No
                                         messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
                                     messageChannels[protagonist].map((message, index) => (
@@ -932,7 +932,7 @@ export class ContentGame extends React.Component {
                     {tabNames.map(protagonist => (
                         <Tab key={protagonist} className={'game-messages'} display={currentTabId === protagonist}
                              id={`panel-current-messages-${protagonist}`}>
-                            {(!messageChannels.hasOwnProperty(protagonist) || !messageChannels[protagonist].length ?
+                            {(!Object.prototype.hasOwnProperty.call(messageChannels, protagonist) || !messageChannels[protagonist].length ?
                                     (<div className={'no-game-message'}>No
                                         messages{engine.isPlayerGame() ? ` with ${protagonist}` : ''}.</div>) :
                                     (messageChannels[protagonist].map((message, index) => {
@@ -1093,7 +1093,7 @@ export class ContentGame extends React.Component {
             if (orderResult) {
                 const pieces = order.split(/ +/);
                 const unit = `${pieces[0]} ${pieces[1]}`;
-                if (orderResult.hasOwnProperty(unit)) {
+                if (Object.prototype.hasOwnProperty.call(orderResult, unit)) {
                     const resultsToParse = orderResult[unit];
                     if (!resultsToParse.length)
                         resultsToParse.push('');
@@ -1373,7 +1373,7 @@ export class ContentGame extends React.Component {
         document.onkeydown = (event) => {
             if (['home', 'end'].includes(event.key.toLowerCase())) {
                 // Try to prevent scrolling.
-                if (event.hasOwnProperty('cancelBubble'))
+                if (Object.prototype.hasOwnProperty.call(event, 'cancelBubble'))
                     event.cancelBubble = true;
                 if (event.stopPropagation)
                     event.stopPropagation();

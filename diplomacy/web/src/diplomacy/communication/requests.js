@@ -79,15 +79,15 @@ export const REQUESTS = {
     },
 
     isPhaseDependent: function (name) {
-        if (!REQUESTS.models.hasOwnProperty(name))
+        if (!Object.prototype.hasOwnProperty.call(REQUESTS.models, name))
             throw new Error('Unknown request name ' + name);
         const model = REQUESTS.models[name];
-        return (model.level === STRINGS.GAME && (!model.hasOwnProperty('phase_dependent') || model.phase_dependent));
+        return (model.level === STRINGS.GAME && (!Object.prototype.hasOwnProperty.call(model, 'phase_dependent') || model.phase_dependent));
     },
 
     /** Return request level for given request name. Either null, 'channel' or 'game'. **/
     getLevel: function (name) {
-        if (!REQUESTS.models.hasOwnProperty(name))
+        if (!Object.prototype.hasOwnProperty.call(REQUESTS.models, name))
             throw new Error('Unknown request name ' + name);
         return REQUESTS.models[name].level;
     },
@@ -98,7 +98,7 @@ export const REQUESTS = {
      * diplomacy.communication.requests about requests definitions, required and optional fields.
      * **/
     create: function (name, parameters) {
-        if (!REQUESTS.models.hasOwnProperty(name))
+        if (!Object.prototype.hasOwnProperty.call(REQUESTS.models, name))
             throw new Error('Unknown request name ' + name);
         let models = null;
         const definition = REQUESTS.models[name];
@@ -111,7 +111,7 @@ export const REQUESTS = {
         models.push(REQUESTS.abstract.basic);
         models.push({name: name});
         const request = Object.assign.apply(null, models);
-        if (parameters) for (let parameter of Object.keys(parameters)) if (request.hasOwnProperty(parameter))
+        if (parameters) for (let parameter of Object.keys(parameters)) if (Object.prototype.hasOwnProperty.call(request, parameter))
             request[parameter] = parameters[parameter];
         if (!request.request_id)
             request.request_id = UTILS.createID();

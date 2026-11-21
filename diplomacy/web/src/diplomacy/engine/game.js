@@ -40,9 +40,9 @@ export function comparablePhase(shortPhaseName) {
     const phaseStep = shortPhaseName[5];
     if (isNaN(phaseYear))
         throw new Error(`Unable to parse phase year from ${shortPhaseName}`);
-    if (!seasonOrder.hasOwnProperty(phaseSeason))
+    if (!Object.prototype.hasOwnProperty.call(seasonOrder, phaseSeason))
         throw new Error(`Unable to parse phase season from ${shortPhaseName}`);
-    if (!stepOrder.hasOwnProperty(phaseStep))
+    if (!Object.prototype.hasOwnProperty.call(stepOrder, phaseStep))
         throw new Error(`Unable to parse phase step from ${shortPhaseName}`);
     return (phaseYear * 100) + (seasonOrder[phaseSeason] * 10) + stepOrder[phaseStep];
 }
@@ -62,10 +62,10 @@ export class Game {
         const nullFields = ['n_controls', 'registration_password'];
         // All fields are required.
         for (let field of nonNullFields)
-            if (!gameData.hasOwnProperty(field) || gameData[field] == null)
+            if (!Object.prototype.hasOwnProperty.call(gameData, field) || gameData[field] == null)
                 throw new Error('Game: given state must have field `' + field + '` with non-null value.');
         for (let field of nullFields)
-            if (!gameData.hasOwnProperty(field))
+            if (!Object.prototype.hasOwnProperty.call(gameData, field))
                 throw new Error('Game: given state must have field `' + field + '`.');
 
         this.game_id = gameData.game_id;
@@ -211,7 +211,7 @@ export class Game {
         message = new Message(message);
         if (!message.time_sent)
             throw new Error('No time sent for given message.');
-        if (this.messages.hasOwnProperty(message.time_sent))
+        if (Object.prototype.hasOwnProperty.call(this.messages, message.time_sent))
             throw new Error('There is already a message with time sent ' + message.time_sent + ' in message history.');
         if (this.isPlayerGame() && !message.isGlobal() && this.role !== message.sender && this.role !== message.recipient)
             throw new Error('Given message is not related to current player ' + this.role);
@@ -280,7 +280,7 @@ export class Game {
     }
 
     getPower(name) {
-        return this.powers.hasOwnProperty(name) ? this.powers[name] : null;
+        return Object.prototype.hasOwnProperty.call(this.powers, name) ? this.powers[name] : null;
     }
 
     getRelatedPower() {
@@ -288,7 +288,7 @@ export class Game {
     }
 
     hasPower(powerName) {
-        return this.powers.hasOwnProperty(powerName);
+        return Object.prototype.hasOwnProperty.call(this.powers, powerName);
     }
 
     isPlayerGame(powerName) {
@@ -327,7 +327,7 @@ export class Game {
         this.phase = state.name;
         if (state.units) {
             for (let power_name of Object.keys(state.units)) {
-                if (this.powers.hasOwnProperty(power_name)) {
+                if (Object.prototype.hasOwnProperty.call(this.powers, power_name)) {
                     const units = state.units[power_name];
                     const power = this.powers[power_name];
                     power.retreats = {};
@@ -343,19 +343,19 @@ export class Game {
         }
         if (state.centers)
             for (let power_name of Object.keys(state.centers))
-                if (this.powers.hasOwnProperty(power_name))
+                if (Object.prototype.hasOwnProperty.call(this.powers, power_name))
                     this.powers[power_name].centers = state.centers[power_name];
         if (state.homes)
             for (let power_name of Object.keys(state.homes))
-                if (this.powers.hasOwnProperty(power_name))
+                if (Object.prototype.hasOwnProperty.call(this.powers, power_name))
                     this.powers[power_name].homes = state.homes[power_name];
         if (state.influence)
             for (let power_name of Object.keys(state.influence))
-                if (this.powers.hasOwnProperty(power_name))
+                if (Object.prototype.hasOwnProperty.call(this.powers, power_name))
                     this.powers[power_name].influence = state.influence[power_name];
         if (state.civil_disorder)
             for (let power_name of Object.keys(state.civil_disorder))
-                if (this.powers.hasOwnProperty(power_name))
+                if (Object.prototype.hasOwnProperty.call(this.powers, power_name))
                     this.powers[power_name].civil_disorder = state.civil_disorder[power_name];
         if (state.builds)
             this.builds = state.builds;
@@ -366,18 +366,18 @@ export class Game {
     }
 
     setOrders(powerName, orders) {
-        if (this.powers.hasOwnProperty(powerName) && (!this.isPlayerGame() || this.isPlayerGame(powerName)))
+        if (Object.prototype.hasOwnProperty.call(this.powers, powerName) && (!this.isPlayerGame() || this.isPlayerGame(powerName)))
             this.powers[powerName].setOrders(orders);
     }
 
     setWait(powerName, wait) {
-        if (this.powers.hasOwnProperty(powerName)) {
+        if (Object.prototype.hasOwnProperty.call(this.powers, powerName)) {
             this.powers[powerName].wait = wait;
         }
     }
 
     updateDummyPowers(dummyPowers) {
-        for (let dummyPowerName of dummyPowers) if (this.powers.hasOwnProperty(dummyPowerName))
+        for (let dummyPowerName of dummyPowers) if (Object.prototype.hasOwnProperty.call(this.powers, dummyPowerName))
             this.powers[dummyPowerName].setDummy();
     }
 
@@ -466,7 +466,7 @@ export class Game {
                     protagonist = message.recipient;
                 else if (message.recipient === role)
                     protagonist = message.sender;
-                if (!messageChannels.hasOwnProperty(protagonist))
+                if (!Object.prototype.hasOwnProperty.call(messageChannels, protagonist))
                     messageChannels[protagonist] = [];
                 messageChannels[protagonist].push(message);
             }
@@ -502,7 +502,7 @@ export class Game {
             for (let associatedLoc of associatedLocs) {
                 const orderTypes = this.orderableLocToTypes[associatedLoc];
                 for (let orderType of orderTypes) {
-                    if (!typeToLocs.hasOwnProperty(orderType))
+                    if (!Object.prototype.hasOwnProperty.call(typeToLocs, orderType))
                         typeToLocs[orderType] = [associatedLoc];
                     else
                         typeToLocs[orderType].push(associatedLoc);

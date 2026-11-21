@@ -39,16 +39,16 @@ export const NOTIFICATIONS = {
         vote_updated: STRINGS.GAME,
     },
     parse: function (jsonObject) {
-        if (!jsonObject.hasOwnProperty('name'))
+        if (!Object.prototype.hasOwnProperty.call(jsonObject, 'name'))
             throw new Error('No name field in expected notification object.');
-        if (!jsonObject.hasOwnProperty('token'))
+        if (!Object.prototype.hasOwnProperty.call(jsonObject, 'token'))
             throw new Error('No token field in expected notification object.');
-        if (!NOTIFICATIONS.levels.hasOwnProperty(jsonObject.name))
+        if (!Object.prototype.hasOwnProperty.call(NOTIFICATIONS.levels, jsonObject.name))
             throw new Error('Invalid notification name ' + jsonObject.name);
         if (NOTIFICATIONS.levels[jsonObject.name] === STRINGS.GAME) {
-            if (!jsonObject.hasOwnProperty('game_id'))
+            if (!Object.prototype.hasOwnProperty.call(jsonObject, 'game_id'))
                 throw new Error('No game_id field in expected game notification object.');
-            if (!jsonObject.hasOwnProperty('game_role'))
+            if (!Object.prototype.hasOwnProperty.call(jsonObject, 'game_role'))
                 throw new Error('No game_role field in expected game notification object.');
         }
         return jsonObject;

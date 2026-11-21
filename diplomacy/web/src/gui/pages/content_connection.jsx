@@ -32,7 +32,7 @@ export class ContentConnection extends React.Component {
     onSubmit(data) {
         const page = this.context;
         for (let fieldName of ['hostname', 'port', 'username', 'password', 'showServerFields'])
-            if (!data.hasOwnProperty(fieldName))
+            if (!Object.prototype.hasOwnProperty.call(data, fieldName))
                 return page.error(`Missing ${fieldName}, got ${JSON.stringify(data)}`);
         page.info('Connecting ...');
         if (this.connection) {

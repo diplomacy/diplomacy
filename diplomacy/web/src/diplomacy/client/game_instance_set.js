@@ -28,7 +28,7 @@ export class GameInstanceSet {
     }
 
     has(role) {
-        return this.__games.hasOwnProperty(role);
+        return Object.prototype.hasOwnProperty.call(this.__games, role);
     }
 
     get(role) {
@@ -36,9 +36,9 @@ export class GameInstanceSet {
     }
 
     getSpecial() {
-        if (this.__games.hasOwnProperty(STRINGS.OBSERVER_TYPE))
+        if (Object.prototype.hasOwnProperty.call(this.__games, STRINGS.OBSERVER_TYPE))
             return this.__games[STRINGS.OBSERVER_TYPE];
-        if (this.__games.hasOwnProperty(STRINGS.OMNISCIENT_TYPE))
+        if (Object.prototype.hasOwnProperty.call(this.__games, STRINGS.OMNISCIENT_TYPE))
             return this.__games[STRINGS.OMNISCIENT_TYPE];
         return null;
     }
@@ -53,19 +53,19 @@ export class GameInstanceSet {
     }
 
     removeSpecial() {
-        if (this.__games.hasOwnProperty(STRINGS.OBSERVER_TYPE))
+        if (Object.prototype.hasOwnProperty.call(this.__games, STRINGS.OBSERVER_TYPE))
             delete this.__games[STRINGS.OBSERVER_TYPE];
-        if (this.__games.hasOwnProperty(STRINGS.OMNISCIENT_TYPE))
+        if (Object.prototype.hasOwnProperty.call(this.__games, STRINGS.OMNISCIENT_TYPE))
             delete this.__games[STRINGS.OMNISCIENT_TYPE];
     }
 
     add(game) {
         if (game.local.game_id !== this.__game_id)
             throw new Error('game ID to add does not match game instance set ID.');
-        if (this.__games.hasOwnProperty(game.local.role))
+        if (Object.prototype.hasOwnProperty.call(this.__games, game.local.role))
             throw new Error('Role already in game instance set.');
         if (!game.local.isPlayerGame() && (
-            this.__games.hasOwnProperty(STRINGS.OBSERVER_TYPE) || this.__games.hasOwnProperty(STRINGS.OMNISCIENT_TYPE)))
+            Object.prototype.hasOwnProperty.call(this.__games, STRINGS.OBSERVER_TYPE) || Object.prototype.hasOwnProperty.call(this.__games, STRINGS.OMNISCIENT_TYPE)))
             throw new Error('Previous special game must be removed before adding new one.');
         this.__games[game.local.role] = game;
     }
