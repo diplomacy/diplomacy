@@ -1110,8 +1110,18 @@ class Game(Jsonable):
         if reset and power_name in self.powers:
             self.powers[power_name].clear_units()
 
-        regular_units = [unit.upper() for unit in units if unit[0] != '*']
-        dislodged_units = [unit[1:].upper() for unit in units if unit[0] == '*']
+        # Normalize unit bodies before comparing locations or storing units.
+        regular_units = []
+        dislodged_units = []
+        for unit in units:
+            if unit.startswith('*'):
+                unit = ' '.join(unit[1:].upper().split())
+                if unit:
+                    dislodged_units.append(unit)
+            else:
+                unit = ' '.join(unit.upper().split())
+                if unit:
+                    regular_units.append(unit)
         influence = [unit[2:5] for unit in regular_units + dislodged_units]
 
         # Removing units that are already there
@@ -1135,10 +1145,9 @@ class Game(Jsonable):
 
         # Re-adding normal units to the new power
         for unit in regular_units:
-            word = unit.upper().split()
+            word = unit.split()
             if len(word) != 2:
                 continue
-            unit = ' '.join(word)
             unit_type, unit_loc = word
             if unit_type in ('A', 'F') \
                     and unit_loc in [loc.upper() for loc in self.map.locs] \
@@ -1152,10 +1161,9 @@ class Game(Jsonable):
 
         # Re-adding dislodged units to the new power
         for unit in dislodged_units:
-            word = unit.upper().split()
+            word = unit.split()
             if len(word) != 2:
                 continue
-            unit = ' '.join(word)
             unit_type, unit_loc = word
             if unit_type in ('A', 'F') and unit_loc in [loc.upper() for loc in self.map.locs]:
                 if power and unit not in power.retreats:
