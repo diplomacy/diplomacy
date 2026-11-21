@@ -29,6 +29,7 @@ features:
 
    daide
    orders
+   rendering
    saved_games
 
 .. toctree::
