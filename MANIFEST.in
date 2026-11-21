@@ -6,4 +6,44 @@ include requirements.txt
 include requirements_dev.txt
 include run_install_nvm.sh
 include run_tests.sh
-recursive-include diplomacy *
+include tests/test_packaging.py
+# Python modules and setup metadata are included by setuptools.
+include diplomacy/README_COMMANDS.txt diplomacy/README_MAPS.txt diplomacy/README_RULES.txt
+recursive-include diplomacy/maps *.map
+include diplomacy/maps/convoy_paths_cache.pkl
+recursive-include diplomacy/maps/svg *.svg
+include diplomacy/maps/svg/svg.dtd
+include diplomacy/daide/tests/game_data_1.csv
+include diplomacy/daide/tests/game_data_1_history.csv diplomacy/daide/tests/game_data_1_reject_map.csv
+include diplomacy/daide/tests/game_data_7.csv
+include diplomacy/daide/tests/game_data_7_draw.csv diplomacy/daide/tests/game_data_7_press.csv
+include diplomacy/tests/network/1.json diplomacy/tests/network/2.json diplomacy/tests/network/3.json
+
+# Frontend source, not installed dependencies or generated build output.
+recursive-include diplomacy/web/src *.js *.jsx *.css *.svg
+# Preserve map imports when an sdist flattens the maps directory symlink.
+recursive-include diplomacy/web/src/diplomacy/maps *.map
+include diplomacy/web/package.json diplomacy/web/package-lock.json diplomacy/web/.eslintrc
+include diplomacy/web/vite.config.mjs diplomacy/web/babel.config.cjs diplomacy/web/jest.config.cjs
+include diplomacy/web/index.html diplomacy/web/test/assetMock.cjs
+include diplomacy/web/public/manifest.json diplomacy/web/public/favicon.ico
+
+# Documentation sources and their assets, never generated documentation.
+include docs/conf.py docs/Makefile
+recursive-include docs *.rst
+recursive-include docs/_static *.css
+recursive-include docs/images *.png
+prune docs/_build
+
+prune diplomacy/data
+prune diplomacy/web/node_modules
+prune diplomacy/web/build
+# Recursive glob pruning removes forbidden directory components at any depth.
+prune **/node_modules
+prune **/.cache
+prune **/.pytest_cache
+prune **/__pycache__
+prune **/build
+prune **/data
+prune **/credentials*
+global-exclude *.py[cod] .env .env.* credentials*
