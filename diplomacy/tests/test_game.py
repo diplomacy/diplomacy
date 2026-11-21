@@ -18,6 +18,7 @@
     - Contains tests for the game object
 """
 from copy import deepcopy
+import pytest
 from diplomacy.engine.game import Game
 from diplomacy.utils.order_results import BOUNCE
 
@@ -252,6 +253,36 @@ def test_set_units():
     # Adding F PAR (Illegal unit) to England without resetting
     game.set_units('ENGLAND', ['F PAR'], reset=False)
     assert game.get_power('ENGLAND').units == ['F PIC']
+
+@pytest.mark.parametrize('original, replacement, expected', [
+    ('A PAR', 'a par', 'A PAR'),
+    ('A PAR', '  a   par  ', 'A PAR'),
+    ('*F SPA/NC', '*f spa/sc', '*F SPA/SC'),
+    ('*F SPA/NC', '*f   spa/sc  ', '*F SPA/SC'),
+    ('*A PAR', '* a par', '*A PAR'),
+])
+def test_set_units_normalizes_before_replacement(original, replacement, expected):
+    """ Normalization must happen before removing another power's units. """
+    game = Game()
+    game.clear_units()
+    game.set_units('FRANCE', original)
+
+    game.set_units('ENGLAND', replacement)
+
+    assert game.get_units('FRANCE') == []
+    assert game.get_units('ENGLAND') == [expected]
+    if not expected.startswith('*'):
+        influence = game.get_state()['influence']
+        assert influence['FRANCE'] == []
+        assert influence['ENGLAND'] == ['PAR']
+    assert game.get_hash() == game.rebuild_hash()
+
+def test_set_units_skips_blank_entries():
+    """ Blank entries are skipped instead of raising an IndexError. """
+    game = Game()
+    game.clear_units()
+    game.set_units('FRANCE', ['   ', 'A PAR'], reset=True)
+    assert game.get_units('FRANCE') == ['A PAR']
 
 def test_set_centers():
     """ Tests - Sets centers """
