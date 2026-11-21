@@ -3,7 +3,7 @@
         "react"
     ],
     "parserOptions": {
-        "ecmaVersion": 6,
+        "ecmaVersion": 2022,
         "sourceType": "module",
         "ecmaFeatures": {
             "jsx": true
@@ -19,6 +19,8 @@
         "eslint:recommended",
         "plugin:react/recommended"
     ],
+    "settings": {"react": {"version": "16.14"}},
+    "overrides": [{"files": ["**/*.test.js", "**/*.test.jsx"], "env": {"jest": true}}],
     "rules": {
         "semi": [2, "always", { "omitLastInOneLineBlock": true}]
     }

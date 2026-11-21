@@ -18,10 +18,16 @@ import React from "react";
 import {Maps} from "./mapList";
 import {FancyBox} from "../../components/fancyBox";
 import PropTypes from "prop-types";
+import standardMap from "../../../diplomacy/maps/svg/standard.svg";
+import ancmedMap from "../../../diplomacy/maps/svg/ancmed.svg";
+import modernMap from "../../../diplomacy/maps/svg/modern.svg";
+import pureMap from "../../../diplomacy/maps/svg/pure.svg";
+
+const MAP_IMAGES = {standard: standardMap, ancmed: ancmedMap, modern: modernMap, pure: pureMap};
 
 export class PanelChooseMap extends React.Component {
     render() {
-        const mapImg = require(`../../../diplomacy/maps/svg/${this.props.params.map.svgName()}.svg`);
+        const mapImg = MAP_IMAGES[this.props.params.map.svgName()];
         const mapEntries = [];
         let count = 0;
         for (let mapInfo of Maps) {

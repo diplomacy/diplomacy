@@ -21,7 +21,7 @@ import {STRINGS} from "../../diplomacy/utils/strings";
 import PropTypes from "prop-types";
 import {Power} from "../../diplomacy/engine/power";
 
-const HotKey = require('react-shortcut');
+import HotKey from '../components/hot_key';
 
 export class PowerOrderCreationForm extends React.Component {
     constructor(props) {
@@ -97,10 +97,10 @@ export class PowerOrderCreationForm extends React.Component {
                         (this.props.power.wait ? 'success' : 'danger')
                     )}
                     {votes}
-                    <HotKey keys={['escape']} onKeysCoincide={onReset}/>
-                    {this.props.orderTypes.map((letter, index) => (
-                        <HotKey key={index} keys={[letter.toLowerCase()]}
-                                onKeysCoincide={() => onSetOrderType(letter)}/>
+                    <HotKey keys={['escape']} onKeysPressed={onReset}/>
+                    {this.props.orderTypes.map(letter => (
+                        <HotKey key={letter} keys={[letter.toLowerCase()]}
+                                onKeysPressed={() => onSetOrderType(letter)}/>
                     ))}
                 </form>
             </div>
