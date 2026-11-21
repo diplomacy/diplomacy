@@ -177,7 +177,15 @@ def on_get_phase_history(context, response):
         :type response: responses.DataGamePhases
     """
     phase_history = response.data
+    histories = (context.game.state_history, context.game.order_history,
+                 context.game.result_history, context.game.message_history)
     for game_phase in phase_history:  # type: diplomacy.utils.game_phase_data.GamePhaseData
+        phase = context.game._phase_wrapper_type(game_phase.name)
+        known = [phase in history for history in histories]
+        if all(known):
+            continue
+        if any(known):
+            raise ValueError('Incomplete local history for phase %s.' % game_phase.name)
         Game.extend_phase_history(context.game, game_phase)
     return phase_history
 
