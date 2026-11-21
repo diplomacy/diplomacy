@@ -15,7 +15,7 @@
 //  with this program.  If not, see <https://www.gnu.org/licenses/>.
 // ==============================================================================
 import React from "react";
-import Scrollchor from 'react-scrollchor';
+import {Scrollchor} from 'react-scrollchor';
 import {SelectLocationForm} from "../forms/select_location_form";
 import {SelectViaForm} from "../forms/select_via_form";
 import {Order} from "../utils/order";
@@ -50,7 +50,7 @@ import {SvgPure} from "../maps/pure/SvgPure";
 import {MapData} from "../utils/map_data";
 import {Queue} from "../../diplomacy/utils/queue";
 
-const HotKey = require('react-shortcut');
+import HotKey from '../components/hot_key';
 
 /* Order management in game page.
  * When editing orders locally, we have to compare it to server orders
@@ -1139,10 +1139,10 @@ export class ContentGame extends React.Component {
                     </div>
                     <div className={'col-xl'}>{orderView}</div>
                 </Row>
-                {toDisplay && <HotKey keys={['arrowleft']} onKeysCoincide={this.onDecrementPastPhase}/>}
-                {toDisplay && <HotKey keys={['arrowright']} onKeysCoincide={this.onIncrementPastPhase}/>}
-                {toDisplay && <HotKey keys={['home']} onKeysCoincide={this.displayFirstPastPhase}/>}
-                {toDisplay && <HotKey keys={['end']} onKeysCoincide={this.displayLastPastPhase}/>}
+                {toDisplay && <HotKey keys={['left']} onKeysPressed={this.onDecrementPastPhase}/>}
+                {toDisplay && <HotKey keys={['right']} onKeysPressed={this.onIncrementPastPhase}/>}
+                {toDisplay && <HotKey keys={['home']} onKeysPressed={this.displayFirstPastPhase}/>}
+                {toDisplay && <HotKey keys={['end']} onKeysPressed={this.displayLastPastPhase}/>}
             </Tab>
         );
     }
@@ -1168,10 +1168,10 @@ export class ContentGame extends React.Component {
                         )}
                     </div>
                 </Row>
-                {toDisplay && <HotKey keys={['arrowleft']} onKeysCoincide={this.onDecrementPastPhase}/>}
-                {toDisplay && <HotKey keys={['arrowright']} onKeysCoincide={this.onIncrementPastPhase}/>}
-                {toDisplay && <HotKey keys={['home']} onKeysCoincide={this.displayFirstPastPhase}/>}
-                {toDisplay && <HotKey keys={['end']} onKeysCoincide={this.displayLastPastPhase}/>}
+                {toDisplay && <HotKey keys={['left']} onKeysPressed={this.onDecrementPastPhase}/>}
+                {toDisplay && <HotKey keys={['right']} onKeysPressed={this.onIncrementPastPhase}/>}
+                {toDisplay && <HotKey keys={['home']} onKeysPressed={this.displayFirstPastPhase}/>}
+                {toDisplay && <HotKey keys={['end']} onKeysPressed={this.displayLastPastPhase}/>}
             </Tab>
         );
     }

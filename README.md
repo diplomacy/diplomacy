@@ -78,19 +78,28 @@ git clone https://github.com/diplomacy/diplomacy.git
 cd diplomacy/
 pip install -r requirements_dev.txt
 
-# Build node modules
+# Use Node.js 22.13 or newer (for example, nvm install 22 && nvm use 22).
+# Install the locked frontend dependencies.
 cd diplomacy/web
-npm install .
-npm install . --only=dev
+npm ci
 
-# In a terminal window or tab - Launch React server
+# In a terminal window or tab - Launch the Vite development server
 npm start
 
 # In another terminal window or tab - Launch diplomacy server
 python -m diplomacy.server.run
 ```
 
-The web interface will be accessible at http://localhost:3000.
+The web interface will be accessible at http://localhost:3000. The development server uses
+that port strictly and fails if it is already in use.
+
+From `diplomacy/web`, run `npm test -- --runInBand` for the Jest tests,
+`npm run lint` for ESLint, and `npm run build` to create the production site in `build/`.
+Use `npm run preview` to preview that build locally (not as a production server).
+The build uses relative asset URLs, so it can be served at a subdirectory as well as the site root.
+
+The Vite build targets modern browsers: Chrome/Edge 111+, Firefox 114+, and Safari 16.4+.
+This replaces the previous Create React App Browserslist targets; older browsers are no longer supported.
 
 To login, users can use admin/password or username/password. Additional users can be created by logging in with a username that does not exist in the database.
 

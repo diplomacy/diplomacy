@@ -1,41 +1,40 @@
 {
   "name": "web",
   "version": "0.1.0",
-  "homepage": ".",
   "private": true,
+  "engines": {
+    "node": ">=22.13.0"
+  },
   "dependencies": {
     "@primer/octicons-react": "^9.1.1",
-    "bootstrap": "^4.3.1",
-    "jquery": "^3.4.1",
-    "popper.js": "^1.15.0",
-    "prop-types": "^15.7.2",
-    "react": "^16.8.6",
-    "react-confirm-alert": "^2.4.1",
-    "react-dom": "^16.8.6",
-    "react-helmet": "^5.2.1",
-    "react-scripts": "3.0.1",
-    "react-scrollchor": "^6.0.0",
-    "react-shortcut": "^1.0.6"
+    "bootstrap": "^4.6.2",
+    "jquery": "^3.8.0",
+    "popper.js": "^1.16.1",
+    "prop-types": "^15.8.1",
+    "react": "^16.14.0",
+    "react-confirm-alert": "^2.8.0",
+    "react-dom": "^16.14.0",
+    "react-helmet": "^6.1.0",
+    "react-scrollchor": "^7.0.2",
+    "mousetrap": "1.6.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "start": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "jest",
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint src --ext .js,.jsx"
   },
   "devDependencies": {
-    "eslint-plugin-react": "^7.14.2"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "@babel/core": "^7.29.13",
+    "@babel/preset-env": "^7.29.14",
+    "@babel/preset-react": "^7.29.7",
+    "@vitejs/plugin-react": "^6.3.0",
+    "babel-jest": "29.7.0",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react": "^7.37.5",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "vite": "8.3.8"
   }
 }
