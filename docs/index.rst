@@ -28,6 +28,7 @@ features:
    :caption: User Guide
 
    daide
+   orders
    saved_games
 
 .. toctree::
