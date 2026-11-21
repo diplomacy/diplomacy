@@ -43,6 +43,12 @@ features:
    api/diplomacy.integration
    api/diplomacy.utils
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Maintainer Guide
+
+   releasing
+
 Indices and tables
 ------------------
 

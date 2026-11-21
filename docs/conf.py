@@ -75,5 +75,5 @@ def skip(app, what, name, obj, would_skip, options):
     return would_skip
 
 def setup(app):
-    app.add_stylesheet('theme.css')
+    app.add_css_file('theme.css')
     app.connect("autodoc-skip-member", skip)

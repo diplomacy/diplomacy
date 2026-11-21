@@ -43,11 +43,12 @@ if [ -f "$DIR/diplomacy/web/node_modules/.bin/eslint" ]; then
         [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
     fi
     cd $DIR/diplomacy/web/
-    node_modules/.bin/eslint --ext js,jsx . || FAILED=1
+    npm run lint || FAILED=1
+    npm test -- --runInBand || FAILED=1
     npm run build || FAILED=1
     cd -
 else
-    echo "Skipping ESLint. Make sure NVM and NodeJS are installed first."
+    echo "Skipping frontend checks. Install Node.js 22.13+ and run npm ci in diplomacy/web first."
 fi
 
 # Exiting

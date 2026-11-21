@@ -20,7 +20,16 @@ The latest version of the package can be installed with:
 pip install diplomacy
 ```
 
-The package is compatible with Python 3.5, 3.6, and 3.7.
+Version 1.2.0 includes engine and saved-game fixes, rendering improvements, and a refreshed
+web toolchain. See the [changelog](CHANGELOG.md) and [release checklist](docs/releasing.rst).
+
+The package retains its legacy `Python >=3.5` metadata; Python 3.5 through 3.9 have not
+been verified for this release. Current release validation targets Python 3.10 through
+3.13; consult the release validation report for completed results rather than treating
+this target as a compatibility guarantee. Use Python 3.12 for release preparation;
+build-tool requirements do not establish tested runtime compatibility.
+Development dependencies may require a newer interpreter still. The web toolchain
+requires Node.js 22.13 or newer.
 
 ### Running a game
 
