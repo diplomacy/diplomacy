@@ -62,3 +62,29 @@ A full serialized ``Game`` is not in saved-game format. Rebuild the game, export
 If normalization raises ``ValueError``, review the reported phase and province manually.
 Do not replace the original file automatically and do not add tolerance or a deterministic
 winner for ambiguous games.
+
+Loading multiple saved games in the web client
+----------------------------------------------
+
+The web client accepts ``.json`` and ``.jsonl`` files. File contents are detected: a file
+that parses as one JSON object is loaded as a single saved game, while a file containing
+one JSON object per nonempty line is loaded as multiple games. This also supports existing
+``.json`` files created by appending saved games. To create a new multi-game file, write
+the first game in write mode, then append later games:
+
+.. code-block:: python
+
+   from diplomacy.utils.export import to_saved_game_format
+
+   to_saved_game_format(first_game, output_path='games.jsonl', output_mode='w')
+   to_saved_game_format(second_game, output_path='games.jsonl', output_mode='a')
+
+Each call writes one compact JSON record followed by a newline. The first call must use
+``output_mode='w'`` to replace any existing file; later calls use ``output_mode='a'`` to
+append. The file extension can be ``.jsonl`` or ``.json`` because detection is based on
+content. Every record is parsed and validated before the client asks which game to load,
+so a malformed line rejects the whole file instead of being skipped.
+
+When a file contains several games, the client lists them with numbered IDs and asks for
+the number of the game to load. Duplicate IDs are disambiguated with a position suffix,
+such as ``(1/2)`` and ``(2/2)``. Cancelling the prompt leaves the current page unchanged.

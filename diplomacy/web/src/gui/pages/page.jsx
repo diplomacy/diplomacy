@@ -123,11 +123,15 @@ export class Page extends React.Component {
 
     loadGameFromDisk() {
         return loadGameFromDisk()
-            .then((game) => this.load(
-                `game: ${game.game_id}`,
-                <ContentGame data={game}/>,
-                {success: `Game loaded from disk: ${game.game_id}`}
-            ))
+            .then((game) => {
+                if (!game)
+                    return null;
+                return this.load(
+                    `game: ${game.game_id}`,
+                    <ContentGame data={game}/>,
+                    {success: `Game loaded from disk: ${game.game_id}`}
+                );
+            })
             .catch(this.error);
     }
 
