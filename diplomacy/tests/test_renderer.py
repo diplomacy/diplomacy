@@ -15,10 +15,12 @@
 #  with this program.  If not, see <https://www.gnu.org/licenses/>.
 # ==============================================================================
 """Tests for the rendered order overlays."""
+from pathlib import Path
 from xml.dom import minidom
 
 import pytest
 
+from diplomacy import settings
 from diplomacy.engine.game import Game
 from diplomacy.engine.renderer import Renderer
 
@@ -143,6 +145,44 @@ def test_render_incl_orders_keeps_bool_compatibility_and_reuses_renderer():
     assert renderer.render(incl_orders='france') == filtered_svg
     with pytest.raises(ValueError):
         renderer.render(incl_orders='UNKNOWN')
+
+
+@pytest.mark.parametrize('map_name,power,color', [
+    ('standard', 'FRANCE', 'royalblue'),
+    ('modern', 'EGYPT', '#808000'),
+    ('ancmed', 'ROME', '#c48f85'),
+    ('pure', 'FRANCE', '#8E85B7'),
+    ('standard_age_of_empires', 'FRANCE', 'royalblue'),
+])
+def test_get_power_color_uses_map_metadata(map_name, power, color):
+    """Both accessors preserve each SVG palette and root-map fallback."""
+    game = Game(map_name=map_name)
+    assert game.get_power_color(power.lower()) == color
+    assert game.renderer.get_power_color(power) == color
+
+
+def test_get_power_color_reuses_custom_renderer(tmp_path):
+    """A custom palette is retained, including missing metadata without inference."""
+    game = Game()
+    custom_svg = tmp_path / 'custom.svg'
+    source_svg = Path(settings.PACKAGE_DIR) / 'maps' / 'svg' / 'standard.svg'
+    custom_svg.write_text(source_svg.read_text().replace('color="royalblue"', 'color="#123456"'))
+    game.renderer = Renderer(game, svg_path=str(custom_svg))
+    renderer = game.renderer
+    assert game.get_power_color('france') == '#123456'
+    assert game.renderer is renderer
+    del renderer.metadata['color']['FRANCE']
+    assert game.get_power_color('FRANCE') is None
+    with pytest.raises(ValueError):
+        game.get_power_color('UNKNOWN')
+
+
+def test_get_power_color_without_svg():
+    """Unavailable SVG data yields None only for a valid power."""
+    game = Game(map_name='colonial')
+    assert game.get_power_color('britain') is None
+    with pytest.raises(ValueError):
+        game.get_power_color('UNKNOWN')
 
 
 def test_render_validates_power_without_svg():
