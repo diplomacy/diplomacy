@@ -28,6 +28,7 @@ features:
    :caption: User Guide
 
    daide
+   saved_games
 
 .. toctree::
    :maxdepth: -1

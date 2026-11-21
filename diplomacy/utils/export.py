@@ -17,6 +17,7 @@
 """ Exporter
     - Responsible for exporting games in a standardized format to disk
 """
+import copy
 import logging
 import os
 import ujson as json
@@ -28,6 +29,109 @@ from diplomacy.utils.game_phase_data import GamePhaseData
 # Constants
 LOGGER = logging.getLogger(__name__)
 RULES_TO_SKIP = ['SOLITAIRE', 'NO_DEADLINE', 'CD_DUMMIES', 'ALWAYS_WAIT', 'IGNORE_ERRORS']
+
+def _canonical_influence_province(map_object, location):
+    """ Returns the canonical province of a valid map split-coast location, else None. """
+    if not isinstance(location, str) or '/' not in location:
+        return None
+    normalized_location = location.upper()
+    province = normalized_location.split('/', 1)[0]
+    if (normalized_location in map_object.locs
+            and map_object.area_type(normalized_location) == 'COAST'
+            and map_object.area_type(province) == 'COAST'):
+        return province
+    return None
+
+def normalize_saved_game_influence(saved_game):
+    """ Returns a deep-copied saved game with legacy influence conflicts normalized.
+
+        This function is opt-in. It does not change the default export/import behavior.
+        Each phase state's ``influence`` field is canonicalized by province using the
+        map's valid split-coast locations. A province is assigned to the unique
+        non-dislodged occupant if that occupant is a claimant, or to the sole claimant
+        when the province has no non-dislodged occupant. Any other case is ambiguous
+        and raises ValueError instead of guessing.
+
+        :param saved_game: A saved game dictionary (for example from to_saved_game_format).
+        :type saved_game: Dict
+        :return: A deep copy of the saved game with normalized influence claims.
+        :rtype: Dict
+        :raises ValueError: If an affected province cannot be resolved unambiguously.
+    """
+    if not isinstance(saved_game.get('phases'), list):
+        raise ValueError('Expected saved-game format with a phases list; convert full Game data first.')
+    normalized = copy.deepcopy(saved_game)
+    map_object = Map(normalized.get('map', 'standard'))
+
+    for phase in normalized.get('phases', []):
+        state = phase.get('state')
+        if not isinstance(state, dict):
+            continue
+        influence = state.get('influence')
+        if not isinstance(influence, dict):
+            continue
+
+        claims = {}
+        aliased_provinces = set()
+        for power_name, locations in influence.items():
+            if not isinstance(locations, list):
+                continue
+            for location in locations:
+                if not isinstance(location, str):
+                    continue
+                province = _canonical_influence_province(map_object, location)
+                if province is None:
+                    province = location.upper()
+                else:
+                    aliased_provinces.add(province)
+                claims.setdefault(province, set()).add(power_name)
+        if not aliased_provinces:
+            continue
+
+        occupants = {}
+        for power_name, units in state.get('units', {}).items():
+            if not isinstance(units, list):
+                continue
+            for unit in units:
+                if not isinstance(unit, str) or unit.startswith('*'):
+                    continue
+                unit_parts = unit.split()
+                if len(unit_parts) >= 2:
+                    province = unit_parts[1].upper().split('/', 1)[0]
+                    occupants.setdefault(province, set()).add(power_name)
+
+        winners = {}
+        for province in sorted(aliased_provinces):
+            claimants = claims[province]
+            province_occupants = occupants.get(province, set())
+            if len(province_occupants) == 1 and next(iter(province_occupants)) in claimants:
+                winners[province] = next(iter(province_occupants))
+            elif not province_occupants and len(claimants) == 1:
+                winners[province] = next(iter(claimants))
+            else:
+                phase_name = phase.get('name') or state.get('name')
+                raise ValueError(
+                    'Ambiguous influence for province %s in phase %s: claimants=%s, occupants=%s'
+                    % (province, phase_name, sorted(claimants), sorted(province_occupants)))
+
+        for power_name, locations in influence.items():
+            if not isinstance(locations, list):
+                continue
+            normalized_locations = []
+            emitted_provinces = set()
+            for location in locations:
+                if not isinstance(location, str):
+                    normalized_locations.append(location)
+                    continue
+                province = _canonical_influence_province(map_object, location) or location.upper()
+                if province not in winners:
+                    normalized_locations.append(location)
+                elif winners[province] == power_name and province not in emitted_provinces:
+                    normalized_locations.append(province)
+                    emitted_provinces.add(province)
+            influence[power_name] = normalized_locations
+
+    return normalized
 
 def to_saved_game_format(game, output_path=None, output_mode='a'):
     """ Converts a game to a standardized JSON format
