@@ -66,19 +66,32 @@ class Renderer:
     def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
         """ Renders the current game and returns the XML representation
 
-            :param incl_orders:  Optional. Flag to indicate we also want to render orders.
+            :param incl_orders: Optional. Controls which orders are drawn. ``True`` draws every
+                power's orders, ``False`` draws none, and a power name draws only orders issued
+                by that power (case-insensitive). Units, dislodged units, influence, and supply
+                centers are always drawn for every power. This is a display filter over the full
+                public game state; it does not enforce fog of war or access control.
             :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
             :param output_format: The desired output format. Valid values are: 'svg'
             :param output_path: Optional. The full path where to save the rendering on disk.
-            :type incl_orders: bool, optional
+            :type incl_orders: bool | str, optional
             :type incl_abbrev: bool, optional
             :type output_format: str, optional
             :type output_path: str | None, optional
             :return: The rendered image in the specified format.
+            :raises ValueError: If ``incl_orders`` is a string that is not a power name.
         """
         # pylint: disable=too-many-branches
         if output_format not in ['svg']:
             raise ValueError('Only "svg" format is current supported.')
+        # Resolving the optional issuing-power filter
+        order_filter = None
+        if isinstance(incl_orders, str):
+            order_filter = incl_orders.upper()
+            if order_filter not in self.game.powers:
+                raise ValueError('Unknown power: {}'.format(incl_orders))
+            incl_orders = True
+
         if not self.game or not self.game.map or not self.xml_map:
             return None
 
@@ -106,7 +119,7 @@ class Renderer:
                 xml_map = self._set_influence(xml_map, loc, power.name, has_supply_center=False)
 
             # Orders
-            if incl_orders:
+            if incl_orders and (order_filter is None or power.name.upper() == order_filter):
 
                 # Regular orders (Normalized)
                 # A PAR H

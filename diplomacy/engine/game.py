@@ -1338,15 +1338,20 @@ class Game(Jsonable):
     def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
         """ Renders the current game and returns its image representation
 
-            :param incl_orders:  Optional. Flag to indicate we also want to render orders.
+            :param incl_orders: Optional. Controls which orders are drawn. ``True`` draws every
+                power's orders, ``False`` draws none, and a power name draws only orders issued
+                by that power (case-insensitive). Units, dislodged units, influence, and supply
+                centers are always drawn for every power. This is a display filter over the full
+                public game state; it does not enforce fog of war or access control.
             :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
             :param output_format: The desired output format. Currently, only 'svg' is supported.
             :param output_path: Optional. The full path where to save the rendering on disk.
-            :type incl_orders: bool, optional
+            :type incl_orders: bool | str, optional
             :type incl_abbrev: bool, optional
             :type output_format: str, optional
             :type output_path: str | None, optional
             :return: The rendered image in the specified format.
+            :raises ValueError: If ``incl_orders`` is a string that is not a power name.
         """
         if not self.renderer:
             self.renderer = Renderer(self)
