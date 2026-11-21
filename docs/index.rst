@@ -25,6 +25,12 @@ features:
 
 .. toctree::
    :maxdepth: -1
+   :caption: User Guide
+
+   daide
+
+.. toctree::
+   :maxdepth: -1
    :caption: API Documentation
 
    api/diplomacy.client
