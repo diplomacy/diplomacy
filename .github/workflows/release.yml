@@ -1,0 +1,216 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never interrupt an in-flight upload. Manual runs only validate.
+concurrency:
+  group: release-${{ github.event.release.tag_name || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'release' && !github.event.release.prerelease && !github.event.release.draft)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    env:
+      SOURCE_REF: ${{ github.event_name == 'release' && format('refs/tags/{0}', github.event.release.tag_name) || github.ref }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SOURCE_REF }}
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+      - name: Check literal version and release tag before running repository code
+        run: |
+          python -I - <<'PY'
+          import ast
+          import os
+          from pathlib import Path
+          import re
+          tree = ast.parse(Path('diplomacy/version.py').read_bytes())
+          values = [node.value for node in tree.body if isinstance(node, ast.Assign)
+                    and any(isinstance(target, ast.Name) and target.id == 'PACKAGE_VERSION'
+                            for target in node.targets)]
+          if len(values) != 1:
+              raise SystemExit('Expected one literal PACKAGE_VERSION')
+          version = ast.literal_eval(values[0])
+          if not isinstance(version, str) or not re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version):
+              raise SystemExit('Expected a stable three-component version')
+          if os.environ['GITHUB_EVENT_NAME'] == 'release' and os.environ['RELEASE_TAG'] != 'v' + version:
+              raise SystemExit('Release tag must equal v' + version)
+          with Path(os.environ['GITHUB_ENV']).open('a') as output:
+              output.write('PACKAGE_VERSION=' + version + '\n')
+          PY
+      - name: Snapshot clean tracked source
+        run: |
+          SNAPSHOT="$RUNNER_TEMP/release-source"
+          DIST="$RUNNER_TEMP/release-dist"
+          echo "SNAPSHOT=$SNAPSHOT" >> "$GITHUB_ENV"
+          echo "DIST=$DIST" >> "$GITHUB_ENV"
+          mkdir "$SNAPSHOT" "$DIST"
+          git archive HEAD | tar -x -C "$SNAPSHOT"
+      - name: Install validation tools
+        working-directory: ${{ env.SNAPSHOT }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt build twine pytest setuptools 'sphinx>=9,<10' sphinx_copybutton sphinx_rtd_theme
+      - name: Build and inspect exactly two distributions
+        working-directory: ${{ env.SNAPSHOT }}
+        run: |
+          python -m build --outdir "$DIST"
+          python tools/check_release_artifacts.py "$DIST"
+          python -m twine check --strict "$DIST/diplomacy-$PACKAGE_VERSION-py3-none-any.whl" "$DIST/diplomacy-$PACKAGE_VERSION.tar.gz"
+      - name: Python regression suite and real archive acceptance
+        working-directory: ${{ env.SNAPSHOT }}
+        env:
+          RELEASE_DIST: ${{ env.DIST }}
+        run: python -m pytest diplomacy tests
+      - name: Strict documentation (Sphinx 9)
+        working-directory: ${{ env.SNAPSHOT }}
+        run: python -m sphinx -W --keep-going -b html docs "$RUNNER_TEMP/release-docs"
+      - name: Extract the inspected sdist
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir release-extracted
+          tar -xzf "$DIST/diplomacy-$PACKAGE_VERSION.tar.gz" -C release-extracted
+          echo "EXTRACTED=$RUNNER_TEMP/release-extracted/diplomacy-$PACKAGE_VERSION" >> "$GITHUB_ENV"
+      - name: Frontend checks and dependency audits from the extracted sdist
+        working-directory: ${{ env.EXTRACTED }}/diplomacy/web
+        run: |
+          npm ci
+          npm run lint
+          npm test -- --runInBand
+          npm run build
+          npm audit --audit-level=low
+          npm audit --omit=dev --audit-level=low
+      - name: Install both archives outside the source snapshot
+        working-directory: ${{ runner.temp }}
+        run: |
+          for distribution in "$DIST/diplomacy-$PACKAGE_VERSION-py3-none-any.whl" "$DIST/diplomacy-$PACKAGE_VERSION.tar.gz"; do
+            venv=$(mktemp -d "$RUNNER_TEMP/release-install-XXXXXX")
+            python -m venv "$venv"
+            "$venv/bin/python" -m pip install "$distribution"
+            "$venv/bin/python" -m pip check
+            "$venv/bin/python" -I - <<'PY'
+          import os
+          from pathlib import Path
+          import diplomacy
+          from diplomacy import Game
+          from diplomacy.utils.export import to_saved_game_format
+          from diplomacy.version import PACKAGE_VERSION
+          assert PACKAGE_VERSION == os.environ['PACKAGE_VERSION']
+          assert not Path(diplomacy.__file__).is_relative_to(Path(os.environ['SNAPSHOT']))
+          game = Game()
+          assert game.get_power_color('FRANCE')
+          assert 'unit-label' in game.render(unit_labels=True)
+          before = game.get_current_phase()
+          game.process()
+          assert game.get_current_phase() != before
+          assert to_saved_game_format(game)['phases']
+          PY
+          done
+      - name: Verify sdist includes its own validation tools
+        working-directory: ${{ env.EXTRACTED }}
+        env:
+          RELEASE_DIST: ${{ env.DIST }}
+        run: |
+          python tools/check_release_artifacts.py "$DIST"
+          python -m pytest tests/test_packaging.py tests/test_release_artifacts.py
+      - name: Record checksums for the exact validated files
+        working-directory: ${{ env.DIST }}
+        run: |
+          python "$SNAPSHOT/tools/check_release_artifacts.py" "$DIST"
+          sha256sum "diplomacy-$PACKAGE_VERSION-py3-none-any.whl" "diplomacy-$PACKAGE_VERSION.tar.gz" > SHA256SUMS
+      - name: Retain immutable validated artifacts
+        id: upload
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-distributions
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            ${{ env.DIST }}/diplomacy-${{ env.PACKAGE_VERSION }}-py3-none-any.whl
+            ${{ env.DIST }}/diplomacy-${{ env.PACKAGE_VERSION }}.tar.gz
+            ${{ env.DIST }}/SHA256SUMS
+
+  publish:
+    needs: validate
+    if: >-
+      github.event_name == 'release' &&
+      !github.event.release.prerelease && !github.event.release.draft
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment:
+      name: release
+      url: https://pypi.org/p/diplomacy
+    permissions:
+      id-token: write
+    steps:
+      # No checkout, rebuild, API token, or repository write permission in this job.
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          artifact-ids: ${{ needs.validate.outputs.artifact-id }}
+          path: ${{ runner.temp }}/release-download
+          merge-multiple: true
+      - name: Verify exact manifest and isolate publishable distributions
+        env:
+          DOWNLOAD: ${{ runner.temp }}/release-download
+          PACKAGES: ${{ github.workspace }}/release-packages
+        run: |
+          python3 -I - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          import re
+          source = Path(os.environ['DOWNLOAD'])
+          target = Path(os.environ['PACKAGES'])
+          manifest = source / 'SHA256SUMS'
+          if manifest.is_symlink() or not manifest.is_file():
+              raise SystemExit('Missing regular checksum manifest')
+          lines = manifest.read_text(encoding='ascii').splitlines()
+          if len(lines) != 2:
+              raise SystemExit('Expected exactly two checksum entries')
+          entries = {}
+          for line in lines:
+              match = re.fullmatch(r'([0-9a-f]{64})  (diplomacy-([0-9]+\.[0-9]+\.[0-9]+)(-py3-none-any\.whl|\.tar\.gz))', line)
+              if not match or match[2] in entries:
+                  raise SystemExit('Unsafe, duplicate, or invalid checksum entry')
+              entries[match[2]] = (match[1], match[3])
+          versions = {version for digest, version in entries.values()}
+          if len(versions) != 1:
+              raise SystemExit('Distribution versions differ')
+          version = versions.pop()
+          expected = {f'diplomacy-{version}-py3-none-any.whl', f'diplomacy-{version}.tar.gz'}
+          if set(entries) != expected or {path.name for path in source.iterdir()} != expected | {'SHA256SUMS'}:
+              raise SystemExit('Expected only wheel, sdist, and manifest')
+          for name, (digest, _) in entries.items():
+              path = source / name
+              if path.is_symlink() or not path.is_file() or hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+                  raise SystemExit('Distribution checksum or file type mismatch: ' + name)
+          target.mkdir()
+          for name in entries:
+              (source / name).rename(target / name)
+          PY
+      - name: Publish validated files using PyPI Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          # The Docker action can read the workspace mount, not arbitrary host temp paths.
+          packages-dir: release-packages/
+          skip-existing: false
+          attestations: true

@@ -47,12 +47,13 @@ Prepare and validate the source
 
    Repeat the Python suite on every claimed interpreter. Record pre-existing
    failures separately; a skipped frontend check is not a frontend pass.
-#. Build documentation with current Sphinx, keeping output outside the source::
+#. Build documentation with Sphinx 9, keeping output outside the source::
 
-       sphinx-build -b html docs /tmp/diplomacy-release-docs
+       python -m pip install 'sphinx>=9,<10' sphinx_copybutton sphinx_rtd_theme
+       python -m sphinx -W --keep-going -b html docs /tmp/diplomacy-release-docs
 
-   Review warnings and errors. Existing API autodoc warnings must be recorded,
-   not silently suppressed or mistaken for new release-page errors.
+   Warnings fail release validation. Record and resolve failures rather than
+   silently suppressing them or treating a non-strict build as a strict pass.
 
 Build and inspect the distributions
 -----------------------------------
@@ -61,6 +62,8 @@ Use a fresh output directory so stale distributions cannot be uploaded by mistak
 The default ``build`` command builds the wheel from the sdist, exercising both::
 
     python -m build --outdir /tmp/diplomacy-1.2.0-dist
+    python tools/check_release_artifacts.py /tmp/diplomacy-1.2.0-dist
+    RELEASE_DIST=/tmp/diplomacy-1.2.0-dist python -m pytest tests/test_release_artifacts.py
     python -m twine check --strict /tmp/diplomacy-1.2.0-dist/*
     tar -tzf /tmp/diplomacy-1.2.0-dist/diplomacy-1.2.0.tar.gz
     python -m zipfile -l /tmp/diplomacy-1.2.0-dist/diplomacy-1.2.0-py3-none-any.whl
@@ -104,22 +107,71 @@ Use the release-check environment for the extracted-source commands. Verify the
 production site's map assets and relative URLs as well as command exit codes.
 Record checksums of the exact reviewed artifacts and retain their validation logs.
 
-Approval and publishing credentials
------------------------------------
+Trusted Publishing setup (external, not performed here)
+-------------------------------------------------------
 
-Stop after preparation and artifact review. Obtain explicit approval for the
-release commit, version tag, repository push, and package upload before taking
-any of those actions. Recheck that PyPI does not already contain version 1.2.0.
-Do not rebuild between approval and publishing without rechecking the artifacts.
+The approved authentication path is PyPI Trusted Publishing through GitHub
+Actions OIDC, not an API token. No ``.pypirc``, password, repository secret, or
+local publishing credential is needed. Do not inspect existing private
+configuration or put credentials in commands, files, or logs.
 
-For a future authorized upload, use a narrowly scoped PyPI API token supplied
-through a secure local configuration or secret manager. This example contains
-placeholders only; never commit a real token or inspect existing private config::
+An authorized PyPI project owner must configure a GitHub Trusted Publisher for
+the existing ``diplomacy`` project with these exact fields:
 
-    [pypi]
-    username = __token__
-    password = <PYPI_API_TOKEN_PLACEHOLDER>
+* Owner: ``diplomacy``
+* Repository name: ``diplomacy``
+* Workflow filename: ``release.yml`` (the file is ``.github/workflows/release.yml``)
+* Environment name: ``release``
 
-Do not place tokens in command-line arguments, repository files, or release logs.
-Use ``python -m twine`` for any separately authorized upload, not obsolete
-``setup.py upload``. No upload or tagging command is part of this preparation.
+An authorized GitHub administrator must separately create and protect the
+``release`` environment. Configure required human reviewers, prevent self-review,
+and restrict deployment to the intended version tags (``v*``), not arbitrary
+branches. Review repository tag protections as well. These PyPI and GitHub
+settings are prerequisites; adding this workflow does not configure them. Their
+actual availability and protection rules must be verified before publishing.
+
+Workflow and approval boundary
+-------------------------------
+
+Stop after local preparation and artifact review. Obtain explicit approval for
+the release commit, version tag, repository push, and package upload before
+those actions. Recheck that PyPI does not already contain version 1.2.0.
+No upload, tagging, settings change, or push is part of this preparation.
+
+``.github/workflows/release.yml`` has two entry points:
+
+* ``workflow_dispatch`` validates the selected ref only. It does not require a
+  version tag and **never publishes**, even when run against a tag.
+* ``release.published`` validates and then publishes a stable, non-draft release
+  only. The triggering release tag is explicitly checked out and must exactly
+  equal ``v<PACKAGE_VERSION>`` (for this release, ``v1.2.0``). Prereleases and
+  drafts are excluded from both validation and publishing. Publishing a stable
+  GitHub release is therefore a publication trigger, not a validation preview.
+
+Before running repository code, the workflow reads the version using only
+stdlib AST parsing and literal evaluation. It builds from a ``git archive``
+snapshot, not working-directory junk, on Ubuntu 24.04 with Python 3.12 and Node
+22. Validation includes Python regressions, strict Sphinx 9 docs, frontend lint,
+Jest and production build from the extracted sdist, full and production npm audits,
+archive inspection of every shipped map/SVG and flattened frontend copy,
+strict Twine checks, and isolated wheel/sdist installation with ``pip check``
+and engine/render/export smoke tests. The sdist carries its own checker and
+packaging regressions so they can be rerun after extraction.
+
+The validation job uploads one immutable artifact containing exactly the wheel,
+sdist, and ``SHA256SUMS`` manifest. The publish job downloads that exact artifact
+by ID, checks the two safe filenames and checksums, and moves only the two
+distributions into its publishing directory. It does not check out source or
+rebuild. Only this job receives ``id-token: write`` and enters the protected
+``release`` environment at https://pypi.org/p/diplomacy. The PyPI action uses
+Trusted Publishing with attestations enabled and ``skip-existing: false``.
+A collision fails rather than silently accepting an existing upload. Concurrent
+runs do not cancel an in-progress publish.
+
+For a separately authorized release, review the validation results, artifact
+checksums, tag/metadata agreement, and environment approval before allowing the
+publish job to proceed. A manual validation artifact is not promoted for upload:
+the release event validates its own tagged snapshot and publishes those exact
+validated bytes without a rebuild between jobs. If validation fails or artifacts
+change, stop and review again. GitHub-hosted execution and OIDC publishing cannot
+be verified by local checks alone.

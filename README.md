@@ -23,6 +23,16 @@ pip install diplomacy
 Version 1.2.0 includes engine and saved-game fixes, rendering improvements, and a refreshed
 web toolchain. See the [changelog](CHANGELOG.md) and [release checklist](docs/releasing.rst).
 
+Maintainer publishing uses GitHub Actions PyPI Trusted Publishing (OIDC), not a
+local API token or `.pypirc`. The PyPI publisher fields are owner `diplomacy`,
+repository `diplomacy`, workflow `release.yml`, environment `release`. Authorized
+administrators must separately configure that publisher and the GitHub `release`
+environment with required reviewers and version-tag deployment restrictions;
+these settings are not configured by this repository change. A stable, non-draft
+GitHub `release.published` event validates the exact `v<PACKAGE_VERSION>` tag and
+then publishes after environment approval. `workflow_dispatch` only validates,
+never publishes. See the release checklist before authorizing any tag, push, or upload.
+
 The package retains its legacy `Python >=3.5` metadata; Python 3.5 through 3.9 have not
 been verified for this release. Current release validation targets Python 3.10 through
 3.13; consult the release validation report for completed results rather than treating
