@@ -1346,7 +1346,8 @@ class Game(Jsonable):
             self.renderer = Renderer(self)
         return self.renderer.get_power_color(power_name)
 
-    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None):
+    def render(self, incl_orders=True, incl_abbrev=False, output_format='svg', output_path=None,
+               unit_labels=False):
         """ Renders the current game and returns its image representation
 
             :param incl_orders: Optional. Controls which orders are drawn. ``True`` draws every
@@ -1357,10 +1358,14 @@ class Game(Jsonable):
             :param incl_abbrev: Optional. Flag to indicate we also want to display the provinces abbreviations.
             :param output_format: The desired output format. Currently, only 'svg' is supported.
             :param output_path: Optional. The full path where to save the rendering on disk.
+            :param unit_labels: Optional. When True, labels each actual unit on the board with a
+                high-contrast 'A' or 'F' badge, including dislodged units. Build and other order
+                previews are not labeled.
             :type incl_orders: bool | str, optional
             :type incl_abbrev: bool, optional
             :type output_format: str, optional
             :type output_path: str | None, optional
+            :type unit_labels: bool, optional
             :return: The rendered image in the specified format.
             :raises ValueError: If ``incl_orders`` is a string that is not a power name.
         """
@@ -1369,7 +1374,8 @@ class Game(Jsonable):
         return self.renderer.render(incl_orders=incl_orders,
                                     incl_abbrev=incl_abbrev,
                                     output_format=output_format,
-                                    output_path=output_path)
+                                    output_path=output_path,
+                                    unit_labels=unit_labels)
 
     def add_rule(self, rule):
         """ Adds a rule to the current rule list
