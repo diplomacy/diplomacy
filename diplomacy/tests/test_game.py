@@ -541,6 +541,14 @@ def test_deepcopy():
     assert game != game2
     assert game.get_hash() == game2.get_hash()
 
+def test_deepcopy_preserves_orders():
+    """ Tests - deepcopy preserves submitted orders """
+    game = Game()
+    game.set_orders('FRANCE', 'A PAR - BUR')
+    game_copy = deepcopy(game)
+    game_copy.process()
+    assert 'A BUR' in game_copy.get_units('FRANCE')
+
 def test_automatic_draw():
     """ Tests - draw """
     game = Game()
