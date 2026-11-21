@@ -39,6 +39,7 @@ __VERSION__ = '20180913_0915'
 COAST_TYPES = ('COAST', 'PORT')
 WATER_TYPES = ('WATER', 'PORT')
 MAX_CONVOY_LENGTH = 13                      # Convoys over this length are not supported, too reduce generation time
+PORT_CACHE_SUFFIX = ':port-convoys-v1'      # Suffix for cache keys of maps declaring PORT
 
 CACHE_FILE_NAME = 'convoy_paths_cache.pkl'
 INTERNAL_CACHE_PATH = os.path.join(settings.PACKAGE_DIR, 'maps', CACHE_FILE_NAME)
@@ -186,6 +187,61 @@ def get_file_md5(file_path):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
+def _map_declares_port(map_path, visited=None):
+    """ Returns True if a map file declares PORT directly or through included maps
+
+        :param map_path: The path to the map file
+        :param visited: Set of already visited absolute paths (used to guard cycles)
+        :return: True if the map or one of its includes declares PORT
+    """
+    if visited is None:
+        visited = set()
+    abs_path = os.path.abspath(map_path)
+    if abs_path in visited:
+        return False
+    visited.add(abs_path)
+
+    try:
+        with open(map_path, encoding='utf-8') as map_file:
+            lines = map_file.readlines()
+    except (IOError, OSError):
+        return False
+
+    includes = []
+    for line in lines:
+        word = line.split()
+        if not word or word[0][0] == '#':
+            continue
+        directive = word[0].upper()
+        if directive == 'PORT' and len(word) > 1 and '=' not in line:
+            return True
+        if directive in ('MAP', 'USE', 'USES'):
+            includes += word[1:]
+
+    for include in includes:
+        include_file = include if '.' in include else '{}.map'.format(include)
+        if os.path.exists(include_file):
+            include_path = include_file
+        else:
+            include_path = os.path.join(settings.PACKAGE_DIR, 'maps', include_file)
+        if os.path.exists(include_path) and _map_declares_port(include_path, visited):
+            return True
+    return False
+
+def _get_cache_key(map_path):
+    """ Returns the convoy paths cache key for a map file
+
+        Maps declaring PORT (directly or through included maps) use a suffixed key
+        because their convoy paths differ from the legacy port-unaware ones.
+
+        :param map_path: The path to the map file
+        :return: The map MD5 hash, suffixed for maps declaring PORT
+    """
+    map_hash = get_file_md5(map_path)
+    if _map_declares_port(map_path):
+        return map_hash + PORT_CACHE_SUFFIX
+    return map_hash
+
 def add_to_cache(map_name, max_convoy_length=MAX_CONVOY_LENGTH):
     """ Lazy generates convoys paths for a map and adds it to the disk cache
 
@@ -224,18 +280,18 @@ def add_to_cache(map_name, max_convoy_length=MAX_CONVOY_LENGTH):
         map_path = os.path.join(settings.PACKAGE_DIR, 'maps', map_name + '.map')
     if not os.path.exists(map_path):
         return None
-    map_hash = get_file_md5(map_path)
+    cache_key = _get_cache_key(map_path)
 
     # Generating and adding to alternate cache paths
-    if map_hash not in convoy_paths:
+    if cache_key not in convoy_paths:
         map_object = Map(map_name, use_cache=False)
-        convoy_paths[map_hash] = _build_convoy_paths_cache(map_object, max_convoy_length)
-        external_convoy_paths[map_hash] = convoy_paths[map_hash]
+        convoy_paths[cache_key] = _build_convoy_paths_cache(map_object, max_convoy_length)
+        external_convoy_paths[cache_key] = convoy_paths[cache_key]
         os.makedirs(os.path.dirname(EXTERNAL_CACHE_PATH), exist_ok=True)
         pickle.dump(external_convoy_paths, open(EXTERNAL_CACHE_PATH, 'wb'))
 
     # Returning
-    return convoy_paths[map_hash]
+    return convoy_paths[cache_key]
 
 def get_convoy_paths_cache():
     """ Returns the current cache from disk """
@@ -264,10 +320,10 @@ def get_convoy_paths_cache():
     files_path = glob.glob(settings.PACKAGE_DIR + '/maps/*.map')
     for file_path in files_path:
         map_name = file_path.replace(settings.PACKAGE_DIR + '/maps/', '').replace('.map', '')
-        map_hash = get_file_md5(file_path)
-        if map_hash in disk_convoy_paths:
-            cache_convoy_paths[map_name] = disk_convoy_paths[map_hash]
-            cache_convoy_paths[file_path] = disk_convoy_paths[map_hash]
+        cache_key = _get_cache_key(file_path)
+        if cache_key in disk_convoy_paths:
+            cache_convoy_paths[map_name] = disk_convoy_paths[cache_key]
+            cache_convoy_paths[file_path] = disk_convoy_paths[cache_key]
 
     # Returning
     return cache_convoy_paths
