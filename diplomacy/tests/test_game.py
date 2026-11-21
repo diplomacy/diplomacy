@@ -506,6 +506,29 @@ def test_set_orders_no_replace():
     orders = game.get_orders()
     assert check_sorted(orders['FRANCE'], ['A BRE B'])
 
+def test_retreat_influence_uses_province_not_coast():
+    """ Retreating to a split coast must update influence for the province, not the coast. """
+    game = Game()
+    game.clear_units()
+    game.clear_centers()
+    game.set_units('RUSSIA', ['F SPA/SC'])
+    game.set_units('FRANCE', ['F GAS'])
+    game.set_units('ENGLAND', ['F BRE', 'A PAR'])
+
+    game.set_orders('RUSSIA', 'F SPA/SC - POR')
+    game.set_orders('FRANCE', 'F GAS H')
+    game.set_orders('ENGLAND', ['F BRE - GAS', 'A PAR S F BRE - GAS'])
+    game.process()
+    assert game.get_power('RUSSIA').influence == ['SPA', 'POR']
+
+    game.set_orders('FRANCE', 'F GAS R SPA/NC')
+    game.process()
+
+    assert game.get_units('FRANCE') == ['F SPA/NC']
+    assert game.get_power('RUSSIA').influence == ['POR']
+    assert game.get_power('FRANCE').influence == ['SPA']
+    assert game.get_state()['influence']['FRANCE'] == ['SPA']
+
 def test_clear_units():
     """ Tests - Clear units """
     game = Game()
